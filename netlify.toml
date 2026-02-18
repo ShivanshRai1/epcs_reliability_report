@@ -1,3 +1,4 @@
 [build]
+  base = "epcs-reliability-report"
+  publish = "dist"
   command = "npm run build"
-  publish = "epcs-reliability-report/dist"
