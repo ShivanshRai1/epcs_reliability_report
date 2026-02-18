@@ -1,0 +1,527 @@
+{
+  "pages": [
+    {
+      "id": "index_page1",
+      "pageNumber": 1,
+      "pageType": "index",
+      "title": "INDEX",
+      "content": [
+        { "title": "EPCS DISCRETE PRODUCT", "target": "epcs_discrete_product" },
+        { "title": "EPCS DISCRETE FIRST GENERATION, PART NUMBERS", "target": "part_lists_gen1" },
+        { "title": "EPCS DISCRETE SECOND GENERATION, PART LIST", "target": "part_lists_gen2" },
+        { "title": "EPCS DLA QUALIFIED PART LIST (IN QUALIFICATION)", "target": "dla_qualified" },
+        { "title": "EPCS HEMT DERATING RECOMMENDATIONS", "target": "hemt_derating" },
+        { "title": "EPCS TRACEABILITY SYSTEM", "target": "traceability" },
+        { "title": "RADIATION RESULTS FOR HEMT DEVICES", "target": "radiation_hemt" },
+        { "title": "EPCS DIE LEVEL RELIABILITY", "target": "die_level_reliability" },
+        { "title": "SPACE LEVEL ASSEMBLY PROCESS", "target": "assembly_process" },
+        { "title": "SPACE LEVEL SCREENING PROCESS", "target": "screening_process" },
+        { "title": "EPCS HERMETIC DISCRETE RELIABILITY", "target": "hermetic_reliability" },
+        { "title": "WLAT (WAFER LEVEL ACCEPTANCE TEST)", "target": "wlat" },
+        { "title": "SCANNING ELECTRON MICROSCOPY", "target": "sem" },
+        { "title": "TOTAL IRRADIATED DOSE (TID)", "target": "tid" },
+        { "title": "SINGLE EVENT EFFECTS (SEE)", "target": "see" },
+        { "title": "QUALITY CONFORMANCE INSPECTION", "target": "qci" }
+      ]
+    },
+    {
+      "id": "index_page2",
+      "pageNumber": 2,
+      "pageType": "index",
+      "title": "INDEX (continued)",
+      "content": [
+        { "title": "QUALITY CONFORMANCE INSPECTION (continued)", "target": "qci" },
+        { "title": "QCI GROUP A FLOW CHART", "target": "qci_group_a" },
+        { "title": "QCI GROUP A DETAILS", "target": "qci_group_a" },
+        { "title": "QCI GROUP B FLOW CHART", "target": "qci_group_b" },
+        { "title": "QCI GROUP B DETAILS", "target": "qci_group_b" },
+        { "title": "QCI GROUP C FLOW CHART", "target": "qci_group_c" },
+        { "title": "QCI GROUP C DETAILS", "target": "qci_group_c" },
+        { "title": "QCI GROUP D (SEE WLAT)", "target": "qci_group_d" },
+        { "title": "QCI GROUP E FLOW CHART", "target": "qci_group_e" },
+        { "title": "QCI GROUP E DETAILS", "target": "qci_group_e" },
+        { "title": "LONG TERM RELIABILITY", "target": "long_term_reliability" },
+        { "title": "EPC7019D 0 HOURS SWITCHING TEST", "target": "epc7019d_0h" },
+        { "title": "EPC7019D 4000 HOURS ELECTRO-MIGRATION", "target": "epc7019d_4000h" },
+        { "title": "FBG10N30BSH RELIABILITY", "target": "fbg10n30bsh_reliability" },
+        { "title": "FBG20N18BSH RELIABILITY", "target": "fbg20n18bsh_reliability" }
+      ]
+    },
+    {
+      "id": "index_page3",
+      "pageNumber": 3,
+      "pageType": "index",
+      "title": "INDEX (continued)",
+      "content": [
+        { "title": "LIFE AND STRESS TESTS", "target": "life_stress_tests" },
+        { "title": "10N30_Drain stress test", "target": "life_stress_tests" },
+        { "title": "10N30_Drain_Gate Life test", "target": "life_stress_tests" },
+        { "title": "10N30_Gate Stress test", "target": "life_stress_tests" },
+        { "title": "10N30_Switch stress test", "target": "life_stress_tests" },
+        { "title": "10N30_Switching life test", "target": "life_stress_tests" },
+        { "title": "20N18_Drain Stress Test", "target": "life_stress_tests" },
+        { "title": "20N18_Drain_Gate Life Test", "target": "life_stress_tests" },
+        { "title": "20N18_Gate Stress Test", "target": "life_stress_tests" },
+        { "title": "20N18_Switching Life Test", "target": "life_stress_tests" },
+        { "title": "20N18_Switching Stress Test", "target": "life_stress_tests" },
+        { "title": "PHYSICS BASED MODEL OF eGaN DEVICE GATE FAILURE MECHANISMS", "target": "life_stress_tests" },
+        { "title": "GAN LEAKAGE COMPONENTS", "target": "life_stress_tests" }
+      ]
+    },
+    {
+      "id": "heading_part_lists",
+      "pageNumber": 4,
+      "pageType": "heading",
+      "title": "PART LISTS",
+      "subtitle": "EPCS DISCRETE PART NUMBERS"
+    },
+    {
+      "id": "part_lists_gen1",
+      "pageNumber": 5,
+      "pageType": "table",
+      "title": "EPCS DISCRETE SECOND GENERATION, PART NUMBERS",
+      "table": {
+        "columns": ["PART NUMBER", "BASE PART", "GENERATION", "SLASH SHEET", "PACKAGE TYPE", "DRAIN VOLTAGE", "MAX CURRENT", "QUALIFICATION", "STATUS"],
+        "data": [
+          {"PART NUMBER": "FBGOSNOBAC", "BASE PART": "BGO4NOBA", "GENERATION": "II", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-A", "DRAIN VOLTAGE": "40", "MAX CURRENT": "8", "QUALIFICATION": "DEVELOPMENT", "STATUS": "RELEASED"},
+          {"PART NUMBER": "FBGOSNOBASH", "BASE PART": "BGO4NOBA", "GENERATION": "II", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-A", "DRAIN VOLTAGE": "40", "MAX CURRENT": "8", "QUALIFICATION": "SPACE", "STATUS": "RELEASED"},
+          {"PART NUMBER": "FBGOSNSOBC", "BASE PART": "8GO4N30B", "GENERATION": "II", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-B", "DRAIN VOLTAGE": "40", "MAX CURRENT": "30", "QUALIFICATION": "DEVELOPMENT", "STATUS": "RELEASED"},
+          {"PART NUMBER": "FBGOSNSOBSH", "BASE PART": "-8G04N30B", "GENERATION": "II", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-B", "DRAIN VOLTAGE": "40", "MAX CURRENT": "30", "QUALIFICATION": "SPACE", "STATUS": "RELEASED"},
+          {"PART NUMBER": "FBGIONOSAC", "BASE PART": "BG1ONOSA", "GENERATION": "II", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-A", "DRAIN VOLTAGE": "100", "MAX CURRENT": "5", "QUALIFICATION": "DEVELOPMENT", "STATUS": "RELEASED"},
+          {"PART NUMBER": "FBGIONOSASH", "BASE PART": "BG1ONOSA", "GENERATION": "II", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-A", "DRAIN VOLTAGE": "100", "MAX CURRENT": "5", "QUALIFICATION": "SPACE", "STATUS": "RELEASED"},
+          {"PART NUMBER": "FBGION30BC", "BASE PART": "BG10N30B", "GENERATION": "II", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-B", "DRAIN VOLTAGE": "100", "MAX CURRENT": "30", "QUALIFICATION": "DEVELOPMENT", "STATUS": "RELEASED"},
+          {"PART NUMBER": "FBGION30BSH", "BASE PART": "BG10N30B", "GENERATION": "II", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-B", "DRAIN VOLTAGE": "100", "MAX CURRENT": "30", "QUALIFICATION": "SPACE", "STATUS": "RELEASED"},
+          {"PART NUMBER": "FBG20NO4AC", "BASE PART": "BG20N04A", "GENERATION": "II", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-A", "DRAIN VOLTAGE": "200", "MAX CURRENT": "4", "QUALIFICATION": "DEVELOPMENT", "STATUS": "RELEASED"},
+          {"PART NUMBER": "FBG20NO4ASH", "BASE PART": "BG20N04A", "GENERATION": "II", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-A", "DRAIN VOLTAGE": "200", "MAX CURRENT": "4", "QUALIFICATION": "SPACE", "STATUS": "RELEASED"},
+          {"PART NUMBER": "FBG20N18BC", "BASE PART": "BG20N18B", "GENERATION": "II", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-B", "DRAIN VOLTAGE": "200", "MAX CURRENT": "18", "QUALIFICATION": "DEVELOPMENT", "STATUS": "RELEASED"},
+          {"PART NUMBER": "FBG20N18BSH", "BASE PART": "BG20N18B", "GENERATION": "II", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-B", "DRAIN VOLTAGE": "200", "MAX CURRENT": "18", "QUALIFICATION": "SPACE", "STATUS": "RELEASED"},
+          {"PART NUMBER": "FBG30NO4CC", "BASE PART": "BG30N04C", "GENERATION": "II", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-C", "DRAIN VOLTAGE": "300", "MAX CURRENT": "4", "QUALIFICATION": "DEVELOPMENT", "STATUS": "RELEASED"},
+          {"PART NUMBER": "FBG30NO4CSH", "BASE PART": "BG30N04C", "GENERATION": "II", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-C", "DRAIN VOLTAGE": "300", "MAX CURRENT": "4", "QUALIFICATION": "SPACE", "STATUS": "RELEASED"}
+        ]
+      }
+    },
+    {
+      "id": "part_lists_gen3",
+      "pageNumber": 6,
+      "pageType": "table",
+      "title": "EPCS DISCRETE THIRD GENERATION, PART LIST",
+      "table": {
+        "columns": ["PART NUMBER", "BASE PART", "GENERATION", "SLASH SHEET", "PACKAGE TYPE", "DRAIN VOLTAGE", "MAX CURRENT", "QUALIFICATION", "STATUS"],
+        "data": [
+          {"PART NUMBER": "EPC7001BC", "BASE PART": "EPC7001B", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-B", "DRAIN VOLTAGE": "40", "MAX CURRENT": "50", "QUALIFICATION": "DEVELOPMENT", "STATUS": "RELEASED"},
+          {"PART NUMBER": "EPC7001BSH", "BASE PART": "EPC7001B", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-B", "DRAIN VOLTAGE": "40", "MAX CURRENT": "50", "QUALIFICATION": "SPACE", "STATUS": "RELEASED"},
+          {"PART NUMBER": "EPC7002AC", "BASE PART": "EPC7002A", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-A", "DRAIN VOLTAGE": "40", "MAX CURRENT": "10", "QUALIFICATION": "DEVELOPMENT", "STATUS": "RELEASED"},
+          {"PART NUMBER": "EPC7002ASH", "BASE PART": "EPC7002A", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-A", "DRAIN VOLTAGE": "40", "MAX CURRENT": "10", "QUALIFICATION": "SPACE", "STATUS": "RELEASED"},
+          {"PART NUMBER": "EPC7003AC", "BASE PART": "EPC7003A", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-A", "DRAIN VOLTAGE": "100", "MAX CURRENT": "10", "QUALIFICATION": "DEVELOPMENT", "STATUS": "RELEASED"},
+          {"PART NUMBER": "EPC7003ASH", "BASE PART": "EPC7003A", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-A", "DRAIN VOLTAGE": "100", "MAX CURRENT": "10", "QUALIFICATION": "SPACE", "STATUS": "RELEASED"},
+          {"PART NUMBER": "EPC7004BC", "BASE PART": "EPC7004B", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-B", "DRAIN VOLTAGE": "100", "MAX CURRENT": "46", "QUALIFICATION": "DEVELOPMENT", "STATUS": "RELEASED"},
+          {"PART NUMBER": "EPC7004BSH", "BASE PART": "EPC7004B", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-B", "DRAIN VOLTAGE": "100", "MAX CURRENT": "46", "QUALIFICATION": "SPACE", "STATUS": "RELEASED"},
+          {"PART NUMBER": "EPC7007BC", "BASE PART": "EPC7007B", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-B", "DRAIN VOLTAGE": "200", "MAX CURRENT": "18", "QUALIFICATION": "DEVELOPMENT", "STATUS": "RELEASED"},
+          {"PART NUMBER": "EPC7007BSH", "BASE PART": "EPC7007B", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-B", "DRAIN VOLTAGE": "200", "MAX CURRENT": "18", "QUALIFICATION": "SPACE", "STATUS": "RELEASED"},
+          {"PART NUMBER": "EPC7008CC", "BASE PART": "EPC7008C", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-C", "DRAIN VOLTAGE": "300", "MAX CURRENT": "4", "QUALIFICATION": "DEVELOPMENT", "STATUS": "QUALIFICATION"},
+          {"PART NUMBER": "EPC7008CSH", "BASE PART": "EPC7008C", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-C", "DRAIN VOLTAGE": "300", "MAX CURRENT": "4", "QUALIFICATION": "SPACE", "STATUS": "QUALIFICATION"},
+          {"PART NUMBER": "EPC7014UBC", "BASE PART": "EPC7014UB", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "UB", "DRAIN VOLTAGE": "60", "MAX CURRENT": "1", "QUALIFICATION": "DEVELOPMENT", "STATUS": "RELEASED"},
+          {"PART NUMBER": "EPC7014UBSH", "BASE PART": "EPC7014UB", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "UB", "DRAIN VOLTAGE": "60", "MAX CURRENT": "1", "QUALIFICATION": "SPACE", "STATUS": "RELEASED"},
+          {"PART NUMBER": "EPC7018DC", "BASE PART": "EPC7018D", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-D", "DRAIN VOLTAGE": "100", "MAX CURRENT": "74", "QUALIFICATION": "DEVELOPMENT", "STATUS": "RELEASED"},
+          {"PART NUMBER": "EPC7018DSH", "BASE PART": "EPC7018D", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-D", "DRAIN VOLTAGE": "100", "MAX CURRENT": "90", "QUALIFICATION": "SPACE", "STATUS": "RELEASED"},
+          {"PART NUMBER": "EPC7018GC", "BASE PART": "EPC7018G", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-G", "DRAIN VOLTAGE": "100", "MAX CURRENT": "90", "QUALIFICATION": "DEVELOPMENT", "STATUS": "RELEASED"},
+          {"PART NUMBER": "EPC7018GSH", "BASE PART": "EPC7018G", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-G", "DRAIN VOLTAGE": "100", "MAX CURRENT": "90", "QUALIFICATION": "SPACE", "STATUS": "RELEASED"},
+          {"PART NUMBER": "EPC7019DC", "BASE PART": "EPC7019D", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-D", "DRAIN VOLTAGE": "40", "MAX CURRENT": "80", "QUALIFICATION": "DEVELOPMENT", "STATUS": "RELEASED"},
+          {"PART NUMBER": "EPC7019DSH", "BASE PART": "EPC7019D", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-D", "DRAIN VOLTAGE": "40", "MAX CURRENT": "80", "QUALIFICATION": "SPACE", "STATUS": "RELEASED"},
+          {"PART NUMBER": "EPC7019GC", "BASE PART": "EPC7019G", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-G", "DRAIN VOLTAGE": "40", "MAX CURRENT": "90", "QUALIFICATION": "DEVELOPMENT", "STATUS": "RELEASED"},
+          {"PART NUMBER": "EPC7019GSH", "BASE PART": "EPC7019G", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-G", "DRAIN VOLTAGE": "40", "MAX CURRENT": "90", "QUALIFICATION": "SPACE", "STATUS": "RELEASED"},
+          {"PART NUMBER": "EPC7020GC", "BASE PART": "EPC7020G", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-G", "DRAIN VOLTAGE": "200", "MAX CURRENT": "80", "QUALIFICATION": "DEVELOPMENT", "STATUS": "RELEASED"},
+          {"PART NUMBER": "EPC7020GSH", "BASE PART": "EPC7020G", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-G", "DRAIN VOLTAGE": "200", "MAX CURRENT": "80", "QUALIFICATION": "SPACE", "STATUS": "RELEASED"},
+          {"PART NUMBER": "EPC7030MC", "BASE PART": "EPC7030M", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-M", "DRAIN VOLTAGE": "300", "MAX CURRENT": "50", "QUALIFICATION": "DEVELOPMENT", "STATUS": "QUALIFICATION"},
+          {"PART NUMBER": "EPC7030MSH", "BASE PART": "EPC7030M", "GENERATION": "III", "SLASH SHEET": "NA", "PACKAGE TYPE": "FSMD-M", "DRAIN VOLTAGE": "300", "MAX CURRENT": "50", "QUALIFICATION": "SPACE", "STATUS": "QUALIFICATION"}
+        ]
+      }
+    },
+    {
+      "id": "dla_qualified",
+      "pageNumber": 7,
+      "pageType": "table",
+      "title": "EPCS DLA QUALIFIED PART LIST (IN QUALIFICATION)",
+      "table": {
+        "columns": ["PART NUMBER", "BASE PART", "GENERATION", "SLASH SHEET", "PACKAGE TYPE", "DRAIN VOLTAGE", "MAX CURRENT", "QUALIFICATION", "STATUS"],
+        "data": [
+          {"PART NUMBER": "JANSH2N7667UFBC", "BASE PART": "FBG04N30B", "GENERATION": "II", "SLASH SHEET": "/782", "SLASH SHEETRowspan": 3, "PACKAGE TYPE": "FSMD-B", "DRAIN VOLTAGE": "40", "MAX CURRENT": "30", "QUALIFICATION": "JANS", "STATUS": "QUALIFICATION", "rowColor": "light-blue"},
+          {"PART NUMBER": "JANSH2N7668UFBC", "BASE PART": "FBG10N30B", "GENERATION": "II", "SLASH SHEET": "", "PACKAGE TYPE": "FSMD-B", "DRAIN VOLTAGE": "100", "MAX CURRENT": "30", "QUALIFICATION": "JANS", "STATUS": "QUALIFICATION", "rowColor": "light-blue"},
+          {"PART NUMBER": "JANSH2N7669UFBC", "BASE PART": "FBG20N18B", "GENERATION": "II", "SLASH SHEET": "", "PACKAGE TYPE": "FSMD-B", "DRAIN VOLTAGE": "200", "MAX CURRENT": "18", "QUALIFICATION": "JANS", "STATUS": "QUALIFICATION", "rowColor": "light-blue"},
+          {"PART NUMBER": "JANSH2N7670UFAC", "BASE PART": "FBG04N08A", "GENERATION": "II", "SLASH SHEET": "/783", "SLASH SHEETRowspan": 3, "PACKAGE TYPE": "FSMD-A", "DRAIN VOLTAGE": "40", "MAX CURRENT": "8", "QUALIFICATION": "JANS", "STATUS": "QUALIFICATION", "rowColor": "light-blue"},
+          {"PART NUMBER": "JANSH2N7671UFAC", "BASE PART": "FBG10N05A", "GENERATION": "II", "SLASH SHEET": "", "PACKAGE TYPE": "FSMD-A", "DRAIN VOLTAGE": "100", "MAX CURRENT": "5", "QUALIFICATION": "JANS", "STATUS": "QUALIFICATION", "rowColor": "light-blue"},
+          {"PART NUMBER": "JANSH2N7672UFAC", "BASE PART": "FBG20N04A", "GENERATION": "II", "SLASH SHEET": "", "PACKAGE TYPE": "FSMD-A", "DRAIN VOLTAGE": "200", "MAX CURRENT": "4", "QUALIFICATION": "JANS", "STATUS": "QUALIFICATION", "rowColor": "light-blue"},
+          {"PART NUMBER": "JANSH2N7673UFCC", "BASE PART": "FBG30N04C", "GENERATION": "II", "SLASH SHEET": "/784", "SLASH SHEETRowspan": 1, "PACKAGE TYPE": "FSMD-C", "DRAIN VOLTAGE": "300", "MAX CURRENT": "4", "QUALIFICATION": "JANS", "STATUS": "QUALIFICATION", "rowColor": "light-blue"},
+          {"PART NUMBER": "JANSH2N7674UBC", "BASE PART": "EPC7014UB", "GENERATION": "III", "SLASH SHEET": "/785", "SLASH SHEETRowspan": 1, "PACKAGE TYPE": "UB", "DRAIN VOLTAGE": "60", "MAX CURRENT": "1", "QUALIFICATION": "JANS", "STATUS": "QUALIFICATION", "rowColor": "light-blue"},
+          {"PART NUMBER": "JANSH2N7675UFBC", "BASE PART": "EPC7001B", "GENERATION": "III", "SLASH SHEET": "/786", "SLASH SHEETRowspan": 3, "PACKAGE TYPE": "FSMD-B", "DRAIN VOLTAGE": "40", "MAX CURRENT": "50", "QUALIFICATION": "JANS", "STATUS": "QUALIFICATION", "rowColor": "green"},
+          {"PART NUMBER": "JANSH2N7676UFBC", "BASE PART": "EPC7004B", "GENERATION": "III", "SLASH SHEET": "", "PACKAGE TYPE": "FSMD-B", "DRAIN VOLTAGE": "100", "MAX CURRENT": "46", "QUALIFICATION": "JANS", "STATUS": "QUALIFICATION", "rowColor": "green"},
+          {"PART NUMBER": "JANSH2N7677UFBC", "BASE PART": "EPC7007B", "GENERATION": "III", "SLASH SHEET": "", "PACKAGE TYPE": "FSMD-B", "DRAIN VOLTAGE": "200", "MAX CURRENT": "18", "QUALIFICATION": "JANS", "STATUS": "QUALIFICATION", "rowColor": "green"},
+          {"PART NUMBER": "JANSH2N7678UFGC", "BASE PART": "EPC7019G", "GENERATION": "III", "SLASH SHEET": "/787", "SLASH SHEETRowspan": 4, "PACKAGE TYPE": "FSMD-G", "DRAIN VOLTAGE": "40", "MAX CURRENT": "90", "QUALIFICATION": "JANS", "STATUS": "QUALIFICATION", "rowColor": "cyan"},
+          {"PART NUMBER": "JANSH2N7679UFDC", "BASE PART": "EPC7019D", "GENERATION": "III", "SLASH SHEET": "", "PACKAGE TYPE": "FSMD-D", "DRAIN VOLTAGE": "40", "MAX CURRENT": "80", "QUALIFICATION": "JANS", "STATUS": "QUALIFICATION", "rowColor": "cyan"},
+          {"PART NUMBER": "JANSH2N7680UFGC", "BASE PART": "EPC7018G", "GENERATION": "III", "SLASH SHEET": "", "PACKAGE TYPE": "FSMD-G", "DRAIN VOLTAGE": "100", "MAX CURRENT": "90", "QUALIFICATION": "JANS", "STATUS": "QUALIFICATION", "rowColor": "cyan"},
+          {"PART NUMBER": "JANSH2N7681UFGC", "BASE PART": "EPC7020G", "GENERATION": "III", "SLASH SHEET": "", "PACKAGE TYPE": "FSMD-G", "DRAIN VOLTAGE": "200", "MAX CURRENT": "80", "QUALIFICATION": "JANS", "STATUS": "QUALIFICATION", "rowColor": "cyan"},
+          {"PART NUMBER": "JANSH2N7682UFAC", "BASE PART": "EPC7002A", "GENERATION": "III", "SLASH SHEET": "/788", "SLASH SHEETRowspan": 2, "PACKAGE TYPE": "FSMD-A", "DRAIN VOLTAGE": "40", "MAX CURRENT": "10", "QUALIFICATION": "JANS", "STATUS": "QUALIFICATION", "rowColor": "beige"},
+          {"PART NUMBER": "JANSH2N7683UFAC", "BASE PART": "EPC7003A", "GENERATION": "III", "SLASH SHEET": "", "PACKAGE TYPE": "FSMD-A", "DRAIN VOLTAGE": "100", "MAX CURRENT": "10", "QUALIFICATION": "JANS", "STATUS": "QUALIFICATION", "rowColor": "beige"},
+          {"PART NUMBER": "JANSH2N7684UFGC", "BASE PART": "EPC7030M", "GENERATION": "III", "SLASH SHEET": "/789", "SLASH SHEETRowspan": 2, "PACKAGE TYPE": "FSMD-M", "DRAIN VOLTAGE": "300", "MAX CURRENT": "50", "QUALIFICATION": "JANS", "STATUS": "QUALIFICATION", "rowColor": "pink"},
+          {"PART NUMBER": "JANSH2N7685UFCC", "BASE PART": "EPC7008C", "GENERATION": "III", "SLASH SHEET": "", "PACKAGE TYPE": "FSMD-C", "DRAIN VOLTAGE": "300", "MAX CURRENT": "4", "QUALIFICATION": "JANS", "STATUS": "QUALIFICATION", "rowColor": "pink"}
+        ]
+      }
+    },
+    {
+      "id": "hemt_derating",
+      "pageNumber": 8,
+      "pageType": "heading",
+      "title": "DERATING RECOMMENDATIONS",
+      "backgroundClass": "heading-derating"
+    },
+    {
+      "id": "derating_table",
+      "pageNumber": 9,
+      "pageType": "image",
+      "imageUrl": "/images/bgb.png",
+      "description": "Click the image to zoom"
+    },
+    {
+      "id": "traceability",
+      "pageNumber": 10,
+      "pageType": "heading",
+      "title": "TRACEABILITY",
+      "backgroundClass": "heading-derating"
+    },
+    {
+      "id": "traceability_flowchart",
+      "pageNumber": 11,
+      "pageType": "image",
+      "imageUrl": "/images/bgd.png"
+    },
+    {
+      "id": "radiation_results_heading",
+      "pageNumber": 12,
+      "pageType": "heading",
+      "title": "RADIATION RESULTS FOR MODERN GAN-ON-SI POWER TRANSISTORS",
+      "backgroundClass": "heading-derating"
+    },
+    {
+      "id": "radiation_results_split",
+      "pageNumber": 13,
+      "pageType": "split-content-image",
+      "title": "RADIATION RESULTS",
+      "leftHeader": "CNTRL CLICK TO VIEW FULL REPORTS",
+      "rightHeader": "SAMPLE PAGE",
+      "content": [
+        {
+          "type": "link",
+          "text": "Radiation Results for Modern GaN-on-Si Power Transistors",
+          "url": "https://www.discoveree.io/EPCS_Reliability_Report/WLAT/Radiation_GaN_HEMT_v10.pdf"
+        }
+      ],
+      "imageUrl": "/images/bgf.png"
+    },
+    {
+      "id": "wafer_die_heading",
+      "pageNumber": 14,
+      "pageType": "heading",
+      "title": "WAFER AND DIE LEVEL RELIABILITY",
+      "backgroundClass": "heading-derating"
+    },
+    {
+      "id": "die_level_reliability",
+      "pageNumber": 15,
+      "pageType": "split-content-image",
+      "title": "DIE LEVEL RELIABILITY",
+      "leftHeader": "",
+      "rightHeader": "SAMPLE PAGE",
+      "content": [
+        { "type": "link", "text": "RELIABILITY REPORT 16", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/Reliability%20Report%20Phase%2016.pdf", "style": "highlight" },
+        { "type": "link", "text": "GATE WEAR-OUT", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/16/GATE-WEAR-OUT.pdf" },
+        { "type": "link", "text": "DRAIN WEAR-OUT", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/16/CURRENT%20DENSITY%20WEAR-OUT.pdf" },
+        { "type": "link", "text": "CURRENT DENSITY WEAR-OUT", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/16/CURRENT%20DENSITY%20WEAR-OUT.pdf" },
+        { "type": "link", "text": "THERMO-MECHANICAL WEAR-OUT", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/16/THERMAL-MECHANICAL%20WEAR-OUT.pdf" },
+        { "type": "link", "text": "MECHANICAL STRESS WEAR-OUT", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/16/MECHANICAL%20STRESS%20WEAR-OUT.pdf" },
+        { "type": "link", "text": "RELIABILITY REPORT 15", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/Reliability%20Report%20Phase%2015.pdf", "style": "highlight" },
+        { "type": "link", "text": "VOLTAGE/TEMPERATURE STRESS ON THE GATE", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/16/VOLTAGE-TEMPERATURE%20STRESS%20ON%20THE%20GATE.pdf" },
+        { "type": "link", "text": "VOLTAGE/TEMPERATURE STRESS ON THE DRAIN", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/16/VOLTAGE-TEMPERATURE%20STRESS%20ON%20THE%20DRAIN.pdf" },
+        { "type": "link", "text": "SAFE OPERATING AREA", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/16/SAFE%20OPERATING%20AREA.pdf" },
+        { "type": "link", "text": "SHORT-CIRCUIT ROBUSTNESS TESTING", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/16/SHORT-CIRCUIT%20ROBUSTNESS%20TESTING.pdf" },
+        { "type": "link", "text": "THERMO-MECHANICAL STRESS", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/16/THERMAL-MECHANICAL%20WEAR-OUT.pdf" },
+        { "type": "link", "text": "RELIABILITY REPORT 14", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/Reliability%20Report%20Phase%2014.pdf", "style": "highlight" },
+        { "type": "link", "text": "RELIABILITY REPORT 12", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/Reliability%20Report%20Phase%2012.pdf", "style": "highlight" },
+        { "type": "link", "text": "RELIABILITY REPORT 11", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/Reliability%20Report%20Phase%2011.pdf", "style": "highlight" },
+        { "type": "link", "text": "RELIABILITY REPORT 10", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/Reliability%20Report%20Phase%2010.pdf", "style": "highlight" }
+      ],
+      "imageUrl": "/images/bg11.png"
+    },
+    {
+  "id": "die_level_reliability_2",
+  "pageNumber": 16,
+  "pageType": "split-content-image",
+  "title": "DIE LEVEL RELIABILITY",
+  "leftHeader": "",
+  "rightHeader": "SAMPLE PAGE",
+  "content": [
+    { "type": "link", "text": "RELIABILITY REPORT 09", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/Reliability%20Report%20Phase%2009.pdf" },
+    { "type": "link", "text": "RELIABILITY REPORT 08", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/Reliability%20Report%20Phase%2008.pdf" },
+    { "type": "link", "text": "RELIABILITY REPORT 07", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/Reliability%20Report%20Phase%2007.pdf" },
+    { "type": "link", "text": "RELIABILITY REPORT 06", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/Reliability%20Report%20Phase%2006.pdf" },
+    { "type": "link", "text": "RELIABILITY REPORT 05", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/Reliability%20Report%20Phase%2005.pdf" },
+    { "type": "link", "text": "RELIABILITY REPORT 04", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/Reliability%20Report%20Phase%2004.pdf" },
+    { "type": "link", "text": "RELIABILITY REPORT 03", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/Reliability%20Report%20Phase%2003.pdf" },
+    { "type": "link", "text": "RELIABILITY REPORT 02", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/Reliability%20Report%20Phase%2002.pdf" },
+    { "type": "link", "text": "RELIABILITY REPORT 01", "url": "https://www.discoveree.io/EPCS_Reliability_Report/EPC%20RELIABILITY%20REPORTS/Reliability%20Report%20Phase%2001.pdf" }
+  ],
+  "imageUrl": "/images/bg12.png"
+},
+{
+  "id": "epcs_discrete_manufacturing_qualification",
+  "pageNumber": 17,
+  "pageType": "heading",
+  "title": "EPCS DISCRETE MANUFACTURING AND QUALIFICATION"
+},
+{
+  "id": "image_page18",
+  "pageNumber": 18,
+  "pageType": "image",
+  "title": "",
+  "imageUrl": "/images/bg14.png"
+},
+{
+  "id": "image_page19",
+  "pageNumber": 19,
+  "pageType": "image",
+  "title": "",
+  "imageUrl": "/images/bg15.png"
+},
+{
+  "id": "epcs_hermetic_discrete_ereliability",
+  "pageNumber": 20,
+  "pageType": "heading",
+  "title": "EPCS HERMITIC DISCRETE RELIABILITY"
+},
+{
+  "id": "wafer_lot_acceptance_tests",
+  "pageNumber": 21,
+  "pageType": "heading",
+  "title": "WAFER LOT ACCEPTANCE TESTS"
+},
+{
+  "id": "image_page22",
+  "pageNumber": 22,
+  "pageType": "image",
+  "title": "",
+  "imageUrl": "/images/bg18.png"
+},
+{
+  "id": "epcs_wlat_sem(by_wafer_lot)",
+  "pageNumber": 23,
+  "pageType": "split-content-image",
+  "title": "EPCS WLAT SEM (BY WAFER LOT)",
+  "leftHeader": "SEM LINKS TO A SELECION OF ACTUAL LOTS\nCNTRL CLICK TO VIEW FULL REPORTS",
+  "rightHeader": "SAMPLE PAGE",
+  "content": [
+    { "type": "link", "text": "FBG30N04CSH", "url": "https://www.discoveree.io/EPCS_Reliability_Report/WLAT/SEM%20-%20E4665.pdf" },
+    { "type": "link", "text": "EPC7018GSH", "url": "https://www.discoveree.io/EPCS_Reliability_Report/WLAT/SEM%20-%20E4579.pdf" },
+    { "type": "link", "text": "EPC7019GSH", "url": "https://www.discoveree.io/EPCS_Reliability_Report/WLAT/SEM%20-%20E4121.pdf" },
+    { "type": "link", "text": "FBG10N05ASH", "url": "https://www.discoveree.io/EPCS_Reliability_Report/WLAT/SEM%20-%20E3753.pdf" },
+    { "type": "link", "text": "EPC7014UBSH", "url": "https://www.discoveree.io/EPCS_Reliability_Report/WLAT/SEM%20-%20E3637.pdf" },
+    { "type": "link", "text": "FBG20N18BSH", "url": "https://www.discoveree.io/EPCS_Reliability_Report/WLAT/SEM%20-%20E4176.pdf" },
+    { "type": "link", "text": "JANS2N7667UFBC (QUALIFICATION PENDING)", "url": "https://www.discoveree.io/EPCS_Reliability_Report/WLAT/SEM%20-%20E4390.pdf" },
+    { "type": "link", "text": "EPC7001BSH", "url": "https://www.discoveree.io/EPCS_Reliability_Report/WLAT/SEM%20-%20E4122.pdf" }
+  ],
+  "imageUrl": "/images/bg19.png"
+},
+{
+  "id": "epcs_wlat_total_irradiated_dose(tid)_(by_wafer_lot)",
+  "pageNumber": 24,
+  "pageType": "split-content-image",
+  "title": "EPCS WLAT TOTAL IRRADIATED DOSE (TID) BY WAFER LOT",
+  "leftHeader": "TID LINKS TO A SELECION OF ACTUAL LOTS\nCNTRL CLICK TO VIEW FULL REPORTS",
+  "rightHeader": "SAMPLE PAGE",
+  "content": [
+    { "type": "link", "text": "FBG30N04CSH", "url": "https://www.discoveree.io/EPCS_Reliability_Report/WLAT/TID%20-E4665.pdf" },
+    { "type": "link", "text": "EPC7018GSH", "url": "https://www.discoveree.io/EPCS_Reliability_Report/WLAT/TID%20-%20E4579.pdf" },
+    { "type": "link", "text": "EPC7019GSH", "url": "https://www.discoveree.io/EPCS_Reliability_Report/WLAT/TID%20-%20E4121.pdf" },
+    { "type": "link", "text": "FBG10N05ASH", "url": "https://www.discoveree.io/EPCS_Reliability_Report/WLAT/TID%20-%20E3753.pdf" },
+    { "type": "link", "text": "EPC7014UBSH", "url": "https://www.discoveree.io/EPCS_Reliability_Report/WLAT/TID%20-%20E3637.pdf" },
+    { "type": "link", "text": "FBG20N18BSH", "url": "https://www.discoveree.io/EPCS_Reliability_Report/WLAT/TID%20-%20E4176.pdf" },
+    { "type": "link", "text": "JANS2N7668UFBC (QUALIFICATION PENDING)", "url": "https://www.discoveree.io/EPCS_Reliability_Report/WLAT/TID%20-%20E4197.pdf" },
+    { "type": "link", "text": "EPC7001BSH", "url": "https://www.discoveree.io/EPCS_Reliability_Report/WLAT/TID%20-%20E4122.pdf" }
+  ],
+  "imageUrl": "/images/bg1a.png"
+},
+{
+  "id": "epcs_wlat_single_event_effects(see)_(by_epi_id_or_wafer)",
+  "pageNumber": 25,
+  "pageType": "split-content-image",
+  "title": "EPCS WLAT SINGLE EVENT EFFECTS (SEE) BY EPI ID OR WAFER",
+  "leftHeader": "SEE LINKS TO A SELECION OF ACTUAL LOTS\nCNTRL CLICK TO VIEW FULL REPORTS",
+  "rightHeader": "SAMPLE PAGE",
+  "content": [
+    { "type": "link", "text": "FBG30N04CSH", "url": "/pdfs/04N30_E4390M_G323200363_Y211, Y212, Y268_AU_DISP.XLSX" },
+    { "type": "link", "text": "EPC7018GSH", "url": "/pdfs/7018K_E4759M_G323900362_WAFER NO, D001, D002, D162, D163, D170_AU_DISP.XLSX" },
+    { "type": "link", "text": "EPC7019GSH", "url": "/pdfs/7019G_E4121M_G322700349_D201, D251, D252, D340, D341_AU_DISP.XLSX" },
+    { "type": "link", "text": "FBG10N05ASH", "url": "/pdfs/10N05_E3753M_2621B1377_U079, U148, U149_AU_DISP.XLSX" },
+    { "type": "link", "text": "EPC7014UBSH", "url": "/pdfs/7014U_E3637M_3621A1761_WAFER NO, P090, P091, P098, P099_AU_DISP.XLSX" },
+    { "type": "link", "text": "FBG20N18BSH", "url": "/pdfs/20N18_E4176M_G222A00127_WAFER NO, A040, A042, A050, A102, T202_PR_DISP.XLSX" },
+    { "type": "link", "text": "JANS2N7668UFBC (QUALIFICATION PENDING)", "url": "/pdfs/10N30_E4197M_G322600089_R140, R141, R142, R143, R145_AU_DISP.XLSX" },
+    { "type": "link", "text": "EPC7001BSH", "url": "/pdfs/7001B_E4122M_G322700361_WAFER NO, E051, E052, E120_AU_DISP.XLSX" }
+  ],
+  "imageUrl": "/images/bg1b.png"
+},
+{
+  "id": "quality_conformance_inspection",
+  "pageNumber": 26,
+  "pageType": "heading",
+  "title": "QUALITY CONFORMANCE INSPECTION"
+},
+{
+  "id": "image_page27",
+  "pageNumber": 27,
+  "pageType": "image",
+  "title": "",
+  "imageUrl": "/images/bg1d.png"
+},
+{
+  "id": "quality_conformance_inspection_details",
+  "pageNumber": 28,
+  "pageType": "content",
+  "title": "QUALITY CONFORMANCE INSPECTION (QCI) DETAILS",
+  "content": "[GROUP]GROUP A - VERIFYING SCREENING TESTS EFFECTIVENESS AND DYNAMIC TESTS[/GROUP]\n[BLUE]3 TEMPERATURE DC ELECTRICALS[/BLUE]\n[BLUE]GATE CHARGE[/BLUE]\n[BLUE]CAPACITANCE[/BLUE]\n[ORANGE]SAMPLE FROM EACH ASSEMBLY LOT[/ORANGE]\n\n[GROUP]GROUP B - DIE AND PACKAGE STRESSES[/GROUP]\n[BLUE]ACCELERATED BURN-INS AT MAXIMUM RATED VOLTAGES[/BLUE]\n[BLUE]INTERMITENT OPERATING LIFE (2000 Cycles)[/BLUE]\n[BLUE]TEMPERATURE CYCLE (100 Cycles)[/BLUE]\n[BLUE]SEM[/BLUE]\n[ORANGE]SAMPLE FROM EACH ASSEMBLY LOT[/ORANGE]\n\n[GROUP]GROUP C - PACKAGE INTEGRITY TESTS[/GROUP]\n[BLUE]THERMAL SHOCK[/BLUE]\n[BLUE]TEMPERATURE CYCLE[/BLUE]\n[BLUE]MOISTURE RESISTANCE[/BLUE]\n[BLUE]HERMETICITY TESTS[/BLUE]\n[BLUE]SHOCK[/BLUE]\n[BLUE]VIBRATION[/BLUE]\n[BLUE]SALT ATMOSPHERE[/BLUE]\n[BLUE]INTERMITENT OPERATING LIFE (6000 Cycles)[/BLUE]\n[BLUE]RESIDUAL GAS ANALYSIS (RGA)[/BLUE]\n[ORANGE]ANNUAL FREQUENCY BY PACKAGE TYPE[/ORANGE]\n\n[GROUP]GROUP D - RADIATION EFFECTS[/GROUP]\n[BLUE]COVERED IN WLAT[/BLUE]\n\n[GROUP]GROUP E - LONG TERM LIFE TESTS FOR QUALIFICATION AND RE-DESIGN QUALIFICATION[/GROUP]\n[BLUE]TEMPERATURE CYCLE (500 CYCLES)[/BLUE]\n[BLUE]HTGB (1000 HOURS)[/BLUE]\n[BLUE]HTRB (1000 HOURS)[/BLUE]\n[BLUE]BAROMETRIC PRESSURE (BVdss>200 V)[/BLUE]\n[BLUE]ESD[/BLUE]\n[BLUE]RESISTANCE TO SOLDERING HEAT[/BLUE]"
+},
+{
+  "id": "image_page29",
+  "pageNumber": 29,
+  "pageType": "image",
+  "title": "",
+  "imageUrl": "/images/bg1f.png"
+},
+{
+  "id": "quality_conformance_inspection_group_a",
+  "pageNumber": 30,
+  "pageType": "split-content-image",
+  "title": "QUALITY CONFORMANCE INSPECTION GROUP A",
+  "leftHeader": "GROUP A LINKS TO A SELECION OF ACTUAL LOTS",
+  "rightHeader": "SAMPLE PAGE",
+  "content": [
+    { "type": "link", "text": "FBG30N04CSH", "url": "/pdfs/30N04 GROUP A TRAVELER.xlsx" },
+    { "type": "link", "text": "EPC7018GSH", "url": "/pdfs/EPC7018GSH GROUP A TRAVELER.xlsx" },
+    { "type": "link", "text": "EPC7019GSH", "url": "/pdfs/EPC7019GSH GROUP A TRAVELER.xlsx" },
+    { "type": "link", "text": "FBG10N05ASH", "url": "/pdfs/10N05 GROUP A TRAVELER.xlsx" },
+    { "type": "link", "text": "EPC7014UBSH", "url": "/pdfs/EPC7014UBSH GROUP A TRAVELER.xlsx" },
+    { "type": "link", "text": "FBG20N18BSH", "url": "/pdfs/20N18 GROUP A TRAVELER.xlsx" },
+    { "type": "link", "text": "EPC7001BSH", "url": "/pdfs/EPC7001 GROUP A TRAVELER.xlsx" }
+  ],
+  "imageUrl": "/images/bg20.png"
+},
+{
+  "id": "image_page31",
+  "pageNumber": 31,
+  "pageType": "image",
+  "title": "",
+  "imageUrl": "/images/bg21.png"
+},
+{
+  "id": "quality_conformance_inspection_group_b",
+  "pageNumber": 32,
+  "pageType": "split-content-image",
+  "title": "QUALITY CONFORMANCE INSPECTION GROUP B",
+  "leftHeader": "GROUP B LINKS TO A SELECION OF ACTUAL LOTS",
+  "rightHeader": "SAMPLE PAGE",
+  "content": [
+    { "type": "link", "text": "FBG30N04CSH", "url": "/pdfs/30N04 GROUP B.xlsx" },
+    { "type": "link", "text": "EPC7020GSH", "url": "/pdfs/EPC7020G GROUP B.xlsx" },
+    { "type": "link", "text": "FBG10N05ASH", "url": "/pdfs/10N05 GROUP B.xlsx" },
+    { "type": "link", "text": "EPC7014UBSH", "url": "/pdfs/EPC7014 GROUP B.xlsx" },
+    { "type": "link", "text": "FBG20N18BSH", "url": "/pdfs/20N18 GROUP B.xlsx" },
+    { "type": "link", "text": "EPC7001BSH", "url": "/pdfs/EPC7001 GROUP B.xlsx" },
+    { "type": "link", "text": "EPC7007GSH", "url": "/pdfs/EPC7007 GROUP B.xlsx" }
+  ],
+  "imageUrl": "/images/bg22.png"
+},
+{
+  "id": "image_page33",
+  "pageNumber": 33,
+  "pageType": "image",
+  "title": "",
+  "imageUrl": "/images/bg23.png"
+},
+{
+  "id": "quality_conformance_inspection_group_c",
+  "pageNumber": 34,
+  "pageType": "split-content-image",
+  "title": "QUALITY CONFORMANCE INSPECTION GROUP C",
+  "leftHeader": "GROUP C LINKS TO A SELECION OF ACTUAL LOTS",
+  "rightHeader": "SAMPLE PAGE",
+  "content": [
+    { "type": "link", "text": "FBG30N04CSH", "url": "/pdfs/30N04 GROUP C.xlsx" },
+    { "type": "link", "text": "EPC7020GSH", "url": "/pdfs/epc7020 GROUP C.xlsx" },
+    { "type": "link", "text": "FBG04N30BSH", "url": "/pdfs/04N30 GROUP C.xlsx" },
+    { "type": "link", "text": "EPC7014UBSH", "url": "/pdfs/EPC7014 GROUP C.xlsx" },
+    { "type": "link", "text": "FBG20N18BSH", "url": "/pdfs/20N18 GROUP C.xlsx" },
+    { "type": "link", "text": "EPC7001BSH", "url": "/pdfs/EPC7001 GROUP C.xlsx" },
+    { "type": "link", "text": "EPC7007GSH", "url": "/pdfs/EPC7007 GROUP C.xlsx" }
+  ],
+  "imageUrl": "/images/bg24.png"
+},
+{
+  "id": "image_page35",
+  "pageNumber": 35,
+  "pageType": "image",
+  "title": "",
+  "imageUrl": "/images/bg25.png"
+},
+{
+  "id": "image_page36",
+  "pageNumber": 36,
+  "pageType": "image",
+  "title": "",
+  "imageUrl": "/images/bg26.png"
+},
+{
+  "id": "quality_conformance_inspection_group_e",
+  "pageNumber": 37,
+  "pageType": "split-content-image",
+  "title": "QUALITY CONFORMANCE INSPECTION GROUP E",
+  "leftHeader": "GROUP E LINKS TO A SELECION OF ACTUAL LOTS",
+  "rightHeader": "SAMPLE PAGE",
+  "content": [
+    { "type": "link", "text": "FBG30N04CSH", "url": "/pdfs/30N04 GROUP E.xlsx" },
+    { "type": "link", "text": "EPC7019DSF", "url": "/pdfs/EPC7019 GROUP E.xlsx" },
+    { "type": "link", "text": "FBG10N30BSH", "url": "/pdfs/10N30 GROUP E.xlsx" },
+    { "type": "link", "text": "EPC7014UBSH", "url": "/pdfs/EPC7014 GROUP E.xlsx" },
+    { "type": "link", "text": "FBG20N18BSH", "url": "/pdfs/20N18 GROUP E.xlsx" },
+    { "type": "link", "text": "FBG04N30BSH", "url": "/pdfs/04N30 GROUP E.xlsx" }
+  ],
+  "imageUrl": "/images/bg27.png"
+},
+{
+  "id": "long_term_reliability",
+  "pageNumber": 38,
+  "pageType": "heading",
+  "title": "LONG TERM RELIABILITY"
+},
+{
+  "id": "image_page39",
+  "pageNumber": 39,
+  "pageType": "image",
+  "title": "EPC7019D SWITCHING TEST (4000 HOURS)",
+  "imageUrl": "/images/bg29.png"
+},
+{
+  "id": "image_page40",
+  "pageNumber": 40,
+  "pageType": "image",
+  "title": "EPC7019D SWITCHING TEST (4000 HOURS) POST DC ELECTRICALS",
+  "imageUrl": "/images/bg2a.png"
+},
+{
+  "id": "epc7019d_electro_migration_test",
+  "pageNumber": 41,
+  "pageType": "split-content-image",
+  "title": "EPC7019D Electro-MIGRATION TEST (4000 HOURS)",
+  "leftHeader": "",
+  "leftContent": "TEST CONDITION\nIDS=50A\nVGS=5V\nTJ=150C\nT=2000 HOURS",
+  "rightHeader": "",
+  "imageUrl": "/images/bg2b.png"
+}
+  ]
+}

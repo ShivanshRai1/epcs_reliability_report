@@ -1,0 +1,485 @@
+/* Split Section Wrapper */
+.split-section-wrapper {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+}
+
+/* Main Title */
+.split-main-title {
+  background-color: #0052a3;
+  color: white;
+  padding: 1rem 2rem;
+  text-align: center;
+  border-bottom: 3px solid #003d7a;
+}
+
+.split-main-title h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+/* Section Headers */
+.split-section-header {
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  text-align: center;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: pre-line;
+}
+
+.split-left-header {
+  background-color: #5fc574;
+  color: white;
+}
+
+.split-right-header {
+  background-color: #e8a87c;
+  color: #333;
+}
+
+/* Split Content Image Section */
+.split-content-image-section {
+  display: flex;
+  gap: 0;
+  padding: 0;
+  background-color: white;
+  min-height: 500px;
+  max-height: calc(100vh - 200px);
+}
+
+.split-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 300px;
+  background-color: #f5f5f5;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.split-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 300px;
+  background-color: white;
+  border-left: 1px solid #ddd;
+  overflow: hidden;
+}
+
+/* Content Wrapper */
+.split-content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+/* Image Wrapper */
+.split-image-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem;
+  overflow: hidden;
+}
+
+/* Content Display (Read Mode) */
+.split-content-display {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* Left Content Text Display */
+.split-left-content-text {
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: #333;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.split-left-content-textarea {
+  font-family: Arial, sans-serif;
+  font-size: 0.95rem;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical;
+}
+
+.split-content-display p {
+  margin: 0.5rem 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Link Styles */
+.split-link {
+  display: block;
+  margin: 0.5rem 0;
+  padding: 0.75rem 1rem;
+  color: #0066cc;
+  text-decoration: underline;
+  border: 1px solid #0066cc;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  text-align: center;
+  background-color: white;
+}
+
+.split-link:hover {
+  background-color: #e6f2ff;
+}
+
+/* Highlighted Link Styles - REMOVED */
+
+/* Section Styles */
+.split-section-title {
+  margin: 1.5rem 0 0.75rem 0;
+  padding: 0.5rem 0;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #0052a3;
+  border-bottom: 2px solid #0052a3;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Content Textarea (Edit Mode) - REMOVED */
+
+/* Links Editor */
+.split-links-editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  background-color: #f9f9f9;
+}
+
+@media (prefers-color-scheme: dark) {
+  .split-links-editor {
+    background-color: #1e1e1e;
+  }
+}
+
+.links-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background-color: #f9f9f9;
+}
+
+@media (prefers-color-scheme: dark) {
+  .links-list {
+    background-color: #1e1e1e;
+  }
+}
+
+.no-links-placeholder {
+  padding: 2rem;
+  text-align: center;
+  color: #999;
+  font-style: italic;
+}
+
+@media (prefers-color-scheme: dark) {
+  .no-links-placeholder {
+    color: #666;
+  }
+}
+
+.link-edit-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #333;
+}
+
+@media (prefers-color-scheme: dark) {
+  .link-edit-row {
+    background-color: #2a2a2a;
+    border-color: #444;
+    color: #e0e6f0;
+  }
+}
+
+.link-input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 0.85rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: white;
+  color: #333;
+}
+
+.link-input:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 3px rgba(0, 102, 204, 0.3);
+}
+
+@media (prefers-color-scheme: dark) {
+  .link-input {
+    background-color: #3a3a3a;
+    color: #e0e6f0;
+    border-color: #555;
+  }
+
+  .link-input:focus {
+    border-color: #0099ff;
+  }
+}
+
+.link-input-text {
+  flex: 0.8;
+  min-width: 80px;
+}
+
+.link-input-url {
+  flex: 1.8;
+  min-width: 200px;
+}
+
+.link-delete-btn {
+  padding: 0.4rem 0.5rem;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.link-delete-btn:hover {
+  background-color: #c82333;
+}
+
+.link-add-btn {
+  padding: 0.75rem 1.5rem;
+  margin: 0.75rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.link-add-btn:hover {
+  background-color: #218838;
+}
+
+@media (prefers-color-scheme: dark) {
+  .link-add-btn:hover {
+    background-color: #1e7e34;
+  }
+}
+
+/* Image Editor */
+.split-image-editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  gap: 1rem;
+  overflow-y: auto;
+  background-color: white;
+}
+
+@media (prefers-color-scheme: dark) {
+  .split-image-editor {
+    background-color: #2a2a2a;
+  }
+}
+
+.image-upload-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.image-upload-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.image-upload-label span {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+}
+
+@media (prefers-color-scheme: dark) {
+  .image-upload-label span {
+    color: #e0e6f0;
+  }
+}
+
+.image-file-input {
+  padding: 0.75rem;
+  border: 2px dashed #0066cc;
+  border-radius: 4px;
+  background-color: #f0f7ff;
+  cursor: pointer;
+}
+
+@media (prefers-color-scheme: dark) {
+  .image-file-input {
+    background-color: rgba(0, 102, 204, 0.2);
+    border-color: #0099ff;
+  }
+}
+
+.image-file-input::-webkit-file-upload-button {
+  background-color: #0066cc;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.image-divider {
+  text-align: center;
+  color: #999;
+  font-weight: 500;
+  margin: 0.5rem 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .image-divider {
+    color: #666;
+  }
+}
+
+.image-url-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.image-url-section label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.image-url-section span {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+}
+
+@media (prefers-color-scheme: dark) {
+  .image-url-section span {
+    color: #e0e6f0;
+  }
+}
+
+.image-url-input {
+  padding: 0.75rem;
+  border: 2px solid #0066cc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  background-color: white;
+  color: #333;
+}
+
+.image-url-input:focus {
+  outline: none;
+  border-color: #0099ff;
+  background-color: rgba(0, 102, 204, 0.05);
+}
+
+@media (prefers-color-scheme: dark) {
+  .image-url-input {
+    background-color: #3a3a3a;
+    color: #e0e6f0;
+    border-color: #0066cc;
+  }
+
+  .image-url-input:focus {
+    background-color: rgba(0, 102, 204, 0.2);
+  }
+}
+
+.image-preview {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f5f5f5;
+  min-height: 200px;
+}
+
+.image-preview img {
+  max-width: 95%;
+  max-height: 95%;
+  object-fit: contain;
+}
+
+@media (prefers-color-scheme: dark) {
+  .image-preview {
+    background-color: #2a2a2a;
+    border-color: #444;
+  }
+}
+
+/* Image */
+.split-image {
+  max-width: 95%;
+  max-height: 100%;
+  object-fit: contain;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Image URL Input (Edit Mode) - REMOVED in favor of new image-url-input class */
+
+/* Responsive Layout */
+@media (max-width: 1200px) {
+  .split-content-image-section {
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+  }
+
+  .split-left,
+  .split-right {
+    min-width: 100%;
+    border-left: none;
+    border-top: 1px solid #ddd;
+  }
+
+  .split-image {
+    max-height: 300px;
+  }
+}

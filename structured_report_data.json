@@ -1,0 +1,103 @@
+{
+  "sections": [
+    {
+      "id": "index",
+      "title": "Index",
+      "content": [
+        { "title": "EPCS DISCRETE PRODUCT", "target": "epcs_discrete_product" },
+        { "title": "EPCS DISCRETE FIRST GENERATION, PART NUMBERS", "target": "part_lists" },
+        { "title": "EPCS DISCRETE SECOND GENERATION, PART LIST", "target": "part_lists" },
+        { "title": "EPCS DLA QUALIFIED PART LIST (IN QUALIFICATION)", "target": "part_lists" },
+        { "title": "EPCS HEMT DERATING RECOMMENDATIONS", "target": "hemt_derating" },
+        { "title": "EPCS TRACEABILITY SYSTEM", "target": "traceability" },
+        { "title": "RADIATION RESULTS FOR HEMT DEVICES", "target": "radiation_results" },
+        { "title": "EPCS DIE LEVEL RELIABILITY", "target": "die_level_reliability" },
+        { "title": "SPACE LEVEL ASSEMBLY PROCESS", "target": "assembly_process" },
+        { "title": "SPACE LEVEL SCREENING PROCESS", "target": "screening_process" },
+        { "title": "EPCS HERMETIC DISCRETE RELIABILITY", "target": "hermetic_reliability" },
+        { "title": "WLAT (WAFER LEVEL ACCEPTANCE TEST)", "target": "wlat" },
+        { "title": "SCANNING ELECTRON MICROSCOPY", "target": "sem" },
+        { "title": "TOTAL IRRADIATED DOSE (TID)", "target": "tid" },
+        { "title": "SINGLE EVENT EFFECTS (SEE)", "target": "see" },
+        { "title": "QUALITY CONFORMANCE INSPECTION", "target": "qci" }
+      ]
+    },
+    {
+      "id": "part_lists",
+      "title": "Part Lists",
+      "content": [
+        "EPCS DISCRETE FIRST GENERATION, PART NUMBERS",
+        "EPCS DISCRETE SECOND GENERATION, PART LIST",
+        "EPCS DISCRETE THIRD GENERATION, PART LIST",
+        "DLA QUALIFIED PART LIST"
+      ],
+      "table": {
+        "columns": ["Part Name", "Base Part", "Suffix", "Package", "Voltage", "Current", "Status"],
+        "data": [
+          {"Part Name": "FBGOSNOBAC", "Base Part": "BGO4NOBA", "Suffix": "n Na", "Package": "SMD-A", "Voltage": "40", "Current": "8", "Status": "RELEASED"},
+          {"Part Name": "FBGOSNOBASH", "Base Part": "BGO4NOBA", "Suffix": "u Na", "Package": "FSMD-A", "Voltage": "40", "Current": "8", "Status": "RELEASED"},
+          {"Part Name": "FBGOSNSOBC", "Base Part": "8GO4N30B", "Suffix": "u NA", "Package": "FSMD-B", "Voltage": "40", "Current": "30", "Status": "DEVELOPMENT RELEASED"},
+          {"Part Name": "FBGOsNSOBSH", "Base Part": "-8G04N30B", "Suffix": "u na", "Package": "fswo-5", "Voltage": "40", "Current": "30", "Status": "SPACE RELEASED"},
+          {"Part Name": "FBGIONOSAC", "Base Part": "BG1ONOSA", "Suffix": "u Na", "Package": "FSMD-A", "Voltage": "100", "Current": "5", "Status": "DEVELOPMENT RELEASED"},
+          {"Part Name": "FBGIONOSASH", "Base Part": "BG1ONOSA", "Suffix": "u NA", "Package": "FSMD-A", "Voltage": "100", "Current": "5", "Status": "SPACE RELEASED"},
+          {"Part Name": "FBGION30BC", "Base Part": "BG10N30B", "Suffix": "u Na", "Package": "sMp-5", "Voltage": "100", "Current": "30", "Status": "DEVELOPMENT RELEASE"},
+          {"Part Name": "FEGLONSOBSH", "Base Part": "BG10N30B", "Suffix": "u na", "Package": "fswo-5", "Voltage": "100", "Current": "30", "Status": "SPACE RELEASE"},
+          {"Part Name": "FBG20NO4AC", "Base Part": "BG2ONO4A", "Suffix": "t NA", "Package": "FSMD-A", "Voltage": "200", "Current": "4", "Status": "DEVELOPMENT RELEASED"},
+          {"Part Name": "FBG20NO4ASH", "Base Part": "BG2ONO4A", "Suffix": "u Na", "Package": "SMD-A", "Voltage": "200", "Current": "4", "Status": "SPACE RELEASED"},
+          {"Part Name": "FBG20N188C", "Base Part": "BG20N18B", "Suffix": "u Na", "Package": "sMp-5", "Voltage": "200", "Current": "18", "Status": "DEVELOPMENT"},
+          {"Part Name": "FBG2ONIB8SH", "Base Part": "BG20NI8B", "Suffix": "u Na", "Package": "FsMo-5", "Voltage": "200", "Current": "18", "Status": "SPACE"},
+          {"Part Name": "FBG30NO4CC", "Base Part": "BGS0NO4C", "Suffix": "ul na", "Package": "fsmo-c", "Voltage": "300", "Current": "", "Status": "RELEASED"},
+          {"Part Name": "FBGSONO4CSH", "Base Part": "BGSONO4C", "Suffix": "tl Na", "Package": "FSMD-c", "Voltage": "300", "Current": "4", "Status": "RELEASED"}
+        ]
+      }
+    },
+    {
+      "id": "qci",
+      "title": "Quality Conformance Inspection (QCI)",
+      "content": [
+        "GROUP A FLOW CHART",
+        "GROUP A DETAILS",
+        "GROUP B FLOW CHART",
+        "GROUP B DETAILS",
+        "GROUP C FLOW CHART",
+        "GROUP C DETAILS",
+        "GROUP D (SEE WLAT)",
+        "GROUP E FLOW CHART",
+        "GROUP E DETAILS"
+      ]
+    },
+    {
+      "id": "reliability_tests",
+      "title": "Reliability Tests",
+      "content": [
+        "LIFE AND STRESS TESTS",
+        "DRAIN STRESS TEST",
+        "GATE LIFE TEST",
+        "GATE STRESS TEST",
+        "SWITCHING LIFE TEST",
+        "PHYSICS BASED MODEL OF eGaN DEVICE GATE FAILURE MECHANISMS",
+        "GAN LEAKAGE COMPONENTS"
+      ]
+    },
+    {
+      "id": "radiation_results",
+      "title": "Radiation Results",
+      "content": [
+        "TOTAL IRRADIATED DOSE (TID)",
+        "SINGLE EVENT EFFECTS (SEE)",
+        "RADIATION RESULTS FOR MODERN GAN-ON-SI POWER TRANSISTORS"
+      ]
+    },
+    {
+      "id": "device_results",
+      "title": "Device Test Results",
+      "content": [
+        "EPC7019D 0 HOURS SWITCHING TEST",
+        "EPC7019D 4000 HOURS ELECTRO-MIGRATION",
+        "FBG10N30BSH RELIABILITY",
+        "FBG20N18BSH RELIABILITY"
+      ]
+    }
+  ],
+  "navigation": ["Home", "Index", "Previous", "Next"]
+}
