@@ -14,6 +14,7 @@ function App() {
   const [originalData, setOriginalData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [changedPages, setChangedPages] = useState(new Set());
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,6 +60,7 @@ function App() {
       }
       return updated;
     });
+    setChangedPages(prev => new Set(prev).add(pageId));
   };
 
   const handleHeadingChange = (pageId, newValue) => {
@@ -70,6 +72,7 @@ function App() {
       }
       return updated;
     });
+    setChangedPages(prev => new Set(prev).add(pageId));
   };
 
   const handleImageChange = (pageId, data) => {
@@ -88,22 +91,26 @@ function App() {
       }
       return updated;
     });
+    setChangedPages(prev => new Set(prev).add(pageId));
   };
 
   const handleSave = async () => {
     try {
-      // Save all pages to the backend
-      for (const page of reportData.pages) {
-        // Don't send the entire transformed structure, just page_data
-        const payload = { 
-          page_data: {
-            ...page
-          }
-        };
-        await apiService.savePage(page.id, payload);
+      // Only save pages that were actually changed
+      const pagesToSave = Array.from(changedPages);
+      
+      for (const pageId of pagesToSave) {
+        const page = reportData.pages.find(p => p.id === pageId);
+        if (page) {
+          const payload = { 
+            page_data: { ...page }
+          };
+          await apiService.savePage(page.id, payload);
+        }
       }
       
       setOriginalData(JSON.parse(JSON.stringify(reportData)));
+      setChangedPages(new Set()); // Clear changed pages
       setIsEditMode(false);
     } catch (err) {
       console.error('Error saving report:', err);
@@ -112,6 +119,7 @@ function App() {
 
   const handleCancel = () => {
     setReportData(JSON.parse(JSON.stringify(originalData)));
+    setChangedPages(new Set()); // Clear changed pages on cancel
     setIsEditMode(false);
   };
 
