@@ -101,6 +101,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
         content={page.content}
         leftContent={page.leftContent}
         imageUrl={page.imageUrl}
+        layout={page.layout}
         isEditing={isEditMode}
         onChange={(updatedData) => onImageChange(page.id, updatedData)}
         onImageModalOpen={page.imageUrl ? () => onImageClick(page.imageUrl, page.title) : undefined}

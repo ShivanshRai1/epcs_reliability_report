@@ -4,13 +4,13 @@ import './App.css';
 import Home from './components/Home';
 import ReportPage from './components/ReportPage';
 import Modal from './components/Modal';
+import { apiService } from './services/api';
 
 function App() {
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [editedData, setEditedData] = useState(null);
   const [originalData, setOriginalData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -18,27 +18,26 @@ function App() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/structured_report_data.json');
-        if (!response.ok) throw new Error('Failed to fetch report data');
-        const data = await response.json();
+        // Fetch all pages from backend API
+        const pagesFromApi = await apiService.getPages();
         
-        // Load edited data from localStorage if available
-        const savedData = localStorage.getItem('epcsReportEdits');
-        if (savedData) {
-          try {
-            const parsed = JSON.parse(savedData);
-            setEditedData(parsed);
-            setReportData(data);
-            setOriginalData(JSON.parse(JSON.stringify(data)));
-          } catch (e) {
-            setReportData(data);
-            setOriginalData(JSON.parse(JSON.stringify(data)));
-          }
-        } else {
-          setReportData(data);
-          setOriginalData(JSON.parse(JSON.stringify(data)));
-        }
+        // Transform data structure for the app
+        // API returns { page_id, page_number, page_type, title, page_data, ... }
+        // App expects { pages: [{ id, title, ... }] }
+        const transformedData = {
+          pages: pagesFromApi.map(page => ({
+            id: page.page_id,
+            title: page.title,
+            pageType: page.page_type,
+            pageNumber: page.page_number,
+            ...page.page_data // Spread the actual page content
+          }))
+        };
+        
+        setReportData(transformedData);
+        setOriginalData(JSON.parse(JSON.stringify(transformedData)));
       } catch (err) {
+        console.error('Error loading report:', err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -91,9 +90,28 @@ function App() {
     });
   };
 
-  const handleSave = () => {
-    localStorage.setItem('epcsReportEdits', JSON.stringify(reportData));
-    setIsEditMode(false);
+  const handleSave = async () => {
+    try {
+      // Save each changed page to the backend
+      for (const page of reportData.pages) {
+        const pageData = {
+          id: page.id,
+          title: page.title,
+          pageType: page.page_type || page.pageType,
+          pageNumber: page.page_number || page.pageNumber,
+          ...page // Include all page content
+        };
+        
+        await apiService.savePage(page.id, { page_data: pageData });
+      }
+      
+      setOriginalData(JSON.parse(JSON.stringify(reportData)));
+      setIsEditMode(false);
+      alert('Report saved successfully!');
+    } catch (err) {
+      console.error('Error saving report:', err);
+      alert('Failed to save report: ' + err.message);
+    }
   };
 
   const handleCancel = () => {

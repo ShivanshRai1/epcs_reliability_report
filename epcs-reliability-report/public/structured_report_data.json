@@ -522,6 +522,106 @@
   "leftContent": "TEST CONDITION\nIDS=50A\nVGS=5V\nTJ=150C\nT=2000 HOURS",
   "rightHeader": "",
   "imageUrl": "/images/bg2b.png"
+},
+{
+  "id": "image_page42",
+  "pageNumber": 42,
+  "pageType": "image",
+  "title": "EPC7019D ELECTRO-MIGRATION  TEST (2000 HOURS) POST DC ELECTRICALS",
+  "imageUrl": "/images/bg2c.png"
+},
+{
+  "id": "fbg10n30bsh_reliability",
+  "pageNumber": 43,
+  "pageType": "split-content-image",
+  "title": "FBG10N30BSH RELIABILITY(2000+ HOURS)",
+  "leftHeader": "CNTRL-LEFT CLICK TO VIEW FULL REPORTS",
+  "rightHeader": "SAMPLE PAGE",
+  "content": [
+    { "type": "link", "text": "FBG10N30BSH", "url": "/pdfs/Reliability10N30.pptx" }
+  ],
+  "imageUrl": "/images/bg2d.png"
+},
+{
+  "id": "fbg20n18bsh_reliability",
+  "pageNumber": 44,
+  "pageType": "split-content-image",
+  "title": "FBG20N18BSH RELIABILITY(2000+ HOURS)",
+  "leftHeader": "CNTRL-LEFT CLICK TO VIEW FULL REPORTS",
+  "rightHeader": "SAMPLE PAGE",
+  "content": [
+    { "type": "link", "text": "FBG20N18BSH", "url": "/pdfs/Reliability20N18.pptx" }
+  ],
+  "imageUrl": "/images/bg2e.png"
+},
+{
+  "id": "life_and_stress_tests",
+  "pageNumber": 45,
+  "pageType": "heading",
+  "title": "LIFE AND STRESS TESTS"
+},
+{
+  "id": "image_page46",
+  "pageNumber": 46,
+  "pageType": "image",
+  "title": "",
+  "imageUrl": "/images/bg30.png"
+},
+{
+  "id": "image_page47",
+  "pageNumber": 47,
+  "pageType": "image",
+  "title": "",
+  "imageUrl": "/images/bg31.png"
+},
+{
+  "id": "image_page48",
+  "pageNumber": 48,
+  "pageType": "image",
+  "title": "",
+  "imageUrl": "/images/bg32.png"
+},
+{
+  "id": "life_and_stress_tests_page",
+  "pageNumber": 49,
+  "pageType": "split-content-image",
+  "layout": "reversed",
+  "title": "LIFE AND STRESS TESTS",
+  "leftHeader": "",
+  "rightHeader": "",
+  "imageUrl": "/images/bg33.png",
+  "content": [
+    { "type": "link", "text": "10N30_Drain_stress_test", "url": "/pdfs/POF 10N30_Drain stress test.pptx" },
+    { "type": "link", "text": "10N30_Drain_Gate_Life_test", "url": "/pdfs/POF 10N30_Drain_Gate Life test.pptx" },
+    { "type": "link", "text": "10N30_Gate_Stress_test", "url": "/pdfs/POF 10N30_Gate Stress test.pptx" },
+    { "type": "link", "text": "10N30_Switch_stress_test", "url": "/pdfs/POF 10N30_Switch stress test.pptx" },
+    { "type": "link", "text": "10N30_Switching_life_test", "url": "/pdfs/POF 10N30_Switching life test.pptx" },
+    { "type": "link", "text": "20N18_Drain_Stress_Test", "url": "/pdfs/POF 20N18_Drain Stress Test.pptx" },
+    { "type": "link", "text": "20N18_Drain_Gate_Life_Test", "url": "/pdfs/POF 20N18_Drain_Gate Life Test.pptx" },
+    { "type": "link", "text": "20N18_Gate_Stress_Test", "url": "/pdfs/POF 20N18_Gate Stress Test.pptx" },
+    { "type": "link", "text": "20N18_Switching_Life_Test", "url": "/pdfs/POF 20N18_Switching Life Test.pptx" },
+    { "type": "link", "text": "20N18_Switching_Stress_Test", "url": "/pdfs/POF 20N18_Switching Stress Test.pptx" }
+  ]
+},
+{
+  "id": "physics_based_model_of_egan_device_gate_failur_mechanism",
+  "pageNumber": 50,
+  "pageType": "split-content-image",
+  "title": "PHYSICS BASED MODEL OF eGaN DEVICE GATE FAILURE MECHANISMS",
+  "leftHeader": "",
+  "leftContent": "PHYSICS BASED MODEL\nOF eGaN DEVICE GATE\nFAILURE MECHANISMS",
+  "rightHeader": "SAMPLE PAGE",
+  "imageUrl": "/images/bg34.png"
+},
+{
+  "id": "gan_leakage_components_described",
+  "pageNumber": 51,
+  "pageType": "split-content-image",
+  "title": "GAN LEAKAGE COMPONENTS DESCRIBED",
+  "leftHeader": "",
+  "leftContent": "EPC7007 200V LEAKAGE\nCOMPONENTS",
+  "rightHeader": "SAMPLE PAGE",
+  "imageUrl": "/images/bg35.png"
 }
   ]
 }

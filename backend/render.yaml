@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: epcs-backend
+    env: node
+    repo: https://github.com/YOUR_USERNAME/your-repo
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm run start
+    plan: free
+    envVars:
+      - key: DB_HOST
+        value: mysql-27aceb02-dashboard01.k.aivencloud.com
+      - key: DB_PORT
+        value: "26127"
+      - key: DB_USER
+        value: avnadmin
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        value: defaultdb
+      - key: NODE_ENV
+        value: production
+      - key: PRODUCTION_URL
+        value: https://your-netlify-site.netlify.app
