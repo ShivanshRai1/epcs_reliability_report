@@ -30,6 +30,15 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Backend server is running' });
 });
 
+// HEAD request support for uptime monitoring (UptimeRobot, etc)
+app.head('/health', (req, res) => {
+  res.status(200).end();
+});
+
+app.head('/', (req, res) => {
+  res.status(200).end();
+});
+
 // API Routes
 app.use('/api/pages', pagesRoute);
 app.use('/api/history', historyRoute);
