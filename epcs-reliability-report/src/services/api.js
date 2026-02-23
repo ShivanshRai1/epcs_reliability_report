@@ -26,7 +26,7 @@ export const apiService = {
   },
 
   // Save/update page
-  savePage: async (pageId, pageData, updatedBy = 'user') => {
+  savePage: async (pageId, payload, updatedBy = 'user') => {
     try {
       const res = await fetch(`${API_URL}/pages/${pageId}`, {
         method: 'POST',
@@ -34,7 +34,7 @@ export const apiService = {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          ...pageData,
+          page_data: payload.page_data,
           updated_by: updatedBy
         })
       });

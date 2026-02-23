@@ -94,7 +94,13 @@ function App() {
     try {
       // Save all pages to the backend
       for (const page of reportData.pages) {
-        await apiService.savePage(page.id, { page_data: page });
+        // Don't send the entire transformed structure, just page_data
+        const payload = { 
+          page_data: {
+            ...page
+          }
+        };
+        await apiService.savePage(page.id, payload);
       }
       
       setOriginalData(JSON.parse(JSON.stringify(reportData)));
