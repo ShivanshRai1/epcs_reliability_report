@@ -32,6 +32,14 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
 
   // Render index page (as true hyperlinks)
   if (page.pageType === 'index') {
+    console.log(`Rendering index page: ${page.id}`, {
+      pageType: page.pageType,
+      hasContent: !!page.content,
+      contentLength: page.content?.length,
+      content: page.content,
+      allKeys: Object.keys(page)
+    });
+    
     return (
       <div>
         <h2 className="index-title">{page.title}</h2>

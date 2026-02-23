@@ -22,6 +22,11 @@ function App() {
         // Fetch all pages from backend API
         const pagesFromApi = await apiService.getPages();
         
+        // Debug: Check first page (index page)
+        console.log('First page from API:', pagesFromApi[0]);
+        console.log('page_data type:', typeof pagesFromApi[0]?.page_data);
+        console.log('page_data content:', pagesFromApi[0]?.page_data);
+        
         // Transform data structure for the app
         // API returns { page_id, page_number, page_type, title, page_data, ... }
         // App expects { pages: [{ id, title, ... }] }
@@ -34,6 +39,10 @@ function App() {
             ...page.page_data // Spread the actual page content
           }))
         };
+        
+        console.log('Transformed first page:', transformedData.pages[0]);
+        console.log('Has content?', !!transformedData.pages[0]?.content);
+        console.log('Content length:', transformedData.pages[0]?.content?.length);
         
         setReportData(transformedData);
         setOriginalData(JSON.parse(JSON.stringify(transformedData)));
