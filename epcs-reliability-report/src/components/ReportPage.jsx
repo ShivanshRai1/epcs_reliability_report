@@ -54,7 +54,7 @@ export default function ReportPage({ reportData, isEditMode, onEditToggle, onCel
         >
           <h1>EPCS Reliability Report</h1>
         </button>
-        <Navigation onNavigate={handleNav} isEditMode={isEditMode} onEditToggle={onEditToggle} onSave={onSave} onCancel={onCancel} />
+        <Navigation onNavigate={handleNav} isEditMode={isEditMode} onEditToggle={onEditToggle} onSave={() => onSave(pageId)} onCancel={onCancel} />
         <div className="section-card report-content">
           <SectionPage page={page} onLinkClick={handleLinkClick} isEditMode={isEditMode} onCellChange={onCellChange} onHeadingChange={onHeadingChange} onImageChange={onImageChange} onImageClick={onImageClick} />
         </div>

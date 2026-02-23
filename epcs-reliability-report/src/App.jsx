@@ -90,27 +90,29 @@ function App() {
     });
   };
 
-  const handleSave = async () => {
+  const handleSave = async (pageId) => {
     try {
-      // Save each changed page to the backend
-      for (const page of reportData.pages) {
-        const pageData = {
-          id: page.id,
-          title: page.title,
-          pageType: page.page_type || page.pageType,
-          pageNumber: page.page_number || page.pageNumber,
-          ...page // Include all page content
-        };
-        
-        await apiService.savePage(page.id, { page_data: pageData });
+      // Find and save only the current page
+      const page = reportData.pages.find(p => p.id === pageId);
+      if (!page) {
+        console.error('Page not found:', pageId);
+        return;
       }
+
+      const pageData = {
+        id: page.id,
+        title: page.title,
+        pageType: page.page_type || page.pageType,
+        pageNumber: page.page_number || page.pageNumber,
+        ...page // Include all page content
+      };
+      
+      await apiService.savePage(page.id, { page_data: pageData });
       
       setOriginalData(JSON.parse(JSON.stringify(reportData)));
       setIsEditMode(false);
-      alert('Report saved successfully!');
     } catch (err) {
       console.error('Error saving report:', err);
-      alert('Failed to save report: ' + err.message);
     }
   };
 
