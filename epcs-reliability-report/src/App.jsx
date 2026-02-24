@@ -4,6 +4,7 @@ import './App.css';
 import Home from './components/Home';
 import ReportPage from './components/ReportPage';
 import Modal from './components/Modal';
+import AddPageDialog from './components/AddPageDialog';
 import { apiService } from './services/api';
 
 function App() {
@@ -15,6 +16,8 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [changedPages, setChangedPages] = useState(new Set());
+  const [isAddPageDialogOpen, setIsAddPageDialogOpen] = useState(false);
+  const [currentPageId, setCurrentPageId] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -146,6 +149,43 @@ function App() {
     setIsModalOpen(true);
   };
 
+  const handleOpenAddPageDialog = (pageId = null) => {
+    setCurrentPageId(pageId);
+    setIsAddPageDialogOpen(true);
+  };
+
+  const handleCloseAddPageDialog = () => {
+    setIsAddPageDialogOpen(false);
+    setCurrentPageId(null);
+  };
+
+  const handlePageCreate = async (newPage) => {
+    try {
+      // Refresh pages list from backend
+      const pagesFromApi = await apiService.getPages();
+      const transformedData = {
+        pages: pagesFromApi.map(page => ({
+          id: page.page_id,
+          title: page.title,
+          pageType: page.page_type,
+          pageNumber: page.page_number,
+          ...page.page_data
+        }))
+      };
+      
+      setReportData(transformedData);
+      setOriginalData(JSON.parse(JSON.stringify(transformedData)));
+      
+      // Exit edit mode after creating page
+      setIsEditMode(false);
+      setChangedPages(new Set());
+      
+      console.log('✅ Page created successfully:', newPage);
+    } catch (err) {
+      console.error('Error creating page:', err);
+    }
+  };
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedImage(null);
@@ -158,9 +198,15 @@ function App() {
   return (
     <>
       <Modal isOpen={isModalOpen} imageSrc={selectedImage?.src} imageAlt={selectedImage?.alt} onClose={handleCloseModal} />
+      <AddPageDialog 
+        isOpen={isAddPageDialogOpen} 
+        onClose={handleCloseAddPageDialog}
+        onPageCreate={handlePageCreate}
+        currentPageId={currentPageId}
+      />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} onEditToggle={handleEditToggle} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} />} />
+        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} onEditToggle={handleEditToggle} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} />} />
         <Route path="*" element={<div className="App"><p>Page not found</p></div>} />
       </Routes>
     </>

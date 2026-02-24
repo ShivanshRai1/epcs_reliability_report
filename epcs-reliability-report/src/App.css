@@ -220,6 +220,15 @@ nav button:hover, .section-list-btn:hover {
   background: #a03a3a !important;
 }
 
+.edit-add {
+  background: #4a7a5a !important;
+}
+
+.edit-add:hover {
+  background: #5a9a6a !important;
+}
+}
+
 table {
   width: 100%;
   border-collapse: collapse;

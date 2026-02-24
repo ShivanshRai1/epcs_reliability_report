@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Navigation = ({ onNavigate, isEditMode, onEditToggle, onSave, onCancel }) => {
+const Navigation = ({ onNavigate, isEditMode, onEditToggle, onSave, onCancel, onAddPage, currentPageId }) => {
   return (
     <nav style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
       <button className="section-list-btn" onClick={() => onNavigate('home')}>Home</button>
@@ -10,6 +10,7 @@ const Navigation = ({ onNavigate, isEditMode, onEditToggle, onSave, onCancel }) 
       
       {isEditMode ? (
         <>
+          <button className="section-list-btn edit-add" onClick={onAddPage} title="Add new page after current page">➕ Add Page</button>
           <button className="section-list-btn edit-save" onClick={onSave}>Save</button>
           <button className="section-list-btn edit-cancel" onClick={onCancel}>Cancel</button>
         </>
