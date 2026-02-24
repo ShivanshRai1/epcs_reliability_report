@@ -5,8 +5,9 @@ import HeadingSection from './HeadingSection';
 import ImageSection from './ImageSection';
 import SplitContentImageSection from './SplitContentImageSection';
 import ContentSection from './ContentSection';
+import IndexEditor from './IndexEditor';
 
-const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingChange, onImageChange, onImageClick }) => {
+const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingChange, onImageChange, onIndexChange, onImageClick }) => {
   if (!page) return <div style={{ padding: '1.5rem 0' }}>No page data available.</div>;
 
   // Render heading page (just title + subtitle)
@@ -32,14 +33,19 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
 
   // Render index page (as true hyperlinks)
   if (page.pageType === 'index') {
-    console.log(`Rendering index page: ${page.id}`, {
-      pageType: page.pageType,
-      hasContent: !!page.content,
-      contentLength: page.content?.length,
-      content: page.content,
-      allKeys: Object.keys(page)
-    });
-    
+    // If in edit mode, show the editor
+    if (isEditMode) {
+      return (
+        <div>
+          <IndexEditor 
+            page={page} 
+            onChange={(updatedPage) => onIndexChange(page.id, updatedPage)}
+          />
+        </div>
+      );
+    }
+
+    // Otherwise show read-only view
     return (
       <div>
         <h2 className="index-title">{page.title}</h2>

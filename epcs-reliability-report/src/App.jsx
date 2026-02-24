@@ -22,11 +22,6 @@ function App() {
         // Fetch all pages from backend API
         const pagesFromApi = await apiService.getPages();
         
-        // Debug: Check first page (index page)
-        console.log('First page from API:', pagesFromApi[0]);
-        console.log('page_data type:', typeof pagesFromApi[0]?.page_data);
-        console.log('page_data content:', pagesFromApi[0]?.page_data);
-        
         // Transform data structure for the app
         // API returns { page_id, page_number, page_type, title, page_data, ... }
         // App expects { pages: [{ id, title, ... }] }
@@ -39,10 +34,6 @@ function App() {
             ...page.page_data // Spread the actual page content
           }))
         };
-        
-        console.log('Transformed first page:', transformedData.pages[0]);
-        console.log('Has content?', !!transformedData.pages[0]?.content);
-        console.log('Content length:', transformedData.pages[0]?.content?.length);
         
         setReportData(transformedData);
         setOriginalData(JSON.parse(JSON.stringify(transformedData)));
@@ -103,6 +94,19 @@ function App() {
     setChangedPages(prev => new Set(prev).add(pageId));
   };
 
+  const handleIndexChange = (pageId, updatedPageData) => {
+    setReportData(prevData => {
+      const updated = JSON.parse(JSON.stringify(prevData));
+      const page = updated.pages.find(p => p.id === pageId);
+      if (page && updatedPageData) {
+        page.title = updatedPageData.title;
+        page.content = updatedPageData.content;
+      }
+      return updated;
+    });
+    setChangedPages(prev => new Set(prev).add(pageId));
+  };
+
   const handleSave = async () => {
     try {
       // Only save pages that were actually changed
@@ -151,7 +155,7 @@ function App() {
       <Modal isOpen={isModalOpen} imageSrc={selectedImage?.src} imageAlt={selectedImage?.alt} onClose={handleCloseModal} />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} onEditToggle={handleEditToggle} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} />} />
+        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} onEditToggle={handleEditToggle} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} />} />
         <Route path="*" element={<div className="App"><p>Page not found</p></div>} />
       </Routes>
     </>

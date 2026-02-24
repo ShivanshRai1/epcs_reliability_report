@@ -1,0 +1,219 @@
+.index-editor {
+  padding: 1.5rem;
+  background-color: rgba(15, 23, 42, 0.6);
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.index-editor-section {
+  margin-bottom: 1.5rem;
+}
+
+.index-editor-section label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #e0e6f0;
+  margin-bottom: 0.5rem;
+}
+
+.index-editor-section h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e0e6f0;
+  margin-bottom: 0.3rem;
+}
+
+.help-text {
+  font-size: 0.85rem;
+  color: rgba(224, 230, 240, 0.6);
+  margin-bottom: 0.8rem;
+  font-style: italic;
+}
+
+.index-title-input {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(100, 165, 255, 0.3);
+  border-radius: 4px;
+  color: #e0e6f0;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.index-title-input:focus {
+  outline: none;
+  border-color: rgba(100, 165, 255, 0.7);
+  box-shadow: 0 0 8px rgba(100, 165, 255, 0.2);
+}
+
+.index-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 500px;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.index-item-editor {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  background-color: rgba(15, 23, 42, 0.8);
+  padding: 0.75rem;
+  border: 2px solid rgba(100, 165, 255, 0.2);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.index-item-editor:hover {
+  background-color: rgba(15, 23, 42, 1);
+  border-color: rgba(100, 165, 255, 0.4);
+}
+
+.index-item-editor.selected {
+  background-color: rgba(100, 165, 255, 0.15);
+  border-color: rgba(100, 165, 255, 0.8);
+  box-shadow: 0 0 12px rgba(100, 165, 255, 0.2);
+}
+
+.index-item-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: rgba(100, 165, 255, 0.2);
+  border: 1px solid rgba(100, 165, 255, 0.4);
+  border-radius: 4px;
+  color: #64a5ff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.index-item-editor.selected .index-item-number {
+  background-color: rgba(100, 165, 255, 0.4);
+  border-color: rgba(100, 165, 255, 0.7);
+}
+
+.index-item-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.item-title-input,
+.item-target-input {
+  padding: 0.6rem;
+  background-color: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(100, 165, 255, 0.2);
+  border-radius: 4px;
+  color: #e0e6f0;
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.item-title-input:focus,
+.item-target-input:focus {
+  outline: none;
+  border-color: rgba(100, 165, 255, 0.5);
+  box-shadow: 0 0 6px rgba(100, 165, 255, 0.2);
+}
+
+.item-title-input::placeholder,
+.item-target-input::placeholder {
+  color: rgba(224, 230, 240, 0.5);
+}
+
+.delete-btn {
+  background-color: rgba(255, 107, 107, 0.1);
+  color: #ff6b6b;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 4px;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.delete-btn:hover {
+  background-color: rgba(255, 107, 107, 0.25);
+  border-color: rgba(255, 107, 107, 0.6);
+}
+
+.add-item-btn {
+  background-color: rgba(76, 175, 80, 0.8);
+  color: white;
+  border: 1px solid rgba(76, 175, 80, 0.5);
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.add-item-btn:hover {
+  background-color: rgba(76, 175, 80, 1);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.new-item-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background-color: rgba(15, 23, 42, 0.8);
+  padding: 1rem;
+  border: 1px dashed rgba(100, 165, 255, 0.4);
+  border-radius: 4px;
+}
+
+.new-item-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.add-btn {
+  background-color: rgba(76, 175, 80, 0.8);
+  color: white;
+  border: 1px solid rgba(76, 175, 80, 0.5);
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.add-btn:hover {
+  background-color: rgba(76, 175, 80, 1);
+}
+
+.cancel-btn {
+  background-color: rgba(100, 100, 100, 0.6);
+  color: #e0e6f0;
+  border: 1px solid rgba(100, 100, 100, 0.4);
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.cancel-btn:hover {
+  background-color: rgba(100, 100, 100, 0.8);
+}
