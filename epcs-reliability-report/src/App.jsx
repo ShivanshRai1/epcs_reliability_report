@@ -68,7 +68,12 @@ function App() {
       const updated = JSON.parse(JSON.stringify(prevData));
       const page = updated.pages.find(p => p.id === pageId);
       if (page) {
-        page.title = newValue;
+        // Support both string (title only) and object (title + subtitle) updates
+        if (typeof newValue === 'string') {
+          page.title = newValue;
+        } else if (typeof newValue === 'object') {
+          Object.assign(page, newValue);
+        }
       }
       return updated;
     });

@@ -2,6 +2,7 @@ import React from 'react';
 
 import Table from './Table';
 import HeadingSection from './HeadingSection';
+import HeadingPageEditor from './HeadingPageEditor';
 import ImageSection from './ImageSection';
 import SplitContentImageSection from './SplitContentImageSection';
 import ContentSection from './ContentSection';
@@ -15,12 +16,26 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
     // Ensure all heading pages (4, 8, 10) use the same styling and structure
     // Use backgroundClass for all, default to 'heading-derating' if not provided
     const headingClass = page.backgroundClass || 'heading-derating';
+    
+    if (isEditMode) {
+      return (
+        <div className={`page-heading ${headingClass}`}>
+          <div className="page-heading-content">
+            <HeadingPageEditor
+              page={page}
+              onChange={(updatedPage) => onHeadingChange(page.id, updatedPage)}
+            />
+          </div>
+        </div>
+      );
+    }
+    
     return (
       <div className={`page-heading ${headingClass}`}>
         <div className="page-heading-content">
           <HeadingSection
             heading={page.title}
-            isEditMode={isEditMode}
+            isEditMode={false}
             onChange={(newValue) => onHeadingChange(page.id, newValue)}
           />
           {page.subtitle && (

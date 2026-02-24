@@ -1,0 +1,56 @@
+.heading-page-editor {
+  padding: 2rem;
+  background-color: rgba(15, 23, 42, 0.6);
+  border-radius: 8px;
+  margin: 2rem 0;
+}
+
+.heading-editor-section {
+  margin-bottom: 1.5rem;
+}
+
+.heading-editor-section:last-child {
+  margin-bottom: 0;
+}
+
+.heading-editor-section label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #e0e6f0;
+  margin-bottom: 0.5rem;
+}
+
+.heading-title-input,
+.heading-subtitle-input {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(100, 165, 255, 0.3);
+  border-radius: 4px;
+  color: #e0e6f0;
+  font-size: 1rem;
+  font-family: inherit;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.heading-title-input:focus,
+.heading-subtitle-input:focus {
+  outline: none;
+  border-color: rgba(100, 165, 255, 0.7);
+  box-shadow: 0 0 8px rgba(100, 165, 255, 0.2);
+}
+
+.heading-title-input::placeholder,
+.heading-subtitle-input::placeholder {
+  color: rgba(224, 230, 240, 0.5);
+}
+
+.heading-title-input {
+  font-size: 1.2rem;
+}
+
+.heading-subtitle-input {
+  font-size: 0.95rem;
+}
