@@ -4,6 +4,9 @@ import Table from './Table';
 import HeadingSection from './HeadingSection';
 import HeadingPageEditor from './HeadingPageEditor';
 import AdvancedTableEditor from './AdvancedTableEditor';
+import TextOnlyEditor from './TextOnlyEditor';
+import LinksOnlyEditor from './LinksOnlyEditor';
+import FlexibleLayoutEditor from './FlexibleLayoutEditor';
 import ImageSection from './ImageSection';
 import SplitContentImageSection from './SplitContentImageSection';
 import ContentSection from './ContentSection';
@@ -43,6 +46,124 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
             <h3 className="page-heading-subtitle">{page.subtitle}</h3>
           )}
         </div>
+      </div>
+    );
+  }
+
+  // Render text-only page
+  if (page.pageType === 'text-only') {
+    if (isEditMode) {
+      return <TextOnlyEditor page={page} onChange={(updatedPage) => onCellChange(page.id, updatedPage)} />;
+    }
+    
+    return (
+      <div style={{ color: '#e0e6f0', lineHeight: 1.6 }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: '#fff' }}>
+          {page.title}
+        </h2>
+        <div style={{ whiteSpace: 'pre-wrap', fontSize: '0.95rem' }}>{page.content}</div>
+      </div>
+    );
+  }
+
+  // Render just-links page
+  if (page.pageType === 'just-links') {
+    if (isEditMode) {
+      return <LinksOnlyEditor page={page} onChange={(updatedPage) => onCellChange(page.id, updatedPage)} />;
+    }
+    
+    return (
+      <div>
+        <h2 className="index-title">{page.title}</h2>
+        <ul className="index-list">
+          {page.links && page.links.map((link, idx) => (
+            <li key={idx}>
+              <a href="#" className="index-link" onClick={(e) => {
+                e.preventDefault();
+                if (onLinkClick) onLinkClick(link.target);
+              }}>
+                {link.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
+  // Render just-tables page
+  if (page.pageType === 'just-tables') {
+    if (isEditMode) {
+      return (
+        <div>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: '#fff' }}>
+            {page.title}
+          </h2>
+          <AdvancedTableEditor page={page} onChange={(updatedPage) => onCellChange(page.id, updatedPage)} />
+        </div>
+      );
+    }
+    
+    return (
+      <div>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: '#fff' }}>
+          {page.title}
+        </h2>
+        {page.captionTop && <div style={{ marginBottom: '1rem', fontSize: '0.95rem', color: '#ddd' }}>{page.captionTop}</div>}
+        <Table columns={page.table?.columns} data={page.table?.data} isEditMode={false} pageId={page.id} onCellChange={onCellChange} />
+        {page.captionBottom && <div style={{ marginTop: '1rem', fontSize: '0.95rem', color: '#ddd' }}>{page.captionBottom}</div>}
+      </div>
+    );
+  }
+
+  // Render just-images page
+  if (page.pageType === 'just-images') {
+    if (isEditMode) {
+      return <FlexibleLayoutEditor page={page} onChange={(updatedPage) => onCellChange(page.id, updatedPage)} pageType="just-images" />;
+    }
+    
+    return (
+      <div style={{ textAlign: 'center' }}>
+        {page.title && (
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: '#fff' }}>
+            {page.title}
+          </h2>
+        )}
+        {page.images && page.images.map((img, idx) => (
+          <div key={idx} style={{ marginBottom: '1.5rem' }}>
+            <img src={img} alt={`Image ${idx + 1}`} style={{ maxWidth: '100%', height: 'auto', borderRadius: '4px', cursor: 'pointer' }} onClick={() => onImageClick(img, `Image ${idx + 1}`)} />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // Render image-text page (flexible layout)
+  if (page.pageType === 'image-text') {
+    if (isEditMode) {
+      return <FlexibleLayoutEditor page={page} onChange={(updatedPage) => onCellChange(page.id, updatedPage)} />;
+    }
+    
+    return (
+      <div style={{ display: 'grid', gridTemplateColumns: page.imagePosition === 'left' ? '1fr 1fr' : '1fr 1fr', gap: '2rem', alignItems: 'center' }}>
+        {page.imagePosition === 'left' && page.imageUrl && (
+          <div onClick={() => onImageClick(page.imageUrl, page.imageCaption)} style={{ cursor: 'pointer' }}>
+            <img src={page.imageUrl} alt={page.imageCaption} style={{ maxWidth: '100%', height: 'auto', borderRadius: '4px' }} />
+            {page.imageCaption && <p style={{ fontSize: '0.85rem', color: '#999', marginTop: '0.5rem' }}>{page.imageCaption}</p>}
+          </div>
+        )}
+        
+        <div style={{ color: '#e0e6f0', fontSize: '0.95rem', lineHeight: 1.6 }}>
+          <p>{page.content}</p>
+          {page.link && <a href="#" style={{ color: '#2e7be6', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); onLinkClick(page.link); }}>Continue →</a>}
+        </div>
+        
+        {page.imagePosition === 'right' && page.imageUrl && (
+          <div onClick={() => onImageClick(page.imageUrl, page.imageCaption)} style={{ cursor: 'pointer' }}>
+            <img src={page.imageUrl} alt={page.imageCaption} style={{ maxWidth: '100%', height: 'auto', borderRadius: '4px' }} />
+            {page.imageCaption && <p style={{ fontSize: '0.85rem', color: '#999', marginTop: '0.5rem' }}>{page.imageCaption}</p>}
+          </div>
+        )}
       </div>
     );
   }
