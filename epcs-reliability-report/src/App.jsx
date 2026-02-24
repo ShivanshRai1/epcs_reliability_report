@@ -5,6 +5,8 @@ import Home from './components/Home';
 import ReportPage from './components/ReportPage';
 import Modal from './components/Modal';
 import AddPageDialog from './components/AddPageDialog';
+import DeletePageDialog from './components/DeletePageDialog';
+import PageManagerModal from './components/PageManagerModal';
 import { apiService } from './services/api';
 
 function App() {
@@ -18,6 +20,11 @@ function App() {
   const [changedPages, setChangedPages] = useState(new Set());
   const [isAddPageDialogOpen, setIsAddPageDialogOpen] = useState(false);
   const [currentPageId, setCurrentPageId] = useState(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [pageToDelete, setPageToDelete] = useState(null);
+  const [isPageManagerOpen, setIsPageManagerOpen] = useState(false);
+  const [isDeletingPageId, setIsDeletingPageId] = useState(null);
+  const [isReordering, setIsReordering] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -186,6 +193,74 @@ function App() {
     }
   };
 
+  const handleOpenDeleteDialog = (page) => {
+    setPageToDelete(page);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async (pageId) => {
+    try {
+      setIsDeletingPageId(pageId);
+      await apiService.deletePage(pageId);
+
+      // Refresh pages list
+      const pagesFromApi = await apiService.getPages();
+      const transformedData = {
+        pages: pagesFromApi.map(page => ({
+          id: page.page_id,
+          title: page.title,
+          pageType: page.page_type,
+          pageNumber: page.page_number,
+          ...page.page_data
+        }))
+      };
+
+      setReportData(transformedData);
+      setOriginalData(JSON.parse(JSON.stringify(transformedData)));
+      setIsDeleteDialogOpen(false);
+      setPageToDelete(null);
+      
+      console.log('✅ Page deleted successfully');
+    } catch (err) {
+      console.error('Error deleting page:', err);
+    } finally {
+      setIsDeletingPageId(null);
+    }
+  };
+
+  const handleReorderPages = async (pageOrder) => {
+    try {
+      setIsReordering(true);
+      await apiService.reorderPages(pageOrder);
+
+      // Refresh pages list
+      const pagesFromApi = await apiService.getPages();
+      const transformedData = {
+        pages: pagesFromApi.map(page => ({
+          id: page.page_id,
+          title: page.title,
+          pageType: page.page_type,
+          pageNumber: page.page_number,
+          ...page.page_data
+        }))
+      };
+
+      setReportData(transformedData);
+      setOriginalData(JSON.parse(JSON.stringify(transformedData)));
+      
+      console.log('✅ Pages reordered successfully');
+    } catch (err) {
+      console.error('Error reordering pages:', err);
+    } finally {
+      setIsReordering(false);
+    }
+  };
+
+  const handleNavigateToPage = (pageNumber) => {
+    // Will be called from page manager to navigate to a specific page
+    window.location.href = `/page/${pageNumber}`;
+  };
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedImage(null);
@@ -204,9 +279,29 @@ function App() {
         onPageCreate={handlePageCreate}
         currentPageId={currentPageId}
       />
+      <DeletePageDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => {
+          setIsDeleteDialogOpen(false);
+          setPageToDelete(null);
+        }}
+        page={pageToDelete}
+        onConfirmDelete={handleConfirmDelete}
+        isDeleting={isDeletingPageId === pageToDelete?.id}
+      />
+      <PageManagerModal
+        isOpen={isPageManagerOpen}
+        onClose={() => setIsPageManagerOpen(false)}
+        pages={reportData?.pages || []}
+        onReorder={handleReorderPages}
+        onDelete={handleOpenDeleteDialog}
+        onNavigate={handleNavigateToPage}
+        isReordering={isReordering}
+        isDeletingId={isDeletingPageId}
+      />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} onEditToggle={handleEditToggle} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} />} />
+        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} onEditToggle={handleEditToggle} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} />} />
         <Route path="*" element={<div className="App"><p>Page not found</p></div>} />
       </Routes>
     </>

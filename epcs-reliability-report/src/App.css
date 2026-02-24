@@ -227,6 +227,22 @@ nav button:hover, .section-list-btn:hover {
 .edit-add:hover {
   background: #5a9a6a !important;
 }
+
+.edit-delete {
+  background: #7a5a4a !important;
+}
+
+.edit-delete:hover {
+  background: #9a6a4a !important;
+}
+
+.edit-manage {
+  background: #4a6a7a !important;
+}
+
+.edit-manage:hover {
+  background: #5a8a9a !important;
+}
 }
 
 table {

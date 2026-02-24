@@ -3,6 +3,7 @@ import React from 'react';
 import Table from './Table';
 import HeadingSection from './HeadingSection';
 import HeadingPageEditor from './HeadingPageEditor';
+import AdvancedTableEditor from './AdvancedTableEditor';
 import ImageSection from './ImageSection';
 import SplitContentImageSection from './SplitContentImageSection';
 import ContentSection from './ContentSection';
@@ -88,12 +89,28 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
 
   // Render table page
   if (page.pageType === 'table' && page.table) {
+    if (isEditMode) {
+      return (
+        <div>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: '#fff' }}>
+            {page.title}
+          </h2>
+          <AdvancedTableEditor 
+            page={page}
+            onChange={(updatedPage) => onCellChange(page.id, updatedPage)}
+          />
+        </div>
+      );
+    }
+    
     return (
       <div>
         <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: '#fff' }}>
           {page.title}
         </h2>
-        <Table columns={page.table.columns} data={page.table.data} isEditMode={isEditMode} pageId={page.id} onCellChange={onCellChange} />
+        {page.captionTop && <div style={{ marginBottom: '1rem', fontSize: '0.95rem', color: '#ddd' }}>{page.captionTop}</div>}
+        <Table columns={page.table.columns} data={page.table.data} isEditMode={false} pageId={page.id} onCellChange={onCellChange} />
+        {page.captionBottom && <div style={{ marginTop: '1rem', fontSize: '0.95rem', color: '#ddd' }}>{page.captionBottom}</div>}
       </div>
     );
   }

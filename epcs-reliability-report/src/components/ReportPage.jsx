@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Navigation from './Navigation';
 import SectionPage from './SectionPage';
 
-export default function ReportPage({ reportData, isEditMode, onEditToggle, onCellChange, onHeadingChange, onImageChange, onIndexChange, onSave, onCancel, onImageClick, onAddPage }) {
+export default function ReportPage({ reportData, isEditMode, onEditToggle, onCellChange, onHeadingChange, onImageChange, onIndexChange, onSave, onCancel, onImageClick, onAddPage, onDeletePage, onManagePages }) {
   const { pageId } = useParams();
   const navigate = useNavigate();
 
@@ -54,7 +54,7 @@ export default function ReportPage({ reportData, isEditMode, onEditToggle, onCel
         >
           <h1>EPCS Reliability Report</h1>
         </button>
-        <Navigation onNavigate={handleNav} isEditMode={isEditMode} onEditToggle={onEditToggle} onSave={onSave} onCancel={onCancel} onAddPage={() => onAddPage(page.id)} currentPageId={page.id} />
+        <Navigation onNavigate={handleNav} isEditMode={isEditMode} onEditToggle={onEditToggle} onSave={onSave} onCancel={onCancel} onAddPage={() => onAddPage(page.id)} onDeletePage={() => onDeletePage(page)} onManagePages={onManagePages} currentPageId={page.id} />
         <div className="section-card report-content">
           <SectionPage page={page} onLinkClick={handleLinkClick} isEditMode={isEditMode} onCellChange={onCellChange} onHeadingChange={onHeadingChange} onImageChange={onImageChange} onIndexChange={onIndexChange} onImageClick={onImageClick} />
         </div>

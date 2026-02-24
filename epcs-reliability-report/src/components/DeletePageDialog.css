@@ -1,0 +1,149 @@
+.delete-page-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  padding: 20px;
+}
+
+.delete-page-dialog {
+  background: #f8f9fa;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+}
+
+.delete-page-dialog .dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #dee2e6;
+  background: #fff;
+  border-radius: 8px 8px 0 0;
+}
+
+.delete-page-dialog .dialog-header h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #d32f2f;
+}
+
+.delete-page-dialog .close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #6c757d;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.delete-page-dialog .close-btn:hover {
+  background: #e9ecef;
+  color: #212529;
+}
+
+.delete-page-dialog .dialog-body {
+  padding: 20px;
+}
+
+.warning-text {
+  font-size: 1rem;
+  color: #212529;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.page-info {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.page-info div {
+  color: #856404;
+  font-size: 0.95rem;
+}
+
+.page-type-badge {
+  display: inline-block;
+  background: #ffc107;
+  color: #000;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+
+.note-text {
+  font-size: 0.85rem;
+  color: #6c757d;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.delete-page-dialog .dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 15px 20px;
+  border-top: 1px solid #dee2e6;
+  background: #f0f0f0;
+  border-radius: 0 0 8px 8px;
+}
+
+.delete-page-dialog .btn-cancel,
+.delete-page-dialog .btn-delete {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.delete-page-dialog .btn-cancel {
+  background: #6c757d;
+  color: white;
+}
+
+.delete-page-dialog .btn-cancel:hover:not(:disabled) {
+  background: #5a6268;
+}
+
+.delete-page-dialog .btn-delete {
+  background: #d32f2f;
+  color: white;
+}
+
+.delete-page-dialog .btn-delete:hover:not(:disabled) {
+  background: #c62828;
+}
+
+.delete-page-dialog .btn-cancel:disabled,
+.delete-page-dialog .btn-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
