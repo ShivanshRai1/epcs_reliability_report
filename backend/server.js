@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import pool from './config/database.js';
 import pagesRoute from './routes/pages.js';
 import historyRoute from './routes/history.js';
+import cmsRoute from './routes/cms.js';
 
 dotenv.config();
 
@@ -42,6 +43,7 @@ app.head('/', (req, res) => {
 // API Routes
 app.use('/api/pages', pagesRoute);
 app.use('/api/history', historyRoute);
+app.use('/api/cms', cmsRoute);
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -54,7 +56,13 @@ app.get('/', (req, res) => {
       'GET /api/pages/:pageId',
       'POST /api/pages/:pageId',
       'GET /api/report/full',
-      'GET /api/history/:pageId'
+      'GET /api/history/:pageId',
+      '--- CMS Endpoints (NEW) ---',
+      'GET /api/cms/templates',
+      'POST /api/cms/create',
+      'DELETE /api/cms/:pageId',
+      'PATCH /api/cms/reorder',
+      'GET /api/cms/list'
     ]
   });
 });
