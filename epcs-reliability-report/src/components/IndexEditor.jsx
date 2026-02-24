@@ -9,6 +9,17 @@ const IndexEditor = ({ page, onChange }) => {
   const [newItemTarget, setNewItemTarget] = useState('');
   const [selectedIdx, setSelectedIdx] = useState(null);
   const containerRef = useRef(null);
+  const itemRefs = useRef({});
+
+  // Auto-scroll to selected item
+  useEffect(() => {
+    if (selectedIdx !== null && itemRefs.current[selectedIdx]) {
+      const selectedElement = itemRefs.current[selectedIdx];
+      setTimeout(() => {
+        selectedElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 0);
+    }
+  }, [selectedIdx]);
 
   // Handle arrow key navigation
   useEffect(() => {
@@ -108,7 +119,10 @@ const IndexEditor = ({ page, onChange }) => {
         <div className="index-items-list">
           {content.map((item, idx) => (
             <div 
-              key={idx} 
+              key={idx}
+              ref={(ref) => {
+                if (ref) itemRefs.current[idx] = ref;
+              }}
               className={`index-item-editor ${selectedIdx === idx ? 'selected' : ''}`}
               onClick={() => setSelectedIdx(idx)}
               role="button"
