@@ -34,7 +34,7 @@ async function runMigration() {
     if (!existingColumns.includes('position')) {
       console.log('🔄 Adding position column...');
       await connection.query(
-        `ALTER TABLE pages ADD COLUMN position INT DEFAULT page_number AFTER page_number`
+        `ALTER TABLE pages ADD COLUMN position INT AFTER page_number`
       );
       console.log('   ✅ Added position column');
     }
@@ -43,7 +43,7 @@ async function runMigration() {
     if (!existingColumns.includes('page_template')) {
       console.log('🔄 Adding page_template column...');
       await connection.query(
-        `ALTER TABLE pages ADD COLUMN page_template VARCHAR(50) DEFAULT page_type AFTER page_type`
+        `ALTER TABLE pages ADD COLUMN page_template VARCHAR(50) AFTER page_type`
       );
       console.log('   ✅ Added page_template column');
     }
@@ -55,6 +55,30 @@ async function runMigration() {
         `ALTER TABLE pages ADD COLUMN is_deleted BOOLEAN DEFAULT FALSE AFTER updated_by`
       );
       console.log('   ✅ Added is_deleted column');
+    }
+    
+    // Populate position column with page_number if column was just added
+    const [positionData] = await connection.query(
+      `SELECT COUNT(*) as count FROM pages WHERE position IS NULL`
+    );
+    if (positionData[0].count > 0) {
+      console.log('🔄 Populating position column...');
+      await connection.query(
+        `UPDATE pages SET position = page_number WHERE position IS NULL`
+      );
+      console.log('   ✅ Populated position column');
+    }
+    
+    // Populate page_template column with page_type if column was just added
+    const [templateData] = await connection.query(
+      `SELECT COUNT(*) as count FROM pages WHERE page_template IS NULL OR page_template = ''`
+    );
+    if (templateData[0].count > 0) {
+      console.log('🔄 Populating page_template column...');
+      await connection.query(
+        `UPDATE pages SET page_template = page_type WHERE page_template IS NULL OR page_template = ''`
+      );
+      console.log('   ✅ Populated page_template column');
     }
     
     if (existingColumns.length === 3) {

@@ -29,7 +29,7 @@ async function migrate() {
     if (!existingColumns.includes('position')) {
       console.log('   Adding column: position');
       await connection.query(
-        `ALTER TABLE pages ADD COLUMN position INT DEFAULT page_number AFTER page_number`
+        `ALTER TABLE pages ADD COLUMN position INT AFTER page_number`
       );
       console.log('   ✅ Added position column');
     } else {
@@ -40,14 +40,14 @@ async function migrate() {
     if (!existingColumns.includes('page_template')) {
       console.log('   Adding column: page_template');
       await connection.query(
-        `ALTER TABLE pages ADD COLUMN page_template VARCHAR(50) DEFAULT page_type AFTER page_type`
+        `ALTER TABLE pages ADD COLUMN page_template VARCHAR(50) AFTER page_type`
       );
       console.log('   ✅ Added page_template column');
     } else {
       console.log('   ℹ️ page_template column already exists');
     }
     
-    // Add is_deleted column for soft deletes (helpful for undo feature later)
+    // Add is_deleted column if it doesn't exist
     const [deleteColumns] = await connection.query(
       `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
        WHERE TABLE_NAME = 'pages' AND COLUMN_NAME = 'is_deleted'`
@@ -61,6 +61,30 @@ async function migrate() {
       console.log('   ✅ Added is_deleted column');
     } else {
       console.log('   ℹ️ is_deleted column already exists');
+    }
+    
+    // Populate position column with page_number if needed
+    const [positionData] = await connection.query(
+      `SELECT COUNT(*) as count FROM pages WHERE position IS NULL`
+    );
+    if (positionData[0].count > 0) {
+      console.log('   Populating position column...');
+      await connection.query(
+        `UPDATE pages SET position = page_number WHERE position IS NULL`
+      );
+      console.log('   ✅ Populated position column');
+    }
+    
+    // Populate page_template column with page_type if needed
+    const [templateData] = await connection.query(
+      `SELECT COUNT(*) as count FROM pages WHERE page_template IS NULL OR page_template = ''`
+    );
+    if (templateData[0].count > 0) {
+      console.log('   Populating page_template column...');
+      await connection.query(
+        `UPDATE pages SET page_template = page_type WHERE page_template IS NULL OR page_template = ''`
+      );
+      console.log('   ✅ Populated page_template column');
     }
     
     console.log('\n✅ Migration completed successfully!');
