@@ -172,8 +172,9 @@ router.post('/create', async (req, res) => {
 
 // DELETE - Delete page (soft delete with is_deleted flag)
 router.delete('/:pageId', async (req, res) => {
+  let connection;
   try {
-    const connection = await pool.getConnection();
+    connection = await pool.getConnection();
     const { pageId } = req.params;
 
     // Get the page to delete
@@ -187,18 +188,17 @@ router.delete('/:pageId', async (req, res) => {
       return res.status(404).json({ error: 'Page not found' });
     }
 
-    const { position } = pageRows[0];
-
     // Soft delete the page
+    console.log('🗑️ Soft deleting page:', pageId);
     await connection.query(
       'UPDATE pages SET is_deleted = TRUE, updated_at = CURRENT_TIMESTAMP WHERE page_id = ?',
       [pageId]
     );
 
     // Rebuild all positions to ensure they're consecutive
+    console.log('🔧 Rebuilding positions after delete...');
     await rebuildPositions(connection);
-
-    connection.release();
+    console.log('✅ Positions rebuilt after delete');
 
     res.json({
       success: true,
@@ -206,8 +206,12 @@ router.delete('/:pageId', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error deleting page:', error);
+    console.error('❌ Error deleting page:', error);
     res.status(500).json({ error: error.message });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 });
 
