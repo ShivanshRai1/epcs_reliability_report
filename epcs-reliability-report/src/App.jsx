@@ -283,30 +283,37 @@ function App() {
       // Determine where to redirect after deletion
       // If we deleted the current page, find the next available page
       const remainingPages = transformedData.pages.filter(p => p.pageType !== 'home');
+      const totalRemainingPages = remainingPages.length;
       let redirectPageNumber = null;
       
       if (pageNumberDeleted) {
         // Try to find the next page after the deleted one
         const nextPage = remainingPages.find(p => p.pageNumber > pageNumberDeleted);
-        if (nextPage) {
+        if (nextPage && nextPage.pageNumber <= totalRemainingPages) {
           redirectPageNumber = nextPage.pageNumber;
-          console.log(`🔄 Redirecting to next page: ${redirectPageNumber}`);
+          console.log(`🔄 Redirecting to next page: ${redirectPageNumber} (total: ${totalRemainingPages})`);
         } else {
           // If no next page, find the previous page
           const prevPage = remainingPages.reverse().find(p => p.pageNumber < pageNumberDeleted);
-          if (prevPage) {
+          if (prevPage && prevPage.pageNumber <= totalRemainingPages) {
             redirectPageNumber = prevPage.pageNumber;
-            console.log(`🔄 Redirecting to previous page: ${redirectPageNumber}`);
+            console.log(`🔄 Redirecting to previous page: ${redirectPageNumber} (total: ${totalRemainingPages})`);
           } else {
             // If no other pages, go to Index (page 1)
             redirectPageNumber = 1;
-            console.log(`🔄 Redirecting to Index (page 1)`);
+            console.log(`🔄 Redirecting to Index (page 1) - no other pages available`);
           }
         }
         
-        if (redirectPageNumber) {
+        if (redirectPageNumber && redirectPageNumber <= totalRemainingPages) {
+          console.log(`✅ Safe redirect: page ${redirectPageNumber} exists (total: ${totalRemainingPages})`);
           setTimeout(() => {
             window.location.href = `/page/${redirectPageNumber}`;
+          }, 500);
+        } else {
+          console.warn(`⚠️ Redirect page ${redirectPageNumber} exceeds total ${totalRemainingPages}, going to Index`);
+          setTimeout(() => {
+            window.location.href = `/page/1`;
           }, 500);
         }
       }
