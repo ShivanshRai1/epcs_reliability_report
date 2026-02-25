@@ -8,7 +8,7 @@ router.get('/', async (req, res) => {
   try {
     const connection = await pool.getConnection();
     const [rows] = await connection.query(
-      'SELECT page_id, page_number, page_type, title, page_data, updated_at, updated_by FROM pages ORDER BY page_number ASC'
+      'SELECT page_id, page_number, page_type, title, page_data, updated_at, updated_by FROM pages WHERE is_deleted = FALSE ORDER BY page_number ASC'
     );
     connection.release();
     res.json(rows);
@@ -23,7 +23,7 @@ router.get('/:pageId', async (req, res) => {
   try {
     const connection = await pool.getConnection();
     const [rows] = await connection.query(
-      'SELECT * FROM pages WHERE page_id = ?',
+      'SELECT * FROM pages WHERE page_id = ? AND is_deleted = FALSE',
       [req.params.pageId]
     );
     connection.release();
@@ -99,7 +99,7 @@ router.get('/export/full', async (req, res) => {
   try {
     const connection = await pool.getConnection();
     const [rows] = await connection.query(
-      'SELECT page_data FROM pages ORDER BY page_number ASC'
+      'SELECT page_data FROM pages WHERE is_deleted = FALSE ORDER BY page_number ASC'
     );
     connection.release();
 
