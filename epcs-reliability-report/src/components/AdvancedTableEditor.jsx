@@ -5,11 +5,17 @@ const AdvancedTableEditor = ({ page, onChange }) => {
   // Handle both old (.data) and new (.rows) table structures for backward compatibility
   const getInitialTableData = () => {
     if (!page.table) return { rows: [], columns: [] };
+    
     // If old structure with 'data' property, convert to 'rows'
-    if (page.table.data && !page.table.rows) {
-      return { ...page.table, rows: page.table.data };
-    }
-    return page.table;
+    const table = page.table.data && !page.table.rows 
+      ? { ...page.table, rows: page.table.data }
+      : page.table;
+    
+    // Ensure both rows and columns exist as arrays
+    return {
+      rows: table.rows || [],
+      columns: table.columns || []
+    };
   };
   
   const [tableData, setTableData] = useState(getInitialTableData());

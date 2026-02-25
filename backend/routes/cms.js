@@ -50,6 +50,9 @@ router.post('/create', async (req, res) => {
     // Determine position
     let insertPosition = position;
     
+    console.log(`📍 Creating page: template=${template}, title=${title}`);
+    console.log(`📍 Position params: before=${positionParams?.insertBefore}, pageId=${positionParams?.pageId}`);
+    
     // Handle new positionParams format (supports before/after)
     if (positionParams && positionParams.pageId) {
       const [refPageRows] = await connection.query(
@@ -60,6 +63,7 @@ router.post('/create', async (req, res) => {
         const refPosition = refPageRows[0].position;
         // If insertBefore is true, insert at refPosition; otherwise insert after
         insertPosition = positionParams.insertBefore ? refPosition : refPosition + 1;
+        console.log(`📍 Ref page position=${refPosition}, insertBefore=${positionParams.insertBefore}, insertPosition=${insertPosition}`);
       }
     } else if (insertAfterPageId) {
       // Legacy support for old API calls
@@ -78,12 +82,14 @@ router.post('/create', async (req, res) => {
         'SELECT MAX(position) as maxPos FROM pages WHERE is_deleted = FALSE'
       );
       insertPosition = (maxPosition[0]?.maxPos || 0) + 1;
+      console.log(`📍 No position specified, adding to end at position ${insertPosition}`);
     }
 
-    // Shift existing pages if needed
+    // Shift existing pages if needed (update BOTH position and page_number to keep them in sync)
     if (insertPosition) {
+      console.log(`📍 Shifting pages at position >= ${insertPosition}`);
       await connection.query(
-        'UPDATE pages SET position = position + 1 WHERE position >= ? AND is_deleted = FALSE',
+        'UPDATE pages SET position = position + 1, page_number = page_number + 1 WHERE position >= ? AND is_deleted = FALSE',
         [insertPosition]
       );
     }
@@ -125,10 +131,12 @@ router.post('/create', async (req, res) => {
 
     connection.release();
 
+    console.log(`✅ Page created: pageId=${pageId}, position=${insertPosition}, page_number=${pageNumber}`);
+
     res.json({
       success: true,
       message: 'Page created successfully',
-      page: { page_id: pageId, page_number: pageNumber, template, title }
+      page: { page_id: pageId, page_number: pageNumber, position: insertPosition, template, title }
     });
 
   } catch (error) {
@@ -204,8 +212,11 @@ router.patch('/reorder', async (req, res) => {
       return res.status(400).json({ error: 'pageOrder array is required' });
     }
 
+    console.log(`🔄 Reordering pages. New order:`, pageOrder);
+
     // Update positions and page_numbers
     for (let i = 0; i < pageOrder.length; i++) {
+      console.log(`  - pageId=${pageOrder[i]}, position=${i+1}, page_number=${i+1}`);
       await connection.query(
         'UPDATE pages SET position = ?, page_number = ?, updated_at = CURRENT_TIMESTAMP WHERE page_id = ?',
         [i + 1, i + 1, pageOrder[i]]
