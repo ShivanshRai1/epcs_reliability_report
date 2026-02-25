@@ -110,7 +110,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
           {page.title}
         </h2>
         {page.captionTop && <div style={{ marginBottom: '1rem', fontSize: '0.95rem', color: '#ddd' }}>{page.captionTop}</div>}
-        <Table columns={page.table?.columns} data={page.table?.data} isEditMode={false} pageId={page.id} onCellChange={onCellChange} />
+        <Table columns={page.table?.columns} data={page.table?.rows} isEditMode={false} pageId={page.id} onCellChange={onCellChange} />
         {page.captionBottom && <div style={{ marginTop: '1rem', fontSize: '0.95rem', color: '#ddd' }}>{page.captionBottom}</div>}
       </div>
     );
@@ -230,7 +230,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
           {page.title}
         </h2>
         {page.captionTop && <div style={{ marginBottom: '1rem', fontSize: '0.95rem', color: '#ddd' }}>{page.captionTop}</div>}
-        <Table columns={page.table.columns} data={page.table.data} isEditMode={false} pageId={page.id} onCellChange={onCellChange} />
+        <Table columns={page.table.columns} data={page.table.rows} isEditMode={false} pageId={page.id} onCellChange={onCellChange} />
         {page.captionBottom && <div style={{ marginTop: '1rem', fontSize: '0.95rem', color: '#ddd' }}>{page.captionBottom}</div>}
       </div>
     );

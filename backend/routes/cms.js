@@ -99,9 +99,9 @@ router.post('/create', async (req, res) => {
       'just-images': { images: [], captions: [] },
       'heading': { title: title, subtitle: '' },
       'index': { content: [] },
-      'image-text': { image: {}, text: '', imagePosition: 'left' },
+      'image-text': { imageUrl: '', imageCaption: '', content: '', imagePosition: 'left', link: null },
       'split-content': { left: {}, right: {}, image: {} },
-      'table': { rows: [], columns: [], title: title }
+      'table': { table: { rows: [], columns: [] }, captionTop: '', captionBottom: '', title: title }
     };
 
     const pageData = pageDataTemplates[template] || {};
