@@ -6,7 +6,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null }) 
   const [templates, setTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [pageTitle, setPageTitle] = useState('');
-  const [insertPosition, setInsertPosition] = useState('after'); // 'after' or 'at-end'
+  const [insertPosition, setInsertPosition] = useState('after'); // 'before', 'after' or 'at-end'
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -45,11 +45,19 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null }) 
     setError('');
 
     try {
+      let positionParams = null;
+      
+      if (insertPosition === 'before') {
+        positionParams = { pageId: currentPageId, insertBefore: true };
+      } else if (insertPosition === 'after') {
+        positionParams = { pageId: currentPageId, insertBefore: false };
+      }
+      
       const response = await apiService.createPage(
         selectedTemplate,
         pageTitle,
         null,
-        insertPosition === 'after' ? currentPageId : null
+        positionParams
       );
 
       if (response.success) {
@@ -112,6 +120,15 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null }) 
             <div className="form-group">
               <label>Insert Position:</label>
               <div className="position-options">
+                <label className="radio-label">
+                  <input
+                    type="radio"
+                    value="before"
+                    checked={insertPosition === 'before'}
+                    onChange={(e) => setInsertPosition(e.target.value)}
+                  />
+                  Before current page
+                </label>
                 <label className="radio-label">
                   <input
                     type="radio"

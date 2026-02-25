@@ -98,7 +98,7 @@ export const apiService = {
   },
 
   // Create new page from template
-  createPage: async (template, title, position = null, insertAfterPageId = null) => {
+  createPage: async (template, title, position = null, positionParams = null) => {
     try {
       const res = await fetch(`${API_URL}/cms/create`, {
         method: 'POST',
@@ -109,7 +109,7 @@ export const apiService = {
           template,
           title,
           position,
-          insertAfterPageId
+          positionParams // Can include { pageId, insertBefore: true/false }
         })
       });
 
