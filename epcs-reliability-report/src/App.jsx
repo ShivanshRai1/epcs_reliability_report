@@ -181,14 +181,15 @@ function App() {
     }
 
     // Build content array with all non-index pages
+    // Filter out any entries that don't have a title (removes gaps)
     const newContent = data.pages
-      .filter(p => p.pageType !== 'index')
+      .filter(p => p.pageType !== 'index' && p.title && p.title.trim() !== '')
       .map(p => ({
         title: p.title,
         target: p.pageNumber
       }));
 
-    console.log('📋 New index content:', newContent);
+    console.log('📋 New index content (gaps removed):', newContent);
 
     // Update index page
     const updatedPages = data.pages.map(p =>
@@ -243,6 +244,11 @@ function App() {
       setIsDeletingPageId(pageId);
       console.log('🗑️ Deleting page:', pageId);
       
+      // Get current page number being deleted
+      const pageBeingDeleted = reportData.pages.find(p => p.id === pageId);
+      const pageNumberDeleted = pageBeingDeleted?.pageNumber;
+      console.log('📄 Page being deleted - number:', pageNumberDeleted);
+      
       await apiService.deletePage(pageId);
       console.log('✅ Delete API call completed');
 
@@ -273,6 +279,37 @@ function App() {
       setOriginalData(JSON.parse(JSON.stringify(transformedData)));
       setIsDeleteDialogOpen(false);
       setPageToDelete(null);
+      
+      // Determine where to redirect after deletion
+      // If we deleted the current page, find the next available page
+      const remainingPages = transformedData.pages.filter(p => p.pageType !== 'home');
+      let redirectPageNumber = null;
+      
+      if (pageNumberDeleted) {
+        // Try to find the next page after the deleted one
+        const nextPage = remainingPages.find(p => p.pageNumber > pageNumberDeleted);
+        if (nextPage) {
+          redirectPageNumber = nextPage.pageNumber;
+          console.log(`🔄 Redirecting to next page: ${redirectPageNumber}`);
+        } else {
+          // If no next page, find the previous page
+          const prevPage = remainingPages.reverse().find(p => p.pageNumber < pageNumberDeleted);
+          if (prevPage) {
+            redirectPageNumber = prevPage.pageNumber;
+            console.log(`🔄 Redirecting to previous page: ${redirectPageNumber}`);
+          } else {
+            // If no other pages, go to Index (page 1)
+            redirectPageNumber = 1;
+            console.log(`🔄 Redirecting to Index (page 1)`);
+          }
+        }
+        
+        if (redirectPageNumber) {
+          setTimeout(() => {
+            window.location.href = `/page/${redirectPageNumber}`;
+          }, 500);
+        }
+      }
       
       console.log('✅ Page deletion and refresh completed');
     } catch (err) {
