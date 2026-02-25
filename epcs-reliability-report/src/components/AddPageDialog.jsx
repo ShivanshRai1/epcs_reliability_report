@@ -8,6 +8,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null }) 
   const [pageTitle, setPageTitle] = useState('');
   const [insertPosition, setInsertPosition] = useState('after'); // 'before', 'after' or 'at-end'
   const [loading, setLoading] = useState(false);
+  const [templatesLoading, setTemplatesLoading] = useState(false);
   const [error, setError] = useState('');
 
   // Fetch available templates
@@ -22,11 +23,19 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null }) 
 
   const fetchTemplates = async () => {
     try {
+      setTemplatesLoading(true);
+      console.log('📋 Fetching templates...');
       const data = await apiService.getPageTemplates();
-      setTemplates(data.templates || []);
+      console.log('✅ Templates loaded:', data);
+      setTemplates(data.templates || data || []);
+      setError('');
     } catch (err) {
-      setError('Failed to load templates');
-      console.error(err);
+      const errorMsg = 'Failed to load templates: ' + err.message;
+      setError(errorMsg);
+      console.error('❌ Template fetch error:', err);
+      console.error('Error details:', err);
+    } finally {
+      setTemplatesLoading(false);
     }
   };
 
@@ -108,18 +117,22 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null }) 
           {/* Template Selection */}
           <div className="form-group">
             <label>Select Template:</label>
-            <div className="templates-grid">
-              {templates.map((template) => (
-                <div
-                  key={template.id}
-                  className={`template-card ${selectedTemplate === template.id ? 'selected' : ''}`}
-                  onClick={() => setSelectedTemplate(template.id)}
-                >
-                  <div className="template-name">{template.name}</div>
-                  <div className="template-description">{template.description}</div>
-                </div>
-              ))}
-            </div>
+            {templatesLoading && <div className="loading-message">Loading templates...</div>}
+            {!templatesLoading && templates.length === 0 && <div className="error-message">No templates available</div>}
+            {templates.length > 0 && (
+              <div className="templates-grid">
+                {templates.map((template) => (
+                  <div
+                    key={template.id}
+                    className={`template-card ${selectedTemplate === template.id ? 'selected' : ''}`}
+                    onClick={() => setSelectedTemplate(template.id)}
+                  >
+                    <div className="template-name">{template.name}</div>
+                    <div className="template-description">{template.description}</div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Insert Position */}

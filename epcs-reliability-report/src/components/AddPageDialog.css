@@ -179,6 +179,17 @@
   font-size: 0.9rem;
 }
 
+.loading-message {
+  padding: 12px;
+  background: #cfe2ff;
+  border: 1px solid #b6d4fe;
+  border-radius: 4px;
+  color: #084298;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
 .dialog-footer {
   display: flex;
   justify-content: flex-end;
