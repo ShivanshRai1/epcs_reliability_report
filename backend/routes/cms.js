@@ -269,4 +269,45 @@ router.get('/list', async (req, res) => {
   }
 });
 
+// REPAIR - Rebuild all page positions to be consecutive (1, 2, 3, ...)
+router.post('/repair/rebuild-positions', async (req, res) => {
+  try {
+    const connection = await pool.getConnection();
+
+    // Get all non-deleted pages ordered by current position
+    const [pages] = await connection.query(
+      'SELECT page_id, page_number, position FROM pages WHERE is_deleted = FALSE ORDER BY position ASC'
+    );
+
+    console.log(`🔧 Rebuilding positions for ${pages.length} pages...`);
+
+    // Update each page with sequential position and page_number
+    for (let i = 0; i < pages.length; i++) {
+      const newPosition = i + 1;
+      const pageId = pages[i].page_id;
+      
+      await connection.query(
+        'UPDATE pages SET position = ?, page_number = ? WHERE page_id = ? AND is_deleted = FALSE',
+        [newPosition, newPosition, pageId]
+      );
+      
+      console.log(`  📍 Page ${pageId}: position ${pages[i].position} → ${newPosition}`);
+    }
+
+    connection.release();
+
+    console.log(`✅ Position rebuild complete: ${pages.length} pages renumbered sequentially`);
+
+    res.json({
+      success: true,
+      message: `Position rebuild complete: ${pages.length} pages renumbered`,
+      pagesUpdated: pages.length
+    });
+
+  } catch (error) {
+    console.error('Error rebuilding positions:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;

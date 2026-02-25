@@ -179,5 +179,23 @@ export const apiService = {
       console.error('Error fetching page list:', error);
       throw error;
     }
+  },
+
+  // Repair - Rebuild all page positions to be consecutive
+  repairPagePositions: async () => {
+    try {
+      console.log('🔧 Calling repair endpoint to rebuild page positions...');
+      const res = await fetch(`${API_URL}/cms/repair/rebuild-positions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!res.ok) throw new Error('Failed to repair positions');
+      const result = await res.json();
+      console.log('✅ Repair result:', result);
+      return result;
+    } catch (error) {
+      console.error('❌ Error repairing positions:', error);
+      throw error;
+    }
   }
 };
