@@ -36,7 +36,7 @@ router.get('/templates', async (req, res) => {
 router.post('/create', async (req, res) => {
   try {
     const connection = await pool.getConnection();
-    const { template, title, position, insertAfterPageId } = req.body;
+    const { template, title, position, insertAfterPageId, positionParams } = req.body;
 
     if (!template || !title) {
       connection.release();
@@ -49,8 +49,20 @@ router.post('/create', async (req, res) => {
 
     // Determine position
     let insertPosition = position;
-    if (insertAfterPageId) {
-      // Find the position of insertAfterPageId and insert after it
+    
+    // Handle new positionParams format (supports before/after)
+    if (positionParams && positionParams.pageId) {
+      const [refPageRows] = await connection.query(
+        'SELECT position FROM pages WHERE page_id = ? AND is_deleted = FALSE',
+        [positionParams.pageId]
+      );
+      if (refPageRows.length > 0) {
+        const refPosition = refPageRows[0].position;
+        // If insertBefore is true, insert at refPosition; otherwise insert after
+        insertPosition = positionParams.insertBefore ? refPosition : refPosition + 1;
+      }
+    } else if (insertAfterPageId) {
+      // Legacy support for old API calls
       const [afterPageRows] = await connection.query(
         'SELECT position FROM pages WHERE page_id = ? AND is_deleted = FALSE',
         [insertAfterPageId]
