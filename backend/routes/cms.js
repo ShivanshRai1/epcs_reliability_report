@@ -10,6 +10,28 @@ const router = express.Router();
  * - Template selection
  */
 
+// Helper function: Rebuild all page positions to be consecutive (1, 2, 3, ...)
+async function rebuildPositions(connection) {
+  try {
+    const [pages] = await connection.query(
+      'SELECT page_id FROM pages WHERE is_deleted = FALSE ORDER BY position ASC'
+    );
+    
+    for (let i = 0; i < pages.length; i++) {
+      const newPosition = i + 1;
+      await connection.query(
+        'UPDATE pages SET position = ?, page_number = ? WHERE page_id = ?',
+        [newPosition, newPosition, pages[i].page_id]
+      );
+    }
+    
+    console.log(`✅ Positions rebuilt: ${pages.length} pages renumbered sequentially`);
+  } catch (error) {
+    console.error('❌ Error rebuilding positions:', error);
+    throw error;
+  }
+}
+
 // GET all available page templates
 router.get('/templates', async (req, res) => {
   try {
@@ -129,6 +151,9 @@ router.post('/create', async (req, res) => {
       );
     }
 
+    // Rebuild all positions to ensure they're consecutive (1, 2, 3, ...)
+    await rebuildPositions(connection);
+
     connection.release();
 
     console.log(`✅ Page created: pageId=${pageId}, position=${insertPosition}, page_number=${pageNumber}`);
@@ -170,23 +195,8 @@ router.delete('/:pageId', async (req, res) => {
       [pageId]
     );
 
-    // Shift positions of pages after the deleted one
-    await connection.query(
-      'UPDATE pages SET position = position - 1 WHERE position > ? AND is_deleted = FALSE',
-      [position]
-    );
-
-    // Update page_numbers to match positions
-    const [allPages] = await connection.query(
-      'SELECT page_id, position FROM pages WHERE is_deleted = FALSE ORDER BY position ASC'
-    );
-
-    for (let i = 0; i < allPages.length; i++) {
-      await connection.query(
-        'UPDATE pages SET page_number = ? WHERE page_id = ?',
-        [i + 1, allPages[i].page_id]
-      );
-    }
+    // Rebuild all positions to ensure they're consecutive
+    await rebuildPositions(connection);
 
     connection.release();
 
