@@ -2,7 +2,17 @@ import React, { useState } from 'react';
 import './AdvancedTableEditor.css';
 
 const AdvancedTableEditor = ({ page, onChange }) => {
-  const [tableData, setTableData] = useState(page.table || { rows: [], columns: [] });
+  // Handle both old (.data) and new (.rows) table structures for backward compatibility
+  const getInitialTableData = () => {
+    if (!page.table) return { rows: [], columns: [] };
+    // If old structure with 'data' property, convert to 'rows'
+    if (page.table.data && !page.table.rows) {
+      return { ...page.table, rows: page.table.data };
+    }
+    return page.table;
+  };
+  
+  const [tableData, setTableData] = useState(getInitialTableData());
   const [captionTop, setCaptionTop] = useState(page.captionTop || '');
   const [captionBottom, setCaptionBottom] = useState(page.captionBottom || '');
   const [selectedCell, setSelectedCell] = useState(null);

@@ -100,6 +100,8 @@ export const apiService = {
   // Create new page from template
   createPage: async (template, title, position = null, positionParams = null) => {
     try {
+      console.log('🚀 API: Calling /cms/create with:', { template, title, position, positionParams });
+      
       const res = await fetch(`${API_URL}/cms/create`, {
         method: 'POST',
         headers: {
@@ -113,10 +115,18 @@ export const apiService = {
         })
       });
 
-      if (!res.ok) throw new Error('Failed to create page');
-      return res.json();
+      const data = await res.json();
+      
+      if (!res.ok) {
+        const error = data.error || 'Failed to create page';
+        console.error('❌ API Error:', error);
+        throw new Error(error);
+      }
+      
+      console.log('✅ API Success:', data);
+      return data;
     } catch (error) {
-      console.error('Error creating page:', error);
+      console.error('❌ Error creating page:', error.message);
       throw error;
     }
   },

@@ -53,6 +53,8 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null }) 
         positionParams = { pageId: currentPageId, insertBefore: false };
       }
       
+      console.log('📝 Creating page with params:', { selectedTemplate, pageTitle, insertPosition, positionParams });
+      
       const response = await apiService.createPage(
         selectedTemplate,
         pageTitle,
@@ -60,15 +62,20 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null }) 
         positionParams
       );
 
+      console.log('✅ API Response:', response);
+
       if (response.success) {
+        console.log('🎉 Page created successfully:', response.page);
         onPageCreate(response.page);
         onClose();
       } else {
-        setError('Failed to create page');
+        setError(response.message || 'Failed to create page');
+        console.error('❌ Creation failed:', response);
       }
     } catch (err) {
-      setError(err.message || 'Error creating page');
-      console.error(err);
+      const errorMsg = err.message || 'Error creating page';
+      setError(errorMsg);
+      console.error('❌ Exception during page creation:', err);
     } finally {
       setLoading(false);
     }

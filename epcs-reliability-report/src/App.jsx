@@ -168,8 +168,11 @@ function App() {
 
   const handlePageCreate = async (newPage) => {
     try {
+      console.log('Page created:', newPage);
       // Refresh pages list from backend
       const pagesFromApi = await apiService.getPages();
+      console.log('Pages from API after creation:', pagesFromApi);
+      
       const transformedData = {
         pages: pagesFromApi.map(page => ({
           id: page.page_id,

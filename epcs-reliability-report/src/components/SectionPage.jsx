@@ -104,13 +104,16 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
       );
     }
     
+    // Handle both old (.data) and new (.rows) table structures
+    const tableRows = page.table?.rows || page.table?.data || [];
+    
     return (
       <div>
         <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: '#fff' }}>
           {page.title}
         </h2>
         {page.captionTop && <div style={{ marginBottom: '1rem', fontSize: '0.95rem', color: '#ddd' }}>{page.captionTop}</div>}
-        <Table columns={page.table?.columns} data={page.table?.rows} isEditMode={false} pageId={page.id} onCellChange={onCellChange} />
+        <Table columns={page.table?.columns} data={tableRows} isEditMode={false} pageId={page.id} onCellChange={onCellChange} />
         {page.captionBottom && <div style={{ marginTop: '1rem', fontSize: '0.95rem', color: '#ddd' }}>{page.captionBottom}</div>}
       </div>
     );
@@ -224,13 +227,16 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
       );
     }
     
+    // Handle both old (.data) and new (.rows) table structures
+    const tableRows = page.table.rows || page.table.data || [];
+    
     return (
       <div>
         <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: '#fff' }}>
           {page.title}
         </h2>
         {page.captionTop && <div style={{ marginBottom: '1rem', fontSize: '0.95rem', color: '#ddd' }}>{page.captionTop}</div>}
-        <Table columns={page.table.columns} data={page.table.rows} isEditMode={false} pageId={page.id} onCellChange={onCellChange} />
+        <Table columns={page.table.columns} data={tableRows} isEditMode={false} pageId={page.id} onCellChange={onCellChange} />
         {page.captionBottom && <div style={{ marginTop: '1rem', fontSize: '0.95rem', color: '#ddd' }}>{page.captionBottom}</div>}
       </div>
     );
