@@ -166,6 +166,27 @@ function App() {
     setCurrentPageId(null);
   };
 
+  // Sync index page with updated page numbers
+  const syncIndexPageContent = (data) => {
+    const indexPage = data.pages.find(p => p.pageType === 'index');
+    if (!indexPage) return data;
+
+    // Build content array with all non-index pages
+    const newContent = data.pages
+      .filter(p => p.pageType !== 'index')
+      .map(p => ({
+        title: p.title,
+        target: p.pageNumber
+      }));
+
+    // Update index page
+    const updatedPages = data.pages.map(p =>
+      p.pageType === 'index' ? { ...p, content: newContent } : p
+    );
+
+    return { ...data, pages: updatedPages };
+  };
+
   const handlePageCreate = async (newPage) => {
     try {
       console.log('Page created:', newPage);
@@ -173,7 +194,7 @@ function App() {
       const pagesFromApi = await apiService.getPages();
       console.log('Pages from API after creation:', pagesFromApi);
       
-      const transformedData = {
+      let transformedData = {
         pages: pagesFromApi.map(page => ({
           id: page.page_id,
           title: page.title,
@@ -182,6 +203,9 @@ function App() {
           ...page.page_data
         }))
       };
+      
+      // Sync index page with new page numbers
+      transformedData = syncIndexPageContent(transformedData);
       
       setReportData(transformedData);
       setOriginalData(JSON.parse(JSON.stringify(transformedData)));
@@ -208,7 +232,7 @@ function App() {
 
       // Refresh pages list
       const pagesFromApi = await apiService.getPages();
-      const transformedData = {
+      let transformedData = {
         pages: pagesFromApi.map(page => ({
           id: page.page_id,
           title: page.title,
@@ -217,6 +241,9 @@ function App() {
           ...page.page_data
         }))
       };
+
+      // Sync index page with new page numbers
+      transformedData = syncIndexPageContent(transformedData);
 
       setReportData(transformedData);
       setOriginalData(JSON.parse(JSON.stringify(transformedData)));
@@ -238,7 +265,7 @@ function App() {
 
       // Refresh pages list
       const pagesFromApi = await apiService.getPages();
-      const transformedData = {
+      let transformedData = {
         pages: pagesFromApi.map(page => ({
           id: page.page_id,
           title: page.title,
@@ -247,6 +274,9 @@ function App() {
           ...page.page_data
         }))
       };
+
+      // Sync index page with new page numbers
+      transformedData = syncIndexPageContent(transformedData);
 
       setReportData(transformedData);
       setOriginalData(JSON.parse(JSON.stringify(transformedData)));

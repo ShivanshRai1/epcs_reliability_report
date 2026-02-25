@@ -7,6 +7,7 @@ import AdvancedTableEditor from './AdvancedTableEditor';
 import TextOnlyEditor from './TextOnlyEditor';
 import LinksOnlyEditor from './LinksOnlyEditor';
 import FlexibleLayoutEditor from './FlexibleLayoutEditor';
+import ImagesOnlyEditor from './ImagesOnlyEditor';
 import ImageSection from './ImageSection';
 import SplitContentImageSection from './SplitContentImageSection';
 import ContentSection from './ContentSection';
@@ -122,7 +123,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
   // Render just-images page
   if (page.pageType === 'just-images') {
     if (isEditMode) {
-      return <FlexibleLayoutEditor page={page} onChange={(updatedPage) => onCellChange(page.id, updatedPage)} pageType="just-images" />;
+      return <ImagesOnlyEditor page={page} onChange={(updatedPage) => onCellChange(page.id, updatedPage)} />;
     }
     
     return (
@@ -133,8 +134,18 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
           </h2>
         )}
         {page.images && page.images.map((img, idx) => (
-          <div key={idx} style={{ marginBottom: '1.5rem' }}>
-            <img src={img} alt={`Image ${idx + 1}`} style={{ maxWidth: '100%', height: 'auto', borderRadius: '4px', cursor: 'pointer' }} onClick={() => onImageClick(img, `Image ${idx + 1}`)} />
+          <div key={idx} style={{ marginBottom: '2rem' }}>
+            <img 
+              src={img} 
+              alt={`Image ${idx + 1}`} 
+              style={{ maxWidth: '100%', height: 'auto', borderRadius: '4px', cursor: 'pointer' }} 
+              onClick={() => onImageClick(img, page.captions?.[idx] || `Image ${idx + 1}`)} 
+            />
+            {page.captions?.[idx] && (
+              <p style={{ fontSize: '0.9rem', color: '#999', marginTop: '0.5rem' }}>
+                {page.captions[idx]}
+              </p>
+            )}
           </div>
         ))}
       </div>
