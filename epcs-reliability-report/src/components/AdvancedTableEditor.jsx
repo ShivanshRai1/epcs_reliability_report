@@ -11,10 +11,42 @@ const AdvancedTableEditor = ({ page, onChange }) => {
       ? { ...page.table, rows: page.table.data }
       : page.table;
     
-    // Ensure both rows and columns exist as arrays
+    const rawColumns = Array.isArray(table.columns) ? table.columns : [];
+    const normalizedColumns = rawColumns.map((col, idx) => {
+      if (typeof col === 'string') return col;
+      if (col && typeof col === 'object' && col.header) return col.header;
+      return `Column ${idx + 1}`;
+    });
+
+    const rawRows = Array.isArray(table.rows) ? table.rows : [];
+    const normalizedRows = rawRows.map((row) => {
+      if (Array.isArray(row)) {
+        const rowObj = {};
+        normalizedColumns.forEach((columnName, colIdx) => {
+          rowObj[columnName] = row[colIdx] ?? '';
+        });
+        return rowObj;
+      }
+
+      if (row && typeof row === 'object') {
+        const rowObj = {};
+        normalizedColumns.forEach((columnName) => {
+          rowObj[columnName] = row[columnName] ?? '';
+        });
+        return rowObj;
+      }
+
+      const emptyRow = {};
+      normalizedColumns.forEach((columnName) => {
+        emptyRow[columnName] = '';
+      });
+      return emptyRow;
+    });
+
+    // Ensure both rows and columns exist as arrays in normalized shape
     return {
-      rows: table.rows || [],
-      columns: table.columns || []
+      rows: normalizedRows,
+      columns: normalizedColumns
     };
   };
   
@@ -24,7 +56,10 @@ const AdvancedTableEditor = ({ page, onChange }) => {
   const [selectedCell, setSelectedCell] = useState(null);
 
   const handleAddRow = (position = 'bottom') => {
-    const newRow = Array(tableData.columns.length || 0).fill('');
+    const newRow = {};
+    (tableData.columns || []).forEach((columnName) => {
+      newRow[columnName] = '';
+    });
     const newTable = { ...tableData };
     
     if (position === 'top') {
@@ -46,14 +81,15 @@ const AdvancedTableEditor = ({ page, onChange }) => {
 
   const handleAddColumn = (position = 'right') => {
     const newTable = { ...tableData };
-    newTable.columns = (newTable.columns || []).map((col, i) => col);
+    newTable.columns = [...(newTable.columns || [])];
+    const newColumnName = `Column ${(newTable.columns || []).length + 1}`;
     
     if (position === 'left') {
-      newTable.columns = [{ header: '' }, ...newTable.columns];
-      newTable.rows = newTable.rows.map(row => ['', ...row]);
+      newTable.columns = [newColumnName, ...newTable.columns];
+      newTable.rows = newTable.rows.map(row => ({ [newColumnName]: '', ...row }));
     } else {
-      newTable.columns = [...newTable.columns, { header: '' }];
-      newTable.rows = newTable.rows.map(row => [...row, '']);
+      newTable.columns = [...newTable.columns, newColumnName];
+      newTable.rows = newTable.rows.map(row => ({ ...row, [newColumnName]: '' }));
     }
     
     setTableData(newTable);
@@ -62,8 +98,13 @@ const AdvancedTableEditor = ({ page, onChange }) => {
 
   const handleDeleteColumn = (colIdx) => {
     const newTable = { ...tableData };
+    const colNameToDelete = newTable.columns[colIdx];
     newTable.columns = newTable.columns.filter((_, i) => i !== colIdx);
-    newTable.rows = newTable.rows.map(row => row.filter((_, i) => i !== colIdx));
+    newTable.rows = newTable.rows.map(row => {
+      const updatedRow = { ...row };
+      delete updatedRow[colNameToDelete];
+      return updatedRow;
+    });
     setTableData(newTable);
     updatePage(newTable);
   };
@@ -71,17 +112,33 @@ const AdvancedTableEditor = ({ page, onChange }) => {
   const handleCellChange = (rowIdx, colIdx, value) => {
     const newTable = { ...tableData };
     if (newTable.rows[rowIdx]) {
-      newTable.rows[rowIdx][colIdx] = value;
+      const colName = newTable.columns[colIdx];
+      newTable.rows[rowIdx][colName] = value;
       setTableData(newTable);
       updatePage(newTable);
     }
   };
 
   const handleColumnHeaderChange = (colIdx, value) => {
+    const nextHeader = value?.trim() || `Column ${colIdx + 1}`;
     const newTable = { ...tableData };
-    if (!newTable.columns) newTable.columns = [];
-    if (!newTable.columns[colIdx]) newTable.columns[colIdx] = {};
-    newTable.columns[colIdx].header = value;
+    if (!newTable.columns || !newTable.columns[colIdx]) return;
+
+    const oldHeader = newTable.columns[colIdx];
+    if (oldHeader === nextHeader) {
+      setTableData(newTable);
+      updatePage(newTable);
+      return;
+    }
+
+    newTable.columns[colIdx] = nextHeader;
+    newTable.rows = newTable.rows.map((row) => {
+      const updatedRow = { ...row };
+      updatedRow[nextHeader] = updatedRow[oldHeader] ?? '';
+      delete updatedRow[oldHeader];
+      return updatedRow;
+    });
+
     setTableData(newTable);
     updatePage(newTable);
   };
@@ -149,7 +206,7 @@ const AdvancedTableEditor = ({ page, onChange }) => {
                   <div className="header-cell">
                     <input
                       type="text"
-                      value={col.header || ''}
+                      value={col || ''}
                       onChange={(e) => handleColumnHeaderChange(colIdx, e.target.value)}
                       placeholder={`Header ${colIdx + 1}`}
                       className="header-input"
@@ -169,11 +226,11 @@ const AdvancedTableEditor = ({ page, onChange }) => {
           <tbody>
             {tableData.rows && tableData.rows.map((row, rowIdx) => (
               <tr key={rowIdx} className={selectedCell?.row === rowIdx ? 'selected-row' : ''}>
-                {row.map((cell, colIdx) => (
+                {(tableData.columns || []).map((colName, colIdx) => (
                   <td key={`${rowIdx}-${colIdx}`}>
                     <input
                       type="text"
-                      value={cell || ''}
+                      value={row?.[colName] || ''}
                       onChange={(e) => handleCellChange(rowIdx, colIdx, e.target.value)}
                       onFocus={() => setSelectedCell({ row: rowIdx, col: colIdx })}
                       className="cell-input"
