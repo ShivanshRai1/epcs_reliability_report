@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css';
 import Home from './components/Home';
 import ReportPage from './components/ReportPage';
@@ -10,6 +10,7 @@ import PageManagerModal from './components/PageManagerModal';
 import { apiService } from './services/api';
 
 function App() {
+  const navigate = useNavigate();
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -398,6 +399,7 @@ function App() {
         onClose={handleCloseAddPageDialog}
         onPageCreate={handlePageCreate}
         currentPageId={currentPageId}
+        onNavigate={(action, pageNum) => navigate(`/page/${pageNum}`)}
       />
       <DeletePageDialog
         isOpen={isDeleteDialogOpen}
