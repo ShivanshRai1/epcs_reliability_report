@@ -80,6 +80,33 @@ h1 {
   cursor: pointer;
 }
 
+.page-counter {
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.page-counter-input {
+  width: 80px;
+  padding: 0.5rem 0.75rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+  border: 2px solid #0066cc;
+  border-radius: 0.5rem;
+  text-align: center;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.page-counter-input:focus {
+  outline: none;
+  border-color: #0052a3;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
 .report-title-link {
   background: none;
   border: none;
@@ -672,11 +699,17 @@ tr.row-pink td {
 
   .page-counter {
     color: #213547;
-    font-weight: 500;
-    font-size: 0.95rem;
-    padding: 0.5rem 1rem;
     background: #e8e8e8;
-    border-radius: 0.5rem;
+  }
+
+  .page-counter-input {
+    background: #ffffff;
+    color: #213547;
+  }
+
+  .page-counter-input:focus {
+    border-color: #0052a3;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
   }
 
   /* Force dark text on all content in light mode */

@@ -21,7 +21,7 @@ export default function ReportPage({ reportData, isEditMode, onEditToggle, onVie
 
   const totalPages = reportData.pages.length;
 
-  const handleNav = (nav) => {
+  const handleNav = (nav, pageNum) => {
     if (nav === 'home') {
       navigate('/');
     } else if (nav === 'index') {
@@ -34,10 +34,23 @@ export default function ReportPage({ reportData, isEditMode, onEditToggle, onVie
       }
     } else if (nav === 'next' && page.pageNumber < totalPages) {
       navigate(`/page/${page.pageNumber + 1}`);
+    } else if (nav === 'jump' && pageNum) {
+      navigate(`/page/${pageNum}`);
     }
   };
 
   const handleLinkClick = (targetId) => {
+    if (!targetId) return;
+    
+    // Check if it's a URL (starts with http, https, www, or contains a domain pattern)
+    if (targetId.includes('http') || targetId.includes('www.') || targetId.includes('.com') || targetId.includes('.org') || targetId.includes('.net')) {
+      // External URL
+      const url = targetId.startsWith('http') ? targetId : `https://${targetId}`;
+      window.open(url, '_blank');
+      return;
+    }
+    
+    // Otherwise treat as internal page reference
     const targetPage = getPage(targetId);
     if (targetPage) {
       navigate(`/page/${targetPage.pageNumber}`);

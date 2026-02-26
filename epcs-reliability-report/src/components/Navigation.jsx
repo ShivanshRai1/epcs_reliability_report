@@ -1,6 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const Navigation = ({ onNavigate, isEditMode, onEditToggle, onView, onUndo, onPublish, onSave, onCancel, onAddPage, onDeletePage, onManagePages, currentPageId, currentPageNumber, totalPages }) => {
+  const [isJumpMode, setIsJumpMode] = useState(false);
+  const [jumpPageNumber, setJumpPageNumber] = useState(currentPageNumber?.toString() || '');
+
+  const handleJumpPageChange = (e) => {
+    setJumpPageNumber(e.target.value);
+  };
+
+  const handleJumpPageKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      const pageNum = parseInt(jumpPageNumber);
+      if (pageNum > 0 && pageNum <= totalPages) {
+        onNavigate('jump', pageNum);
+      }
+      setIsJumpMode(false);
+      setJumpPageNumber(currentPageNumber?.toString() || '');
+    } else if (e.key === 'Escape') {
+      setIsJumpMode(false);
+      setJumpPageNumber(currentPageNumber?.toString() || '');
+    }
+  };
+
+  const handleJumpPageBlur = () => {
+    setIsJumpMode(false);
+    setJumpPageNumber(currentPageNumber?.toString() || '');
+  };
+
   return (
     <nav style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center' }}>
       <button className="section-list-btn" onClick={() => onNavigate('home')}>Home</button>
@@ -8,9 +34,31 @@ const Navigation = ({ onNavigate, isEditMode, onEditToggle, onView, onUndo, onPu
       <button className="section-list-btn" onClick={() => onNavigate('previous')}>Previous</button>
       <button className="section-list-btn" onClick={() => onNavigate('next')}>Next</button>
       
-      {/* Page counter */}
+      {/* Page counter - editable for jump to page */}
       {currentPageNumber && totalPages && (
-        <span className="page-counter">{currentPageNumber}/{totalPages}</span>
+        isJumpMode ? (
+          <input
+            type="number"
+            value={jumpPageNumber}
+            onChange={handleJumpPageChange}
+            onKeyDown={handleJumpPageKeyDown}
+            onBlur={handleJumpPageBlur}
+            className="page-counter-input"
+            placeholder="Enter page number"
+            autoFocus
+            min="1"
+            max={totalPages}
+          />
+        ) : (
+          <span 
+            className="page-counter"
+            onClick={() => setIsJumpMode(true)}
+            title="Click to jump to a page number"
+            style={{ cursor: 'pointer' }}
+          >
+            {currentPageNumber}/{totalPages}
+          </span>
+        )
       )}
       
       {isEditMode ? (
