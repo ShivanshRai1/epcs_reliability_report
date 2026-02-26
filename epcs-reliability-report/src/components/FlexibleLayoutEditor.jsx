@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './FlexibleLayoutEditor.css';
 
 const FlexibleLayoutEditor = ({ page, onChange, pageType = 'image-text' }) => {
+  const [title, setTitle] = useState(page.title || '');
   const [layout, setLayout] = useState(page.layout || 'text-left-image-right');
   const [imageUrl, setImageUrl] = useState(page.imageUrl || '');
   const [imageCaption, setImageCaption] = useState(page.imageCaption || '');
@@ -10,6 +11,7 @@ const FlexibleLayoutEditor = ({ page, onChange, pageType = 'image-text' }) => {
   const [imagePosition, setImagePosition] = useState(page.imagePosition || 'right');
 
   useEffect(() => {
+    setTitle(page.title || '');
     setLayout(page.layout || 'text-left-image-right');
     setImageUrl(page.imageUrl || '');
     setImageCaption(page.imageCaption || '');
@@ -65,8 +67,28 @@ const FlexibleLayoutEditor = ({ page, onChange, pageType = 'image-text' }) => {
     updatePage({ textLink: value });
   };
 
+  const handleTitleChange = (e) => {
+    const newTitle = e.target.value;
+    setTitle(newTitle);
+    onChange({
+      ...page,
+      title: newTitle
+    });
+  };
+
   return (
     <div className="flexible-layout-editor">
+      <div className="editor-section" style={{ marginBottom: '1.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid #3a4555' }}>
+        <label htmlFor="page-title" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Page Heading:</label>
+        <input
+          id="page-title"
+          type="text"
+          value={title}
+          onChange={handleTitleChange}
+          placeholder="Enter page heading"
+          className="title-input"
+        />
+      </div>
       <h3>Layout Configuration</h3>
       
       {/* Layout Options */}

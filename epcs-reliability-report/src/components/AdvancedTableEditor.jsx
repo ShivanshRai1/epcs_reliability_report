@@ -56,6 +56,7 @@ const AdvancedTableEditor = ({ page, onChange }) => {
   const [selectedCell, setSelectedCell] = useState(null);
 
   useEffect(() => {
+    setTitle(page.title || '');
     setTableData(getInitialTableData());
     setCaptionTop(page.captionTop || '');
     setCaptionBottom(page.captionBottom || '');
@@ -168,8 +169,33 @@ const AdvancedTableEditor = ({ page, onChange }) => {
     });
   };
 
+  const [title, setTitle] = useState(page.title || '');
+
+  useEffect(() => {
+    setTitle(page.title || '');
+  }, [page.id]);
+
+  const handleTitleChange = (e) => {
+    const newTitle = e.target.value;
+    setTitle(newTitle);
+    onChange({ ...page, title: newTitle });
+  };
+
   return (
     <div className="advanced-table-editor">
+      {/* Page Title */}
+      <div className="caption-section">
+        <label htmlFor="page-title">Page Heading:</label>
+        <input
+          id="page-title"
+          type="text"
+          value={title}
+          onChange={handleTitleChange}
+          placeholder="Enter page heading"
+          className="caption-input"
+        />
+      </div>
+
       {/* Caption Top */}
       <div className="caption-section">
         <label htmlFor="caption-top">Text Above Table:</label>

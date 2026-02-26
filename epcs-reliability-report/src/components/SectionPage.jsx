@@ -133,6 +133,11 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
             {page.title}
           </h2>
         )}
+        {page.intro && (
+          <p style={{ fontSize: '0.95rem', color: '#e0e6f0', marginBottom: '1.5rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+            {page.intro}
+          </p>
+        )}
         {page.images && page.images.map((img, idx) => (
           <div key={idx} style={{ marginBottom: '2rem' }}>
             <img 
