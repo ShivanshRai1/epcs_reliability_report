@@ -26,6 +26,20 @@ function App() {
   const [isDeletingPageId, setIsDeletingPageId] = useState(null);
   const [isReordering, setIsReordering] = useState(false);
 
+  const transformPagesFromApi = (pagesFromApi) => {
+    const pagesArray = Array.isArray(pagesFromApi) ? pagesFromApi : [];
+
+    return {
+      pages: pagesArray.map(page => ({
+        ...(page.page_data || {}),
+        id: page.page_id,
+        title: page.title,
+        pageType: page.page_type,
+        pageNumber: page.page_number
+      }))
+    };
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -35,15 +49,7 @@ function App() {
         // Transform data structure for the app
         // API returns { page_id, page_number, page_type, title, page_data, ... }
         // App expects { pages: [{ id, title, ... }] }
-        const transformedData = {
-          pages: pagesFromApi.map(page => ({
-            id: page.page_id,
-            title: page.title,
-            pageType: page.page_type,
-            pageNumber: page.page_number,
-            ...page.page_data // Spread the actual page content
-          }))
-        };
+        const transformedData = transformPagesFromApi(pagesFromApi);
         
         setReportData(transformedData);
         setOriginalData(JSON.parse(JSON.stringify(transformedData)));
@@ -238,18 +244,7 @@ function App() {
       const pagesFromApi = await apiService.getPages();
       console.log('Pages from API after creation:', pagesFromApi);
       
-      // Ensure pagesFromApi is an array
-      const pagesArray = Array.isArray(pagesFromApi) ? pagesFromApi : [];
-      
-      let transformedData = {
-        pages: pagesArray.map(page => ({
-          id: page.page_id,
-          title: page.title,
-          pageType: page.page_type,
-          pageNumber: page.page_number,
-          ...page.page_data
-        }))
-      };
+      let transformedData = transformPagesFromApi(pagesFromApi);
       
       // Sync index page with new page numbers
       transformedData = syncIndexPageContent(transformedData);
@@ -289,19 +284,10 @@ function App() {
       const pagesFromApi = await apiService.getPages();
       console.log('📄 Pages from API:', pagesFromApi);
       
-      // Ensure pagesFromApi is an array
       const pagesArray = Array.isArray(pagesFromApi) ? pagesFromApi : [];
       console.log('📊 Pages array:', pagesArray);
       
-      let transformedData = {
-        pages: pagesArray.map(page => ({
-          id: page.page_id,
-          title: page.title,
-          pageType: page.page_type,
-          pageNumber: page.page_number,
-          ...page.page_data
-        }))
-      };
+      let transformedData = transformPagesFromApi(pagesFromApi);
 
       console.log('🔄 Transformed data:', transformedData);
 
@@ -368,18 +354,7 @@ function App() {
       const pagesFromApi = await apiService.getPages();
       console.log('📄 Pages from API after reorder:', pagesFromApi);
       
-      // Ensure pagesFromApi is an array
-      const pagesArray = Array.isArray(pagesFromApi) ? pagesFromApi : [];
-      
-      let transformedData = {
-        pages: pagesArray.map(page => ({
-          id: page.page_id,
-          title: page.title,
-          pageType: page.page_type,
-          pageNumber: page.page_number,
-          ...page.page_data
-        }))
-      };
+      let transformedData = transformPagesFromApi(pagesFromApi);
 
       // Sync index page with new page numbers
       transformedData = syncIndexPageContent(transformedData);

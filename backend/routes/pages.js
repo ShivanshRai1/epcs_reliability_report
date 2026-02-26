@@ -75,12 +75,15 @@ router.post('/:pageId', async (req, res) => {
       );
     }
 
+    const nextTitle = pageUpdateData?.page_data?.title ?? currentPage.title;
+
     // Update page
     await connection.query(
-      `UPDATE pages SET page_data = ?, updated_by = ?, updated_at = CURRENT_TIMESTAMP 
+      `UPDATE pages SET page_data = ?, title = ?, updated_by = ?, updated_at = CURRENT_TIMESTAMP 
        WHERE page_id = ?`,
       [
         JSON.stringify(mergedPageData),
+        nextTitle,
         updatedBy,
         req.params.pageId
       ]
