@@ -152,6 +152,16 @@
   background: #f7f9fc !important;
 }
 
+.advanced-table-editor .editable-table tbody tr:nth-child(odd) td {
+  background: #ffffff !important;
+  color: #1b1f2a !important;
+}
+
+.advanced-table-editor .editable-table tbody tr:nth-child(even) td {
+  background: #f7f9fc !important;
+  color: #1b1f2a !important;
+}
+
 .editable-table tbody tr.selected-row {
   background: #f0f6ff;
 }
@@ -171,6 +181,7 @@
   background: transparent;
   min-height: 40px;
   color: #1b1f2a !important;
+  caret-color: #1b1f2a;
 }
 
 .advanced-table-editor .editable-table td,
