@@ -113,25 +113,13 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, on
         positionParams = { pageId: currentPageId, insertBefore: false };
       }
       
-      // Build page data based on template
-      let pageData = null;
-      if (selectedTemplate === 'split-content' || templates.find(t => t.id === selectedTemplate)?.name.includes('Split Content')) {
-        pageData = {
-          leftHeader: splitContentConfig.leftHeader,
-          rightHeader: splitContentConfig.rightHeader,
-          leftContentType: splitContentConfig.leftContentType,
-          rightContentType: splitContentConfig.rightContentType,
-          leftContent: '',
-          rightContent: ''
-        };
-      }
+      console.log('📝 Creating page with params:', { selectedTemplate, pageTitle, insertPosition });
       
-      console.log('📝 Creating page with params:', { selectedTemplate, pageTitle, insertPosition, pageData });
-      
+      // Call API with correct parameters
       const response = await apiService.createPage(
         selectedTemplate,
         pageTitle,
-        pageData,
+        null,
         positionParams
       );
 
@@ -144,8 +132,8 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, on
         onPageCreate(response.page);
         
         // Navigate to new page immediately
-        if (onNavigate && response.page.pageNumber) {
-          onNavigate('jump', response.page.pageNumber);
+        if (onNavigate && response.page.page_number) {
+          onNavigate('jump', response.page.page_number);
         }
         
         onClose();

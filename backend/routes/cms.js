@@ -48,7 +48,7 @@ router.get('/templates', async (req, res) => {
         { id: 'heading', name: 'Heading', description: 'Title and subtitle heading page' },
         { id: 'index', name: 'Index', description: 'List of linked items' },
         { id: 'image-text', name: 'Image + Text', description: 'Flexible image and text positioning' },
-        { id: 'split-content', name: 'Split Content + Image', description: 'Content on left/right with image' },
+        { id: 'split-content', name: 'Split Content', description: 'Left/right content areas with flexible content types' },
         { id: 'table', name: 'Table', description: 'Primary table page type' }
       ]
     });
