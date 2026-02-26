@@ -144,6 +144,14 @@
   border-bottom: 1px solid #dee2e6;
 }
 
+.advanced-table-editor .editable-table tbody tr:nth-child(odd) {
+  background: #ffffff !important;
+}
+
+.advanced-table-editor .editable-table tbody tr:nth-child(even) {
+  background: #f7f9fc !important;
+}
+
 .editable-table tbody tr.selected-row {
   background: #f0f6ff;
 }
@@ -162,6 +170,13 @@
   font-family: inherit;
   background: transparent;
   min-height: 40px;
+  color: #1b1f2a !important;
+}
+
+.advanced-table-editor .editable-table td,
+.advanced-table-editor .editable-table th,
+.advanced-table-editor .header-input {
+  color: #1b1f2a !important;
 }
 
 .cell-input:focus {

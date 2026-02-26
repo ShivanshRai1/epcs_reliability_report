@@ -16,10 +16,12 @@ const PageManagerModal = ({
   const containerRef = useRef(null);
 
   React.useEffect(() => {
-    setPagesList(pages || []);
+    const sortedPages = [...(pages || [])].sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
+    setPagesList(sortedPages);
   }, [pages, isOpen]);
 
   const handleDragStart = (e, index) => {
+    if (isReordering) return;
     setDraggedItem(index);
     e.dataTransfer.effectAllowed = 'move';
   };
@@ -38,8 +40,10 @@ const PageManagerModal = ({
 
   const handleDragEnd = async () => {
     if (draggedItem !== null) {
-      const pageOrder = pagesList.map(p => p.id);
-      await onReorder(pageOrder);
+      const pageOrder = pagesList.map(p => p.id).filter(Boolean);
+      if (pageOrder.length > 0) {
+        await onReorder(pageOrder);
+      }
     }
     setDraggedItem(null);
   };
@@ -49,7 +53,7 @@ const PageManagerModal = ({
       const newList = [...pagesList];
       [newList[index - 1], newList[index]] = [newList[index], newList[index - 1]];
       setPagesList(newList);
-      const pageOrder = newList.map(p => p.id);
+      const pageOrder = newList.map(p => p.id).filter(Boolean);
       await onReorder(pageOrder);
     }
   };
@@ -59,7 +63,7 @@ const PageManagerModal = ({
       const newList = [...pagesList];
       [newList[index], newList[index + 1]] = [newList[index + 1], newList[index]];
       setPagesList(newList);
-      const pageOrder = newList.map(p => p.id);
+      const pageOrder = newList.map(p => p.id).filter(Boolean);
       await onReorder(pageOrder);
     }
   };
@@ -80,7 +84,7 @@ const PageManagerModal = ({
               <div
                 key={page.id}
                 className={`page-item ${draggedItem === index ? 'dragging' : ''}`}
-                draggable
+                draggable={!isReordering}
                 onDragStart={(e) => handleDragStart(e, index)}
                 onDragOver={(e) => handleDragOver(e, index)}
                 onDragEnd={handleDragEnd}
@@ -88,7 +92,7 @@ const PageManagerModal = ({
                 <div className="drag-handle">⋮⋮</div>
                 
                 <div className="page-details">
-                  <div className="page-number">Page {page.pageNumber}</div>
+                  <div className="page-number">Page {index + 1}</div>
                   <div className="page-title">{page.title}</div>
                   <div className="page-type">{page.pageType}</div>
                 </div>
@@ -115,7 +119,7 @@ const PageManagerModal = ({
                   <button
                     className="action-btn nav-btn"
                     onClick={() => {
-                      onNavigate(page.pageNumber);
+                      onNavigate(index + 1);
                       onClose();
                     }}
                     title="Navigate to page"
