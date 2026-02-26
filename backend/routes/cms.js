@@ -14,8 +14,11 @@ const router = express.Router();
 async function rebuildPositions(connection) {
   try {
     const [pages] = await connection.query(
-      'SELECT page_id FROM pages WHERE is_deleted = FALSE ORDER BY position ASC'
+      'SELECT page_id, page_type, title FROM pages WHERE is_deleted = FALSE ORDER BY position ASC'
     );
+    
+    console.log(`🔧 Rebuilding positions for ${pages.length} pages...`);
+    console.log('📋 Current pages:', pages.map(p => `${p.page_id}(${p.page_type}:${p.title})`).join(', '));
     
     for (let i = 0; i < pages.length; i++) {
       const newPosition = i + 1;
@@ -23,6 +26,7 @@ async function rebuildPositions(connection) {
         'UPDATE pages SET position = ?, page_number = ? WHERE page_id = ?',
         [newPosition, newPosition, pages[i].page_id]
       );
+      console.log(`  📍 ${pages[i].page_id}: position ${newPosition}`);
     }
     
     console.log(`✅ Positions rebuilt: ${pages.length} pages renumbered sequentially`);
@@ -110,10 +114,17 @@ router.post('/create', async (req, res) => {
     // Shift existing pages if needed (update BOTH position and page_number to keep them in sync)
     if (insertPosition) {
       console.log(`📍 Shifting pages at position >= ${insertPosition}`);
+      const [shiftCount] = await connection.query(
+        'SELECT COUNT(*) as cnt FROM pages WHERE position >= ? AND is_deleted = FALSE',
+        [insertPosition]
+      );
+      console.log(`📊 Shifting ${shiftCount[0].cnt} pages at/after position ${insertPosition}`);
+      
       await connection.query(
         'UPDATE pages SET position = position + 1, page_number = page_number + 1 WHERE position >= ? AND is_deleted = FALSE',
         [insertPosition]
       );
+      console.log('✅ Shift complete');
     }
 
     // Get new page_number (same as position for now)

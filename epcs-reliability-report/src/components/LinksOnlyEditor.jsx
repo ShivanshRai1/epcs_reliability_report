@@ -7,15 +7,25 @@ const LinksOnlyEditor = ({ page, onChange }) => {
   const [newLinkTarget, setNewLinkTarget] = useState('');
 
   const handleAddLink = () => {
+    console.log('🔗 Add Link clicked - title:', newLinkTitle, 'target:', newLinkTarget);
+    
     if (newLinkTitle.trim() && newLinkTarget.trim()) {
-      const updatedLinks = [
-        ...links,
-        { id: Math.max(...links.map(l => l.id || 0), 0) + 1, title: newLinkTitle, target: newLinkTarget }
-      ];
+      console.log('✅ Link is valid, adding...');
+      const linkId = Math.max(...links.map(l => l.id || 0), 0) + 1;
+      const newLink = { id: linkId, title: newLinkTitle, target: newLinkTarget };
+      console.log('📝 New link:', newLink);
+      
+      const updatedLinks = [...links, newLink];
+      console.log('📋 Updated links array:', updatedLinks);
+      
       setLinks(updatedLinks);
       setNewLinkTitle('');
       setNewLinkTarget('');
       updatePage(updatedLinks);
+      
+      console.log('✅ Link added successfully');
+    } else {
+      console.warn('⚠️ Link validation failed - title or target empty');
     }
   };
 
