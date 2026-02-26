@@ -58,19 +58,47 @@ function App() {
   }, []);
 
   const handleEditToggle = () => {
-    setIsEditMode(!isEditMode);
+    setIsEditMode(prev => !prev);
   };
 
-  const handleCellChange = (pageId, rowIdx, colName, newValue) => {
+  const handleViewMode = () => {
+    setIsEditMode(false);
+  };
+
+  const handleUndoAll = () => {
+    if (originalData) {
+      setReportData(JSON.parse(JSON.stringify(originalData)));
+      setChangedPages(new Set());
+    }
+  };
+
+  const handleCellChange = (pageId, rowIdxOrPage, colName, newValue) => {
     setReportData(prevData => {
       const updated = JSON.parse(JSON.stringify(prevData));
       const page = updated.pages.find(p => p.id === pageId);
-      if (page && page.table && page.table.data[rowIdx]) {
-        page.table.data[rowIdx][colName] = newValue;
+      if (!page) return updated;
+
+      // Generic page update from editors like Links/Text/Image/etc.
+      if (typeof rowIdxOrPage === 'object' && rowIdxOrPage !== null && colName === undefined) {
+        Object.assign(page, rowIdxOrPage);
+        return updated;
       }
+
+      // Table cell update
+      const rowIdx = rowIdxOrPage;
+      const tableRows = page.table?.rows || page.table?.data;
+      if (Array.isArray(tableRows) && tableRows[rowIdx]) {
+        tableRows[rowIdx][colName] = newValue;
+      }
+
       return updated;
     });
-    setChangedPages(prev => new Set(prev).add(pageId));
+
+    setChangedPages(prev => {
+      const next = new Set(prev);
+      next.add(pageId);
+      return next;
+    });
   };
 
   const handleHeadingChange = (pageId, newValue) => {
@@ -148,6 +176,11 @@ function App() {
   const handleCancel = () => {
     setReportData(JSON.parse(JSON.stringify(originalData)));
     setChangedPages(new Set()); // Clear changed pages on cancel
+    setIsEditMode(false);
+  };
+
+  const handlePublish = async () => {
+    await handleSave();
     setIsEditMode(false);
   };
 
@@ -407,7 +440,7 @@ function App() {
       />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} onEditToggle={handleEditToggle} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} />} />
+        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} onEditToggle={handleEditToggle} onView={handleViewMode} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} />} />
         <Route path="*" element={<div className="App"><p>Page not found</p></div>} />
       </Routes>
     </>

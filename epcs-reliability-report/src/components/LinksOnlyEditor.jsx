@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './LinksOnlyEditor.css';
 
 const LinksOnlyEditor = ({ page, onChange }) => {
@@ -6,12 +6,16 @@ const LinksOnlyEditor = ({ page, onChange }) => {
   const [newLinkTitle, setNewLinkTitle] = useState('');
   const [newLinkTarget, setNewLinkTarget] = useState('');
 
+  useEffect(() => {
+    setLinks(page.links || []);
+  }, [page.id, page.links]);
+
   const handleAddLink = () => {
     console.log('🔗 Add Link clicked - title:', newLinkTitle, 'target:', newLinkTarget);
     
     if (newLinkTitle.trim() && newLinkTarget.trim()) {
       console.log('✅ Link is valid, adding...');
-      const linkId = Math.max(...links.map(l => l.id || 0), 0) + 1;
+      const linkId = Date.now();
       const newLink = { id: linkId, title: newLinkTitle, target: newLinkTarget };
       console.log('📝 New link:', newLink);
       

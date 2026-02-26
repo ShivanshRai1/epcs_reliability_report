@@ -150,7 +150,6 @@ h1 {
   background-size: cover;
   box-shadow: inset 0 0 120px rgba(4, 12, 28, 0.6);
 }
-  transition: filter 300ms;
 
 .card, .section-card {
   background: #232b44;
@@ -243,6 +242,29 @@ nav button:hover, .section-list-btn:hover {
 .edit-manage:hover {
   background: #5a8a9a !important;
 }
+
+.edit-undo {
+  background: #7a6a3a !important;
+}
+
+.edit-undo:hover {
+  background: #9a8a4a !important;
+}
+
+.edit-publish {
+  background: #2d7e3a !important;
+}
+
+.edit-publish:hover {
+  background: #3ba047 !important;
+}
+
+.edit-view {
+  background: #5a5f7a !important;
+}
+
+.edit-view:hover {
+  background: #737a9a !important;
 }
 
 table {
@@ -391,7 +413,6 @@ tr.row-pink td {
 
 .clickable-image:hover {
   transform: scale(1.02);
-}
 }
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
