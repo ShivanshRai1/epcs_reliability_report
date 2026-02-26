@@ -1,12 +1,24 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './TextOnlyEditor.css';
 
 const TextOnlyEditor = ({ page, onChange }) => {
   const [blocks, setBlocks] = useState(page.blocks || [{ id: 1, type: 'paragraph', content: page.content || '' }]);
 
+  useEffect(() => {
+    setBlocks(page.blocks || [{ id: 1, type: 'paragraph', content: page.content || '' }]);
+  }, [page.id]);
+
   const handleBlockChange = (blockId, newContent) => {
     const updatedBlocks = blocks.map(block =>
       block.id === blockId ? { ...block, content: newContent } : block
+    );
+    setBlocks(updatedBlocks);
+    updatePage(updatedBlocks);
+  };
+
+  const handleBlockTypeChange = (blockId, newType) => {
+    const updatedBlocks = blocks.map(block =>
+      block.id === blockId ? { ...block, type: newType } : block
     );
     setBlocks(updatedBlocks);
     updatePage(updatedBlocks);
@@ -69,7 +81,7 @@ const TextOnlyEditor = ({ page, onChange }) => {
             <div className="block-header">
               <select 
                 value={block.type}
-                onChange={(e) => handleBlockChange(block.id, block.content)}
+                onChange={(e) => handleBlockTypeChange(block.id, e.target.value)}
                 className="block-type-select"
               >
                 <option value="paragraph">📝 Paragraph</option>

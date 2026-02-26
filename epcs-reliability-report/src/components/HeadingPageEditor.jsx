@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './HeadingPageEditor.css';
 
 const HeadingPageEditor = ({ page, onChange }) => {
   const [title, setTitle] = useState(page.title || '');
   const [subtitle, setSubtitle] = useState(page.subtitle || '');
+
+  useEffect(() => {
+    setTitle(page.title || '');
+    setSubtitle(page.subtitle || '');
+  }, [page.id]);
 
   const handleTitleChange = (e) => {
     const newTitle = e.target.value;

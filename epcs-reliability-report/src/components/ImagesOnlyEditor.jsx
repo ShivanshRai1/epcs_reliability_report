@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './ImagesOnlyEditor.css';
 
 const ImagesOnlyEditor = ({ page, onChange }) => {
   const [images, setImages] = useState(page.images || []);
   const [captions, setCaptions] = useState(page.captions || []);
   const [title, setTitle] = useState(page.title || '');
+
+  useEffect(() => {
+    setImages(page.images || []);
+    setCaptions(page.captions || []);
+    setTitle(page.title || '');
+  }, [page.id]);
 
   const handleAddImage = () => {
     setImages([...images, '']);
@@ -51,10 +57,10 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
     updatePage(newImages, newCaptions);
   };
 
-  const updatePage = (imgs, caps) => {
+  const updatePage = (imgs, caps, nextTitle = title) => {
     onChange({
       ...page,
-      title,
+      title: nextTitle,
       images: imgs,
       captions: caps
     });
@@ -63,7 +69,7 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
   const handleTitleChange = (e) => {
     const newTitle = e.target.value;
     setTitle(newTitle);
-    updatePage(images, captions);
+    updatePage(images, captions, newTitle);
   };
 
   return (

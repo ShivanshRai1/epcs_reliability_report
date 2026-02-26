@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './FlexibleLayoutEditor.css';
 
 const FlexibleLayoutEditor = ({ page, onChange, pageType = 'image-text' }) => {
@@ -9,41 +9,60 @@ const FlexibleLayoutEditor = ({ page, onChange, pageType = 'image-text' }) => {
   const [textLink, setTextLink] = useState(page.link || '');
   const [imagePosition, setImagePosition] = useState(page.imagePosition || 'right');
 
-  const handleLayoutChange = (newLayout) => {
-    setLayout(newLayout);
-    updatePage(newLayout);
-  };
+  useEffect(() => {
+    setLayout(page.layout || 'text-left-image-right');
+    setImageUrl(page.imageUrl || '');
+    setImageCaption(page.imageCaption || '');
+    setTextContent(page.content || '');
+    setTextLink(page.link || '');
+    setImagePosition(page.imagePosition || 'right');
+  }, [page.id]);
 
-  const updatePage = (currentLayout = layout) => {
+  const updatePage = (overrides = {}) => {
+    const currentLayout = overrides.layout ?? layout;
+    const currentImageUrl = overrides.imageUrl ?? imageUrl;
+    const currentImageCaption = overrides.imageCaption ?? imageCaption;
+    const currentTextContent = overrides.textContent ?? textContent;
+    const currentTextLink = overrides.textLink ?? textLink;
+
     onChange({
       ...page,
       layout: currentLayout,
-      imageUrl,
-      imageCaption,
-      content: textContent,
-      link: textLink,
+      imageUrl: currentImageUrl,
+      imageCaption: currentImageCaption,
+      content: currentTextContent,
+      link: currentTextLink,
       imagePosition: ['image-left', 'text-left'].includes(currentLayout) ? 'left' : 'right'
     });
   };
 
+  const handleLayoutChange = (newLayout) => {
+    setLayout(newLayout);
+    updatePage({ layout: newLayout });
+  };
+
   const handleImageUrlChange = (e) => {
-    setImageUrl(e.target.value);
-    updatePage();
+    const value = e.target.value;
+    setImageUrl(value);
+    updatePage({ imageUrl: value });
   };
 
   const handleImageCaptionChange = (e) => {
-    setImageCaption(e.target.value);
-    updatePage();
+    const value = e.target.value;
+    setImageCaption(value);
+    updatePage({ imageCaption: value });
   };
 
   const handleTextChange = (e) => {
-    setTextContent(e.target.value);
-    updatePage();
+    const value = e.target.value;
+    setTextContent(value);
+    updatePage({ textContent: value });
   };
 
   const handleLinkChange = (e) => {
-    setTextLink(e.target.value);
-    updatePage();
+    const value = e.target.value;
+    setTextLink(value);
+    updatePage({ textLink: value });
   };
 
   return (

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './AdvancedTableEditor.css';
 
 const AdvancedTableEditor = ({ page, onChange }) => {
@@ -54,6 +54,13 @@ const AdvancedTableEditor = ({ page, onChange }) => {
   const [captionTop, setCaptionTop] = useState(page.captionTop || '');
   const [captionBottom, setCaptionBottom] = useState(page.captionBottom || '');
   const [selectedCell, setSelectedCell] = useState(null);
+
+  useEffect(() => {
+    setTableData(getInitialTableData());
+    setCaptionTop(page.captionTop || '');
+    setCaptionBottom(page.captionBottom || '');
+    setSelectedCell(null);
+  }, [page.id]);
 
   const handleAddRow = (position = 'bottom') => {
     const newRow = {};

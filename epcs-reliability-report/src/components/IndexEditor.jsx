@@ -11,6 +11,16 @@ const IndexEditor = ({ page, onChange }) => {
   const containerRef = useRef(null);
   const itemRefs = useRef({});
 
+  useEffect(() => {
+    setTitle(page.title || '');
+    setContent(page.content || []);
+    setIsAddingNew(false);
+    setNewItemTitle('');
+    setNewItemTarget('');
+    setSelectedIdx(null);
+    itemRefs.current = {};
+  }, [page.id]);
+
   // Auto-scroll to selected item
   useEffect(() => {
     if (selectedIdx !== null && itemRefs.current[selectedIdx]) {
