@@ -228,8 +228,9 @@ router.delete('/:pageId', async (req, res) => {
 
 // PATCH - Reorder pages in bulk
 router.patch('/reorder', async (req, res) => {
+  let connection;
   try {
-    const connection = await pool.getConnection();
+    connection = await pool.getConnection();
     const { pageOrder } = req.body; // Array of page_ids in desired order
 
     if (!Array.isArray(pageOrder) || pageOrder.length === 0) {
@@ -239,13 +240,19 @@ router.patch('/reorder', async (req, res) => {
 
     console.log(`🔄 Reordering pages. New order:`, pageOrder);
 
+    await connection.beginTransaction();
+
     // Update positions and page_numbers
     for (let i = 0; i < pageOrder.length; i++) {
       console.log(`  - pageId=${pageOrder[i]}, position=${i+1}, page_number=${i+1}`);
-      await connection.query(
+      const [updateResult] = await connection.query(
         'UPDATE pages SET position = ?, page_number = ?, updated_at = CURRENT_TIMESTAMP WHERE page_id = ?',
         [i + 1, i + 1, pageOrder[i]]
       );
+
+      if (!updateResult || updateResult.affectedRows !== 1) {
+        throw new Error(`Reorder validation failed for page_id=${pageOrder[i]}`);
+      }
     }
 
     // Record reorder in history
@@ -257,7 +264,7 @@ router.patch('/reorder', async (req, res) => {
       );
     }
 
-    connection.release();
+    await connection.commit();
 
     res.json({
       success: true,
@@ -266,8 +273,19 @@ router.patch('/reorder', async (req, res) => {
     });
 
   } catch (error) {
+    if (connection) {
+      try {
+        await connection.rollback();
+      } catch (rollbackError) {
+        console.error('Error rolling back reorder transaction:', rollbackError);
+      }
+    }
     console.error('Error reordering pages:', error);
     res.status(500).json({ error: error.message });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 });
 

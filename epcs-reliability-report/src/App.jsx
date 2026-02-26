@@ -348,6 +348,10 @@ function App() {
   const handleReorderPages = async (pageOrder) => {
     try {
       setIsReordering(true);
+      if (!Array.isArray(pageOrder) || pageOrder.length === 0) {
+        throw new Error('Invalid page order');
+      }
+
       await apiService.reorderPages(pageOrder);
 
       // Refresh pages list
@@ -363,8 +367,10 @@ function App() {
       setOriginalData(JSON.parse(JSON.stringify(transformedData)));
       
       console.log('✅ Pages reordered successfully');
+      return true;
     } catch (err) {
       console.error('❌ Error reordering pages:', err);
+      return false;
     } finally {
       setIsReordering(false);
     }

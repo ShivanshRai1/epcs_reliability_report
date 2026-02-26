@@ -20,6 +20,11 @@ const PageManagerModal = ({
     setPagesList(sortedPages);
   }, [pages, isOpen]);
 
+  const resetFromProps = () => {
+    const sortedPages = [...(pages || [])].sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
+    setPagesList(sortedPages);
+  };
+
   const handleDragStart = (e, index) => {
     if (isReordering) return;
     setDraggedItem(index);
@@ -41,8 +46,15 @@ const PageManagerModal = ({
   const handleDragEnd = async () => {
     if (draggedItem !== null) {
       const pageOrder = pagesList.map(p => p.id).filter(Boolean);
-      if (pageOrder.length > 0) {
-        await onReorder(pageOrder);
+      if (pageOrder.length === pagesList.length && pageOrder.length > 0) {
+        const ok = await onReorder(pageOrder);
+        if (!ok) {
+          resetFromProps();
+          window.alert('Reorder failed. List has been reset to server order.');
+        }
+      } else {
+        resetFromProps();
+        window.alert('Reorder failed: invalid page IDs detected.');
       }
     }
     setDraggedItem(null);
@@ -54,7 +66,16 @@ const PageManagerModal = ({
       [newList[index - 1], newList[index]] = [newList[index], newList[index - 1]];
       setPagesList(newList);
       const pageOrder = newList.map(p => p.id).filter(Boolean);
-      await onReorder(pageOrder);
+      if (pageOrder.length !== newList.length) {
+        resetFromProps();
+        window.alert('Reorder failed: invalid page IDs detected.');
+        return;
+      }
+      const ok = await onReorder(pageOrder);
+      if (!ok) {
+        resetFromProps();
+        window.alert('Reorder failed. List has been reset to server order.');
+      }
     }
   };
 
@@ -64,7 +85,16 @@ const PageManagerModal = ({
       [newList[index], newList[index + 1]] = [newList[index + 1], newList[index]];
       setPagesList(newList);
       const pageOrder = newList.map(p => p.id).filter(Boolean);
-      await onReorder(pageOrder);
+      if (pageOrder.length !== newList.length) {
+        resetFromProps();
+        window.alert('Reorder failed: invalid page IDs detected.');
+        return;
+      }
+      const ok = await onReorder(pageOrder);
+      if (!ok) {
+        resetFromProps();
+        window.alert('Reorder failed. List has been reset to server order.');
+      }
     }
   };
 
