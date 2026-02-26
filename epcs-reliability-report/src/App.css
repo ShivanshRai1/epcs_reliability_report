@@ -678,4 +678,76 @@ tr.row-pink td {
     background: #e8e8e8;
     border-radius: 0.5rem;
   }
+
+  /* Force dark text on all content in light mode */
+  p, span, a, h1, h2, h3, h4, h5, h6, 
+  .content-text, .content-line,
+  .report-content,
+  li,
+  .index-title,
+  .index-list,
+  .index-list li,
+  .index-link {
+    color: #213547 !important;
+  }
+
+  a,
+  .index-link {
+    color: #0066cc !important;
+  }
+
+  a:hover {
+    color: #0052a3 !important;
+  }
+
+  .index-link:hover {
+    color: #0052a3 !important;
+  }
+
+  /* Links page overrides */
+  .links-section {
+    color: #213547 !important;
+  }
+
+  .links-section a {
+    color: #0066cc !important;
+  }
+
+  /* Heading section text */
+  .heading-section,
+  .heading-section * {
+    color: #213547 !important;
+  }
+
+  /* Flexible layout text */
+  .flexible-layout-view,
+  .flexible-layout-view * {
+    color: #213547 !important;
+  }
+
+  /* Image section captions */
+  .image-section,
+  .image-caption,
+  .image-caption * {
+    color: #213547 !important;
+  }
+
+  /* Index page */
+  .index-page,
+  .index-page * {
+    color: #213547 !important;
+  }
+
+  .index-page a {
+    color: #0066cc !important;
+  }
+
+  /* Text-only page inline styles override */
+  div[style*="color: #e0e6f0"] {
+    color: #213547 !important;
+  }
+
+  div[style*="color: #fff"] {
+    color: #213547 !important;
+  }
 }

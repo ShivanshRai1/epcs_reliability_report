@@ -204,3 +204,90 @@
     order: unset;
   }
 }
+/* Light mode support */
+@media (prefers-color-scheme: light) {
+  .flexible-layout-editor {
+    background: #f5f5f5;
+  }
+
+  .flexible-layout-editor h3 {
+    color: #213547;
+  }
+
+  .layout-options {
+    background: #ffffff;
+    border: 1px solid #d0d0d0;
+  }
+
+  .layout-option {
+    border: 1px solid transparent;
+  }
+
+  .layout-option:hover {
+    background: #f0f0f0;
+  }
+
+  .layout-option input[type="radio"] {
+    accent-color: #0d6efd;
+  }
+
+  .form-group label {
+    color: #213547;
+  }
+
+  .input-field,
+  .textarea-field {
+    background: #ffffff;
+    border: 1px solid #d0d0d0;
+    color: #213547;
+  }
+
+  .input-field:focus,
+  .textarea-field:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+  }
+
+  .input-field::placeholder,
+  .textarea-field::placeholder {
+    color: #999;
+  }
+
+  .preview-section {
+    background: #ffffff;
+    border: 1px solid #d0d0d0;
+  }
+
+  .preview-section h4 {
+    color: #213547;
+  }
+
+  .layout-preview {
+    background: #ffffff;
+    border: 1px solid #d0d0d0;
+    padding: 1rem;
+  }
+
+  .preview-text {
+    color: #213547;
+  }
+
+  .preview-text p {
+    color: #213547;
+  }
+
+  .preview-image-placeholder {
+    background: #e8e8e8;
+    color: #666;
+    border: 1px dashed #d0d0d0;
+  }
+
+  .add-section-btn {
+    background: #0d6efd !important;
+    color: white !important;
+  }
+
+  .add-section-btn:hover {
+    background: #0b5ed7 !important;
+  }
+}
