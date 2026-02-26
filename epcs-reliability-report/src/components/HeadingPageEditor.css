@@ -54,3 +54,31 @@
 .heading-subtitle-input {
   font-size: 0.95rem;
 }
+/* Light mode support */
+@media (prefers-color-scheme: light) {
+  .heading-page-editor {
+    background-color: rgba(240, 240, 240, 0.5);
+  }
+
+  .heading-editor-section label {
+    color: #213547;
+  }
+
+  .heading-title-input,
+  .heading-subtitle-input {
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    color: #213547;
+  }
+
+  .heading-title-input:focus,
+  .heading-subtitle-input:focus {
+    border-color: rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 8px rgba(0, 102, 204, 0.15);
+  }
+
+  .heading-title-input::placeholder,
+  .heading-subtitle-input::placeholder {
+    color: rgba(33, 53, 71, 0.5);
+  }
+}

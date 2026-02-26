@@ -591,3 +591,91 @@ tr.row-pink td {
   align-items: center;
   justify-content: center;
 }
+
+/* Light mode support */
+@media (prefers-color-scheme: light) {
+  .page-heading-title {
+    color: #213547;
+  }
+
+  .page-heading-subtitle {
+    color: #555;
+  }
+
+  .card, .section-card {
+    background: #f5f5f5;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  ul, ol {
+    color: #213547;
+  }
+
+  nav button, .section-list-btn {
+    background: #e0e0e0;
+    color: #213547;
+  }
+
+  nav button:hover, .section-list-btn:hover {
+    background: #2e7be6;
+    color: #fff;
+  }
+
+  .section-list-btn.selected {
+    background: #2e7be6;
+    color: #fff;
+  }
+
+  /* Edit mode button text in light mode */
+  .edit-toggle {
+    background: #c0c0c0 !important;
+    color: #213547 !important;
+  }
+
+  .edit-toggle:hover {
+    background: #2e7be6 !important;
+    color: #fff !important;
+  }
+
+  .edit-save,
+  .edit-add,
+  .edit-manage,
+  .edit-undo,
+  .edit-publish,
+  .edit-view,
+  .edit-delete,
+  .edit-cancel {
+    color: #fff !important;
+  }
+
+  table {
+    background: #f5f5f5;
+  }
+
+  th {
+    background: #2e7be6;
+    color: #fff;
+  }
+
+  tr:nth-child(even) td {
+    background: #ececec;
+  }
+
+  th, td {
+    border: 1px solid #d0d0d0;
+    color: #213547;
+  }
+
+  .heading-section h2 {
+    color: #213547;
+  }
+
+  .page-counter {
+    color: #213547;
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 0.5rem 1rem;
+    background: #e8e8e8;
+    border-radius: 0.5rem;
+  }
+}

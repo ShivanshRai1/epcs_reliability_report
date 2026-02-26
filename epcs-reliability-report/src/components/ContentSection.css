@@ -91,3 +91,52 @@
   border-color: #0099ff;
   background-color: rgba(0, 102, 204, 0.1);
 }
+/* Light mode support */
+@media (prefers-color-scheme: light) {
+  .content-section {
+    background-color: rgba(0, 0, 0, 0.02);
+    border-left: 4px solid #0066cc;
+  }
+
+  .content-text,
+  .content-line {
+    color: #213547;
+  }
+
+  .content-group {
+    color: #ff6b35;
+  }
+
+  .content-blue {
+    color: #0066cc;
+  }
+
+  .content-orange {
+    color: #ff6b35;
+  }
+
+  .content-indent-1,
+  .content-indent-2 {
+    color: #0066cc;
+  }
+
+  .content-section-edit {
+    background-color: rgba(0, 0, 0, 0.01);
+    border: 2px solid #0066cc;
+  }
+
+  .content-textarea {
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #213547;
+    border: 1px solid #0066cc;
+  }
+
+  .content-textarea::placeholder {
+    color: #999;
+  }
+
+  .content-textarea:focus {
+    border-color: #0099ff;
+    background-color: rgba(0, 102, 204, 0.05);
+  }
+}

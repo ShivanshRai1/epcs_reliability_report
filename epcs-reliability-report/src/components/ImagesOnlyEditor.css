@@ -206,3 +206,67 @@
     padding: 1rem;
   }
 }
+/* Light mode support */
+@media (prefers-color-scheme: light) {
+  .images-only-editor {
+    background: #f5f5f5;
+    color: #213547;
+  }
+
+  .editor-section label {
+    color: #213547;
+  }
+
+  .title-input {
+    background: #ffffff;
+    border: 1px solid #d0d0d0;
+    color: #213547;
+  }
+
+  .title-input:focus {
+    border-color: #2e7be6;
+    background: #f8f8f8;
+  }
+
+  .empty-state {
+    background: #ffffff;
+    color: #888;
+    border: 1px dashed #d0d0d0;
+  }
+
+  .image-item {
+    background: #ffffff;
+    border: 1px solid #d0d0d0;
+  }
+
+  .image-item:hover {
+    border-color: #2e7be6;
+    box-shadow: 0 0 10px rgba(46, 123, 230, 0.1);
+  }
+
+  .image-controls {
+    border-bottom: 1px solid #d0d0d0;
+  }
+
+  .move-btn,
+  .delete-btn {
+    background: #e8e8e8;
+    border: 1px solid #d0d0d0;
+    color: #213547;
+  }
+
+  .move-btn:hover:not(:disabled) {
+    background: #2e7be6;
+    border-color: #2e7be6;
+    color: white;
+  }
+
+  .add-image-btn {
+    background: #2e7be6;
+    color: white;
+  }
+
+  .add-image-btn:hover {
+    background: #1e5bb8;
+  }
+}

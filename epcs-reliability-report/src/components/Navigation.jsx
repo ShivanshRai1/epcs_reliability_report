@@ -1,12 +1,17 @@
 import React from 'react';
 
-const Navigation = ({ onNavigate, isEditMode, onEditToggle, onView, onUndo, onPublish, onSave, onCancel, onAddPage, onDeletePage, onManagePages, currentPageId }) => {
+const Navigation = ({ onNavigate, isEditMode, onEditToggle, onView, onUndo, onPublish, onSave, onCancel, onAddPage, onDeletePage, onManagePages, currentPageId, currentPageNumber, totalPages }) => {
   return (
-    <nav style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+    <nav style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center' }}>
       <button className="section-list-btn" onClick={() => onNavigate('home')}>Home</button>
       <button className="section-list-btn" onClick={() => onNavigate('index')}>Index</button>
       <button className="section-list-btn" onClick={() => onNavigate('previous')}>Previous</button>
       <button className="section-list-btn" onClick={() => onNavigate('next')}>Next</button>
+      
+      {/* Page counter */}
+      {currentPageNumber && totalPages && (
+        <span className="page-counter">{currentPageNumber}/{totalPages}</span>
+      )}
       
       {isEditMode ? (
         <>
