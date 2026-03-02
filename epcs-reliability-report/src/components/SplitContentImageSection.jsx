@@ -241,33 +241,42 @@ export default function SplitContentImageSection({
       )}
 
       {/* HEADER ROW — always a true 50/50 flex row, independent of content */}
-      <div className="split-headers-row">
-        <div className="split-header-cell split-left-header">
+      <div style={{ display: 'flex', width: '100%', borderBottom: '1px solid #ddd' }}>
+        <div style={{
+          flex: 1, padding: '12px 16px', fontWeight: 600, textAlign: 'center',
+          fontSize: '0.95rem', letterSpacing: '0.5px', textTransform: 'uppercase',
+          backgroundColor: '#5fc574', color: 'white',
+          borderRight: '1px solid rgba(0,0,0,0.1)'
+        }}>
           {displayLeftHeader || '\u00A0'}
         </div>
-        <div className="split-header-cell split-right-header">
+        <div style={{
+          flex: 1, padding: '12px 16px', fontWeight: 600, textAlign: 'center',
+          fontSize: '0.95rem', letterSpacing: '0.5px', textTransform: 'uppercase',
+          backgroundColor: '#e8a87c', color: '#333'
+        }}>
           {displayRightHeader || '\u00A0'}
         </div>
       </div>
 
       {/* CONTENT ROW */}
-      <div className="split-content-image-section">
+      <div style={{ display: 'flex', minHeight: '300px', maxHeight: 'calc(100vh - 200px)', backgroundColor: 'white' }}>
         {layout === 'reversed' ? (
           <>
-            <div className="split-left">
-              <div className="split-image-wrapper">{imageEditorBlock}</div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRight: '1px solid #ddd', overflow: 'hidden' }}>
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '16px', overflow: 'hidden' }}>{imageEditorBlock}</div>
             </div>
-            <div className="split-right">
-              <div className="split-content-wrapper">{renderContent()}</div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+              <div style={{ flex: 1, padding: '16px' }}>{renderContent()}</div>
             </div>
           </>
         ) : (
           <>
-            <div className="split-left">
-              <div className="split-content-wrapper">{renderContent()}</div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRight: '1px solid #ddd', overflow: 'auto' }}>
+              <div style={{ flex: 1, padding: '16px' }}>{renderContent()}</div>
             </div>
-            <div className="split-right">
-              <div className="split-image-wrapper">{imageEditorBlock}</div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '16px', overflow: 'hidden' }}>{imageEditorBlock}</div>
             </div>
           </>
         )}
