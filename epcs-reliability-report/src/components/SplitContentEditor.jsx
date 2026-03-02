@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './SplitContentEditor.css';
+import LinkTargetInput from './LinkTargetInput';
 
 const SplitContentEditor = ({ page, onChange }) => {
   const [title, setTitle] = useState(page.title || '');
@@ -117,12 +118,11 @@ const SplitContentEditor = ({ page, onChange }) => {
         {contentType === 'link' && (
           <>
             <label>Link/Hyperlink:</label>
-            <input
-              type="text"
+            <LinkTargetInput
               value={content}
-              onChange={onContentChange}
-              placeholder="e.g., https://example.com or PDF file link"
-              className="content-input"
+              onValueChange={(value) => onContentChange({ target: { value } })}
+              placeholder="e.g., https://example.com, /pdfs/report.pdf, or choose file"
+              inputClassName="content-input"
             />
           </>
         )}

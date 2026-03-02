@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './IndexEditor.css';
+import LinkTargetInput from './LinkTargetInput';
 
 const IndexEditor = ({ page, onChange }) => {
   const [title, setTitle] = useState(page.title);
@@ -147,12 +148,12 @@ const IndexEditor = ({ page, onChange }) => {
                   placeholder="Item title"
                   className="item-title-input"
                 />
-                <input
-                  type="text"
+                <LinkTargetInput
                   value={item.target}
-                  onChange={(e) => handleItemTargetChange(idx, e.target.value)}
-                  placeholder="Link target (e.g., epcs_discrete_product)"
-                  className="item-target-input"
+                  onValueChange={(value) => handleItemTargetChange(idx, value)}
+                  placeholder="Target: page ID/number, URL, file path, or choose file"
+                  inputClassName="item-target-input"
+                  buttonText="📁"
                 />
               </div>
               <button 
@@ -188,12 +189,11 @@ const IndexEditor = ({ page, onChange }) => {
               className="item-title-input"
               autoFocus
             />
-            <input
-              type="text"
+            <LinkTargetInput
               value={newItemTarget}
-              onChange={(e) => setNewItemTarget(e.target.value)}
-              placeholder="New item target"
-              className="item-target-input"
+              onValueChange={setNewItemTarget}
+              placeholder="New target: page ID/number, URL, file path, or choose file"
+              inputClassName="item-target-input"
             />
             <div className="new-item-buttons">
               <button onClick={handleAddItem} className="add-btn">Add</button>

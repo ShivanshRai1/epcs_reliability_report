@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './LinksOnlyEditor.css';
+import LinkTargetInput from './LinkTargetInput';
 
 const LinksOnlyEditor = ({ page, onChange }) => {
   const [links, setLinks] = useState(page.links || []);
@@ -89,12 +90,11 @@ const LinksOnlyEditor = ({ page, onChange }) => {
             placeholder="Link title"
             className="form-input"
           />
-          <input
-            type="text"
+          <LinkTargetInput
             value={newLinkTarget}
-            onChange={(e) => setNewLinkTarget(e.target.value)}
-            placeholder="Target (page ID or number)"
-            className="form-input"
+            onValueChange={setNewLinkTarget}
+            placeholder="Target (page ID/number, URL, file path, or choose file)"
+            inputClassName="form-input"
           />
           <button 
             className="add-btn"
@@ -125,12 +125,12 @@ const LinksOnlyEditor = ({ page, onChange }) => {
                     placeholder="Link title"
                     className="link-title-input"
                   />
-                  <input
-                    type="text"
+                  <LinkTargetInput
                     value={link.target}
-                    onChange={(e) => handleLinkChange(link.id, 'target', e.target.value)}
-                    placeholder="Target page"
-                    className="link-target-input"
+                    onValueChange={(value) => handleLinkChange(link.id, 'target', value)}
+                    placeholder="Page ID/number, URL, file path, or choose file"
+                    inputClassName="link-target-input"
+                    buttonText="📁"
                   />
                 </div>
 

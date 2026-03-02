@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navigation from './Navigation';
 import SectionPage from './SectionPage';
+import { isLikelyLinkTarget, toOpenableUrl } from '../utils/linkTarget';
 
 export default function ReportPage({ reportData, isEditMode, isReadMode, onEditToggle, onView, onUndo, onPublish, onCellChange, onHeadingChange, onImageChange, onIndexChange, onSave, onCancel, onImageClick, onAddPage, onDeletePage, onManagePages }) {
   const { pageId } = useParams();
@@ -42,24 +43,29 @@ export default function ReportPage({ reportData, isEditMode, isReadMode, onEditT
   const handleLinkClick = (targetId) => {
     if (!targetId) return;
 
-    const numericTarget = Number(targetId);
+    const normalizedTarget = typeof targetId === 'string' ? targetId.trim() : String(targetId).trim();
+    if (!normalizedTarget) return;
+
+    const numericTarget = Number(normalizedTarget);
     if (!Number.isNaN(numericTarget)) {
-      navigate(`/page/${numericTarget}`);
-      return;
+      const targetPageByNumber = reportData.pages.find(p => p.pageNumber === numericTarget);
+      if (targetPageByNumber) {
+        navigate(`/page/${targetPageByNumber.pageNumber}`);
+        return;
+      }
     }
-    
-    // Check if it's a URL (starts with http, https, www, or contains a domain pattern)
-    if (typeof targetId === 'string' && (targetId.includes('http') || targetId.includes('www.') || targetId.includes('.com') || targetId.includes('.org') || targetId.includes('.net'))) {
-      // External URL
-      const url = targetId.startsWith('http') ? targetId : `https://${targetId}`;
-      window.open(url, '_blank');
-      return;
-    }
-    
-    // Otherwise treat as internal page reference
-    const targetPage = getPage(targetId);
+
+    const targetPage = getPage(normalizedTarget);
     if (targetPage) {
       navigate(`/page/${targetPage.pageNumber}`);
+      return;
+    }
+
+    if (isLikelyLinkTarget(normalizedTarget)) {
+      const openableUrl = toOpenableUrl(normalizedTarget);
+      if (openableUrl) {
+        window.open(openableUrl, '_blank', 'noopener,noreferrer');
+      }
     }
   };
 

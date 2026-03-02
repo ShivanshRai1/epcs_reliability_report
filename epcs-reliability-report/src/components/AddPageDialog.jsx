@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { apiService } from '../services/api';
+import SectionPage from './SectionPage';
 import './AddPageDialog.css';
 
-const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, onNavigate = null }) => {
+const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, existingPages = [] }) => {
   const [templates, setTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [pageTitle, setPageTitle] = useState('');
@@ -10,15 +11,6 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, on
   const [loading, setLoading] = useState(false);
   const [templatesLoading, setTemplatesLoading] = useState(false);
   const [error, setError] = useState('');
-  
-  // Split Content modal state
-  const [showSplitContentModal, setShowSplitContentModal] = useState(false);
-  const [splitContentConfig, setSplitContentConfig] = useState({
-    leftHeader: '',
-    rightHeader: '',
-    leftContentType: 'text', // text, link, image
-    rightContentType: 'text'
-  });
 
   // Fetch available templates
   useEffect(() => {
@@ -27,13 +19,6 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, on
       setPageTitle('');
       setSelectedTemplate(null);
       setError('');
-      setShowSplitContentModal(false);
-      setSplitContentConfig({
-        leftHeader: '',
-        rightHeader: '',
-        leftContentType: 'text',
-        rightContentType: 'text'
-      });
     }
   }, [isOpen]);
 
@@ -47,7 +32,13 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, on
       const filteredTemplates = allTemplates.filter(template => {
         const id = String(template.id || '').toLowerCase();
         const name = String(template.name || '').toLowerCase();
-        return id !== 'image-text' && !name.includes('image + text') && !name.includes('image-text');
+        return (
+          id !== 'image-text' &&
+          !name.includes('image + text') &&
+          !name.includes('image-text') &&
+          id !== 'just-tables' &&
+          name !== 'just tables'
+        );
       });
       setTemplates(filteredTemplates);
       setError('');
@@ -63,16 +54,121 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, on
 
   const handleTemplateSelect = (templateId) => {
     setSelectedTemplate(templateId);
-    // Show split content modal if split-content template selected
-    if (templateId === 'split-content' || templateId === 'split') {
-      setShowSplitContentModal(true);
-    }
   };
 
-  const handleSplitContentConfirm = async () => {
-    setShowSplitContentModal(false);
-    // Create page with split content configuration
-    await createPageWithConfig();
+  const getPageTypeForTemplate = (templateId) => {
+    if (!templateId) return null;
+    const templateToPageType = {
+      'text-only': 'content',
+      'just-images': 'image',
+      'split-content': 'split-content-image',
+      'table': 'table',
+      'heading': 'heading',
+      'index': 'index',
+      'just-links': 'just-links'
+    };
+    return templateToPageType[templateId] || templateId;
+  };
+
+  const getSamplePageForTemplate = (templateId) => {
+    const pageType = getPageTypeForTemplate(templateId);
+    if (!pageType || !Array.isArray(existingPages)) return null;
+
+    const preferredPreviewPageByTemplate = {
+      'text-only': 26,
+      'split-content': 28,
+      'just-images': 7
+    };
+
+    const preferredPageNumber = preferredPreviewPageByTemplate[templateId];
+    if (preferredPageNumber) {
+      const preferredSample = existingPages.find((page) => Number(page.pageNumber) === preferredPageNumber);
+      if (preferredSample) return preferredSample;
+    }
+
+    return existingPages.find((page) => page.pageType === pageType) || null;
+  };
+
+  const renderTemplatePreview = (templateId) => {
+    if (templateId === 'just-links') {
+      return (
+        <div className="template-preview-live-wrap">
+          <div className="template-preview-meta">Sample: Dummy preview</div>
+          <div className="template-preview-live template-preview-dummy-live">
+            <div className="template-preview-dummy-content">
+              <div className="template-preview-dummy-title">LINKS PAGE</div>
+              <div className="template-preview-dummy-line" />
+              <div className="template-preview-dummy-line short" />
+              <div className="template-preview-dummy-line" />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    const sample = getSamplePageForTemplate(templateId);
+
+    if (!sample) {
+      return (
+        <div className="template-preview-empty">No sample page available yet</div>
+      );
+    }
+
+    if (templateId === 'table') {
+      const columns = Array.isArray(sample.table?.columns) ? sample.table.columns : [];
+      const rows = Array.isArray(sample.table?.rows)
+        ? sample.table.rows
+        : (Array.isArray(sample.table?.data) ? sample.table.data : []);
+
+      return (
+        <div className="template-preview-live-wrap">
+          <div className="template-preview-meta">Sample: Page {sample.pageNumber}</div>
+          <div className="template-preview-live template-preview-table-live">
+            <div className="template-preview-table-shell">
+              <div className="template-preview-table-title">{sample.title || 'TABLE PAGE'}</div>
+              <table className="template-preview-table-mini">
+                <thead>
+                  <tr>
+                    {columns.slice(0, 8).map((col) => (
+                      <th key={col}>{col}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.slice(0, 8).map((row, idx) => (
+                    <tr key={idx}>
+                      {columns.slice(0, 8).map((col) => (
+                        <td key={`${idx}-${col}`}>{row?.[col] ?? ''}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="template-preview-live-wrap">
+        <div className="template-preview-meta">Sample: Page {sample.pageNumber}</div>
+        <div className="template-preview-live">
+          <div className="template-preview-scale">
+            <SectionPage
+              page={sample}
+              onLinkClick={() => {}}
+              isEditMode={false}
+              onCellChange={() => {}}
+              onHeadingChange={() => {}}
+              onImageChange={() => {}}
+              onIndexChange={() => {}}
+              onImageClick={() => {}}
+            />
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const handleCreatePage = async () => {
@@ -83,13 +179,6 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, on
 
     if (!pageTitle.trim()) {
       setError('Please enter a page title');
-      return;
-    }
-
-    // For split content, show modal instead
-    const template = templates.find(t => t.id === selectedTemplate);
-    if (selectedTemplate === 'split-content' || (template && template.name.includes('Split Content'))) {
-      setShowSplitContentModal(true);
       return;
     }
 
@@ -134,13 +223,8 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, on
       if (response.success) {
         console.log('🎉 Page created successfully:', response.page);
         
-        // Call onPageCreate to refresh data
-        onPageCreate(response.page);
-        
-        // Navigate to new page immediately
-        if (onNavigate && response.page.page_number) {
-          onNavigate('jump', response.page.page_number);
-        }
+        // Refresh data and let parent navigate to the resolved, valid page
+        await onPageCreate(response.page);
         
         onClose();
       } else {
@@ -195,6 +279,9 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, on
                       className={`template-card ${selectedTemplate === template.id ? 'selected' : ''}`}
                       onClick={() => handleTemplateSelect(template.id)}
                     >
+                      <div className="template-preview">
+                        {renderTemplatePreview(template.id)}
+                      </div>
                       <div className="template-name">{template.name}</div>
                       <div className="template-description">{template.description}</div>
                     </div>
@@ -257,85 +344,6 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, on
           </div>
         </div>
       </div>
-
-      {/* Split Content Configuration Modal */}
-      {showSplitContentModal && (
-        <div className="add-page-dialog-overlay" onClick={() => setShowSplitContentModal(false)}>
-          <div className="add-page-dialog" onClick={(e) => e.stopPropagation()}>
-            <div className="dialog-header">
-              <h2>Split Content Configuration</h2>
-              <button className="close-btn" onClick={() => setShowSplitContentModal(false)}>×</button>
-            </div>
-
-            <div className="dialog-body">
-              <div className="form-group">
-                <label htmlFor="left-header">Left Header (optional):</label>
-                <input
-                  id="left-header"
-                  type="text"
-                  value={splitContentConfig.leftHeader}
-                  onChange={(e) => setSplitContentConfig({ ...splitContentConfig, leftHeader: e.target.value })}
-                  placeholder="e.g., Features"
-                  className="page-title-input"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="right-header">Right Header (optional):</label>
-                <input
-                  id="right-header"
-                  type="text"
-                  value={splitContentConfig.rightHeader}
-                  onChange={(e) => setSplitContentConfig({ ...splitContentConfig, rightHeader: e.target.value })}
-                  placeholder="e.g., Specifications"
-                  className="page-title-input"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="left-content-type">Left Content Type:</label>
-                <select
-                  id="left-content-type"
-                  value={splitContentConfig.leftContentType}
-                  onChange={(e) => setSplitContentConfig({ ...splitContentConfig, leftContentType: e.target.value })}
-                  className="page-title-input"
-                >
-                  <option value="text">Text</option>
-                  <option value="link">Link/Hyperlink</option>
-                  <option value="image">Image</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="right-content-type">Right Content Type:</label>
-                <select
-                  id="right-content-type"
-                  value={splitContentConfig.rightContentType}
-                  onChange={(e) => setSplitContentConfig({ ...splitContentConfig, rightContentType: e.target.value })}
-                  className="page-title-input"
-                >
-                  <option value="text">Text</option>
-                  <option value="link">Link/Hyperlink</option>
-                  <option value="image">Image</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="dialog-footer">
-              <button className="btn-cancel" onClick={() => setShowSplitContentModal(false)} disabled={loading}>
-                Cancel
-              </button>
-              <button 
-                className="btn-create" 
-                onClick={handleSplitContentConfirm}
-                disabled={loading}
-              >
-                {loading ? 'Creating...' : 'Create Page'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 };

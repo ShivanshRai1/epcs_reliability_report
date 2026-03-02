@@ -388,10 +388,40 @@ function App() {
       // Exit edit mode after creating page
       setIsEditMode(false);
       setChangedPages(new Set());
+
+      const createdPageId = newPage?.page_id || newPage?.id;
+      let redirectPageNumber = null;
+
+      if (createdPageId) {
+        const createdPage = transformedData.pages.find(page => page.id === createdPageId);
+        if (createdPage?.pageNumber) {
+          redirectPageNumber = createdPage.pageNumber;
+        }
+      }
+
+      if (!redirectPageNumber && newPage?.page_number) {
+        const apiPageNumber = Number(newPage.page_number);
+        if (Number.isFinite(apiPageNumber)) {
+          const matchingPage = transformedData.pages.find(page => page.pageNumber === apiPageNumber);
+          if (matchingPage?.pageNumber) {
+            redirectPageNumber = matchingPage.pageNumber;
+          }
+        }
+      }
+
+      if (!redirectPageNumber && transformedData.pages.length > 0) {
+        redirectPageNumber = Math.max(...transformedData.pages.map(page => page.pageNumber || 0));
+      }
+
+      if (redirectPageNumber) {
+        navigate(`/page/${redirectPageNumber}`);
+      }
       
       console.log('✅ Page created successfully:', newPage);
+      return redirectPageNumber;
     } catch (err) {
       console.error('Error creating page:', err);
+      return null;
     }
   };
 
@@ -531,7 +561,7 @@ function App() {
         onClose={handleCloseAddPageDialog}
         onPageCreate={handlePageCreate}
         currentPageId={currentPageId}
-        onNavigate={(action, pageNum) => navigate(`/page/${pageNum}`)}
+        existingPages={reportData?.pages || []}
       />
       <DeletePageDialog
         isOpen={isDeleteDialogOpen}

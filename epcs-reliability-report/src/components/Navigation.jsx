@@ -73,6 +73,7 @@ const Navigation = ({ onNavigate, isEditMode, isReadMode, onEditToggle, onView, 
       {!isEditMode ? (
         <>
           <button className={`section-list-btn edit-toggle ${isReadMode ? 'edit-disabled' : ''}`} onClick={onEditToggle} disabled={isReadMode} title={isReadMode ? 'Read Mode is ON' : 'Enter edit mode'}>✏️ Edit</button>
+          <button className="section-list-btn edit-view-placeholder" onClick={() => {}} title="View (coming soon)">👁️ View</button>
         </>
       ) : null}
       

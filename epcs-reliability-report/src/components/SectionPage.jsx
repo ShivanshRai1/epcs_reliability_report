@@ -94,34 +94,6 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
     );
   }
 
-  // Render just-tables page
-  if (page.pageType === 'just-tables') {
-    if (isEditMode) {
-      return (
-        <div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: '#fff' }}>
-            {page.title}
-          </h2>
-          <AdvancedTableEditor page={page} onChange={(updatedPage) => onCellChange(page.id, updatedPage)} />
-        </div>
-      );
-    }
-    
-    // Handle both old (.data) and new (.rows) table structures
-    const tableRows = page.table?.rows || page.table?.data || [];
-    
-    return (
-      <div>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: '#fff' }}>
-          {page.title}
-        </h2>
-        {page.captionTop && <div style={{ marginBottom: '1rem', fontSize: '0.95rem', color: '#ddd' }}>{page.captionTop}</div>}
-        <Table columns={page.table?.columns} data={tableRows} isEditMode={false} pageId={page.id} onCellChange={onCellChange} />
-        {page.captionBottom && <div style={{ marginTop: '1rem', fontSize: '0.95rem', color: '#ddd' }}>{page.captionBottom}</div>}
-      </div>
-    );
-  }
-
   // Render just-images page
   if (page.pageType === 'just-images') {
     if (isEditMode) {

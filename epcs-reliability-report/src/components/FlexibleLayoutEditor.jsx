@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './FlexibleLayoutEditor.css';
+import LinkTargetInput from './LinkTargetInput';
 
 const FlexibleLayoutEditor = ({ page, onChange, pageType = 'image-text' }) => {
   const [title, setTitle] = useState(page.title || '');
@@ -175,14 +176,16 @@ const FlexibleLayoutEditor = ({ page, onChange, pageType = 'image-text' }) => {
 
       {/* Text Link */}
       <div className="form-group">
-        <label htmlFor="text-link">Link Target (page ID or number):</label>
-        <input
-          id="text-link"
-          type="text"
+        <label htmlFor="text-link">Link Target (page ID/number, URL, or file path):</label>
+        <LinkTargetInput
+          inputId="text-link"
           value={textLink}
-          onChange={handleLinkChange}
-          placeholder="e.g., page_123 or 5"
-          className="input-field"
+          onValueChange={(value) => {
+            const event = { target: { value } };
+            handleLinkChange(event);
+          }}
+          placeholder="e.g., 5, epcs_discrete_product, /pdfs/report.pdf, https://example.com"
+          inputClassName="input-field"
         />
       </div>
 
@@ -199,7 +202,7 @@ const FlexibleLayoutEditor = ({ page, onChange, pageType = 'image-text' }) => {
           {!['image-full'].includes(layout) && (
             <div className="preview-text">
               <p>{textContent || 'Your text will appear here...'}</p>
-              {textLink && <p className="link-text">→ Links to page: {textLink}</p>}
+              {textLink && <p className="link-text">→ Link target: {textLink}</p>}
             </div>
           )}
         </div>

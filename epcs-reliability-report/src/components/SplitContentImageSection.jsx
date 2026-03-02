@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Modal from './Modal';
 import './SplitContentImageSection.css';
+import { toOpenableUrl } from '../utils/linkTarget';
+import LinkTargetInput from './LinkTargetInput';
 
 export default function SplitContentImageSection({
   title,
@@ -149,12 +151,12 @@ export default function SplitContentImageSection({
                   placeholder="Link text"
                   className="link-input link-input-text"
                 />
-                <input
-                  type="text"
+                <LinkTargetInput
                   value={link.url || ''}
-                  onChange={(e) => handleLinkChange(idx, 'url', e.target.value)}
-                  placeholder="URL"
-                  className="link-input link-input-url"
+                  onValueChange={(value) => handleLinkChange(idx, 'url', value)}
+                  placeholder="URL, file path, or choose file"
+                  inputClassName="link-input link-input-url"
+                  buttonText="📁"
                 />
                 <button
                   className="link-delete-btn"
@@ -176,27 +178,13 @@ export default function SplitContentImageSection({
     return (
       <div className="split-content-display">
         {links.map((link, idx) => {
-          // Determine if it's an absolute URL or local file
-          const isAbsolute = /^https?:\/\//i.test(link.url);
-          if (!isAbsolute) {
-            return (
-              <a
-                key={idx}
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  window.location.href = encodeURI(link.url || '');
-                }}
-                className="split-link"
-              >
-                {link.text}
-              </a>
-            );
-          }
+          const openableUrl = toOpenableUrl(link.url || '');
+          if (!openableUrl) return null;
+
           return (
             <a
               key={idx}
-              href={link.url}
+              href={openableUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="split-link"

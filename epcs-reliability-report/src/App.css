@@ -230,6 +230,14 @@ nav button:hover, .section-list-btn:hover {
   background: #2e7be6 !important;
 }
 
+.edit-view-placeholder {
+  background: #4a5b7a !important;
+}
+
+.edit-view-placeholder:hover {
+  background: #60739a !important;
+}
+
 .edit-disabled {
   background: #6c757d !important;
   color: #c7cedb !important;

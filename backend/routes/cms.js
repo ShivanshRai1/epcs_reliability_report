@@ -43,7 +43,6 @@ router.get('/templates', async (req, res) => {
       templates: [
         { id: 'text-only', name: 'Text Only', description: 'Page with just text content' },
         { id: 'just-links', name: 'Just Links', description: 'Page with only links/list' },
-        { id: 'just-tables', name: 'Just Tables', description: 'Page with table and optional text above/below' },
         { id: 'just-images', name: 'Just Images', description: 'Page with images and optional captions' },
         { id: 'heading', name: 'Heading', description: 'Title and subtitle heading page' },
         { id: 'index', name: 'Index', description: 'List of linked items' },
@@ -134,7 +133,6 @@ router.post('/create', async (req, res) => {
     const pageDataTemplates = {
       'text-only': { content: '', blocks: [] },
       'just-links': { links: [], title: title },
-      'just-tables': { table: { rows: [], columns: [] }, captionTop: '', captionBottom: '' },
       'just-images': { images: [], captions: [] },
       'heading': { title: title, subtitle: '' },
       'index': { content: [] },
