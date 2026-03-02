@@ -69,6 +69,9 @@ function App() {
         setLoading(false);
       }
     };
+    
+    // Force isReadMode to false on app load
+    setIsReadMode(false);
     fetchData();
   }, []);
 
