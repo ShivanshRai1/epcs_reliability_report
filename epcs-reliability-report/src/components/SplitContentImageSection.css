@@ -31,13 +31,13 @@
 }
 
 .split-left-header {
-  background-color: #4caf50;
+  background-color: #5fc574;
   color: white;
 }
 
 .split-right-header {
-  background-color: #ffb74d;
-  color: white;
+  background-color: #e8a87c;
+  color: #333;
 }
 
 /* Split Content Image Section */
@@ -463,7 +463,7 @@
 /* Image URL Input (Edit Mode) - REMOVED in favor of new image-url-input class */
 
 /* Responsive Layout */
-@media (max-width: 1200px) {
+@media (max-width: 768px) {
   .split-content-image-section {
     flex-direction: column;
     gap: 0;

@@ -102,6 +102,9 @@ export default function SplitContentImageSection({
     setShowImageModal(false);
   };
 
+  const displayLeftHeader = layout === 'reversed' ? rightHeader : leftHeader;
+  const displayRightHeader = layout === 'reversed' ? leftHeader : rightHeader;
+
   // Support editable leftContent (text) or fallback to links if leftContent is not present
   const renderContent = () => {
     // If leftContentData exists, use it for editable text
@@ -217,11 +220,9 @@ export default function SplitContentImageSection({
           <>
             {/* REVERSED LAYOUT: Image on left, content on right */}
             <div className="split-left">
-              {rightHeader && (
-                <div className="split-section-header split-left-header">
-                  {rightHeader}
-                </div>
-              )}
+              <div className="split-section-header split-left-header">
+                {displayLeftHeader || '\u00A0'}
+              </div>
               <div className="split-image-wrapper">
                 {isEditing ? (
                   <div className="split-image-editor">
@@ -271,11 +272,9 @@ export default function SplitContentImageSection({
             </div>
 
             <div className="split-right">
-              {leftHeader && (
-                <div className="split-section-header split-right-header">
-                  {leftHeader}
-                </div>
-              )}
+              <div className="split-section-header split-right-header">
+                {displayRightHeader || '\u00A0'}
+              </div>
               <div className="split-content-wrapper">
                 {renderContent()}
               </div>
@@ -285,22 +284,18 @@ export default function SplitContentImageSection({
           <>
             {/* NORMAL LAYOUT: Content on left, image on right */}
             <div className="split-left">
-              {leftHeader && (
-                <div className="split-section-header split-left-header">
-                  {leftHeader}
-                </div>
-              )}
+              <div className="split-section-header split-left-header">
+                {displayLeftHeader || '\u00A0'}
+              </div>
               <div className="split-content-wrapper">
                 {renderContent()}
               </div>
             </div>
 
             <div className="split-right">
-              {rightHeader && (
-                <div className="split-section-header split-right-header">
-                  {rightHeader}
-                </div>
-              )}
+              <div className="split-section-header split-right-header">
+                {displayRightHeader || '\u00A0'}
+              </div>
               <div className="split-image-wrapper">
                 {isEditing ? (
                   <div className="split-image-editor">
