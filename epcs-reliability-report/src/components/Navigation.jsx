@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const Navigation = ({ onNavigate, isEditMode, onEditToggle, onView, onUndo, onPublish, onSave, onCancel, onAddPage, onDeletePage, onManagePages, currentPageId, currentPageNumber, totalPages }) => {
+const Navigation = ({ onNavigate, isEditMode, isEditUnlocked, onEditToggle, onUnlock, onView, onUndo, onPublish, onSave, onCancel, onAddPage, onDeletePage, onManagePages, currentPageId, currentPageNumber, totalPages }) => {
   const [isJumpMode, setIsJumpMode] = useState(false);
   const [jumpPageNumber, setJumpPageNumber] = useState(currentPageNumber?.toString() || '');
 
@@ -60,20 +60,36 @@ const Navigation = ({ onNavigate, isEditMode, onEditToggle, onView, onUndo, onPu
           </span>
         )
       )}
+
+      {/* View button - ALWAYS VISIBLE, completely separate */}
+      <button 
+        className="section-list-btn edit-view" 
+        onClick={onView}
+        title="Enter read-only mode"
+      >
+        👁️ View
+      </button>
+
+      {!isEditMode ? (
+        <>
+          <button className={`section-list-btn edit-toggle ${!isEditUnlocked ? 'edit-disabled' : ''}`} onClick={onEditToggle} disabled={!isEditUnlocked} title={!isEditUnlocked ? 'Read-only mode: click Unlock to enable editing' : 'Enter edit mode'}>✏️ Edit</button>
+          {!isEditUnlocked && (
+            <button className="section-list-btn edit-unlock" onClick={onUnlock} title="Unlock editing">🔓 Unlock</button>
+          )}
+        </>
+      ) : null}
       
-      {isEditMode ? (
+      {/* Edit toolbar - only visible in edit mode */}
+      {isEditMode && (
         <>
           <button className="section-list-btn edit-manage" onClick={onManagePages} title="Manage pages (add/delete/reorder)">📄 Manage</button>
           <button className="section-list-btn edit-add" onClick={onAddPage} title="Add new page after current page">➕ Add</button>
           <button className="section-list-btn edit-delete" onClick={onDeletePage} title="Delete current page">🗑️ Delete</button>
           <button className="section-list-btn edit-undo" onClick={onUndo}>↩️ Undo</button>
           <button className="section-list-btn edit-publish" onClick={onPublish}>🚀 Publish</button>
-          <button className="section-list-btn edit-view" onClick={onView}>👁️ View</button>
           <button className="section-list-btn edit-save" onClick={onSave}>💾 Save</button>
           <button className="section-list-btn edit-cancel" onClick={onCancel}>❌ Cancel</button>
         </>
-      ) : (
-        <button className="section-list-btn edit-toggle" onClick={onEditToggle}>✏️ Edit</button>
       )}
     </nav>
   );

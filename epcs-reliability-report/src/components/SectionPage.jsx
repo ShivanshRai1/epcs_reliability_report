@@ -10,6 +10,8 @@ import FlexibleLayoutEditor from './FlexibleLayoutEditor';
 import ImagesOnlyEditor from './ImagesOnlyEditor';
 import ImageSection from './ImageSection';
 import SplitContentImageSection from './SplitContentImageSection';
+import SplitContentEditor from './SplitContentEditor';
+import SplitContentRenderer from './SplitContentRenderer';
 import ContentSection from './ContentSection';
 import IndexEditor from './IndexEditor';
 
@@ -294,6 +296,33 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
         isEditing={isEditMode}
         onChange={(updatedData) => onImageChange(page.id, updatedData)}
         onImageModalOpen={page.imageUrl ? () => onImageClick(page.imageUrl, page.title) : undefined}
+      />
+    );
+  }
+
+  // Render split content page (new two-column layout)
+  if (page.pageType === 'split-content') {
+    if (isEditMode) {
+      return (
+        <SplitContentEditor
+          page={page}
+          onChange={(updatedPage) => onCellChange(page.id, updatedPage)}
+        />
+      );
+    }
+
+    return (
+      <SplitContentRenderer
+        title={page.title}
+        leftHeader={page.leftHeader}
+        rightHeader={page.rightHeader}
+        leftContentType={page.leftContentType}
+        rightContentType={page.rightContentType}
+        leftContent={page.leftContent}
+        rightContent={page.rightContent}
+        leftImage={page.leftImage}
+        rightImage={page.rightImage}
+        onLinkClick={onLinkClick}
       />
     );
   }

@@ -230,6 +230,36 @@ nav button:hover, .section-list-btn:hover {
   background: #2e7be6 !important;
 }
 
+.edit-disabled {
+  background: #6c757d !important;
+  color: #c7cedb !important;
+  cursor: not-allowed !important;
+  opacity: 0.8;
+}
+
+.edit-disabled:hover {
+  background: #6c757d !important;
+  color: #c7cedb !important;
+}
+
+.edit-unlock {
+  background: #17a2b8 !important;
+  color: #fff !important;
+}
+
+.edit-unlock:hover {
+  background: #138496 !important;
+  color: #fff !important;
+}
+
+.edit-view {
+  background: #6c757d !important;
+}
+
+.edit-view:hover {
+  background: #5a6268 !important;
+}
+
 .edit-save {
   background: #2d7e3a !important;
 }
@@ -662,6 +692,35 @@ tr.row-pink td {
   .edit-toggle:hover {
     background: #2e7be6 !important;
     color: #fff !important;
+  }
+  .edit-disabled {
+    background: #b0b0b0 !important;
+    color: #666 !important;
+    cursor: not-allowed !important;
+  }
+
+  .edit-disabled:hover {
+    background: #b0b0b0 !important;
+  }
+
+  .edit-unlock {
+    background: #67b7c7 !important;
+    color: #fff !important;
+  }
+
+  .edit-unlock:hover {
+    background: #4a9cb5 !important;
+    color: #fff !important;
+  }
+
+  .edit-view {
+    background: #8d9aac !important;
+    color: #213547 !important;
+  }
+
+  .edit-view:hover {
+    background: #7a8998 !important;
+    color: #213547 !important;
   }
 
   .edit-save,

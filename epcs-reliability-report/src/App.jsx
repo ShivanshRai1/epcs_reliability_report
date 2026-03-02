@@ -7,6 +7,7 @@ import Modal from './components/Modal';
 import AddPageDialog from './components/AddPageDialog';
 import DeletePageDialog from './components/DeletePageDialog';
 import PageManagerModal from './components/PageManagerModal';
+import PublishConfirmDialog from './components/PublishConfirmDialog';
 import { apiService } from './services/api';
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isEditUnlocked, setIsEditUnlocked] = useState(false);
   const [originalData, setOriginalData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -26,6 +28,11 @@ function App() {
   const [isPageManagerOpen, setIsPageManagerOpen] = useState(false);
   const [isDeletingPageId, setIsDeletingPageId] = useState(null);
   const [isReordering, setIsReordering] = useState(false);
+  
+  // New state for per-page undo history
+  const [pageUndoHistory, setPageUndoHistory] = useState({});
+  const [publishedData, setPublishedData] = useState(null);
+  const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
 
   const transformPagesFromApi = (pagesFromApi) => {
     const pagesArray = Array.isArray(pagesFromApi) ? pagesFromApi : [];
@@ -65,21 +72,67 @@ function App() {
   }, []);
 
   const handleEditToggle = () => {
-    setIsEditMode(prev => !prev);
+    if (!isEditUnlocked) return;
+    setIsEditMode(true);
+  };
+
+  const handleUnlockEdit = () => {
+    setIsEditUnlocked(true);
   };
 
   const handleViewMode = () => {
     setIsEditMode(false);
+    setIsEditUnlocked(false);
   };
-
-  const handleUndoAll = () => {
-    if (originalData) {
-      setReportData(JSON.parse(JSON.stringify(originalData)));
-      setChangedPages(new Set());
+  const handleUndoAll = (pageId) => {
+    if (!pageId) return;
+    
+    const history = pageUndoHistory[pageId];
+    
+    // If there's history for this page, restore the previous state
+    if (history && history.length > 0) {
+      const previousState = history.pop();
+      
+      // Update pageUndoHistory to remove the popped item
+      setPageUndoHistory(prev => {
+        const updated = { ...prev };
+        updated[pageId] = [...history];  // Keep the updated history
+        return updated;
+      });
+      
+      // Restore the page to previous state in reportData
+      setReportData(prevData => {
+        const updated = JSON.parse(JSON.stringify(prevData));
+        const pageIndex = updated.pages.findIndex(p => p.id === pageId);
+        if (pageIndex !== -1) {
+          updated.pages[pageIndex] = previousState;
+        }
+        return updated;
+      });
     }
   };
 
   const handleCellChange = (pageId, rowIdxOrPage, colName, newValue) => {
+    // Capture current page state for undo history (before making changes)
+    setPageUndoHistory(prevHistory => {
+      const history = { ...prevHistory };
+      if (!history[pageId]) {
+        history[pageId] = [];
+      }
+      
+      // Get current page state from reportData
+      const currentPage = reportData.pages.find(p => p.id === pageId);
+      if (currentPage) {
+        // Keep only last 20 changes
+        if (history[pageId].length >= 20) {
+          history[pageId].shift();
+        }
+        history[pageId].push(JSON.parse(JSON.stringify(currentPage)));
+      }
+      
+      return history;
+    });
+
     setReportData(prevData => {
       const updated = JSON.parse(JSON.stringify(prevData));
       const page = updated.pages.find(p => p.id === pageId);
@@ -109,6 +162,26 @@ function App() {
   };
 
   const handleHeadingChange = (pageId, newValue) => {
+    // Capture current page state for undo history (before making changes)
+    setPageUndoHistory(prevHistory => {
+      const history = { ...prevHistory };
+      if (!history[pageId]) {
+        history[pageId] = [];
+      }
+      
+      // Get current page state from reportData
+      const currentPage = reportData.pages.find(p => p.id === pageId);
+      if (currentPage) {
+        // Keep only last 20 changes
+        if (history[pageId].length >= 20) {
+          history[pageId].shift();
+        }
+        history[pageId].push(JSON.parse(JSON.stringify(currentPage)));
+      }
+      
+      return history;
+    });
+
     setReportData(prevData => {
       const updated = JSON.parse(JSON.stringify(prevData));
       const page = updated.pages.find(p => p.id === pageId);
@@ -126,6 +199,26 @@ function App() {
   };
 
   const handleImageChange = (pageId, data) => {
+    // Capture current page state for undo history (before making changes)
+    setPageUndoHistory(prevHistory => {
+      const history = { ...prevHistory };
+      if (!history[pageId]) {
+        history[pageId] = [];
+      }
+      
+      // Get current page state from reportData
+      const currentPage = reportData.pages.find(p => p.id === pageId);
+      if (currentPage) {
+        // Keep only last 20 changes
+        if (history[pageId].length >= 20) {
+          history[pageId].shift();
+        }
+        history[pageId].push(JSON.parse(JSON.stringify(currentPage)));
+      }
+      
+      return history;
+    });
+
     setReportData(prevData => {
       const updated = JSON.parse(JSON.stringify(prevData));
       const page = updated.pages.find(p => p.id === pageId);
@@ -145,6 +238,26 @@ function App() {
   };
 
   const handleIndexChange = (pageId, updatedPageData) => {
+    // Capture current page state for undo history (before making changes)
+    setPageUndoHistory(prevHistory => {
+      const history = { ...prevHistory };
+      if (!history[pageId]) {
+        history[pageId] = [];
+      }
+      
+      // Get current page state from reportData
+      const currentPage = reportData.pages.find(p => p.id === pageId);
+      if (currentPage) {
+        // Keep only last 20 changes
+        if (history[pageId].length >= 20) {
+          history[pageId].shift();
+        }
+        history[pageId].push(JSON.parse(JSON.stringify(currentPage)));
+      }
+      
+      return history;
+    });
+
     setReportData(prevData => {
       const updated = JSON.parse(JSON.stringify(prevData));
       const page = updated.pages.find(p => p.id === pageId);
@@ -156,6 +269,7 @@ function App() {
     });
     setChangedPages(prev => new Set(prev).add(pageId));
   };
+
 
   const handleSave = async () => {
     try {
@@ -175,6 +289,7 @@ function App() {
       setOriginalData(JSON.parse(JSON.stringify(reportData)));
       setChangedPages(new Set()); // Clear changed pages
       setIsEditMode(false);
+      setIsEditUnlocked(false);
     } catch (err) {
       console.error('Error saving report:', err);
     }
@@ -184,11 +299,30 @@ function App() {
     setReportData(JSON.parse(JSON.stringify(originalData)));
     setChangedPages(new Set()); // Clear changed pages on cancel
     setIsEditMode(false);
+    setIsEditUnlocked(false);
   };
 
-  const handlePublish = async () => {
+  const handlePublish = () => {
+    // Show the publish confirmation dialog
+    setIsPublishDialogOpen(true);
+  };
+
+  const confirmPublish = async () => {
+    // Close the dialog first
+    setIsPublishDialogOpen(false);
+    
+    // Save all changes
     await handleSave();
+    
+    // Set published data to lock read-only mode
+    setPublishedData(JSON.parse(JSON.stringify(reportData)));
+    
+    // Exit edit mode
     setIsEditMode(false);
+    setIsEditUnlocked(false);
+    
+    // Clear undo history since changes are now permanent
+    setPageUndoHistory({});
   };
 
   const handleImageClick = (imageSrc, imageAlt) => {
@@ -411,6 +545,11 @@ function App() {
         onConfirmDelete={handleConfirmDelete}
         isDeleting={isDeletingPageId === pageToDelete?.id}
       />
+      <PublishConfirmDialog
+        isOpen={isPublishDialogOpen}
+        onConfirm={confirmPublish}
+        onCancel={() => setIsPublishDialogOpen(false)}
+      />
       <PageManagerModal
         isOpen={isPageManagerOpen}
         onClose={() => setIsPageManagerOpen(false)}
@@ -423,7 +562,7 @@ function App() {
       />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} onEditToggle={handleEditToggle} onView={handleViewMode} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} />} />
+        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} isEditUnlocked={isEditUnlocked} onEditToggle={handleEditToggle} onUnlock={handleUnlockEdit} onView={handleViewMode} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} />} />
         <Route path="*" element={<div className="App"><p>Page not found</p></div>} />
       </Routes>
     </>

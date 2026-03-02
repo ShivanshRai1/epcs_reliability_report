@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Navigation from './Navigation';
 import SectionPage from './SectionPage';
 
-export default function ReportPage({ reportData, isEditMode, onEditToggle, onView, onUndo, onPublish, onCellChange, onHeadingChange, onImageChange, onIndexChange, onSave, onCancel, onImageClick, onAddPage, onDeletePage, onManagePages }) {
+export default function ReportPage({ reportData, isEditMode, isEditUnlocked, onEditToggle, onUnlock, onView, onUndo, onPublish, onCellChange, onHeadingChange, onImageChange, onIndexChange, onSave, onCancel, onImageClick, onAddPage, onDeletePage, onManagePages }) {
   const { pageId } = useParams();
   const navigate = useNavigate();
 
@@ -67,7 +67,7 @@ export default function ReportPage({ reportData, isEditMode, onEditToggle, onVie
         >
           <h1>EPCS Reliability Report</h1>
         </button>
-        <Navigation onNavigate={handleNav} isEditMode={isEditMode} onEditToggle={onEditToggle} onView={onView} onUndo={onUndo} onPublish={onPublish} onSave={onSave} onCancel={onCancel} onAddPage={() => onAddPage(page.id)} onDeletePage={() => onDeletePage(page)} onManagePages={onManagePages} currentPageId={page.id} currentPageNumber={page.pageNumber} totalPages={totalPages} />
+        <Navigation onNavigate={handleNav} isEditMode={isEditMode} isEditUnlocked={isEditUnlocked} onEditToggle={onEditToggle} onUnlock={onUnlock} onView={onView} onUndo={() => onUndo(page.id)} onPublish={onPublish} onSave={onSave} onCancel={onCancel} onAddPage={() => onAddPage(page.id)} onDeletePage={() => onDeletePage(page)} onManagePages={onManagePages} currentPageId={page.id} currentPageNumber={page.pageNumber} totalPages={totalPages} />
         <div className="section-card report-content">
           <SectionPage page={page} onLinkClick={handleLinkClick} isEditMode={isEditMode} onCellChange={onCellChange} onHeadingChange={onHeadingChange} onImageChange={onImageChange} onIndexChange={onIndexChange} onImageClick={onImageClick} />
         </div>
