@@ -104,6 +104,8 @@ export default function SplitContentImageSection({
 
   const displayLeftHeader = layout === 'reversed' ? rightHeader : leftHeader;
   const displayRightHeader = layout === 'reversed' ? leftHeader : rightHeader;
+  const hasLeftHeader = Boolean(String(displayLeftHeader || '').trim());
+  const hasRightHeader = Boolean(String(displayRightHeader || '').trim());
 
   // Support editable leftContent (text) or fallback to links if leftContent is not present
   const renderContent = () => {
@@ -245,7 +247,8 @@ export default function SplitContentImageSection({
         <div style={{
           flex: 1, padding: '12px 16px', fontWeight: 600, textAlign: 'center',
           fontSize: '0.95rem', letterSpacing: '0.5px', textTransform: 'uppercase',
-          backgroundColor: '#5fc574', color: 'white',
+          backgroundColor: hasLeftHeader ? '#5fc574' : '#e9e9e9',
+          color: hasLeftHeader ? 'white' : 'transparent',
           borderRight: '1px solid rgba(0,0,0,0.1)'
         }}>
           {displayLeftHeader || '\u00A0'}
@@ -253,7 +256,8 @@ export default function SplitContentImageSection({
         <div style={{
           flex: 1, padding: '12px 16px', fontWeight: 600, textAlign: 'center',
           fontSize: '0.95rem', letterSpacing: '0.5px', textTransform: 'uppercase',
-          backgroundColor: '#e8a87c', color: '#333'
+          backgroundColor: hasRightHeader ? '#e8a87c' : '#e9e9e9',
+          color: hasRightHeader ? '#333' : 'transparent'
         }}>
           {displayRightHeader || '\u00A0'}
         </div>
