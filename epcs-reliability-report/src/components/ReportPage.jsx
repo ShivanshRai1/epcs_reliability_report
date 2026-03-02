@@ -41,9 +41,15 @@ export default function ReportPage({ reportData, isEditMode, isReadMode, onEditT
 
   const handleLinkClick = (targetId) => {
     if (!targetId) return;
+
+    const numericTarget = Number(targetId);
+    if (!Number.isNaN(numericTarget)) {
+      navigate(`/page/${numericTarget}`);
+      return;
+    }
     
     // Check if it's a URL (starts with http, https, www, or contains a domain pattern)
-    if (targetId.includes('http') || targetId.includes('www.') || targetId.includes('.com') || targetId.includes('.org') || targetId.includes('.net')) {
+    if (typeof targetId === 'string' && (targetId.includes('http') || targetId.includes('www.') || targetId.includes('.com') || targetId.includes('.org') || targetId.includes('.net'))) {
       // External URL
       const url = targetId.startsWith('http') ? targetId : `https://${targetId}`;
       window.open(url, '_blank');
