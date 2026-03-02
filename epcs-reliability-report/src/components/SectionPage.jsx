@@ -155,6 +155,11 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
             )}
           </div>
         ))}
+        {page.bottomText && (
+          <p style={{ fontSize: '0.95rem', color: '#e0e6f0', marginTop: '1.5rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+            {page.bottomText}
+          </p>
+        )}
       </div>
     );
   }

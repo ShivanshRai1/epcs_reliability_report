@@ -43,7 +43,13 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, on
       console.log('📋 Fetching templates...');
       const data = await apiService.getPageTemplates();
       console.log('✅ Templates loaded:', data);
-      setTemplates(data.templates || data || []);
+      const allTemplates = data.templates || data || [];
+      const filteredTemplates = allTemplates.filter(template => {
+        const id = String(template.id || '').toLowerCase();
+        const name = String(template.name || '').toLowerCase();
+        return id !== 'image-text' && !name.includes('image + text') && !name.includes('image-text');
+      });
+      setTemplates(filteredTemplates);
       setError('');
     } catch (err) {
       const errorMsg = 'Failed to load templates: ' + err.message;

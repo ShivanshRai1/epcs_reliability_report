@@ -6,18 +6,20 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
   const [captions, setCaptions] = useState(page.captions || []);
   const [title, setTitle] = useState(page.title || '');
   const [intro, setIntro] = useState(page.intro || '');
+  const [bottomText, setBottomText] = useState(page.bottomText || '');
 
   useEffect(() => {
     setImages(page.images || []);
     setCaptions(page.captions || []);
     setTitle(page.title || '');
     setIntro(page.intro || '');
+    setBottomText(page.bottomText || '');
   }, [page.id]);
 
   const handleAddImage = () => {
     setImages([...images, '']);
     setCaptions([...captions, '']);
-    updatePage([...images, ''], [...captions, ''], title, intro);
+    updatePage([...images, ''], [...captions, ''], title, intro, bottomText);
   };
 
   const handleDeleteImage = (idx) => {
@@ -25,21 +27,21 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
     const newCaptions = captions.filter((_, i) => i !== idx);
     setImages(newImages);
     setCaptions(newCaptions);
-    updatePage(newImages, newCaptions, title, intro);
+    updatePage(newImages, newCaptions, title, intro, bottomText);
   };
 
   const handleImageUrlChange = (idx, value) => {
     const newImages = [...images];
     newImages[idx] = value;
     setImages(newImages);
-    updatePage(newImages, captions, title, intro);
+    updatePage(newImages, captions, title, intro, bottomText);
   };
 
   const handleCaptionChange = (idx, value) => {
     const newCaptions = [...captions];
     newCaptions[idx] = value;
     setCaptions(newCaptions);
-    updatePage(images, newCaptions, title, intro);
+    updatePage(images, newCaptions, title, intro, bottomText);
   };
 
   const handleMoveImage = (idx, direction) => {
@@ -56,14 +58,15 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
     
     setImages(newImages);
     setCaptions(newCaptions);
-    updatePage(newImages, newCaptions, title, intro);
+    updatePage(newImages, newCaptions, title, intro, bottomText);
   };
 
-  const updatePage = (imgs, caps, nextTitle = title, nextIntro = intro) => {
+  const updatePage = (imgs, caps, nextTitle = title, nextIntro = intro, nextBottomText = bottomText) => {
     onChange({
       ...page,
       title: nextTitle,
       intro: nextIntro,
+      bottomText: nextBottomText,
       images: imgs,
       captions: caps
     });
@@ -78,7 +81,13 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
   const handleIntroChange = (e) => {
     const newIntro = e.target.value;
     setIntro(newIntro);
-    updatePage(images, captions, title, newIntro);
+    updatePage(images, captions, title, newIntro, bottomText);
+  };
+
+  const handleBottomTextChange = (e) => {
+    const newBottomText = e.target.value;
+    setBottomText(newBottomText);
+    updatePage(images, captions, title, intro, newBottomText);
   };
 
   return (
@@ -100,6 +109,17 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
           value={intro}
           onChange={handleIntroChange}
           placeholder="Enter introductory text to display before images..."
+          className="title-input"
+          rows="3"
+        />
+      </div>
+
+      <div className="editor-section">
+        <label>Bottom Text (optional):</label>
+        <textarea
+          value={bottomText}
+          onChange={handleBottomTextChange}
+          placeholder="Enter text to display after images..."
           className="title-input"
           rows="3"
         />
