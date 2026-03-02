@@ -31,10 +31,50 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
   };
 
   const handleImageUrlChange = (idx, value) => {
+    const normalizedValue = normalizeImageSource(value);
     const newImages = [...images];
-    newImages[idx] = value;
+    newImages[idx] = normalizedValue;
     setImages(newImages);
     updatePage(newImages, captions, title, intro, bottomText);
+  };
+
+  const normalizeImageSource = (value) => {
+    const input = (value || '').trim();
+    if (!input) return '';
+
+    // Keep regular URLs, data URLs, and project-relative paths as-is
+    if (
+      input.startsWith('http://') ||
+      input.startsWith('https://') ||
+      input.startsWith('data:') ||
+      input.startsWith('/') ||
+      input.startsWith('./') ||
+      input.startsWith('../')
+    ) {
+      return input;
+    }
+
+    // If user pastes a local OS path, map it to /images/<filename>
+    // Example: C:\Users\me\Downloads\photo.png -> /images/photo.png
+    const normalizedPath = input.replace(/\\/g, '/');
+    const fileName = normalizedPath.split('/').pop();
+    if (fileName && /\.(png|jpg|jpeg|gif|webp|svg|bmp)$/i.test(fileName)) {
+      return `/images/${fileName}`;
+    }
+
+    return input;
+  };
+
+  const handleLocalFileSelect = (idx, file) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const newImages = [...images];
+      newImages[idx] = reader.result;
+      setImages(newImages);
+      updatePage(newImages, captions, title, intro, bottomText);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleCaptionChange = (idx, value) => {
@@ -177,7 +217,13 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
                   type="text"
                   value={imageUrl}
                   onChange={(e) => handleImageUrlChange(idx, e.target.value)}
-                  placeholder="https://..."
+                  placeholder="https://... or C:\\path\\image.png or /images/image.png"
+                  className="url-input"
+                />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleLocalFileSelect(idx, e.target.files?.[0])}
                   className="url-input"
                 />
 
