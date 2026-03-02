@@ -17,6 +17,7 @@ function App() {
   const [error, setError] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isEditUnlocked, setIsEditUnlocked] = useState(false);
+  const [isReadMode, setIsReadMode] = useState(false);
   const [originalData, setOriginalData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -83,6 +84,10 @@ function App() {
   const handleViewMode = () => {
     setIsEditMode(false);
     setIsEditUnlocked(false);
+  };
+
+  const handleReadModeToggle = () => {
+    setIsReadMode(prev => !prev);
   };
   const handleUndoAll = (pageId) => {
     if (!pageId) return;
@@ -562,7 +567,7 @@ function App() {
       />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} isEditUnlocked={isEditUnlocked} onEditToggle={handleEditToggle} onUnlock={handleUnlockEdit} onView={handleViewMode} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} />} />
+        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} isEditUnlocked={isEditUnlocked} isReadMode={isReadMode} onEditToggle={handleEditToggle} onUnlock={handleUnlockEdit} onView={handleReadModeToggle} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} />} />
         <Route path="*" element={<div className="App"><p>Page not found</p></div>} />
       </Routes>
     </>
