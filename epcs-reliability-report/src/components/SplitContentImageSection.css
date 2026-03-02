@@ -464,6 +464,26 @@
 
 /* Image URL Input (Edit Mode) - REMOVED in favor of new image-url-input class */
 
+/* Hide empty sides and expand visible side */
+.split-content-image-section.hide-left .split-right {
+  flex: 1;
+  width: 100%;
+  border-left: none;
+}
+
+.split-content-image-section.hide-right .split-left {
+  flex: 1;
+  width: 100%;
+}
+
+.split-content-image-section.hide-left {
+  justify-content: flex-end;
+}
+
+.split-content-image-section.hide-right {
+  justify-content: flex-start;
+}
+
 /* Responsive Layout */
 @media (max-width: 1200px) {
   .split-content-image-section {

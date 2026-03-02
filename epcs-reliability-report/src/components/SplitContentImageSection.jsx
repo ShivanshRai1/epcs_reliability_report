@@ -204,6 +204,14 @@ export default function SplitContentImageSection({
     );
   };
 
+  // Detect which sides have content (for layout adjustments)
+  const hasLeftContent = leftHeader || leftContentData.trim() || links.length > 0;
+  const hasRightContent = rightHeader || imageUrlData;
+  
+  // Determine if we should hide one side when only one has content
+  const hideLeft = !hasLeftContent && hasRightContent && !isEditing;
+  const hideRight = !hasRightContent && hasLeftContent && !isEditing;
+
   return (
     <div className="split-section-wrapper">
       {title && (
@@ -212,142 +220,150 @@ export default function SplitContentImageSection({
         </div>
       )}
 
-      <div className="split-content-image-section">
+      <div className={`split-content-image-section ${hideLeft ? 'hide-left' : ''} ${hideRight ? 'hide-right' : ''}`}>
         {layout === 'reversed' ? (
           <>
             {/* REVERSED LAYOUT: Image on left, content on right */}
-            <div className="split-left">
-              {rightHeader && (
-                <div className="split-section-header split-left-header">
-                  {rightHeader}
-                </div>
-              )}
-              <div className="split-image-wrapper">
-                {isEditing ? (
-                  <div className="split-image-editor">
-                    <div className="image-upload-section">
-                      <label className="image-upload-label">
-                        <span>📁 Upload Image:</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          ref={fileInputRef}
-                          onChange={handleFileChange}
-                          className="image-file-input"
-                        />
-                      </label>
-                    </div>
-                    <div className="image-divider">— OR —</div>
-                    <div className="image-url-section">
-                      <label>
-                        <span>🔗 Image URL:</span>
-                        <input
-                          type="text"
-                          value={imageUrlData}
-                          onChange={handleUrlChange}
-                          placeholder="e.g., /images/bg1b.png or https://..."
-                          className="image-url-input"
-                        />
-                      </label>
-                    </div>
-                    {imageUrlData && (
-                      <div className="image-preview">
-                        <img src={imageUrlData} alt="Preview" />
-                      </div>
-                    )}
+            {!hideLeft && (
+              <div className="split-left">
+                {rightHeader && (
+                  <div className="split-section-header split-left-header">
+                    {rightHeader}
                   </div>
-                ) : (
-                  imageUrlData && (
-                    <img
-                      src={imageUrlData}
-                      alt="Content"
-                      className="split-image"
-                      onClick={handleImageClick}
-                      style={{ cursor: 'pointer' }}
-                    />
-                  )
                 )}
-              </div>
-            </div>
-
-            <div className="split-right">
-              {leftHeader && (
-                <div className="split-section-header split-right-header">
-                  {leftHeader}
+                <div className="split-image-wrapper">
+                  {isEditing ? (
+                    <div className="split-image-editor">
+                      <div className="image-upload-section">
+                        <label className="image-upload-label">
+                          <span>📁 Upload Image:</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            ref={fileInputRef}
+                            onChange={handleFileChange}
+                            className="image-file-input"
+                          />
+                        </label>
+                      </div>
+                      <div className="image-divider">— OR —</div>
+                      <div className="image-url-section">
+                        <label>
+                          <span>🔗 Image URL:</span>
+                          <input
+                            type="text"
+                            value={imageUrlData}
+                            onChange={handleUrlChange}
+                            placeholder="e.g., /images/bg1b.png or https://..."
+                            className="image-url-input"
+                          />
+                        </label>
+                      </div>
+                      {imageUrlData && (
+                        <div className="image-preview">
+                          <img src={imageUrlData} alt="Preview" />
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    imageUrlData && (
+                      <img
+                        src={imageUrlData}
+                        alt="Content"
+                        className="split-image"
+                        onClick={handleImageClick}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    )
+                  )}
                 </div>
-              )}
-              <div className="split-content-wrapper">
-                {renderContent()}
               </div>
-            </div>
+            )}
+
+            {!hideRight && (
+              <div className="split-right">
+                {leftHeader && (
+                  <div className="split-section-header split-right-header">
+                    {leftHeader}
+                  </div>
+                )}
+                <div className="split-content-wrapper">
+                  {renderContent()}
+                </div>
+              </div>
+            )}
           </>
         ) : (
           <>
             {/* NORMAL LAYOUT: Content on left, image on right */}
-            <div className="split-left">
-              {leftHeader && (
-                <div className="split-section-header split-left-header">
-                  {leftHeader}
-                </div>
-              )}
-              <div className="split-content-wrapper">
-                {renderContent()}
-              </div>
-            </div>
-
-            <div className="split-right">
-              {rightHeader && (
-                <div className="split-section-header split-right-header">
-                  {rightHeader}
-                </div>
-              )}
-              <div className="split-image-wrapper">
-                {isEditing ? (
-                  <div className="split-image-editor">
-                    <div className="image-upload-section">
-                      <label className="image-upload-label">
-                        <span>📁 Upload Image:</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          ref={fileInputRef}
-                          onChange={handleFileChange}
-                          className="image-file-input"
-                        />
-                      </label>
-                    </div>
-                    <div className="image-divider">— OR —</div>
-                    <div className="image-url-section">
-                      <label>
-                        <span>🔗 Image URL:</span>
-                        <input
-                          type="text"
-                          value={imageUrlData}
-                          onChange={handleUrlChange}
-                          placeholder="e.g., /images/bg1b.png or https://..."
-                          className="image-url-input"
-                        />
-                      </label>
-                    </div>
-                    {imageUrlData && (
-                      <div className="image-preview">
-                        <img src={imageUrlData} alt="Preview" />
-                      </div>
-                    )}
+            {!hideLeft && (
+              <div className="split-left">
+                {leftHeader && (
+                  <div className="split-section-header split-left-header">
+                    {leftHeader}
                   </div>
-                ) : (
-                  imageUrlData && (
-                    <img
-                      src={imageUrlData}
-                      alt="Content"
-                      className="split-image"
-                      onClick={handleImageClick}
-                      style={{ cursor: 'pointer' }}
-                    />
-                  )
                 )}
+                <div className="split-content-wrapper">
+                  {renderContent()}
+                </div>
               </div>
-            </div>
+            )}
+
+            {!hideRight && (
+              <div className="split-right">
+                {rightHeader && (
+                  <div className="split-section-header split-right-header">
+                    {rightHeader}
+                  </div>
+                )}
+                <div className="split-image-wrapper">
+                  {isEditing ? (
+                    <div className="split-image-editor">
+                      <div className="image-upload-section">
+                        <label className="image-upload-label">
+                          <span>📁 Upload Image:</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            ref={fileInputRef}
+                            onChange={handleFileChange}
+                            className="image-file-input"
+                          />
+                        </label>
+                      </div>
+                      <div className="image-divider">— OR —</div>
+                      <div className="image-url-section">
+                        <label>
+                          <span>🔗 Image URL:</span>
+                          <input
+                            type="text"
+                            value={imageUrlData}
+                            onChange={handleUrlChange}
+                            placeholder="e.g., /images/bg1b.png or https://..."
+                            className="image-url-input"
+                          />
+                        </label>
+                      </div>
+                      {imageUrlData && (
+                        <div className="image-preview">
+                          <img src={imageUrlData} alt="Preview" />
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    imageUrlData && (
+                      <img
+                        src={imageUrlData}
+                        alt="Content"
+                        className="split-image"
+                        onClick={handleImageClick}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    )
+                  )}
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
