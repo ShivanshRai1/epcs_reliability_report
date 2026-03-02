@@ -84,7 +84,7 @@ function App() {
   }, []);
 
   const handleEditToggle = () => {
-    if (!isEditUnlocked) return;
+    if (isReadMode && !isEditUnlocked) return;
     setIsEditMode(true);
   };
 
@@ -98,7 +98,13 @@ function App() {
   };
 
   const handleReadModeToggle = () => {
-    setIsReadMode(prev => !prev);
+    setIsReadMode(prev => {
+      const next = !prev;
+      if (!next) {
+        setIsEditUnlocked(false);
+      }
+      return next;
+    });
   };
   const handleUndoAll = (pageId) => {
     if (!pageId) return;

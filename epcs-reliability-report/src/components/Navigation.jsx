@@ -72,7 +72,7 @@ const Navigation = ({ onNavigate, isEditMode, isEditUnlocked, isReadMode, onEdit
 
       {!isEditMode ? (
         <>
-          <button className={`section-list-btn edit-toggle ${!isEditUnlocked ? 'edit-disabled' : ''}`} onClick={onEditToggle} disabled={!isEditUnlocked} title={!isEditUnlocked ? 'Unlock editing' : 'Enter edit mode'}>✏️ Edit</button>
+          <button className={`section-list-btn edit-toggle ${isReadMode && !isEditUnlocked ? 'edit-disabled' : ''}`} onClick={onEditToggle} disabled={isReadMode && !isEditUnlocked} title={isReadMode && !isEditUnlocked ? 'Unlock editing' : 'Enter edit mode'}>✏️ Edit</button>
           {isReadMode && !isEditUnlocked && (
             <button className="section-list-btn edit-unlock" onClick={onUnlock} title="Unlock editing">🔓 Unlock</button>
           )}
