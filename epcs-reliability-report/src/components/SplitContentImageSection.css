@@ -7,39 +7,37 @@
 
 /* Main Title */
 .split-main-title {
-  background-color: #0052a3;
+  background: linear-gradient(135deg, #0052a3 0%, #0066cc 100%);
   color: white;
-  padding: 1rem 2rem;
+  padding: 20px 24px;
+  font-size: 1.3rem;
+  font-weight: 600;
   text-align: center;
-  border-bottom: 3px solid #003d7a;
+  letter-spacing: 0.5px;
 }
 
 .split-main-title h1 {
   margin: 0;
-  font-size: 1.8rem;
-  font-weight: 600;
-  letter-spacing: 1px;
 }
 
 /* Section Headers */
 .split-section-header {
-  padding: 0.75rem 1.5rem;
+  padding: 12px 16px;
   font-weight: 600;
   text-align: center;
   font-size: 0.95rem;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  white-space: pre-line;
 }
 
 .split-left-header {
-  background-color: #5fc574;
+  background-color: #4caf50;
   color: white;
 }
 
 .split-right-header {
-  background-color: #e8a87c;
-  color: #333;
+  background-color: #ffb74d;
+  color: white;
 }
 
 /* Split Content Image Section */
@@ -48,7 +46,7 @@
   gap: 0;
   padding: 0;
   background-color: white;
-  min-height: 500px;
+  min-height: 300px;
   max-height: calc(100vh - 200px);
 }
 
@@ -56,8 +54,9 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 300px;
-  background-color: #f5f5f5;
+  min-width: 0;
+  background-color: white;
+  border-right: 1px solid #ddd;
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -66,9 +65,9 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 300px;
+  min-width: 0;
   background-color: white;
-  border-left: 1px solid #ddd;
+  border-left: none;
   overflow: hidden;
 }
 
@@ -77,7 +76,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
+  padding: 16px;
   overflow-y: auto;
 }
 
@@ -88,7 +87,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 1.5rem;
+  padding: 16px;
   overflow: hidden;
 }
 
@@ -96,14 +95,14 @@
 .split-content-display {
   font-size: 0.95rem;
   line-height: 1.6;
-  color: #333;
+  color: #213547;
 }
 
 /* Left Content Text Display */
 .split-left-content-text {
   font-size: 0.95rem;
   line-height: 1.8;
-  color: #333;
+  color: #213547;
   white-space: pre-wrap;
   word-wrap: break-word;
 }
@@ -127,22 +126,21 @@
 .split-link {
   display: block;
   margin: 0.5rem 0;
-  padding: 0.75rem 1rem;
-  color: #0066cc;
-  text-decoration: underline;
+  padding: 12px 20px;
+  color: white;
+  text-decoration: none;
   border: 1px solid #0066cc;
   border-radius: 4px;
   transition: all 0.2s ease;
   font-weight: 500;
   text-align: center;
-  background-color: white;
+  background-color: #0066cc;
 }
 
 .split-link:hover {
-  background-color: #e6f2ff;
+  background-color: #0052a3;
+  border-color: #0052a3;
 }
-
-/* Highlighted Link Styles - REMOVED */
 
 /* Section Styles */
 .split-section-title {
@@ -463,26 +461,6 @@
 }
 
 /* Image URL Input (Edit Mode) - REMOVED in favor of new image-url-input class */
-
-/* Hide empty sides and expand visible side */
-.split-content-image-section.hide-left .split-right {
-  flex: 1;
-  width: 100%;
-  border-left: none;
-}
-
-.split-content-image-section.hide-right .split-left {
-  flex: 1;
-  width: 100%;
-}
-
-.split-content-image-section.hide-left {
-  justify-content: flex-end;
-}
-
-.split-content-image-section.hide-right {
-  justify-content: flex-start;
-}
 
 /* Responsive Layout */
 @media (max-width: 1200px) {
