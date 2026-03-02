@@ -16,7 +16,6 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [isEditUnlocked, setIsEditUnlocked] = useState(false);
   const [isReadMode, setIsReadMode] = useState(false);
   const [originalData, setOriginalData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,14 +33,6 @@ function App() {
   const [pageUndoHistory, setPageUndoHistory] = useState({});
   const [publishedData, setPublishedData] = useState(null);
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
-
-  useEffect(() => {
-    console.log('[ReadMode Debug] App mounted. Initial isReadMode:', isReadMode);
-  }, []);
-
-  useEffect(() => {
-    console.log('[ReadMode Debug] isReadMode changed:', isReadMode);
-  }, [isReadMode]);
 
   const transformPagesFromApi = (pagesFromApi) => {
     const pagesArray = Array.isArray(pagesFromApi) ? pagesFromApi : [];
@@ -77,34 +68,17 @@ function App() {
         setLoading(false);
       }
     };
-    
-    // Force isReadMode to false on app load
-    setIsReadMode(false);
     fetchData();
   }, []);
 
   const handleEditToggle = () => {
-    if (isReadMode && !isEditUnlocked) return;
+    if (isReadMode) return;
     setIsEditMode(true);
   };
 
-  const handleUnlockEdit = () => {
-    setIsEditUnlocked(true);
-  };
-
-  const handleViewMode = () => {
-    setIsEditMode(false);
-    setIsEditUnlocked(false);
-  };
-
   const handleReadModeToggle = () => {
-    setIsReadMode(prev => {
-      const next = !prev;
-      if (!next) {
-        setIsEditUnlocked(false);
-      }
-      return next;
-    });
+    setIsReadMode(prev => !prev);
+    setIsEditMode(false);
   };
   const handleUndoAll = (pageId) => {
     if (!pageId) return;
@@ -311,7 +285,6 @@ function App() {
       setOriginalData(JSON.parse(JSON.stringify(reportData)));
       setChangedPages(new Set()); // Clear changed pages
       setIsEditMode(false);
-      setIsEditUnlocked(false);
     } catch (err) {
       console.error('Error saving report:', err);
     }
@@ -321,7 +294,6 @@ function App() {
     setReportData(JSON.parse(JSON.stringify(originalData)));
     setChangedPages(new Set()); // Clear changed pages on cancel
     setIsEditMode(false);
-    setIsEditUnlocked(false);
   };
 
   const handlePublish = () => {
@@ -341,7 +313,6 @@ function App() {
     
     // Exit edit mode
     setIsEditMode(false);
-    setIsEditUnlocked(false);
     
     // Clear undo history since changes are now permanent
     setPageUndoHistory({});
@@ -584,7 +555,7 @@ function App() {
       />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} isEditUnlocked={isEditUnlocked} isReadMode={isReadMode} onEditToggle={handleEditToggle} onUnlock={handleUnlockEdit} onView={handleReadModeToggle} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} />} />
+        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} isReadMode={isReadMode} onEditToggle={handleEditToggle} onView={handleReadModeToggle} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} />} />
         <Route path="*" element={<div className="App"><p>Page not found</p></div>} />
       </Routes>
     </>

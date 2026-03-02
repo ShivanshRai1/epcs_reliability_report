@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const Navigation = ({ onNavigate, isEditMode, isEditUnlocked, isReadMode, onEditToggle, onUnlock, onView, onUndo, onPublish, onSave, onCancel, onAddPage, onDeletePage, onManagePages, currentPageId, currentPageNumber, totalPages }) => {
+const Navigation = ({ onNavigate, isEditMode, isReadMode, onEditToggle, onView, onUndo, onPublish, onSave, onCancel, onAddPage, onDeletePage, onManagePages, currentPageId, currentPageNumber, totalPages }) => {
   const [isJumpMode, setIsJumpMode] = useState(false);
   const [jumpPageNumber, setJumpPageNumber] = useState(currentPageNumber?.toString() || '');
 
@@ -67,15 +67,12 @@ const Navigation = ({ onNavigate, isEditMode, isEditUnlocked, isReadMode, onEdit
         onClick={onView}
         title={isReadMode ? 'Exit read-only mode' : 'Enter read-only mode'}
       >
-        👁️ Read Mode
+        👁️ Read Mode {isReadMode ? 'ON' : 'OFF'}
       </button>
 
       {!isEditMode ? (
         <>
-          <button className={`section-list-btn edit-toggle ${isReadMode && !isEditUnlocked ? 'edit-disabled' : ''}`} onClick={onEditToggle} disabled={isReadMode && !isEditUnlocked} title={isReadMode && !isEditUnlocked ? 'Unlock editing' : 'Enter edit mode'}>✏️ Edit</button>
-          {isReadMode && !isEditUnlocked && (
-            <button className="section-list-btn edit-unlock" onClick={onUnlock} title="Unlock editing">🔓 Unlock</button>
-          )}
+          <button className={`section-list-btn edit-toggle ${isReadMode ? 'edit-disabled' : ''}`} onClick={onEditToggle} disabled={isReadMode} title={isReadMode ? 'Read Mode is ON' : 'Enter edit mode'}>✏️ Edit</button>
         </>
       ) : null}
       
