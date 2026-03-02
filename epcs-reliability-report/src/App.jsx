@@ -35,6 +35,14 @@ function App() {
   const [publishedData, setPublishedData] = useState(null);
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
 
+  useEffect(() => {
+    console.log('[ReadMode Debug] App mounted. Initial isReadMode:', isReadMode);
+  }, []);
+
+  useEffect(() => {
+    console.log('[ReadMode Debug] isReadMode changed:', isReadMode);
+  }, [isReadMode]);
+
   const transformPagesFromApi = (pagesFromApi) => {
     const pagesArray = Array.isArray(pagesFromApi) ? pagesFromApi : [];
 
