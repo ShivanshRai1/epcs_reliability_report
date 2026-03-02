@@ -136,7 +136,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
           </h2>
         )}
         {page.intro && (
-          <p style={{ fontSize: '0.95rem', color: '#e0e6f0', marginBottom: '1.5rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+          <p style={{ fontSize: '0.95rem', color: '#e0e6f0', marginTop: '1rem', marginBottom: '1.5rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
             {page.intro}
           </p>
         )}
