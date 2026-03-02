@@ -48,6 +48,42 @@ function App() {
     };
   };
 
+  const syncIndexPageContent = (data) => {
+    if (!data?.pages || !Array.isArray(data.pages)) {
+      return data;
+    }
+
+    const sortedPages = [...data.pages].sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
+    const indexPages = sortedPages.filter(p => p.pageType === 'index');
+
+    if (indexPages.length === 0) {
+      return data;
+    }
+
+    const primaryIndexPage = { ...indexPages[0], title: 'INDEX' };
+    const nonIndexPages = sortedPages.filter(p => p.pageType !== 'index');
+
+    let normalizedPages = [primaryIndexPage, ...nonIndexPages].map((page, idx) => ({
+      ...page,
+      pageNumber: idx + 1
+    }));
+
+    const indexContent = normalizedPages
+      .filter(page => page.pageType !== 'index' && page.title && page.title.trim() !== '')
+      .map(page => ({
+        title: page.title,
+        target: page.pageNumber
+      }));
+
+    normalizedPages[0] = {
+      ...normalizedPages[0],
+      title: 'INDEX',
+      content: indexContent
+    };
+
+    return { ...data, pages: normalizedPages };
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -59,8 +95,9 @@ function App() {
         // App expects { pages: [{ id, title, ... }] }
         const transformedData = transformPagesFromApi(pagesFromApi);
         
-        setReportData(transformedData);
-        setOriginalData(JSON.parse(JSON.stringify(transformedData)));
+        const syncedData = syncIndexPageContent(transformedData);
+        setReportData(syncedData);
+        setOriginalData(JSON.parse(JSON.stringify(syncedData)));
       } catch (err) {
         console.error('Error loading report:', err);
         setError(err.message);
@@ -103,7 +140,7 @@ function App() {
         if (pageIndex !== -1) {
           updated.pages[pageIndex] = previousState;
         }
-        return updated;
+        return syncIndexPageContent(updated);
       });
     }
   };
@@ -137,7 +174,7 @@ function App() {
       // Generic page update from editors like Links/Text/Image/etc.
       if (typeof rowIdxOrPage === 'object' && rowIdxOrPage !== null && colName === undefined) {
         Object.assign(page, rowIdxOrPage);
-        return updated;
+        return syncIndexPageContent(updated);
       }
 
       // Table cell update
@@ -147,7 +184,7 @@ function App() {
         tableRows[rowIdx][colName] = newValue;
       }
 
-      return updated;
+      return syncIndexPageContent(updated);
     });
 
     setChangedPages(prev => {
@@ -189,7 +226,7 @@ function App() {
           Object.assign(page, newValue);
         }
       }
-      return updated;
+      return syncIndexPageContent(updated);
     });
     setChangedPages(prev => new Set(prev).add(pageId));
   };
@@ -228,7 +265,7 @@ function App() {
           page.imageUrl = data;
         }
       }
-      return updated;
+      return syncIndexPageContent(updated);
     });
     setChangedPages(prev => new Set(prev).add(pageId));
   };
@@ -261,7 +298,7 @@ function App() {
         page.title = updatedPageData.title;
         page.content = updatedPageData.content;
       }
-      return updated;
+      return syncIndexPageContent(updated);
     });
     setChangedPages(prev => new Set(prev).add(pageId));
   };
@@ -333,38 +370,6 @@ function App() {
     setCurrentPageId(null);
   };
 
-  // Sync index page with updated page numbers
-  const syncIndexPageContent = (data) => {
-    console.log('🔄 Syncing index page content...');
-    if (!data.pages || !Array.isArray(data.pages)) {
-      console.warn('⚠️ Invalid data structure in syncIndexPageContent');
-      return data;
-    }
-    
-    const indexPage = data.pages.find(p => p.pageType === 'index');
-    if (!indexPage) {
-      console.log('ℹ️ No index page found');
-      return data;
-    }
-
-    // Build content array with all non-index pages
-    // Filter out any entries that don't have a title (removes gaps)
-    const newContent = data.pages
-      .filter(p => p.pageType !== 'index' && p.title && p.title.trim() !== '')
-      .map(p => ({
-        title: p.title,
-        target: p.pageNumber
-      }));
-
-    console.log('📋 New index content (gaps removed):', newContent);
-
-    // Update index page
-    const updatedPages = data.pages.map(p =>
-      p.pageType === 'index' ? { ...p, content: newContent } : p
-    );
-
-    return { ...data, pages: updatedPages };
-  };
   const handlePageCreate = async (newPage) => {
     try {
       console.log('Page created:', newPage);
