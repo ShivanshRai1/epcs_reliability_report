@@ -15,7 +15,7 @@ import SplitContentRenderer from './SplitContentRenderer';
 import ContentSection from './ContentSection';
 import IndexEditor from './IndexEditor';
 
-const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingChange, onImageChange, onIndexChange, onImageClick }) => {
+const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingChange, onImageChange, onIndexChange, onImageClick, allIndexItems }) => {
   if (!page) return <div style={{ padding: '1.5rem 0' }}>No page data available.</div>;
 
   // Render heading page (just title + subtitle)
@@ -74,22 +74,38 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
     if (isEditMode) {
       return <LinksOnlyEditor page={page} onChange={(updatedPage) => onCellChange(page.id, updatedPage)} />;
     }
+
+    const mixedBlocks = Array.isArray(page.linkBlocks) && page.linkBlocks.length > 0
+      ? page.linkBlocks
+      : (Array.isArray(page.links)
+        ? page.links.map((link, idx) => ({ id: link.id || `legacy-${idx}`, type: 'link', title: link.title, target: link.target }))
+        : []);
     
     return (
       <div>
         <h2 className="index-title">{page.title}</h2>
-        <ul className="index-list">
-          {page.links && page.links.map((link, idx) => (
-            <li key={idx}>
-              <a href="#" className="index-link" onClick={(e) => {
-                e.preventDefault();
-                if (onLinkClick) onLinkClick(link.target);
-              }}>
-                {link.title}
-              </a>
-            </li>
-          ))}
-        </ul>
+        <div className="index-list">
+          {mixedBlocks.map((block, idx) => {
+            if (block.type === 'text') {
+              return (
+                <p key={block.id || `text-${idx}`} style={{ color: '#e0e6f0', lineHeight: 1.6, margin: '0 0 0.8rem 0', whiteSpace: 'pre-wrap' }}>
+                  {block.text}
+                </p>
+              );
+            }
+
+            return (
+              <div key={block.id || `link-${idx}`} style={{ marginBottom: '0.5rem' }}>
+                <a href="#" className="index-link" onClick={(e) => {
+                  e.preventDefault();
+                  if (onLinkClick) onLinkClick(block.target);
+                }}>
+                  {block.title}
+                </a>
+              </div>
+            );
+          })}
+        </div>
       </div>
     );
   }
@@ -112,21 +128,77 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
             {page.intro}
           </p>
         )}
-        {page.images && page.images.map((img, idx) => (
-          <div key={idx} style={{ marginBottom: '2rem' }}>
-            <img 
-              src={img} 
-              alt={`Image ${idx + 1}`} 
-              style={{ maxWidth: '100%', height: 'auto', borderRadius: '4px', cursor: 'pointer' }} 
-              onClick={() => onImageClick(img, page.captions?.[idx] || `Image ${idx + 1}`)} 
-            />
-            {page.captions?.[idx] && (
-              <p style={{ fontSize: '0.9rem', color: '#999', marginTop: '0.5rem' }}>
-                {page.captions[idx]}
-              </p>
-            )}
+
+        {/* Unified pageBlocks (new format) */}
+        {Array.isArray(page.pageBlocks) && page.pageBlocks.length > 0 ? (
+          <div>
+            {page.pageBlocks.map((block, bIdx) => {
+              if (block.type === 'image') {
+                return (
+                  <div key={block.id || bIdx} style={{ marginBottom: '2rem' }}>
+                    <img
+                      src={block.src}
+                      alt={block.caption || `Image ${bIdx + 1}`}
+                      style={{ maxWidth: '100%', height: 'auto', borderRadius: '4px', cursor: 'pointer' }}
+                      onClick={() => onImageClick(block.src, block.caption || `Image ${bIdx + 1}`)}
+                    />
+                    {block.caption && (
+                      <p style={{ fontSize: '0.9rem', color: '#999', marginTop: '0.5rem' }}>{block.caption}</p>
+                    )}
+                  </div>
+                );
+              }
+              if (block.type === 'link') {
+                return (
+                  <div key={block.id || bIdx} style={{ marginBottom: '0.6rem', textAlign: 'left' }}>
+                    <a href="#" style={{ color: '#2e7be6', textDecoration: 'none', fontSize: '0.95rem' }}
+                      onClick={e => { e.preventDefault(); if (onLinkClick) onLinkClick(block.target); }}>
+                      {block.title}
+                    </a>
+                  </div>
+                );
+              }
+              if (block.type === 'text') {
+                return (
+                  <p key={block.id || bIdx} style={{ fontSize: '0.95rem', color: '#e0e6f0', lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: '0.8rem', textAlign: 'left' }}>
+                    {block.text}
+                  </p>
+                );
+              }
+              return null;
+            })}
           </div>
-        ))}
+        ) : (
+          /* Legacy format fallback */
+          <>
+            {page.images && page.images.map((img, idx) => (
+              <div key={idx} style={{ marginBottom: '2rem' }}>
+                <img
+                  src={img}
+                  alt={`Image ${idx + 1}`}
+                  style={{ maxWidth: '100%', height: 'auto', borderRadius: '4px', cursor: 'pointer' }}
+                  onClick={() => onImageClick(img, page.captions?.[idx] || `Image ${idx + 1}`)}
+                />
+                {page.captions?.[idx] && (
+                  <p style={{ fontSize: '0.9rem', color: '#999', marginTop: '0.5rem' }}>{page.captions[idx]}</p>
+                )}
+              </div>
+            ))}
+            {Array.isArray(page.imageContentBlocks) && page.imageContentBlocks.map((block, bIdx) => (
+              block.type === 'link'
+                ? <div key={block.id || bIdx} style={{ marginBottom: '0.6rem', textAlign: 'left' }}>
+                    <a href="#" style={{ color: '#2e7be6', textDecoration: 'none', fontSize: '0.95rem' }}
+                      onClick={e => { e.preventDefault(); if (onLinkClick) onLinkClick(block.target); }}>
+                      {block.title}
+                    </a>
+                  </div>
+                : <p key={block.id || bIdx} style={{ fontSize: '0.95rem', color: '#e0e6f0', lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: '0.8rem', textAlign: 'left' }}>
+                    {block.text}
+                  </p>
+            ))}
+          </>
+        )}
+
         {page.bottomText && (
           <p style={{ fontSize: '0.95rem', color: '#e0e6f0', marginTop: '1.5rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
             {page.bottomText}
@@ -181,27 +253,75 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
     }
 
     // Otherwise show read-only view
+    const itemsToRender = Array.isArray(allIndexItems) && allIndexItems.length > 0
+      ? allIndexItems
+      : (page.content || []);
+
+    const groupedItems = [];
+    let currentParent = null;
+
+    itemsToRender.forEach((item, idx) => {
+      const isChild = Number(item?.level) === 1;
+      if (!isChild) {
+        currentParent = { item, idx, children: [] };
+        groupedItems.push(currentParent);
+        return;
+      }
+
+      if (currentParent) {
+        currentParent.children.push({ item, idx });
+      } else {
+        groupedItems.push({ item, idx, children: [], orphanChild: true });
+      }
+    });
+
     return (
       <div>
-        <h2 className="index-title">{page.title}</h2>
+        <h2 className="index-title">INDEX</h2>
+        <div className="index-scroll-container">
         <ul className="index-list">
-          {page.content && page.content.map((item, idx) => (
-            <li key={idx}>
-              <a
-                href="#"
-                className="index-link"
-                onClick={e => {
-                  e.preventDefault();
-                  if (onLinkClick && item.target) {
-                    onLinkClick(item.target);
-                  }
-                }}
-              >
-                {item.title}
-              </a>
-            </li>
-          ))}
+          {groupedItems.map(group => {
+            const topIsChild = Boolean(group.orphanChild);
+            return (
+              <li key={group.idx} className={topIsChild ? 'index-item-child' : 'index-item-parent'}>
+                <a
+                  href="#"
+                  className={`index-link${topIsChild ? ' index-link-child' : ''}`}
+                  onClick={e => {
+                    e.preventDefault();
+                    if (onLinkClick && group.item.target) {
+                      onLinkClick(group.item.target);
+                    }
+                  }}
+                >
+                  {group.item.title}
+                </a>
+
+                {group.children.length > 0 && (
+                  <ul className="index-child-list">
+                    {group.children.map(child => (
+                      <li key={child.idx} className="index-item-child">
+                        <a
+                          href="#"
+                          className="index-link index-link-child"
+                          onClick={e => {
+                            e.preventDefault();
+                            if (onLinkClick && child.item.target) {
+                              onLinkClick(child.item.target);
+                            }
+                          }}
+                        >
+                          {child.item.title}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            );
+          })}
         </ul>
+        </div>
       </div>
     );
   }
@@ -233,6 +353,33 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
         {page.captionTop && <div style={{ marginBottom: '1rem', fontSize: '0.95rem', color: '#ddd' }}>{page.captionTop}</div>}
         <Table columns={page.table.columns} data={tableRows} isEditMode={false} pageId={page.id} onCellChange={onCellChange} />
         {page.captionBottom && <div style={{ marginTop: '1rem', fontSize: '0.95rem', color: '#ddd' }}>{page.captionBottom}</div>}
+        {Array.isArray(page.tableContentBlocks) && page.tableContentBlocks.length > 0 && (
+          <div style={{ marginTop: '1.5rem' }}>
+            {page.tableContentBlocks.map((block, bIdx) => {
+              if (block.type === 'link') {
+                return (
+                  <div key={block.id || bIdx} style={{ marginBottom: '0.6rem' }}>
+                    <a
+                      href="#"
+                      style={{ color: '#2e7be6', textDecoration: 'none', fontSize: '0.95rem' }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (onLinkClick) onLinkClick(block.target);
+                      }}
+                    >
+                      {block.title}
+                    </a>
+                  </div>
+                );
+              }
+              return (
+                <p key={block.id || bIdx} style={{ fontSize: '0.95rem', color: '#e0e6f0', lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: '0.8rem' }}>
+                  {block.text}
+                </p>
+              );
+            })}
+          </div>
+        )}
       </div>
     );
   }
@@ -299,7 +446,10 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
         rightContent={page.rightContent}
         leftImage={page.leftImage}
         rightImage={page.rightImage}
+        leftBlocks={page.leftBlocks}
+        rightBlocks={page.rightBlocks}
         onLinkClick={onLinkClick}
+        onImageClick={onImageClick}
       />
     );
   }

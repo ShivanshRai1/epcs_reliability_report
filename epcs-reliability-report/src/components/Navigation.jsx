@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 
+const EXTERNAL_VIEW_URL = 'https://www.discoveree.io/EPCS_Reliability_Report/EPCS_Reliability_Report.php#pf1';
+
 const Navigation = ({ onNavigate, isEditMode, isReadMode, onEditToggle, onView, onUndo, onPublish, onSave, onCancel, onAddPage, onDeletePage, onManagePages, currentPageId, currentPageNumber, totalPages }) => {
   const [isJumpMode, setIsJumpMode] = useState(false);
   const [jumpPageNumber, setJumpPageNumber] = useState(currentPageNumber?.toString() || '');
+
+  const handleOpenExternalView = () => {
+    window.open(EXTERNAL_VIEW_URL, '_blank', 'noopener,noreferrer');
+  };
 
   const handleJumpPageChange = (e) => {
     setJumpPageNumber(e.target.value);
@@ -67,26 +73,24 @@ const Navigation = ({ onNavigate, isEditMode, isReadMode, onEditToggle, onView, 
         onClick={onView}
         title={isReadMode ? 'Exit read-only mode' : 'Enter read-only mode'}
       >
-        👁️ Read Mode {isReadMode ? 'ON' : 'OFF'}
+        Read Mode {isReadMode ? 'ON' : 'OFF'}
       </button>
 
       {!isEditMode ? (
         <>
-          <button className={`section-list-btn edit-toggle ${isReadMode ? 'edit-disabled' : ''}`} onClick={onEditToggle} disabled={isReadMode} title={isReadMode ? 'Read Mode is ON' : 'Enter edit mode'}>✏️ Edit</button>
-          <button className="section-list-btn edit-view-placeholder" onClick={() => {}} title="View (coming soon)">👁️ View</button>
+          <button className={`section-list-btn edit-toggle ${isReadMode ? 'edit-disabled' : ''}`} onClick={onEditToggle} disabled={isReadMode} title={isReadMode ? 'Read Mode is ON' : 'Enter edit mode'}>Edit</button>
+          <button className="section-list-btn edit-view-placeholder" onClick={handleOpenExternalView} title="Open external report view">View</button>
         </>
       ) : null}
       
       {/* Edit toolbar - only visible in edit mode */}
       {isEditMode && (
         <>
-          <button className="section-list-btn edit-manage" onClick={onManagePages} title="Manage pages (add/delete/reorder)">📄 Manage</button>
-          <button className="section-list-btn edit-add" onClick={onAddPage} title="Add new page after current page">➕ Add</button>
-          <button className="section-list-btn edit-delete" onClick={onDeletePage} title="Delete current page">🗑️ Delete</button>
-          <button className="section-list-btn edit-undo" onClick={onUndo}>↩️ Undo</button>
-          <button className="section-list-btn edit-publish" onClick={onPublish}>🚀 Publish</button>
-          <button className="section-list-btn edit-save" onClick={onSave}>💾 Save</button>
-          <button className="section-list-btn edit-cancel" onClick={onCancel}>❌ Cancel</button>
+          <button className="section-list-btn edit-manage" onClick={onManagePages} title="Manage pages (add/delete/reorder)">Manage</button>
+          <button className="section-list-btn edit-add" onClick={onAddPage} title="Add new page after current page">Add</button>
+          <button className="section-list-btn edit-delete" onClick={onDeletePage} title="Delete current page">Delete</button>
+          <button className="section-list-btn edit-publish" onClick={onPublish}>Publish</button>
+          <button className="section-list-btn edit-cancel" onClick={onCancel}>Cancel</button>
         </>
       )}
     </nav>

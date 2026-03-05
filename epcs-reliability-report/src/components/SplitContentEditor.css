@@ -106,6 +106,75 @@
   border-left: 3px solid #2e7be6;
 }
 
+.side-blocks-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.split-actions-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.split-add-btn {
+  padding: 8px 12px;
+  border: 1px solid #3a4555;
+  border-radius: 4px;
+  background: #242d3d;
+  color: #e0e6f0;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.split-add-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.split-empty {
+  color: #b7c2d8;
+  font-size: 0.9rem;
+}
+
+.split-block-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.split-block-item {
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  gap: 8px;
+  align-items: start;
+  padding: 8px;
+  border: 1px solid #3a4555;
+  border-radius: 4px;
+  background: rgba(36, 45, 61, 0.35);
+}
+
+.split-block-order {
+  color: #e0e6f0;
+  font-weight: 700;
+  text-align: center;
+  padding-top: 6px;
+}
+
+.split-block-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.split-block-actions {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+
 /* Light Mode Support */
 @media (prefers-color-scheme: light) {
   .split-content-editor {
@@ -168,5 +237,20 @@
   .content-editor {
     background: rgba(255, 255, 255, 0.5);
     border-left-color: #0066cc;
+  }
+
+  .split-add-btn {
+    background: #ffffff;
+    color: #213547;
+    border-color: #ddd;
+  }
+
+  .split-block-item {
+    border-color: #ddd;
+    background: rgba(255, 255, 255, 0.8);
+  }
+
+  .split-block-order {
+    color: #213547;
   }
 }

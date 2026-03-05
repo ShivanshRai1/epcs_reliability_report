@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Modal = ({ isOpen, imageSrc, imageAlt, onClose }) => {
+const Modal = ({ isOpen, imageSrc, imageAlt, onClose, children }) => {
   if (!isOpen) return null;
 
   const handleOverlayClick = (e) => {
@@ -25,8 +25,12 @@ const Modal = ({ isOpen, imageSrc, imageAlt, onClose }) => {
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-content">
-        <button className="modal-close" onClick={onClose} aria-label="Close">×</button>
-        <img src={imageSrc} alt={imageAlt} className="modal-image" />
+        <button className="modal-close" onClick={onClose} aria-label="Close">Close</button>
+        {children ? (
+          children
+        ) : (
+          <img src={imageSrc} alt={imageAlt} className="modal-image" />
+        )}
       </div>
     </div>
   );

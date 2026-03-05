@@ -9,7 +9,7 @@ const DeletePageDialog = ({ isOpen, onClose, page, onConfirmDelete, isDeleting =
       <div className="delete-page-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="dialog-header">
           <h2>⚠️ Delete Page</h2>
-          <button className="close-btn" onClick={onClose}>×</button>
+          <button className="close-btn" onClick={onClose}>Close</button>
         </div>
 
         <div className="dialog-body">

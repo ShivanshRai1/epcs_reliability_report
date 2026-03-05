@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css';
 import Home from './components/Home';
@@ -33,6 +33,10 @@ function App() {
   const [pageUndoHistory, setPageUndoHistory] = useState({});
   const [publishedData, setPublishedData] = useState(null);
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
+  // Cache of static index pages loaded from public JSON (preserves curated content/levels)
+  const staticIndexPagesRef = useRef([]);
+  // Snapshot of initial page IDs to detect truly new pages created during this session
+  const originalPageIdsRef = useRef(null);
 
   const transformPagesFromApi = (pagesFromApi) => {
     const pagesArray = Array.isArray(pagesFromApi) ? pagesFromApi : [];
@@ -48,7 +52,7 @@ function App() {
     };
   };
 
-  const syncIndexPageContent = (data) => {
+  const syncIndexPageContent = (data, staticIndexPages = []) => {
     if (!data?.pages || !Array.isArray(data.pages)) {
       return data;
     }
@@ -60,26 +64,49 @@ function App() {
       return data;
     }
 
-    const primaryIndexPage = { ...indexPages[0], title: 'INDEX' };
     const nonIndexPages = sortedPages.filter(p => p.pageType !== 'index');
+    const targetPages = nonIndexPages.filter(p => p.pageType !== 'home');
+    const livePagesById = new Map(targetPages.map((p) => [p.id, p]));
 
-    let normalizedPages = [primaryIndexPage, ...nonIndexPages].map((page, idx) => ({
+    // Build one curated list by combining all static index pages (1,2,3...),
+    // then keep only targets that still exist and refresh title from the live page.
+    const curatedItems = (staticIndexPages || []).flatMap((sp) => sp.content || []);
+    const curatedContent = curatedItems
+      .filter((item) => livePagesById.has(item.target))
+      .map((item) => {
+        const livePage = livePagesById.get(item.target);
+        return {
+          ...item,
+          title: livePage?.title || item.title
+        };
+      });
+
+    const staticTargets = new Set(curatedItems.map((item) => item.target));
+    const originalIds = originalPageIdsRef.current;
+
+    // Only append pages created after initial load (not pre-existing uncovered pages).
+    const newPages = targetPages.filter(
+      (p) => !staticTargets.has(p.id) && (originalIds === null || !originalIds.has(p.id))
+    );
+    const newContent = newPages.map((p) => ({
+      title: p.title || p.id,
+      target: p.id,
+      level: 0
+    }));
+
+    const firstIndexPage = {
+      ...indexPages[0],
+      title: indexPages[0]?.title || staticIndexPages?.[0]?.title || 'INDEX',
+      content: [...curatedContent, ...newContent]
+    };
+
+    // Keep exactly one index page in UI data.
+    const allPages = [firstIndexPage, ...nonIndexPages];
+
+    const normalizedPages = allPages.map((page, idx) => ({
       ...page,
       pageNumber: idx + 1
     }));
-
-    const indexContent = normalizedPages
-      .filter(page => page.pageType !== 'index' && page.title && page.title.trim() !== '')
-      .map(page => ({
-        title: page.title,
-        target: page.pageNumber
-      }));
-
-    normalizedPages[0] = {
-      ...normalizedPages[0],
-      title: 'INDEX',
-      content: indexContent
-    };
 
     return { ...data, pages: normalizedPages };
   };
@@ -91,11 +118,26 @@ function App() {
         const pagesFromApi = await apiService.getPages();
         
         // Transform data structure for the app
-        // API returns { page_id, page_number, page_type, title, page_data, ... }
-        // App expects { pages: [{ id, title, ... }] }
         const transformedData = transformPagesFromApi(pagesFromApi);
+
+        // Also load static JSON to get the curated index content (levels, targets)
+        let staticIndexPages = [];
+        try {
+          const staticRes = await fetch('/structured_report_data.json');
+          if (staticRes.ok) {
+            const staticData = await staticRes.json();
+            staticIndexPages = (staticData.pages || []).filter(p => p.pageType === 'index');
+            staticIndexPagesRef.current = staticIndexPages;
+          }
+        } catch (e) {
+          console.warn('Could not load static index data', e);
+        }
+
+        if (originalPageIdsRef.current === null) {
+          originalPageIdsRef.current = new Set(transformedData.pages.map((p) => p.id));
+        }
         
-        const syncedData = syncIndexPageContent(transformedData);
+        const syncedData = syncIndexPageContent(transformedData, staticIndexPages);
         setReportData(syncedData);
         setOriginalData(JSON.parse(JSON.stringify(syncedData)));
       } catch (err) {
@@ -380,7 +422,7 @@ function App() {
       let transformedData = transformPagesFromApi(pagesFromApi);
       
       // Sync index page with new page numbers
-      transformedData = syncIndexPageContent(transformedData);
+      transformedData = syncIndexPageContent(transformedData, staticIndexPagesRef.current);
       
       setReportData(transformedData);
       setOriginalData(JSON.parse(JSON.stringify(transformedData)));
@@ -455,7 +497,7 @@ function App() {
       console.log('🔄 Transformed data:', transformedData);
 
       // Sync index page with new page numbers
-      transformedData = syncIndexPageContent(transformedData);
+      transformedData = syncIndexPageContent(transformedData, staticIndexPagesRef.current);
 
       setReportData(transformedData);
       setOriginalData(JSON.parse(JSON.stringify(transformedData)));
@@ -524,7 +566,7 @@ function App() {
       let transformedData = transformPagesFromApi(pagesFromApi);
 
       // Sync index page with new page numbers
-      transformedData = syncIndexPageContent(transformedData);
+      transformedData = syncIndexPageContent(transformedData, staticIndexPagesRef.current);
 
       setReportData(transformedData);
       setOriginalData(JSON.parse(JSON.stringify(transformedData)));

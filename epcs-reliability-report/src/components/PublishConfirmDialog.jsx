@@ -6,28 +6,22 @@ const PublishConfirmDialog = ({ isOpen, onConfirm, onCancel }) => {
   return (
     <Modal isOpen={isOpen} onClose={onCancel}>
       <div className="publish-confirm-dialog">
-        <h2>⚠️ Publish Report - Permanent Action</h2>
+        <h2>⚠️ Publish Report</h2>
         
-        <div className="publish-warning-box">
-          <p className="warning-title">This action will:</p>
-          <ul className="warning-list">
-            <li>Lock all pages to read-only mode</li>
-            <li>Commit ALL changes permanently</li>
-            <li>Make all changes irreversible</li>
-            <li>No undo available after publishing</li>
-          </ul>
-        </div>
+        <p className="warning-message">
+          This is an <strong>irreversible action</strong>. Once published, all changes will be permanent and cannot be undone.
+        </p>
 
         <p className="confirmation-prompt">
-          Are you sure you want to publish this report?
+          Do you want to proceed?
         </p>
 
         <div className="dialog-actions">
           <button className="btn-cancel" onClick={onCancel}>
-            ❌ Cancel - Keep Editing
+            Cancel
           </button>
           <button className="btn-publish" onClick={onConfirm}>
-            🚀 Confirm Publish
+            Publish
           </button>
         </div>
       </div>

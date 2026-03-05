@@ -153,7 +153,7 @@ const IndexEditor = ({ page, onChange }) => {
                   onValueChange={(value) => handleItemTargetChange(idx, value)}
                   placeholder="Target: page ID/number, URL, file path, or choose file"
                   inputClassName="item-target-input"
-                  buttonText="📁"
+                  buttonText="File"
                 />
               </div>
               <button 
@@ -164,7 +164,7 @@ const IndexEditor = ({ page, onChange }) => {
                 title="Delete (also press Delete key)"
                 className="delete-btn"
               >
-                🗑️
+                Delete
               </button>
             </div>
           ))}
@@ -177,7 +177,7 @@ const IndexEditor = ({ page, onChange }) => {
             onClick={() => setIsAddingNew(true)}
             className="add-item-btn"
           >
-            + Add New Item
+            Add New Item
           </button>
         ) : (
           <div className="new-item-form">

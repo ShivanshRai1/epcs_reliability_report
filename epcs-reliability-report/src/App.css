@@ -64,8 +64,18 @@ h1 {
 .index-list {
   text-align: left;
   line-height: 1.35;
-  margin: 0.4rem 0;
-  padding-left: 1.2rem;
+  margin: 0.4rem 0 !important;
+  padding-left: 1.2rem !important;
+}
+
+.index-scroll-container {
+  max-height: 65vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1rem;
+  border: 1px solid rgba(46, 123, 230, 0.2);
+  border-radius: 4px;
+  background-color: rgba(20, 25, 50, 0.4);
 }
 
 .index-list li {
@@ -78,6 +88,40 @@ h1 {
   text-decoration: underline;
   font-size: 0.95rem;
   cursor: pointer;
+}
+
+.index-item-parent {
+  margin-bottom: 0.35rem !important;
+  font-size: 0.95rem !important;
+}
+
+.index-item-parent > .index-link {
+  font-weight: 600;
+}
+
+.index-child-list {
+  list-style: none !important;
+  margin: 0.2rem 0 0.35rem 0.2rem !important;
+  padding-left: 1.1rem !important;
+  border-left: 1px solid rgba(122, 179, 238, 0.35);
+}
+
+.index-list li.index-item-child {
+  margin-bottom: 0.12rem !important;
+  font-size: 0.88rem !important;
+  padding-left: 0 !important;
+  list-style-type: none !important;
+}
+
+.index-child-list .index-item-child::before {
+  content: "•\00A0";
+  color: #7ab3ee;
+}
+
+.index-link-child {
+  color: #7ab3ee !important;
+  font-size: 0.88rem !important;
+  display: inline-block;
 }
 
 .page-counter {
@@ -426,9 +470,10 @@ tr.row-pink td {
   max-height: 90vh;
   background: #141c30;
   border-radius: 0.8rem;
-  padding: 1.5rem;
+  padding: 2.5rem 1.5rem 1.5rem 1.5rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   animation: slideIn 0.3s ease-out;
+  overflow-y: auto;
 }
 
 @keyframes slideIn {

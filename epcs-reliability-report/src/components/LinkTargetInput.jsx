@@ -6,8 +6,9 @@ const LinkTargetInput = ({
   placeholder,
   inputClassName,
   inputId,
-  buttonText = '📁 File',
-  disabled = false
+  buttonText = 'File',
+  disabled = false,
+  accept
 }) => {
   const fileInputRef = useRef(null);
 
@@ -66,6 +67,7 @@ const LinkTargetInput = ({
       <input
         ref={fileInputRef}
         type="file"
+        accept={accept}
         onChange={handleFileChange}
         style={{ display: 'none' }}
       />

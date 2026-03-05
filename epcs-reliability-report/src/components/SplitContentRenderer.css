@@ -123,6 +123,17 @@
   border-radius: 4px;
 }
 
+.split-block-render-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.split-block-render-item {
+  margin: 0;
+}
+
 /* Light mode adjustments (already mostly light) */
 @media (prefers-color-scheme: light) {
   .split-heading {

@@ -1,5 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import './AdvancedTableEditor.css';
+import LinkTargetInput from './LinkTargetInput';
+
+// ── content blocks helpers (text + link) ──
+const createBlockId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+const normalizeTableContentBlocks = (page) => {
+  if (Array.isArray(page.tableContentBlocks) && page.tableContentBlocks.length > 0) {
+    return page.tableContentBlocks.map((b) => ({
+      id: b.id || createBlockId(),
+      type: b.type === 'text' ? 'text' : 'link',
+      text: b.text || '',
+      title: b.title || '',
+      target: b.target || ''
+    }));
+  }
+  return [];
+};
 
 const AdvancedTableEditor = ({ page, onChange }) => {
   // Handle both old (.data) and new (.rows) table structures for backward compatibility
@@ -55,12 +72,19 @@ const AdvancedTableEditor = ({ page, onChange }) => {
   const [captionBottom, setCaptionBottom] = useState(page.captionBottom || '');
   const [selectedCell, setSelectedCell] = useState(null);
 
+  // content blocks (text + link) shown below the table
+  const [contentBlocks, setContentBlocks] = useState(normalizeTableContentBlocks(page));
+  const [newLinkTitle, setNewLinkTitle] = useState('');
+  const [newLinkTarget, setNewLinkTarget] = useState('');
+  const [newText, setNewText] = useState('');
+
   useEffect(() => {
     setTitle(page.title || '');
     setTableData(getInitialTableData());
     setCaptionTop(page.captionTop || '');
     setCaptionBottom(page.captionBottom || '');
     setSelectedCell(null);
+    setContentBlocks(normalizeTableContentBlocks(page));
   }, [page.id]);
 
   const handleAddRow = (position = 'bottom') => {
@@ -160,12 +184,13 @@ const AdvancedTableEditor = ({ page, onChange }) => {
     updatePage(tableData, type === 'top' ? value : captionTop, type === 'bottom' ? value : captionBottom);
   };
 
-  const updatePage = (table, top = captionTop, bottom = captionBottom) => {
+  const updatePage = (table, top = captionTop, bottom = captionBottom, blocks = contentBlocks) => {
     onChange({
       ...page,
       table,
       captionTop: top,
-      captionBottom: bottom
+      captionBottom: bottom,
+      tableContentBlocks: blocks
     });
   };
 
@@ -179,6 +204,58 @@ const AdvancedTableEditor = ({ page, onChange }) => {
     const newTitle = e.target.value;
     setTitle(newTitle);
     onChange({ ...page, title: newTitle });
+  };
+
+  // ── content block handlers ──
+  const insertContentBlock = (newBlock, position = 'end') => {
+    if (position === 'start') return [newBlock, ...contentBlocks];
+    return [...contentBlocks, newBlock];
+  };
+
+  const handleAddLink = (position = 'end') => {
+    if (!newLinkTitle.trim() || !newLinkTarget.trim()) return;
+    const block = { id: createBlockId(), type: 'link', title: newLinkTitle, target: newLinkTarget };
+    const next = insertContentBlock(block, position);
+    setContentBlocks(next);
+    setNewLinkTitle('');
+    setNewLinkTarget('');
+    updatePage(tableData, captionTop, captionBottom, next);
+  };
+
+  const handleAddText = (position = 'end') => {
+    if (!newText.trim()) return;
+    const block = { id: createBlockId(), type: 'text', text: newText };
+    const next = insertContentBlock(block, position);
+    setContentBlocks(next);
+    setNewText('');
+    updatePage(tableData, captionTop, captionBottom, next);
+  };
+
+  const handleDeleteContentBlock = (blockId) => {
+    const next = contentBlocks.filter((b) => b.id !== blockId);
+    setContentBlocks(next);
+    updatePage(tableData, captionTop, captionBottom, next);
+  };
+
+  const handleContentBlockChange = (blockId, field, value) => {
+    const next = contentBlocks.map((b) => b.id === blockId ? { ...b, [field]: value } : b);
+    setContentBlocks(next);
+    updatePage(tableData, captionTop, captionBottom, next);
+  };
+
+  const handleMoveContentBlock = (blockId, direction) => {
+    const idx = contentBlocks.findIndex((b) => b.id === blockId);
+    if (direction === 'up' && idx > 0) {
+      const next = [...contentBlocks];
+      [next[idx], next[idx - 1]] = [next[idx - 1], next[idx]];
+      setContentBlocks(next);
+      updatePage(tableData, captionTop, captionBottom, next);
+    } else if (direction === 'down' && idx < contentBlocks.length - 1) {
+      const next = [...contentBlocks];
+      [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
+      setContentBlocks(next);
+      updatePage(tableData, captionTop, captionBottom, next);
+    }
   };
 
   return (
@@ -213,18 +290,18 @@ const AdvancedTableEditor = ({ page, onChange }) => {
       <div className="table-controls">
         <div className="control-group">
           <button onClick={() => handleAddRow('top')} className="control-btn" title="Add row at top">
-            ➕ Row Top
+            Row Top
           </button>
           <button onClick={() => handleAddRow('bottom')} className="control-btn" title="Add row at bottom">
-            ➕ Row Bottom
+            Row Bottom
           </button>
         </div>
         <div className="control-group">
           <button onClick={() => handleAddColumn('left')} className="control-btn" title="Add column at left">
-            ➕ Col Left
+            Col Left
           </button>
           <button onClick={() => handleAddColumn('right')} className="control-btn" title="Add column at right">
-            ➕ Col Right
+            Col Right
           </button>
         </div>
       </div>
@@ -249,7 +326,7 @@ const AdvancedTableEditor = ({ page, onChange }) => {
                       onClick={() => handleDeleteColumn(colIdx)}
                       title="Delete column"
                     >
-                      ✕
+                      Delete
                     </button>
                   </div>
                 </th>
@@ -276,7 +353,7 @@ const AdvancedTableEditor = ({ page, onChange }) => {
                     onClick={() => handleDeleteRow(rowIdx)}
                     title="Delete row"
                   >
-                    ✕
+                    Delete
                   </button>
                 </td>
               </tr>
@@ -300,8 +377,146 @@ const AdvancedTableEditor = ({ page, onChange }) => {
 
       {/* Info */}
       <div className="editor-info">
-        <p>📊 Table: {tableData.rows.length} rows × {(tableData.columns || []).length} columns</p>
-        <p className="note">💡 Tip: Use the controls to add/remove rows and columns. Click cells to edit.</p>
+        <p>Table: {tableData.rows.length} rows x {(tableData.columns || []).length} columns</p>
+        <p className="note">Tip: Use the controls to add/remove rows and columns. Click cells to edit.</p>
+      </div>
+
+      {/* ── Content Blocks (text + links) ── */}
+      <div className="caption-section" style={{ marginTop: '2rem' }}>
+        <label style={{ display: 'block', fontWeight: 600, marginBottom: '1rem', color: '#fff' }}>
+          Content Blocks (Text &amp; Links):
+        </label>
+
+        {/* Add Link */}
+        <div style={{ background: '#1a1f2e', border: '1px solid #3a4555', borderRadius: '6px', padding: '1rem', marginBottom: '1rem' }}>
+          <p style={{ margin: '0 0 0.75rem', fontWeight: 600, color: '#aec6e8' }}>Add Link</p>
+          <input
+            type="text"
+            value={newLinkTitle}
+            onChange={(e) => setNewLinkTitle(e.target.value)}
+            placeholder="Link title"
+            className="caption-input"
+            style={{ marginBottom: '0.5rem' }}
+          />
+          <LinkTargetInput
+            value={newLinkTarget}
+            onValueChange={setNewLinkTarget}
+            placeholder="Target (page ID, URL, file path, or choose file)"
+            inputClassName="caption-input"
+          />
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+            <button
+              className="control-btn"
+              onClick={() => handleAddLink('end')}
+              disabled={!newLinkTitle.trim() || !newLinkTarget.trim()}
+            >
+              Add Link
+            </button>
+            <button
+              className="control-btn"
+              onClick={() => handleAddLink('start')}
+              disabled={!newLinkTitle.trim() || !newLinkTarget.trim()}
+              title="Insert at top"
+            >
+              Add Link First
+            </button>
+          </div>
+        </div>
+
+        {/* Add Text */}
+        <div style={{ background: '#1a1f2e', border: '1px solid #3a4555', borderRadius: '6px', padding: '1rem', marginBottom: '1rem' }}>
+          <p style={{ margin: '0 0 0.75rem', fontWeight: 600, color: '#aec6e8' }}>Add Text Block</p>
+          <textarea
+            value={newText}
+            onChange={(e) => setNewText(e.target.value)}
+            placeholder="Enter paragraph text"
+            className="caption-input"
+            rows={3}
+            style={{ width: '100%', boxSizing: 'border-box', marginBottom: '0.5rem' }}
+          />
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button
+              className="control-btn"
+              onClick={() => handleAddText('end')}
+              disabled={!newText.trim()}
+            >
+              Add Text
+            </button>
+            <button
+              className="control-btn"
+              onClick={() => handleAddText('start')}
+              disabled={!newText.trim()}
+              title="Insert at top"
+            >
+              Add Text First
+            </button>
+          </div>
+        </div>
+
+        {/* Block list */}
+        {contentBlocks.length === 0 ? (
+          <div style={{ padding: '1.5rem', textAlign: 'center', background: '#1a1f2e', border: '1px dashed #3a4555', borderRadius: '6px', color: '#666' }}>
+            No content blocks yet. Add a link or text block above.
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {contentBlocks.map((block, idx) => (
+              <div key={block.id} style={{ background: '#1a1f2e', border: '1px solid #3a4555', borderRadius: '6px', padding: '0.75rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'center' }}>
+                  <span style={{ color: '#aec6e8', fontWeight: 600, minWidth: '1.5rem' }}>{idx + 1}</span>
+                  <button
+                    className="control-btn"
+                    onClick={() => handleMoveContentBlock(block.id, 'up')}
+                    disabled={idx === 0}
+                  >
+                    Up
+                  </button>
+                  <button
+                    className="control-btn"
+                    onClick={() => handleMoveContentBlock(block.id, 'down')}
+                    disabled={idx === contentBlocks.length - 1}
+                  >
+                    Down
+                  </button>
+                  <button
+                    className="delete-col-btn"
+                    onClick={() => handleDeleteContentBlock(block.id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+
+                {block.type === 'link' ? (
+                  <>
+                    <input
+                      type="text"
+                      value={block.title}
+                      onChange={(e) => handleContentBlockChange(block.id, 'title', e.target.value)}
+                      placeholder="Link title"
+                      className="caption-input"
+                      style={{ marginBottom: '0.4rem' }}
+                    />
+                    <LinkTargetInput
+                      value={block.target}
+                      onValueChange={(v) => handleContentBlockChange(block.id, 'target', v)}
+                      placeholder="Page ID, URL, or file path"
+                      inputClassName="caption-input"
+                    />
+                  </>
+                ) : (
+                  <textarea
+                    value={block.text || ''}
+                    onChange={(e) => handleContentBlockChange(block.id, 'text', e.target.value)}
+                    placeholder="Paragraph text"
+                    rows={3}
+                    className="caption-input"
+                    style={{ width: '100%', boxSizing: 'border-box' }}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

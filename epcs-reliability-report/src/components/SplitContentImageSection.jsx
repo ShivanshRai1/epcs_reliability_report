@@ -156,7 +156,7 @@ export default function SplitContentImageSection({
                   onValueChange={(value) => handleLinkChange(idx, 'url', value)}
                   placeholder="URL, file path, or choose file"
                   inputClassName="link-input link-input-url"
-                  buttonText="📁"
+                  buttonText="File"
                 />
                 <button
                   className="link-delete-btn"
@@ -164,13 +164,13 @@ export default function SplitContentImageSection({
                   type="button"
                   title="Delete this link"
                 >
-                  ✕
+                  Delete
                 </button>
               </div>
             ))}
           </div>
           <button className="link-add-btn" onClick={addLink}>
-            + Add Link
+            Add Link
           </button>
         </div>
       );

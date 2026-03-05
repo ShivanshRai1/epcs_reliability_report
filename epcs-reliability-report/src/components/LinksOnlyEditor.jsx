@@ -2,31 +2,75 @@ import React, { useEffect, useState } from 'react';
 import './LinksOnlyEditor.css';
 import LinkTargetInput from './LinkTargetInput';
 
+const createBlockId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+const normalizeBlocks = (page) => {
+  if (Array.isArray(page.linkBlocks) && page.linkBlocks.length > 0) {
+    return page.linkBlocks.map((block) => ({
+      id: block.id || createBlockId(),
+      type: block.type === 'text' ? 'text' : 'link',
+      text: block.text || '',
+      title: block.title || '',
+      target: block.target || ''
+    }));
+  }
+
+  const legacyLinks = Array.isArray(page.links) ? page.links : [];
+  return legacyLinks.map((link) => ({
+    id: link.id || createBlockId(),
+    type: 'link',
+    title: link.title || '',
+    target: link.target || ''
+  }));
+};
+
+const toLegacyLinks = (blocks) => {
+  return blocks
+    .filter((block) => block.type === 'link')
+    .map((block) => ({
+      id: block.id,
+      title: block.title || '',
+      target: block.target || ''
+    }));
+};
+
 const LinksOnlyEditor = ({ page, onChange }) => {
-  const [links, setLinks] = useState(page.links || []);
+  const [blocks, setBlocks] = useState(normalizeBlocks(page));
   const [newLinkTitle, setNewLinkTitle] = useState('');
   const [newLinkTarget, setNewLinkTarget] = useState('');
+  const [newText, setNewText] = useState('');
 
   useEffect(() => {
-    setLinks(page.links || []);
-  }, [page.id, page.links]);
+    setBlocks(normalizeBlocks(page));
+  }, [page.id, page.links, page.linkBlocks]);
 
-  const handleAddLink = () => {
+  const insertBlock = (newBlock, position = 'end') => {
+    if (position === 'start') {
+      return [newBlock, ...blocks];
+    }
+    return [...blocks, newBlock];
+  };
+
+  const handleAddLink = (position = 'end') => {
     console.log('🔗 Add Link clicked - title:', newLinkTitle, 'target:', newLinkTarget);
     
     if (newLinkTitle.trim() && newLinkTarget.trim()) {
       console.log('✅ Link is valid, adding...');
-      const linkId = Date.now();
-      const newLink = { id: linkId, title: newLinkTitle, target: newLinkTarget };
+      const newLink = {
+        id: createBlockId(),
+        type: 'link',
+        title: newLinkTitle,
+        target: newLinkTarget
+      };
       console.log('📝 New link:', newLink);
       
-      const updatedLinks = [...links, newLink];
-      console.log('📋 Updated links array:', updatedLinks);
+      const updatedBlocks = insertBlock(newLink, position);
+      console.log('📋 Updated blocks array:', updatedBlocks);
       
-      setLinks(updatedLinks);
+      setBlocks(updatedBlocks);
       setNewLinkTitle('');
       setNewLinkTarget('');
-      updatePage(updatedLinks);
+      updatePage(updatedBlocks);
       
       console.log('✅ Link added successfully');
     } else {
@@ -34,35 +78,49 @@ const LinksOnlyEditor = ({ page, onChange }) => {
     }
   };
 
-  const handleDeleteLink = (linkId) => {
-    const updatedLinks = links.filter(l => l.id !== linkId);
-    setLinks(updatedLinks);
-    updatePage(updatedLinks);
+  const handleAddText = (position = 'end') => {
+    if (!newText.trim()) return;
+    const newTextBlock = {
+      id: createBlockId(),
+      type: 'text',
+      text: newText
+    };
+    const updatedBlocks = insertBlock(newTextBlock, position);
+    setBlocks(updatedBlocks);
+    setNewText('');
+    updatePage(updatedBlocks);
   };
 
-  const handleLinkChange = (linkId, field, value) => {
-    const updatedLinks = links.map(l =>
-      l.id === linkId ? { ...l, [field]: value } : l
+  const handleDeleteBlock = (blockId) => {
+    const updatedBlocks = blocks.filter((block) => block.id !== blockId);
+    setBlocks(updatedBlocks);
+    updatePage(updatedBlocks);
+  };
+
+  const handleBlockChange = (blockId, field, value) => {
+    const updatedBlocks = blocks.map((block) =>
+      block.id === blockId ? { ...block, [field]: value } : block
     );
-    setLinks(updatedLinks);
-    updatePage(updatedLinks);
+    setBlocks(updatedBlocks);
+    updatePage(updatedBlocks);
   };
 
-  const handleMoveLink = (linkId, direction) => {
-    const index = links.findIndex(l => l.id === linkId);
-    if ((direction === 'up' && index > 0) || (direction === 'down' && index < links.length - 1)) {
-      const updatedLinks = [...links];
+  const handleMoveBlock = (blockId, direction) => {
+    const index = blocks.findIndex((block) => block.id === blockId);
+    if ((direction === 'up' && index > 0) || (direction === 'down' && index < blocks.length - 1)) {
+      const updatedBlocks = [...blocks];
       const moveIndex = direction === 'up' ? index - 1 : index + 1;
-      [updatedLinks[index], updatedLinks[moveIndex]] = [updatedLinks[moveIndex], updatedLinks[index]];
-      setLinks(updatedLinks);
-      updatePage(updatedLinks);
+      [updatedBlocks[index], updatedBlocks[moveIndex]] = [updatedBlocks[moveIndex], updatedBlocks[index]];
+      setBlocks(updatedBlocks);
+      updatePage(updatedBlocks);
     }
   };
 
-  const updatePage = (updatedLinks) => {
+  const updatePage = (updatedBlocks) => {
     onChange({
       ...page,
-      links: updatedLinks
+      linkBlocks: updatedBlocks,
+      links: toLegacyLinks(updatedBlocks)
     });
   };
 
@@ -98,65 +156,113 @@ const LinksOnlyEditor = ({ page, onChange }) => {
           />
           <button 
             className="add-btn"
-            onClick={handleAddLink}
+            onClick={() => handleAddLink('end')}
             disabled={!newLinkTitle.trim() || !newLinkTarget.trim()}
           >
-            ➕ Add Link
+            Add Link
+          </button>
+          <button
+            className="add-btn"
+            onClick={() => handleAddLink('start')}
+            disabled={!newLinkTitle.trim() || !newLinkTarget.trim()}
+            title="Insert this link at the top"
+          >
+            Add Link First
           </button>
         </div>
       </div>
 
-      {/* Links List */}
+      <div className="add-link-section">
+        <h3>Add New Text Block</h3>
+        <div className="add-link-form">
+          <textarea
+            value={newText}
+            onChange={(e) => setNewText(e.target.value)}
+            placeholder="Enter text block"
+            className="form-input"
+            rows={3}
+          />
+          <button
+            className="add-btn"
+            onClick={() => handleAddText('end')}
+            disabled={!newText.trim()}
+          >
+            Add Text
+          </button>
+          <button
+            className="add-btn"
+            onClick={() => handleAddText('start')}
+            disabled={!newText.trim()}
+            title="Insert this text at the top"
+          >
+            Add Text First
+          </button>
+        </div>
+      </div>
+
+      {/* Mixed Blocks List */}
       <div className="links-list">
-        <h3>Links ({links.length})</h3>
-        {links.length === 0 ? (
-          <p className="empty-message">No links yet. Add one above.</p>
+        <h3>Content Blocks ({blocks.length})</h3>
+        {blocks.length === 0 ? (
+          <p className="empty-message">No content yet. Add a link or text block above.</p>
         ) : (
           <div className="links-container">
-            {links.map((link, index) => (
-              <div key={link.id} className="link-item">
+            {blocks.map((block, index) => (
+              <div key={block.id} className="link-item">
                 <div className="link-order">{index + 1}</div>
                 
                 <div className="link-inputs">
-                  <input
-                    type="text"
-                    value={link.title}
-                    onChange={(e) => handleLinkChange(link.id, 'title', e.target.value)}
-                    placeholder="Link title"
-                    className="link-title-input"
-                  />
-                  <LinkTargetInput
-                    value={link.target}
-                    onValueChange={(value) => handleLinkChange(link.id, 'target', value)}
-                    placeholder="Page ID/number, URL, file path, or choose file"
-                    inputClassName="link-target-input"
-                    buttonText="📁"
-                  />
+                  {block.type === 'link' ? (
+                    <>
+                      <input
+                        type="text"
+                        value={block.title}
+                        onChange={(e) => handleBlockChange(block.id, 'title', e.target.value)}
+                        placeholder="Link title"
+                        className="link-title-input"
+                      />
+                      <LinkTargetInput
+                        value={block.target}
+                        onValueChange={(value) => handleBlockChange(block.id, 'target', value)}
+                        placeholder="Page ID/number, URL, file path, or choose file"
+                        inputClassName="link-target-input"
+                        buttonText="File"
+                      />
+                    </>
+                  ) : (
+                    <textarea
+                      value={block.text || ''}
+                      onChange={(e) => handleBlockChange(block.id, 'text', e.target.value)}
+                      placeholder="Text block"
+                      className="link-title-input"
+                      rows={3}
+                    />
+                  )}
                 </div>
 
                 <div className="link-actions">
                   <button
                     className="action-btn"
-                    onClick={() => handleMoveLink(link.id, 'up')}
+                    onClick={() => handleMoveBlock(block.id, 'up')}
                     disabled={index === 0}
                     title="Move up"
                   >
-                    ⬆️
+                    Up
                   </button>
                   <button
                     className="action-btn"
-                    onClick={() => handleMoveLink(link.id, 'down')}
-                    disabled={index === links.length - 1}
+                    onClick={() => handleMoveBlock(block.id, 'down')}
+                    disabled={index === blocks.length - 1}
                     title="Move down"
                   >
-                    ⬇️
+                    Down
                   </button>
                   <button
                     className="action-btn delete"
-                    onClick={() => handleDeleteLink(link.id)}
-                    title="Delete link"
+                    onClick={() => handleDeleteBlock(block.id)}
+                    title="Delete block"
                   >
-                    🗑️
+                    Delete
                   </button>
                 </div>
               </div>
@@ -170,13 +276,19 @@ const LinksOnlyEditor = ({ page, onChange }) => {
         <h4>Preview</h4>
         <div className="links-preview">
           <h2>{page.title}</h2>
-          <ul className="preview-list">
-            {links.map((link, idx) => (
-              <li key={idx}>
-                <a href="#">{link.title}</a> → {link.target}
-              </li>
+          <div className="preview-list">
+            {blocks.map((block) => (
+              block.type === 'link' ? (
+                <div key={block.id} style={{ marginBottom: '0.5rem' }}>
+                  <a href="#">{block.title || 'Untitled link'}</a> → {block.target}
+                </div>
+              ) : (
+                <p key={block.id} style={{ whiteSpace: 'pre-wrap', margin: '0 0 0.8rem 0' }}>
+                  {block.text}
+                </p>
+              )
             ))}
-          </ul>
+          </div>
         </div>
       </div>
     </div>

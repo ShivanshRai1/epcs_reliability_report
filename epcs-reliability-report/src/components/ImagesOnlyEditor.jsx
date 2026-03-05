@@ -1,251 +1,270 @@
 import React, { useEffect, useState } from 'react';
 import './ImagesOnlyEditor.css';
+import LinkTargetInput from './LinkTargetInput';
+
+const createBlockId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+/**
+ * Normalise any legacy or new page data into a single ordered blocks array.
+ * Block types: 'image' | 'text' | 'link'
+ */
+const normalizeBlocks = (page) => {
+  if (Array.isArray(page.pageBlocks) && page.pageBlocks.length > 0) {
+    return page.pageBlocks.map((b) => ({ id: b.id || createBlockId(), ...b }));
+  }
+  // Legacy: images/captions arrays + imageContentBlocks
+  const imageBlocks = (page.images || []).map((src, idx) => ({
+    id: createBlockId(),
+    type: 'image',
+    src: src || '',
+    caption: (page.captions || [])[idx] || ''
+  }));
+  const extraBlocks = (page.imageContentBlocks || []).map((b) => ({
+    id: b.id || createBlockId(),
+    type: b.type === 'text' ? 'text' : 'link',
+    text: b.text || '',
+    title: b.title || '',
+    target: b.target || ''
+  }));
+  return [...imageBlocks, ...extraBlocks];
+};
+
+const toLegacy = (blocks) => ({
+  images: blocks.filter(b => b.type === 'image').map(b => b.src || ''),
+  captions: blocks.filter(b => b.type === 'image').map(b => b.caption || '')
+});
 
 const ImagesOnlyEditor = ({ page, onChange }) => {
-  const [images, setImages] = useState(page.images || []);
-  const [captions, setCaptions] = useState(page.captions || []);
+  const [blocks, setBlocks] = useState(normalizeBlocks(page));
   const [title, setTitle] = useState(page.title || '');
   const [intro, setIntro] = useState(page.intro || '');
   const [bottomText, setBottomText] = useState(page.bottomText || '');
 
+  const [newLinkTitle, setNewLinkTitle] = useState('');
+  const [newLinkTarget, setNewLinkTarget] = useState('');
+  const [newText, setNewText] = useState('');
+
   useEffect(() => {
-    setImages(page.images || []);
-    setCaptions(page.captions || []);
+    setBlocks(normalizeBlocks(page));
     setTitle(page.title || '');
     setIntro(page.intro || '');
     setBottomText(page.bottomText || '');
   }, [page.id]);
 
-  const handleAddImage = () => {
-    setImages([...images, '']);
-    setCaptions([...captions, '']);
-    updatePage([...images, ''], [...captions, ''], title, intro, bottomText);
-  };
-
-  const handleDeleteImage = (idx) => {
-    const newImages = images.filter((_, i) => i !== idx);
-    const newCaptions = captions.filter((_, i) => i !== idx);
-    setImages(newImages);
-    setCaptions(newCaptions);
-    updatePage(newImages, newCaptions, title, intro, bottomText);
-  };
-
-  const handleImageUrlChange = (idx, value) => {
-    const normalizedValue = normalizeImageSource(value);
-    const newImages = [...images];
-    newImages[idx] = normalizedValue;
-    setImages(newImages);
-    updatePage(newImages, captions, title, intro, bottomText);
-  };
-
-  const normalizeImageSource = (value) => {
-    const input = (value || '').trim();
-    if (!input) return '';
-
-    // Keep regular URLs, data URLs, and project-relative paths as-is
-    if (
-      input.startsWith('http://') ||
-      input.startsWith('https://') ||
-      input.startsWith('data:') ||
-      input.startsWith('/') ||
-      input.startsWith('./') ||
-      input.startsWith('../')
-    ) {
-      return input;
-    }
-
-    // If user pastes a local OS path, map it to /images/<filename>
-    // Example: C:\Users\me\Downloads\photo.png -> /images/photo.png
-    const normalizedPath = input.replace(/\\/g, '/');
-    const fileName = normalizedPath.split('/').pop();
-    if (fileName && /\.(png|jpg|jpeg|gif|webp|svg|bmp)$/i.test(fileName)) {
-      return `/images/${fileName}`;
-    }
-
-    return input;
-  };
-
-  const handleLocalFileSelect = (idx, file) => {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const newImages = [...images];
-      newImages[idx] = reader.result;
-      setImages(newImages);
-      updatePage(newImages, captions, title, intro, bottomText);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleCaptionChange = (idx, value) => {
-    const newCaptions = [...captions];
-    newCaptions[idx] = value;
-    setCaptions(newCaptions);
-    updatePage(images, newCaptions, title, intro, bottomText);
-  };
-
-  const handleMoveImage = (idx, direction) => {
-    const newImages = [...images];
-    const newCaptions = [...captions];
-    
-    if (direction === 'up' && idx > 0) {
-      [newImages[idx], newImages[idx - 1]] = [newImages[idx - 1], newImages[idx]];
-      [newCaptions[idx], newCaptions[idx - 1]] = [newCaptions[idx - 1], newCaptions[idx]];
-    } else if (direction === 'down' && idx < newImages.length - 1) {
-      [newImages[idx], newImages[idx + 1]] = [newImages[idx + 1], newImages[idx]];
-      [newCaptions[idx], newCaptions[idx + 1]] = [newCaptions[idx + 1], newCaptions[idx]];
-    }
-    
-    setImages(newImages);
-    setCaptions(newCaptions);
-    updatePage(newImages, newCaptions, title, intro, bottomText);
-  };
-
-  const updatePage = (imgs, caps, nextTitle = title, nextIntro = intro, nextBottomText = bottomText) => {
+  const emit = (nextBlocks, nextTitle = title, nextIntro = intro, nextBottom = bottomText) => {
+    const { images, captions } = toLegacy(nextBlocks);
     onChange({
       ...page,
       title: nextTitle,
       intro: nextIntro,
-      bottomText: nextBottomText,
-      images: imgs,
-      captions: caps
+      bottomText: nextBottom,
+      pageBlocks: nextBlocks,
+      images,
+      captions,
+      imageContentBlocks: nextBlocks.filter(b => b.type !== 'image')
     });
   };
 
-  const handleTitleChange = (e) => {
-    const newTitle = e.target.value;
-    setTitle(newTitle);
-    updatePage(images, captions, newTitle, intro);
+  const moveBlock = (id, dir) => {
+    const idx = blocks.findIndex(b => b.id === id);
+    if (idx === -1) return;
+    if (dir === 'up' && idx === 0) return;
+    if (dir === 'down' && idx === blocks.length - 1) return;
+    const next = [...blocks];
+    const swap = dir === 'up' ? idx - 1 : idx + 1;
+    [next[idx], next[swap]] = [next[swap], next[idx]];
+    setBlocks(next);
+    emit(next);
   };
 
-  const handleIntroChange = (e) => {
-    const newIntro = e.target.value;
-    setIntro(newIntro);
-    updatePage(images, captions, title, newIntro, bottomText);
+  const deleteBlock = (id) => {
+    const next = blocks.filter(b => b.id !== id);
+    setBlocks(next);
+    emit(next);
   };
 
-  const handleBottomTextChange = (e) => {
-    const newBottomText = e.target.value;
-    setBottomText(newBottomText);
-    updatePage(images, captions, title, intro, newBottomText);
+  const updateBlock = (id, fields) => {
+    const next = blocks.map(b => b.id === id ? { ...b, ...fields } : b);
+    setBlocks(next);
+    emit(next);
+  };
+
+  const handleLocalFileSelect = (id, file) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => updateBlock(id, { src: reader.result });
+    reader.readAsDataURL(file);
+  };
+
+  const normalizeImageSrc = (value) => {
+    const input = (value || '').trim();
+    if (!input) return '';
+    if (
+      input.startsWith('http://') || input.startsWith('https://') ||
+      input.startsWith('data:') || input.startsWith('/') ||
+      input.startsWith('./') || input.startsWith('../')
+    ) return input;
+    const normalized = input.replace(/\\/g, '/');
+    const fileName = normalized.split('/').pop();
+    if (fileName && /\.(png|jpg|jpeg|gif|webp|svg|bmp)$/i.test(fileName)) {
+      return `/images/${fileName}`;
+    }
+    return input;
+  };
+
+  const addImage = () => {
+    const next = [...blocks, { id: createBlockId(), type: 'image', src: '', caption: '' }];
+    setBlocks(next);
+    emit(next);
+  };
+
+  const addLink = () => {
+    if (!newLinkTitle.trim() || !newLinkTarget.trim()) return;
+    const next = [...blocks, { id: createBlockId(), type: 'link', title: newLinkTitle, target: newLinkTarget }];
+    setBlocks(next);
+    setNewLinkTitle('');
+    setNewLinkTarget('');
+    emit(next);
+  };
+
+  const addText = () => {
+    if (!newText.trim()) return;
+    const next = [...blocks, { id: createBlockId(), type: 'text', text: newText }];
+    setBlocks(next);
+    setNewText('');
+    emit(next);
   };
 
   return (
     <div className="images-only-editor">
       <div className="editor-section">
         <label>Page Title:</label>
-        <input
-          type="text"
-          value={title}
-          onChange={handleTitleChange}
-          placeholder="Enter page title"
-          className="title-input"
-        />
+        <input type="text" value={title}
+          onChange={e => { setTitle(e.target.value); emit(blocks, e.target.value, intro, bottomText); }}
+          placeholder="Enter page title" className="title-input" />
       </div>
-
       <div className="editor-section">
         <label>Intro Text (optional):</label>
-        <textarea
-          value={intro}
-          onChange={handleIntroChange}
-          placeholder="Enter introductory text to display before images..."
-          className="title-input"
-          rows="3"
-        />
+        <textarea value={intro}
+          onChange={e => { setIntro(e.target.value); emit(blocks, title, e.target.value, bottomText); }}
+          placeholder="Introductory text before content..." className="title-input" rows={3} />
       </div>
-
       <div className="editor-section">
         <label>Bottom Text (optional):</label>
-        <textarea
-          value={bottomText}
-          onChange={handleBottomTextChange}
-          placeholder="Enter text to display after images..."
-          className="title-input"
-          rows="3"
-        />
+        <textarea value={bottomText}
+          onChange={e => { setBottomText(e.target.value); emit(blocks, title, intro, e.target.value); }}
+          placeholder="Text after all content..." className="title-input" rows={3} />
       </div>
 
+      {/* ── Add actions ── */}
       <div className="editor-section">
-        <label>Images:</label>
-        
-        {images.length === 0 && (
-          <div className="empty-state">
-            No images yet. Click "Add Image" to start.
-          </div>
-        )}
+        <label>Add Content:</label>
 
-        <div className="images-list">
-          {images.map((imageUrl, idx) => (
-            <div key={idx} className="image-item">
-              <div className="image-controls">
-                <button
-                  className="move-btn"
-                  onClick={() => handleMoveImage(idx, 'up')}
-                  disabled={idx === 0}
-                  title="Move up"
-                >
-                  ⬆️
-                </button>
-                <button
-                  className="move-btn"
-                  onClick={() => handleMoveImage(idx, 'down')}
-                  disabled={idx === images.length - 1}
-                  title="Move down"
-                >
-                  ⬇️
-                </button>
-                <button
-                  className="delete-btn"
-                  onClick={() => handleDeleteImage(idx)}
-                  title="Delete image"
-                >
-                  🗑️
-                </button>
-              </div>
-
-              <div className="image-preview">
-                {imageUrl ? (
-                  <img src={imageUrl} alt={`Image ${idx + 1}`} />
-                ) : (
-                  <div className="placeholder">No image</div>
-                )}
-              </div>
-
-              <div className="image-fields">
-                <label>Image URL:</label>
-                <input
-                  type="text"
-                  value={imageUrl}
-                  onChange={(e) => handleImageUrlChange(idx, e.target.value)}
-                  placeholder="https://... or C:\\path\\image.png or /images/image.png"
-                  className="url-input"
-                />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleLocalFileSelect(idx, e.target.files?.[0])}
-                  className="url-input"
-                />
-
-                <label>Caption:</label>
-                <textarea
-                  value={captions[idx] || ''}
-                  onChange={(e) => handleCaptionChange(idx, e.target.value)}
-                  placeholder="Optional caption for this image"
-                  rows="2"
-                  className="caption-input"
-                />
-              </div>
-            </div>
-          ))}
+        <div className="content-block-add-section">
+          <h4>Image</h4>
+          <button className="add-image-btn" onClick={addImage}>Add Image</button>
         </div>
 
-        <button className="add-image-btn" onClick={handleAddImage}>
-          ➕ Add Image
-        </button>
+        <div className="content-block-add-section">
+          <h4>Link</h4>
+          <input type="text" value={newLinkTitle} onChange={e => setNewLinkTitle(e.target.value)}
+            placeholder="Link title" className="title-input" style={{ marginBottom: '0.5rem' }} />
+          <LinkTargetInput
+            value={newLinkTarget}
+            onValueChange={setNewLinkTarget}
+            placeholder="Target (page ID, URL, file path, or choose file)"
+            inputClassName="title-input"
+          />
+          <div className="block-add-btn-row">
+            <button className="add-image-btn" onClick={addLink}
+              disabled={!newLinkTitle.trim() || !newLinkTarget.trim()}>
+              Add Link
+            </button>
+          </div>
+        </div>
+
+        <div className="content-block-add-section">
+          <h4>Text Block</h4>
+          <textarea value={newText} onChange={e => setNewText(e.target.value)}
+            placeholder="Enter paragraph text" className="title-input" rows={3} />
+          <div className="block-add-btn-row">
+            <button className="add-image-btn" onClick={addText} disabled={!newText.trim()}>
+              Add Text
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Unified block list ── */}
+      <div className="editor-section">
+        <label>Content ({blocks.length} block{blocks.length !== 1 ? 's' : ''}):</label>
+        {blocks.length === 0 ? (
+          <div className="empty-state">No content yet. Use the Add section above to add images, links, or text.</div>
+        ) : (
+          <div className="images-list">
+            {blocks.map((block, idx) => (
+              <div key={block.id} className="image-item">
+                <div className="image-controls">
+                  <span className="block-index">{idx + 1}</span>
+                  <span className="block-type-badge">{block.type}</span>
+                  <button className="move-btn" onClick={() => moveBlock(block.id, 'up')} disabled={idx === 0}>Up</button>
+                  <button className="move-btn" onClick={() => moveBlock(block.id, 'down')} disabled={idx === blocks.length - 1}>Down</button>
+                  <button className="delete-btn" onClick={() => deleteBlock(block.id)}>Delete</button>
+                </div>
+
+                <div className="image-fields">
+                  {block.type === 'image' && (
+                    <>
+                      <div className="image-preview">
+                        {block.src
+                          ? <img src={block.src} alt={`Block ${idx + 1}`} />
+                          : <div className="placeholder">No image</div>}
+                      </div>
+                      <label>Image URL:</label>
+                      <input type="text" value={block.src || ''}
+                        onChange={e => updateBlock(block.id, { src: normalizeImageSrc(e.target.value) })}
+                        placeholder="https://... or /images/image.png" className="url-input" />
+                      <input type="file" accept="image/*"
+                        onChange={e => handleLocalFileSelect(block.id, e.target.files?.[0])}
+                        className="url-input" />
+                      <label>Caption:</label>
+                      <textarea value={block.caption || ''}
+                        onChange={e => updateBlock(block.id, { caption: e.target.value })}
+                        placeholder="Optional caption" rows={2} className="caption-input" />
+                    </>
+                  )}
+                  {block.type === 'link' && (
+                    <>
+                      <label>Link Title:</label>
+                      <input type="text" value={block.title || ''}
+                        onChange={e => updateBlock(block.id, { title: e.target.value })}
+                        placeholder="Link title" className="url-input" />
+                      <label>Link Target:</label>
+                      <LinkTargetInput
+                        value={block.target || ''}
+                        onValueChange={v => updateBlock(block.id, { target: v })}
+                        placeholder="Page ID, URL, or file path"
+                        inputClassName="url-input"
+                      />
+                    </>
+                  )}
+                  {block.type === 'text' && (
+                    <>
+                      <label>Text:</label>
+                      <textarea value={block.text || ''}
+                        onChange={e => updateBlock(block.id, { text: e.target.value })}
+                        placeholder="Paragraph text" rows={3} className="caption-input" />
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
 export default ImagesOnlyEditor;
+

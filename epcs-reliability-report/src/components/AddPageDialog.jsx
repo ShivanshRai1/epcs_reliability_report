@@ -249,7 +249,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         <div className="add-page-dialog" onClick={(e) => e.stopPropagation()}>
           <div className="dialog-header">
             <h2>Add New Page</h2>
-            <button className="close-btn" onClick={onClose}>×</button>
+            <button className="close-btn" onClick={onClose}>Close</button>
           </div>
 
           <div className="dialog-body">
