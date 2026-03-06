@@ -12,7 +12,7 @@ const Home = () => {
         <h2>Rad-Hard GaN Solutions<br />for Space Applications</h2>
         <h3>Reliability Report<br />September 2024</h3>
         {/* You can add a relevant image or leave this space empty for now */}
-        <button className="next-btn" onClick={() => navigate('/page/1')}>Next &gt;&gt;</button>
+           <button className="next-btn" onClick={() => navigate('/page/1')}>Start ▶▶</button>
       </div>
     </div>
   );

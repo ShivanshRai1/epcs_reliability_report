@@ -8,7 +8,8 @@ const LinkTargetInput = ({
   inputId,
   buttonText = 'File',
   disabled = false,
-  accept
+  accept,
+  showFileButton = true
 }) => {
   const fileInputRef = useRef(null);
 
@@ -47,30 +48,34 @@ const LinkTargetInput = ({
         disabled={disabled}
         style={{ flex: 1 }}
       />
-      <button
-        type="button"
-        onClick={handlePickFile}
-        disabled={disabled}
-        style={{
-          whiteSpace: 'nowrap',
-          border: '1px solid #3a4555',
-          background: '#223047',
-          color: '#e0e6f0',
-          borderRadius: '6px',
-          padding: '0.5rem 0.65rem',
-          cursor: disabled ? 'not-allowed' : 'pointer'
-        }}
-        title="Choose a local file"
-      >
-        {buttonText}
-      </button>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept={accept}
-        onChange={handleFileChange}
-        style={{ display: 'none' }}
-      />
+      {showFileButton && (
+        <>
+          <button
+            type="button"
+            onClick={handlePickFile}
+            disabled={disabled}
+            style={{
+              whiteSpace: 'nowrap',
+              border: '1px solid #3a4555',
+              background: '#223047',
+              color: '#e0e6f0',
+              borderRadius: '6px',
+              padding: '0.5rem 0.65rem',
+              cursor: disabled ? 'not-allowed' : 'pointer'
+            }}
+            title="Choose a local file"
+          >
+            {buttonText}
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept={accept}
+            onChange={handleFileChange}
+            style={{ display: 'none' }}
+          />
+        </>
+      )}
     </div>
   );
 };

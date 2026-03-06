@@ -159,7 +159,7 @@ const LinksOnlyEditor = ({ page, onChange }) => {
             onClick={() => handleAddLink('end')}
             disabled={!newLinkTitle.trim() || !newLinkTarget.trim()}
           >
-            Add Link
+            🔗 Add Link
           </button>
           <button
             className="add-btn"
@@ -167,7 +167,7 @@ const LinksOnlyEditor = ({ page, onChange }) => {
             disabled={!newLinkTitle.trim() || !newLinkTarget.trim()}
             title="Insert this link at the top"
           >
-            Add Link First
+            ⬆️ Add Link First
           </button>
         </div>
       </div>
@@ -187,7 +187,7 @@ const LinksOnlyEditor = ({ page, onChange }) => {
             onClick={() => handleAddText('end')}
             disabled={!newText.trim()}
           >
-            Add Text
+            📝 Add Text
           </button>
           <button
             className="add-btn"
@@ -195,7 +195,7 @@ const LinksOnlyEditor = ({ page, onChange }) => {
             disabled={!newText.trim()}
             title="Insert this text at the top"
           >
-            Add Text First
+            ⬆️ Add Text First
           </button>
         </div>
       </div>
@@ -247,7 +247,7 @@ const LinksOnlyEditor = ({ page, onChange }) => {
                     disabled={index === 0}
                     title="Move up"
                   >
-                    Up
+                    ↑ Up
                   </button>
                   <button
                     className="action-btn"
@@ -255,14 +255,14 @@ const LinksOnlyEditor = ({ page, onChange }) => {
                     disabled={index === blocks.length - 1}
                     title="Move down"
                   >
-                    Down
+                    ↓ Down
                   </button>
                   <button
                     className="action-btn delete"
                     onClick={() => handleDeleteBlock(block.id)}
                     title="Delete block"
                   >
-                    Delete
+                    🗑 Delete
                   </button>
                 </div>
               </div>

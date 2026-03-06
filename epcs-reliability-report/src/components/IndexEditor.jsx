@@ -151,9 +151,9 @@ const IndexEditor = ({ page, onChange }) => {
                 <LinkTargetInput
                   value={item.target}
                   onValueChange={(value) => handleItemTargetChange(idx, value)}
-                  placeholder="Target: page ID/number, URL, file path, or choose file"
+                  placeholder="Target: page ID/number or URL"
                   inputClassName="item-target-input"
-                  buttonText="File"
+                  showFileButton={false}
                 />
               </div>
               <button 
@@ -164,7 +164,7 @@ const IndexEditor = ({ page, onChange }) => {
                 title="Delete (also press Delete key)"
                 className="delete-btn"
               >
-                Delete
+                🗑 Delete
               </button>
             </div>
           ))}
@@ -192,11 +192,12 @@ const IndexEditor = ({ page, onChange }) => {
             <LinkTargetInput
               value={newItemTarget}
               onValueChange={setNewItemTarget}
-              placeholder="New target: page ID/number, URL, file path, or choose file"
+              placeholder="New target: page ID/number or URL"
               inputClassName="item-target-input"
+              showFileButton={false}
             />
             <div className="new-item-buttons">
-              <button onClick={handleAddItem} className="add-btn">Add</button>
+                <button onClick={handleAddItem} className="add-btn">➕ Add</button>
               <button 
                 onClick={() => {
                   setIsAddingNew(false);

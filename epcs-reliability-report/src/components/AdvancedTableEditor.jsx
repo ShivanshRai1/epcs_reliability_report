@@ -290,18 +290,18 @@ const AdvancedTableEditor = ({ page, onChange }) => {
       <div className="table-controls">
         <div className="control-group">
           <button onClick={() => handleAddRow('top')} className="control-btn" title="Add row at top">
-            Row Top
+            ⬆ Row Top
           </button>
           <button onClick={() => handleAddRow('bottom')} className="control-btn" title="Add row at bottom">
-            Row Bottom
+            ⬇ Row Bottom
           </button>
         </div>
         <div className="control-group">
           <button onClick={() => handleAddColumn('left')} className="control-btn" title="Add column at left">
-            Col Left
+            ⬅ Col Left
           </button>
           <button onClick={() => handleAddColumn('right')} className="control-btn" title="Add column at right">
-            Col Right
+            Col Right ➡
           </button>
         </div>
       </div>
@@ -326,7 +326,7 @@ const AdvancedTableEditor = ({ page, onChange }) => {
                       onClick={() => handleDeleteColumn(colIdx)}
                       title="Delete column"
                     >
-                      Delete
+                      🗑 Delete
                     </button>
                   </div>
                 </th>
@@ -353,7 +353,7 @@ const AdvancedTableEditor = ({ page, onChange }) => {
                     onClick={() => handleDeleteRow(rowIdx)}
                     title="Delete row"
                   >
-                    Delete
+                    🗑 Delete
                   </button>
                 </td>
               </tr>
@@ -410,7 +410,7 @@ const AdvancedTableEditor = ({ page, onChange }) => {
               onClick={() => handleAddLink('end')}
               disabled={!newLinkTitle.trim() || !newLinkTarget.trim()}
             >
-              Add Link
+              🔗 Add Link
             </button>
             <button
               className="control-btn"
@@ -418,7 +418,7 @@ const AdvancedTableEditor = ({ page, onChange }) => {
               disabled={!newLinkTitle.trim() || !newLinkTarget.trim()}
               title="Insert at top"
             >
-              Add Link First
+              ⬆️ Add Link First
             </button>
           </div>
         </div>
@@ -440,7 +440,7 @@ const AdvancedTableEditor = ({ page, onChange }) => {
               onClick={() => handleAddText('end')}
               disabled={!newText.trim()}
             >
-              Add Text
+              📝 Add Text
             </button>
             <button
               className="control-btn"
@@ -448,7 +448,7 @@ const AdvancedTableEditor = ({ page, onChange }) => {
               disabled={!newText.trim()}
               title="Insert at top"
             >
-              Add Text First
+              ⬆️ Add Text First
             </button>
           </div>
         </div>

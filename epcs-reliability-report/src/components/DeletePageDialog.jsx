@@ -9,7 +9,7 @@ const DeletePageDialog = ({ isOpen, onClose, page, onConfirmDelete, isDeleting =
       <div className="delete-page-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="dialog-header">
           <h2>⚠️ Delete Page</h2>
-          <button className="close-btn" onClick={onClose}>Close</button>
+          <button className="close-btn" onClick={onClose}>✕ Close</button>
         </div>
 
         <div className="dialog-body">
@@ -29,14 +29,14 @@ const DeletePageDialog = ({ isOpen, onClose, page, onConfirmDelete, isDeleting =
             onClick={onClose}
             disabled={isDeleting}
           >
-            Cancel
+            ❌ Cancel
           </button>
           <button 
             className="btn-delete" 
             onClick={() => onConfirmDelete(page.id)}
             disabled={isDeleting}
           >
-            {isDeleting ? 'Deleting...' : 'Delete Page'}
+            {isDeleting ? 'Deleting...' : '🗑 Delete Page'}
           </button>
         </div>
       </div>

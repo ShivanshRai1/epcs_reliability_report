@@ -25,7 +25,7 @@ const Modal = ({ isOpen, imageSrc, imageAlt, onClose, children }) => {
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-content">
-        <button className="modal-close" onClick={onClose} aria-label="Close">Close</button>
+        <button className="modal-close" onClick={onClose} aria-label="Close">✕ Close</button>
         {children ? (
           children
         ) : (

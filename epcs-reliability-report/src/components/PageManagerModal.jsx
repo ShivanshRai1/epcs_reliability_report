@@ -105,7 +105,7 @@ const PageManagerModal = ({
       <div className="page-manager-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>📄 Manage Pages</h2>
-          <button className="close-btn" onClick={onClose}>Close</button>
+          <button className="close-btn" onClick={onClose} aria-label="Close">✕</button>
         </div>
 
         <div className="modal-body" ref={containerRef}>
@@ -134,7 +134,7 @@ const PageManagerModal = ({
                     disabled={index === 0 || isReordering}
                     title="Move up"
                   >
-                    Up
+                    ↑ Up
                   </button>
                   
                   <button
@@ -143,7 +143,7 @@ const PageManagerModal = ({
                     disabled={index === pagesList.length - 1 || isReordering}
                     title="Move down"
                   >
-                    Down
+                    ↓ Down
                   </button>
 
                   <button
@@ -154,7 +154,7 @@ const PageManagerModal = ({
                     }}
                     title="Navigate to page"
                   >
-                    View
+                    👁 View
                   </button>
 
                   <button
@@ -163,7 +163,7 @@ const PageManagerModal = ({
                     disabled={isDeletingId === page.id || isReordering}
                     title="Delete page"
                   >
-                    {isDeletingId === page.id ? '...' : 'Delete'}
+                    {isDeletingId === page.id ? '...' : '🗑 Delete'}
                   </button>
                 </div>
               </div>
@@ -173,7 +173,7 @@ const PageManagerModal = ({
 
         <div className="modal-footer">
           <p className="info-text">Drag to reorder or use arrow buttons</p>
-          <button className="btn-close" onClick={onClose}>Close</button>
+          <button className="btn-close" onClick={onClose} aria-label="Close">✕</button>
         </div>
       </div>
     </div>

@@ -97,7 +97,7 @@ const TextOnlyEditor = ({ page, onChange }) => {
                   disabled={index === 0}
                   title="Move up"
                 >
-                  Up
+                  ↑ Up
                 </button>
                 <button
                   className="action-btn"
@@ -105,7 +105,7 @@ const TextOnlyEditor = ({ page, onChange }) => {
                   disabled={index === blocks.length - 1}
                   title="Move down"
                 >
-                  Down
+                  ↓ Down
                 </button>
                 <button
                   className="action-btn delete"
@@ -113,7 +113,7 @@ const TextOnlyEditor = ({ page, onChange }) => {
                   disabled={blocks.length === 1}
                   title="Delete block"
                 >
-                  Delete
+                  🗑 Delete
                 </button>
               </div>
             </div>
@@ -131,13 +131,13 @@ const TextOnlyEditor = ({ page, onChange }) => {
 
       <div className="editor-footer">
         <button className="add-block-btn" onClick={() => handleAddBlock('paragraph')}>
-          Add Paragraph
+          📝 Add Paragraph
         </button>
         <button className="add-block-btn" onClick={() => handleAddBlock('heading')}>
-          Add Heading
+          🧩 Add Heading
         </button>
         <button className="add-block-btn" onClick={() => handleAddBlock('quote')}>
-          Add Quote
+          💬 Add Quote
         </button>
       </div>
 

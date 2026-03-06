@@ -256,8 +256,8 @@ const SplitContentEditor = ({ page, onChange }) => {
             rows="3"
           />
           <div className="split-actions-row">
-            <button className="split-add-btn" onClick={() => handleAddText(side, 'end')} disabled={!textDraft.trim()}>Add Text</button>
-            <button className="split-add-btn" onClick={() => handleAddText(side, 'start')} disabled={!textDraft.trim()}>Add Text First</button>
+            <button className="split-add-btn" onClick={() => handleAddText(side, 'end')} disabled={!textDraft.trim()}>📝 Add Text</button>
+            <button className="split-add-btn" onClick={() => handleAddText(side, 'start')} disabled={!textDraft.trim()}>⬆️ Add Text First</button>
           </div>
         </div>
 
@@ -277,8 +277,8 @@ const SplitContentEditor = ({ page, onChange }) => {
             inputClassName="content-input"
           />
           <div className="split-actions-row">
-            <button className="split-add-btn" onClick={() => handleAddLink(side, 'end')} disabled={!linkTargetDraft.trim()}>Add Link</button>
-            <button className="split-add-btn" onClick={() => handleAddLink(side, 'start')} disabled={!linkTargetDraft.trim()}>Add Link First</button>
+            <button className="split-add-btn" onClick={() => handleAddLink(side, 'end')} disabled={!linkTargetDraft.trim()}>🔗 Add Link</button>
+            <button className="split-add-btn" onClick={() => handleAddLink(side, 'start')} disabled={!linkTargetDraft.trim()}>⬆️ Add Link First</button>
           </div>
         </div>
 
@@ -293,8 +293,8 @@ const SplitContentEditor = ({ page, onChange }) => {
             accept="image/*"
           />
           <div className="split-actions-row">
-            <button className="split-add-btn" onClick={() => handleAddImage(side, 'end')} disabled={!imageDraft.trim()}>Add Image</button>
-            <button className="split-add-btn" onClick={() => handleAddImage(side, 'start')} disabled={!imageDraft.trim()}>Add Image First</button>
+            <button className="split-add-btn" onClick={() => handleAddImage(side, 'end')} disabled={!imageDraft.trim()}>🖼️ Add Image</button>
+            <button className="split-add-btn" onClick={() => handleAddImage(side, 'start')} disabled={!imageDraft.trim()}>⬆️ Add Image First</button>
           </div>
         </div>
 
@@ -348,10 +348,10 @@ const SplitContentEditor = ({ page, onChange }) => {
                   </div>
 
                   <div className="split-block-actions">
-                    <button className="action-btn" onClick={() => moveBlock(side, block.id, 'top')} disabled={index === 0} title="Move to top">Top</button>
-                    <button className="action-btn" onClick={() => moveBlock(side, block.id, 'up')} disabled={index === 0}>Up</button>
-                    <button className="action-btn" onClick={() => moveBlock(side, block.id, 'down')} disabled={index === blocks.length - 1}>Down</button>
-                    <button className="action-btn delete" onClick={() => deleteBlock(side, block.id)}>Delete</button>
+                    <button className="action-btn" onClick={() => moveBlock(side, block.id, 'top')} disabled={index === 0} title="Move to top">⏫ Top</button>
+                    <button className="action-btn" onClick={() => moveBlock(side, block.id, 'up')} disabled={index === 0}>↑ Up</button>
+                    <button className="action-btn" onClick={() => moveBlock(side, block.id, 'down')} disabled={index === blocks.length - 1}>↓ Down</button>
+                    <button className="action-btn delete" onClick={() => deleteBlock(side, block.id)}>🗑 Delete</button>
                   </div>
                 </div>
               ))}

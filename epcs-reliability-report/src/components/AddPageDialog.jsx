@@ -249,7 +249,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         <div className="add-page-dialog" onClick={(e) => e.stopPropagation()}>
           <div className="dialog-header">
             <h2>Add New Page</h2>
-            <button className="close-btn" onClick={onClose}>Close</button>
+            <button className="close-btn" onClick={onClose}>✕ Close</button>
           </div>
 
           <div className="dialog-body">
@@ -332,14 +332,14 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
 
           <div className="dialog-footer">
             <button className="btn-cancel" onClick={onClose} disabled={loading}>
-              Cancel
+              ❌ Cancel
             </button>
             <button 
               className="btn-create" 
               onClick={handleCreatePage}
               disabled={loading || !selectedTemplate || !pageTitle.trim()}
             >
-              {loading ? 'Creating...' : 'Create Page'}
+              {loading ? 'Creating...' : '➕ Create Page'}
             </button>
           </div>
         </div>

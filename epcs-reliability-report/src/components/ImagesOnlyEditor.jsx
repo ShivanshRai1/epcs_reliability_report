@@ -162,7 +162,7 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
 
         <div className="content-block-add-section">
           <h4>Image</h4>
-          <button className="add-image-btn" onClick={addImage}>Add Image</button>
+          <button className="add-image-btn" onClick={addImage}>🖼️ Add Image</button>
         </div>
 
         <div className="content-block-add-section">
@@ -178,7 +178,7 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
           <div className="block-add-btn-row">
             <button className="add-image-btn" onClick={addLink}
               disabled={!newLinkTitle.trim() || !newLinkTarget.trim()}>
-              Add Link
+              🔗 Add Link
             </button>
           </div>
         </div>
@@ -189,7 +189,7 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
             placeholder="Enter paragraph text" className="title-input" rows={3} />
           <div className="block-add-btn-row">
             <button className="add-image-btn" onClick={addText} disabled={!newText.trim()}>
-              Add Text
+              📝 Add Text
             </button>
           </div>
         </div>
@@ -207,9 +207,9 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
                 <div className="image-controls">
                   <span className="block-index">{idx + 1}</span>
                   <span className="block-type-badge">{block.type}</span>
-                  <button className="move-btn" onClick={() => moveBlock(block.id, 'up')} disabled={idx === 0}>Up</button>
-                  <button className="move-btn" onClick={() => moveBlock(block.id, 'down')} disabled={idx === blocks.length - 1}>Down</button>
-                  <button className="delete-btn" onClick={() => deleteBlock(block.id)}>Delete</button>
+                  <button className="move-btn" onClick={() => moveBlock(block.id, 'up')} disabled={idx === 0}>↑ Up</button>
+                  <button className="move-btn" onClick={() => moveBlock(block.id, 'down')} disabled={idx === blocks.length - 1}>↓ Down</button>
+                  <button className="delete-btn" onClick={() => deleteBlock(block.id)}>🗑 Delete</button>
                 </div>
 
                 <div className="image-fields">

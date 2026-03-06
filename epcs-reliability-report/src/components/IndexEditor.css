@@ -61,7 +61,7 @@
 .index-item-editor {
   display: flex;
   gap: 0.75rem;
-  align-items: flex-start;
+  align-items: center;
   background-color: rgba(15, 23, 42, 0.8);
   padding: 0.75rem;
   border: 2px solid rgba(100, 165, 255, 0.2);
@@ -138,20 +138,25 @@
   border: 1px solid rgba(255, 107, 107, 0.3);
   border-radius: 4px;
   cursor: pointer;
-  width: 36px;
+  min-width: 88px;
+  width: auto;
   height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  gap: 4px;
+  font-size: 0.92rem;
+  font-weight: 600;
   transition: all 0.2s;
   flex-shrink: 0;
-  padding: 0;
+  padding: 0 10px;
+  white-space: nowrap;
 }
 
 .delete-btn:hover {
   background-color: rgba(255, 107, 107, 0.25);
   border-color: rgba(255, 107, 107, 0.6);
+  color: #ffb4b4;
 }
 
 .add-item-btn {
@@ -290,13 +295,14 @@
 
   .delete-btn {
     background-color: rgba(255, 107, 107, 0.1);
-    color: #ff6b6b;
+    color: #cc2f2f;
     border: 1px solid rgba(255, 107, 107, 0.3);
   }
 
   .delete-btn:hover {
     background-color: rgba(255, 107, 107, 0.2);
     border-color: rgba(255, 107, 107, 0.6);
+    color: #a51f1f;
   }
 
   .new-item-form {
