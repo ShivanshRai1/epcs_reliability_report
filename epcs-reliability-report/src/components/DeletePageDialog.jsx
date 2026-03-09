@@ -1,7 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './DeletePageDialog.css';
 
 const DeletePageDialog = ({ isOpen, onClose, page, onConfirmDelete, isDeleting = false }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   if (!isOpen || !page) return null;
 
   return (
@@ -9,7 +20,7 @@ const DeletePageDialog = ({ isOpen, onClose, page, onConfirmDelete, isDeleting =
       <div className="delete-page-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="dialog-header">
           <h2>⚠️ Delete Page</h2>
-          <button className="close-btn" onClick={onClose}>✕ Close</button>
+          <button className="close-btn" onClick={onClose} aria-label="Close">✕</button>
         </div>
 
         <div className="dialog-body">

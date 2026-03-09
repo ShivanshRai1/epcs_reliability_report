@@ -43,12 +43,17 @@ router.get('/templates', async (req, res) => {
       templates: [
         { id: 'text-only', name: 'Text Only', description: 'Page with just text content' },
         { id: 'just-links', name: 'Just Links', description: 'Page with only links/list' },
+        { id: 'link-only', name: 'Link Only', description: 'Link-focused page variant' },
         { id: 'just-images', name: 'Just Images', description: 'Page with images and optional captions' },
+        { id: 'mixed-content', name: 'Mixed Content', description: 'Text, links, and images in any order' },
         { id: 'heading', name: 'Heading', description: 'Title and subtitle heading page' },
         { id: 'index', name: 'Index', description: 'List of linked items' },
         { id: 'image-text', name: 'Image + Text', description: 'Flexible image and text positioning' },
         { id: 'split-content', name: 'Split Content', description: 'Left/right content areas with flexible content types' },
-        { id: 'table', name: 'Table', description: 'Primary table page type' }
+        { id: 'table', name: 'Table', description: 'Primary table page type' },
+        { id: 'images-gallery', name: 'Images Gallery', description: 'Images in masonry/grid gallery layout' },
+        { id: 'images-carousel', name: 'Images Carousel', description: 'Images in slideshow/carousel mode' },
+        { id: 'video-gallery', name: 'Video Gallery', description: 'Embedded videos with metadata' }
       ]
     });
   } catch (error) {
@@ -129,16 +134,31 @@ router.post('/create', async (req, res) => {
     // Get new page_number (same as position for now)
     const pageNumber = insertPosition;
 
+    // Template aliases map to existing stable page types to avoid frontend regressions.
+    const templateToPageType = {
+      'link-only': 'just-links',
+      'mixed-content': 'just-images',
+      'images-gallery': 'just-images',
+      'images-carousel': 'just-images',
+      'video-gallery': 'just-images'
+    };
+    const resolvedPageType = templateToPageType[template] || template;
+
     // Create initial page_data based on template
     const pageDataTemplates = {
       'text-only': { content: '', blocks: [] },
       'just-links': { links: [], title: title },
+      'link-only': { links: [], linkBlocks: [], title: title, linkOnlyMode: true },
       'just-images': { images: [], captions: [] },
+      'mixed-content': { pageBlocks: [], images: [], captions: [] },
       'heading': { title: title, subtitle: '' },
       'index': { content: [] },
       'image-text': { imageUrl: '', imageCaption: '', content: '', imagePosition: 'left', link: null },
       'split-content': { left: {}, right: {}, image: {} },
-      'table': { table: { rows: [], columns: [] }, captionTop: '', captionBottom: '', title: title }
+      'table': { table: { rows: [], columns: [] }, captionTop: '', captionBottom: '', title: title },
+      'images-gallery': { images: [], captions: [], galleryMode: true },
+      'images-carousel': { images: [], captions: [], carouselMode: true },
+      'video-gallery': { videos: [], videoGalleryMode: true }
     };
 
     const pageData = pageDataTemplates[template] || {};
@@ -148,7 +168,7 @@ router.post('/create', async (req, res) => {
       `INSERT INTO pages 
        (page_id, page_number, position, page_type, page_template, title, page_data, updated_by, is_deleted)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, FALSE)`,
-      [pageId, pageNumber, insertPosition, template, template, title, JSON.stringify(pageData), 'system']
+      [pageId, pageNumber, insertPosition, resolvedPageType, template, title, JSON.stringify(pageData), 'system']
     );
 
     // Record in history

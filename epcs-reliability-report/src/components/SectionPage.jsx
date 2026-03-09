@@ -8,6 +8,7 @@ import TextOnlyEditor from './TextOnlyEditor';
 import LinksOnlyEditor from './LinksOnlyEditor';
 import FlexibleLayoutEditor from './FlexibleLayoutEditor';
 import ImagesOnlyEditor from './ImagesOnlyEditor';
+import VideoEditor from './VideoEditor';
 import ImageSection from './ImageSection';
 import SplitContentImageSection from './SplitContentImageSection';
 import SplitContentEditor from './SplitContentEditor';
@@ -108,6 +109,15 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
         </div>
       </div>
     );
+  }
+
+  // Render video-gallery page (maps to just-images with videoGalleryMode flag)
+  if (page.pageType === 'just-images' && page.videoGalleryMode) {
+    if (isEditMode) {
+      return <VideoEditor page={page} onPageUpdate={(updatedPage) => onCellChange(page.id, updatedPage)} isEditMode={true} />;
+    }
+
+    return <VideoEditor page={page} isEditMode={false} />;
   }
 
   // Render just-images page

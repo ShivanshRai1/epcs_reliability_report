@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import './LinksOnlyEditor.css';
 import LinkTargetInput from './LinkTargetInput';
+import { getTemplateBadge } from '../utils/templateInfo.jsx';
 
 const createBlockId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 const normalizeBlocks = (page) => {
   if (Array.isArray(page.linkBlocks) && page.linkBlocks.length > 0) {
-    return page.linkBlocks.map((block) => ({
+    const normalized = page.linkBlocks.map((block) => ({
       id: block.id || createBlockId(),
       type: block.type === 'text' ? 'text' : 'link',
       text: block.text || '',
       title: block.title || '',
       target: block.target || ''
     }));
+    return page.linkOnlyMode
+      ? normalized.filter((block) => block.type === 'link')
+      : normalized;
   }
 
   const legacyLinks = Array.isArray(page.links) ? page.links : [];
@@ -39,10 +43,11 @@ const LinksOnlyEditor = ({ page, onChange }) => {
   const [newLinkTitle, setNewLinkTitle] = useState('');
   const [newLinkTarget, setNewLinkTarget] = useState('');
   const [newText, setNewText] = useState('');
+  const isLinkOnlyMode = Boolean(page.linkOnlyMode);
 
   useEffect(() => {
     setBlocks(normalizeBlocks(page));
-  }, [page.id, page.links, page.linkBlocks]);
+  }, [page.id, page.links, page.linkBlocks, page.linkOnlyMode]);
 
   const insertBlock = (newBlock, position = 'end') => {
     if (position === 'start') {
@@ -117,15 +122,23 @@ const LinksOnlyEditor = ({ page, onChange }) => {
   };
 
   const updatePage = (updatedBlocks) => {
+    const persistedBlocks = isLinkOnlyMode
+      ? updatedBlocks.filter((block) => block.type === 'link')
+      : updatedBlocks;
+
     onChange({
       ...page,
-      linkBlocks: updatedBlocks,
-      links: toLegacyLinks(updatedBlocks)
+      linkBlocks: persistedBlocks,
+      links: toLegacyLinks(persistedBlocks),
+      linkOnlyMode: isLinkOnlyMode
     });
   };
 
   return (
     <div className="links-only-editor">
+      <div style={{ marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid #e5e7eb' }}>
+        {getTemplateBadge(page, true)}
+      </div>
       <div className="editor-header">
         <h3>Page Title</h3>
         <input
@@ -172,33 +185,35 @@ const LinksOnlyEditor = ({ page, onChange }) => {
         </div>
       </div>
 
-      <div className="add-link-section">
-        <h3>Add New Text Block</h3>
-        <div className="add-link-form">
-          <textarea
-            value={newText}
-            onChange={(e) => setNewText(e.target.value)}
-            placeholder="Enter text block"
-            className="form-input"
-            rows={3}
-          />
-          <button
-            className="add-btn"
-            onClick={() => handleAddText('end')}
-            disabled={!newText.trim()}
-          >
-            📝 Add Text
-          </button>
-          <button
-            className="add-btn"
-            onClick={() => handleAddText('start')}
-            disabled={!newText.trim()}
-            title="Insert this text at the top"
-          >
-            ⬆️ Add Text First
-          </button>
+      {!isLinkOnlyMode && (
+        <div className="add-link-section">
+          <h3>Add New Text Block</h3>
+          <div className="add-link-form">
+            <textarea
+              value={newText}
+              onChange={(e) => setNewText(e.target.value)}
+              placeholder="Enter text block"
+              className="form-input"
+              rows={3}
+            />
+            <button
+              className="add-btn"
+              onClick={() => handleAddText('end')}
+              disabled={!newText.trim()}
+            >
+              📝 Add Text
+            </button>
+            <button
+              className="add-btn"
+              onClick={() => handleAddText('start')}
+              disabled={!newText.trim()}
+              title="Insert this text at the top"
+            >
+              ⬆️ Add Text First
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Mixed Blocks List */}
       <div className="links-list">

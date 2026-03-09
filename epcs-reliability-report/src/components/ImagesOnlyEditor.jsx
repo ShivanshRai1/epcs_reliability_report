@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './ImagesOnlyEditor.css';
 import LinkTargetInput from './LinkTargetInput';
+import { getTemplateBadge } from '../utils/templateInfo.jsx';
 
 const createBlockId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -40,6 +41,11 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
   const [intro, setIntro] = useState(page.intro || '');
   const [bottomText, setBottomText] = useState(page.bottomText || '');
 
+  // mixedContentMode creates a true distinction from Just Images.
+  // Backward safety: if legacy page already has non-image blocks, keep mixed UI available.
+  const hasNonImageBlocks = blocks.some((b) => b.type !== 'image');
+  const isMixedMode = Boolean(page.mixedContentMode) || hasNonImageBlocks;
+
   const [newLinkTitle, setNewLinkTitle] = useState('');
   const [newLinkTarget, setNewLinkTarget] = useState('');
   const [newText, setNewText] = useState('');
@@ -53,6 +59,7 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
 
   const emit = (nextBlocks, nextTitle = title, nextIntro = intro, nextBottom = bottomText) => {
     const { images, captions } = toLegacy(nextBlocks);
+    const nextMixedMode = Boolean(page.mixedContentMode) || nextBlocks.some((b) => b.type !== 'image');
     onChange({
       ...page,
       title: nextTitle,
@@ -61,7 +68,8 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
       pageBlocks: nextBlocks,
       images,
       captions,
-      imageContentBlocks: nextBlocks.filter(b => b.type !== 'image')
+      imageContentBlocks: nextBlocks.filter(b => b.type !== 'image'),
+      mixedContentMode: nextMixedMode
     });
   };
 
@@ -119,6 +127,7 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
   };
 
   const addLink = () => {
+    if (!isMixedMode) return;
     if (!newLinkTitle.trim() || !newLinkTarget.trim()) return;
     const next = [...blocks, { id: createBlockId(), type: 'link', title: newLinkTitle, target: newLinkTarget }];
     setBlocks(next);
@@ -128,6 +137,7 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
   };
 
   const addText = () => {
+    if (!isMixedMode) return;
     if (!newText.trim()) return;
     const next = [...blocks, { id: createBlockId(), type: 'text', text: newText }];
     setBlocks(next);
@@ -137,6 +147,11 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
 
   return (
     <div className="images-only-editor">
+      {getTemplateBadge(page, true) && (
+        <div style={{ marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid #e5e7eb' }}>
+          {getTemplateBadge(page, true)}
+        </div>
+      )}
       <div className="editor-section">
         <label>Page Title:</label>
         <input type="text" value={title}
@@ -158,41 +173,45 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
 
       {/* ── Add actions ── */}
       <div className="editor-section">
-        <label>Add Content:</label>
+        <label>{isMixedMode ? 'Add Content:' : 'Add Images:'}</label>
 
         <div className="content-block-add-section">
           <h4>Image</h4>
           <button className="add-image-btn" onClick={addImage}>🖼️ Add Image</button>
         </div>
 
-        <div className="content-block-add-section">
-          <h4>Link</h4>
-          <input type="text" value={newLinkTitle} onChange={e => setNewLinkTitle(e.target.value)}
-            placeholder="Link title" className="title-input" style={{ marginBottom: '0.5rem' }} />
-          <LinkTargetInput
-            value={newLinkTarget}
-            onValueChange={setNewLinkTarget}
-            placeholder="Target (page ID, URL, file path, or choose file)"
-            inputClassName="title-input"
-          />
-          <div className="block-add-btn-row">
-            <button className="add-image-btn" onClick={addLink}
-              disabled={!newLinkTitle.trim() || !newLinkTarget.trim()}>
-              🔗 Add Link
-            </button>
-          </div>
-        </div>
+        {isMixedMode && (
+          <>
+            <div className="content-block-add-section">
+              <h4>Link</h4>
+              <input type="text" value={newLinkTitle} onChange={e => setNewLinkTitle(e.target.value)}
+                placeholder="Link title" className="title-input" style={{ marginBottom: '0.5rem' }} />
+              <LinkTargetInput
+                value={newLinkTarget}
+                onValueChange={setNewLinkTarget}
+                placeholder="Target (page ID, URL, file path, or choose file)"
+                inputClassName="title-input"
+              />
+              <div className="block-add-btn-row">
+                <button className="add-image-btn" onClick={addLink}
+                  disabled={!newLinkTitle.trim() || !newLinkTarget.trim()}>
+                  🔗 Add Link
+                </button>
+              </div>
+            </div>
 
-        <div className="content-block-add-section">
-          <h4>Text Block</h4>
-          <textarea value={newText} onChange={e => setNewText(e.target.value)}
-            placeholder="Enter paragraph text" className="title-input" rows={3} />
-          <div className="block-add-btn-row">
-            <button className="add-image-btn" onClick={addText} disabled={!newText.trim()}>
-              📝 Add Text
-            </button>
-          </div>
-        </div>
+            <div className="content-block-add-section">
+              <h4>Text Block</h4>
+              <textarea value={newText} onChange={e => setNewText(e.target.value)}
+                placeholder="Enter paragraph text" className="title-input" rows={3} />
+              <div className="block-add-btn-row">
+                <button className="add-image-btn" onClick={addText} disabled={!newText.trim()}>
+                  📝 Add Text
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* ── Unified block list ── */}

@@ -400,3 +400,62 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* New template preview styles for gallery, carousel, video, and split sidebar */
+.template-preview-dummy-image-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 8px;
+  width: 100%;
+  height: 100%;
+}
+
+.template-preview-dummy-image {
+  background: linear-gradient(135deg, #4a5f8f 0%, #2d3e5f 100%);
+  border-radius: 4px;
+  aspect-ratio: 1;
+}
+
+.template-preview-dummy-video {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 8px;
+}
+
+.template-preview-dummy-video-item {
+  background: #000;
+  border: 2px solid #4a5f8f;
+  border-radius: 4px;
+  aspect-ratio: 16/9;
+  position: relative;
+  overflow: hidden;
+}
+
+.template-preview-dummy-video-item::after {
+  content: '▶';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 20px;
+  opacity: 0.7;
+}
+
+.template-preview-split {
+  display: flex;
+  gap: 0;
+}
+
+.template-preview-dummy-sidebar {
+  width: 30%;
+  background: linear-gradient(90deg, #2d3e5f 0%, #1e2940 100%);
+  border-right: 2px solid #4a5f8f;
+}
+
+.template-preview-dummy-content-area {
+  flex: 1;
+  background: linear-gradient(90deg, #182546 0%, #11182b 100%);
+}

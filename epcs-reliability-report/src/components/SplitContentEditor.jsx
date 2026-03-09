@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './SplitContentEditor.css';
 import LinkTargetInput from './LinkTargetInput';
+import { getTemplateBadge } from '../utils/templateInfo.jsx';
 
 const createBlockId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -364,6 +365,9 @@ const SplitContentEditor = ({ page, onChange }) => {
 
   return (
     <div className="split-content-editor">
+      <div style={{ marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid #e5e7eb' }}>
+        {getTemplateBadge(page, true)}
+      </div>
       {/* Main Title Section */}
       <div className="editor-section">
         <label htmlFor="page-title">Page Heading (Required):</label>

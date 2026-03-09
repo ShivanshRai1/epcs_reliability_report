@@ -20,6 +20,17 @@ const PageManagerModal = ({
     setPagesList(sortedPages);
   }, [pages, isOpen]);
 
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   const resetFromProps = () => {
     const sortedPages = [...(pages || [])].sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
     setPagesList(sortedPages);

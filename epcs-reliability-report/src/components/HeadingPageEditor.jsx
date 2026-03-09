@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './HeadingPageEditor.css';
+import { getTemplateBadge } from '../utils/templateInfo.jsx';
 
 const HeadingPageEditor = ({ page, onChange }) => {
   const [title, setTitle] = useState(page.title || '');
@@ -24,6 +25,9 @@ const HeadingPageEditor = ({ page, onChange }) => {
 
   return (
     <div className="heading-page-editor">
+      <div style={{ marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid #e5e7eb' }}>
+        {getTemplateBadge(page, true)}
+      </div>
       <div className="heading-editor-section">
         <label htmlFor="heading-title">Main Title:</label>
         <input

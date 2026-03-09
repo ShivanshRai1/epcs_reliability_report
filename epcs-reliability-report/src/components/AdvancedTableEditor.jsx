@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './AdvancedTableEditor.css';
 import LinkTargetInput from './LinkTargetInput';
+import { getTemplateBadge } from '../utils/templateInfo.jsx';
 
 // ── content blocks helpers (text + link) ──
 const createBlockId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -260,6 +261,9 @@ const AdvancedTableEditor = ({ page, onChange }) => {
 
   return (
     <div className="advanced-table-editor">
+      <div style={{ marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid #e5e7eb' }}>
+        {getTemplateBadge(page, true)}
+      </div>
       {/* Page Title */}
       <div className="caption-section">
         <label htmlFor="page-title">Page Heading:</label>

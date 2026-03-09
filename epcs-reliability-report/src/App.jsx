@@ -35,8 +35,6 @@ function App() {
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
   // Cache of static index pages loaded from public JSON (preserves curated content/levels)
   const staticIndexPagesRef = useRef([]);
-  // Snapshot of initial page IDs to detect truly new pages created during this session
-  const originalPageIdsRef = useRef(null);
 
   const transformPagesFromApi = (pagesFromApi) => {
     const pagesArray = Array.isArray(pagesFromApi) ? pagesFromApi : [];
@@ -82,12 +80,18 @@ function App() {
       });
 
     const staticTargets = new Set(curatedItems.map((item) => item.target));
-    const originalIds = originalPageIdsRef.current;
 
-    // Only append pages created after initial load (not pre-existing uncovered pages).
-    const newPages = targetPages.filter(
-      (p) => !staticTargets.has(p.id) && (originalIds === null || !originalIds.has(p.id))
-    );
+    // Only append dynamic pages with auto-generated IDs (page_<number>).
+    // Also block known legacy-like noise titles that should never appear in the appended section.
+    const blockedDynamicTitles = new Set(['epcs discrete part numbers']);
+    const newPages = targetPages.filter((p) => {
+      const pageId = String(p.id || '');
+      const normalizedTitle = String(p.title || '').trim().toLowerCase();
+      const isAutoCreatedPage = /^page_\d+$/i.test(pageId);
+      if (!isAutoCreatedPage) return false;
+      if (blockedDynamicTitles.has(normalizedTitle)) return false;
+      return !staticTargets.has(pageId);
+    });
     const newContent = newPages.map((p) => ({
       title: p.title || p.id,
       target: p.id,
@@ -133,10 +137,6 @@ function App() {
           console.warn('Could not load static index data', e);
         }
 
-        if (originalPageIdsRef.current === null) {
-          originalPageIdsRef.current = new Set(transformedData.pages.map((p) => p.id));
-        }
-        
         const syncedData = syncIndexPageContent(transformedData, staticIndexPages);
         setReportData(syncedData);
         setOriginalData(JSON.parse(JSON.stringify(syncedData)));
@@ -412,7 +412,7 @@ function App() {
     setCurrentPageId(null);
   };
 
-  const handlePageCreate = async (newPage) => {
+  const handlePageCreate = async (newPage, options = {}) => {
     try {
       console.log('Page created:', newPage);
       // Refresh pages list from backend
@@ -420,6 +420,48 @@ function App() {
       console.log('Pages from API after creation:', pagesFromApi);
       
       let transformedData = transformPagesFromApi(pagesFromApi);
+
+      const createdPageId = newPage?.page_id || newPage?.id;
+
+      // Template to behavior flags mapping
+      const templateBehaviorFlags = {
+        'link-only': { linkOnlyMode: true },
+        'mixed-content': { mixedContentMode: true },
+        'images-gallery': { galleryMode: true },
+        'images-carousel': { carouselMode: true },
+        'video-gallery': { videoGalleryMode: true }
+      };
+
+      const templateId = options?.templateId;
+      const behaviorFlags = templateBehaviorFlags[templateId];
+
+      // Enforce template-specific behavior flags without changing existing legacy page behaviors
+      if (behaviorFlags && createdPageId) {
+        const createdPage = transformedData.pages.find(page => page.id === createdPageId);
+        const flagsToAdd = {};
+        
+        for (const [flagKey, flagValue] of Object.entries(behaviorFlags)) {
+          if (!createdPage?.[flagKey]) {
+            flagsToAdd[flagKey] = flagValue;
+          }
+        }
+
+        if (createdPage && Object.keys(flagsToAdd).length > 0) {
+          try {
+            await apiService.savePage(createdPage.id, {
+              page_data: {
+                ...createdPage,
+                ...flagsToAdd
+              }
+            }, 'system');
+
+            const pagesAfterFlagSave = await apiService.getPages();
+            transformedData = transformPagesFromApi(pagesAfterFlagSave);
+          } catch (flagError) {
+            console.warn('Could not persist behavior flags, continuing with normal flow:', flagError);
+          }
+        }
+      }
       
       // Sync index page with new page numbers
       transformedData = syncIndexPageContent(transformedData, staticIndexPagesRef.current);
@@ -431,7 +473,6 @@ function App() {
       setIsEditMode(false);
       setChangedPages(new Set());
 
-      const createdPageId = newPage?.page_id || newPage?.id;
       let redirectPageNumber = null;
 
       if (createdPageId) {

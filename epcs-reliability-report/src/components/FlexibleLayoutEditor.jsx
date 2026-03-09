@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './FlexibleLayoutEditor.css';
 import LinkTargetInput from './LinkTargetInput';
+import { getTemplateBadge } from '../utils/templateInfo.jsx';
 
 const FlexibleLayoutEditor = ({ page, onChange, pageType = 'image-text' }) => {
   const [title, setTitle] = useState(page.title || '');
@@ -79,6 +80,9 @@ const FlexibleLayoutEditor = ({ page, onChange, pageType = 'image-text' }) => {
 
   return (
     <div className="flexible-layout-editor">
+      <div style={{ marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid #e5e7eb' }}>
+        {getTemplateBadge(page, true)}
+      </div>
       <div className="editor-section" style={{ marginBottom: '1.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid #3a4555' }}>
         <label htmlFor="page-title" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Page Heading:</label>
         <input

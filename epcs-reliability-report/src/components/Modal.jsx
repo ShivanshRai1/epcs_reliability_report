@@ -18,14 +18,18 @@ const Modal = ({ isOpen, imageSrc, imageAlt, onClose, children }) => {
   React.useEffect(() => {
     if (isOpen) {
       document.addEventListener('keydown', handleKeyDown);
-      return () => document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.removeEventListener('keydown', handleKeyDown);
+        document.body.style.overflow = '';
+      };
     }
   }, [isOpen]);
 
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-content">
-        <button className="modal-close" onClick={onClose} aria-label="Close">✕ Close</button>
+        <button className="modal-close" onClick={onClose} aria-label="Close">✕</button>
         {children ? (
           children
         ) : (

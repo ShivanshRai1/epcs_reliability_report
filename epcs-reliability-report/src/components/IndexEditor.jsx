@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './IndexEditor.css';
 import LinkTargetInput from './LinkTargetInput';
+import { getTemplateBadge } from '../utils/templateInfo.jsx';
 
 const IndexEditor = ({ page, onChange }) => {
   const [title, setTitle] = useState(page.title);
@@ -112,6 +113,9 @@ const IndexEditor = ({ page, onChange }) => {
 
   return (
     <div className="index-editor" ref={containerRef}>
+      <div style={{ marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid #e5e7eb' }}>
+        {getTemplateBadge(page, true)}
+      </div>
       <div className="index-editor-section">
         <label htmlFor="index-title">Index Title:</label>
         <input

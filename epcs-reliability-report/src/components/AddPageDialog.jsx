@@ -19,7 +19,13 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       setPageTitle('');
       setSelectedTemplate(null);
       setError('');
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
     }
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [isOpen]);
 
   const fetchTemplates = async () => {
@@ -40,7 +46,31 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
           name !== 'just tables'
         );
       });
-      setTemplates(filteredTemplates);
+
+      // Ensure additional functional templates are always visible even when API list is old.
+      const templateMap = new Map(filteredTemplates.map((t) => [t.id, t]));
+
+      // Override copy so similar templates are clearly differentiated.
+      if (templateMap.has('just-links')) {
+        templateMap.set('just-links', {
+          ...templateMap.get('just-links'),
+          name: 'Links + Text',
+          description: 'Links with optional text blocks'
+        });
+      }
+
+      const ensuredTemplates = [
+        { id: 'link-only', name: 'Links Only', description: 'Link-focused page without text blocks' },
+        { id: 'mixed-content', name: 'Mixed Content', description: 'Text, links, and images in any order with reorder' },
+        { id: 'images-gallery', name: 'Images Gallery', description: 'Images in masonry/grid gallery layout' },
+        { id: 'images-carousel', name: 'Images Carousel', description: 'Images in slideshow/carousel mode' },
+        { id: 'video-gallery', name: 'Video Gallery', description: 'Embedded videos with metadata' }
+      ];
+      ensuredTemplates.forEach((t) => {
+        if (!templateMap.has(t.id)) templateMap.set(t.id, t);
+      });
+
+      setTemplates(Array.from(templateMap.values()));
       setError('');
     } catch (err) {
       const errorMsg = 'Failed to load templates: ' + err.message;
@@ -61,13 +91,29 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     const templateToPageType = {
       'text-only': 'content',
       'just-images': 'image',
+      'mixed-content': 'just-images',
+      'images-gallery': 'just-images',
+      'images-carousel': 'just-images',
+      'video-gallery': 'just-images',
       'split-content': 'split-content-image',
       'table': 'table',
       'heading': 'heading',
       'index': 'index',
-      'just-links': 'just-links'
+      'just-links': 'just-links',
+      'link-only': 'just-links'
     };
     return templateToPageType[templateId] || templateId;
+  };
+
+  const resolveTemplateForCreate = (templateId) => {
+    const createTemplateMap = {
+      'link-only': 'just-links',
+      'mixed-content': 'just-images',
+      'images-gallery': 'just-images',
+      'images-carousel': 'just-images',
+      'video-gallery': 'just-images'
+    };
+    return createTemplateMap[templateId] || templateId;
   };
 
   const getSamplePageForTemplate = (templateId) => {
@@ -77,7 +123,8 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     const preferredPreviewPageByTemplate = {
       'text-only': 26,
       'split-content': 28,
-      'just-images': 7
+      'just-images': 7,
+      'mixed-content': 7
     };
 
     const preferredPageNumber = preferredPreviewPageByTemplate[templateId];
@@ -90,16 +137,47 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
   };
 
   const renderTemplatePreview = (templateId) => {
-    if (templateId === 'just-links') {
+    if (templateId === 'just-links' || templateId === 'link-only') {
       return (
         <div className="template-preview-live-wrap">
           <div className="template-preview-meta">Sample: Dummy preview</div>
           <div className="template-preview-live template-preview-dummy-live">
             <div className="template-preview-dummy-content">
-              <div className="template-preview-dummy-title">LINKS PAGE</div>
+              <div className="template-preview-dummy-title">
+                {templateId === 'link-only' ? 'LINK ONLY PAGE' : 'LINKS PAGE'}
+              </div>
               <div className="template-preview-dummy-line" />
               <div className="template-preview-dummy-line short" />
               <div className="template-preview-dummy-line" />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (templateId === 'images-gallery' || templateId === 'images-carousel') {
+      return (
+        <div className="template-preview-live-wrap">
+          <div className="template-preview-meta">Sample: Dummy preview</div>
+          <div className="template-preview-live template-preview-dummy-live">
+            <div className="template-preview-dummy-image-grid">
+              <div className="template-preview-dummy-image" />
+              <div className="template-preview-dummy-image" />
+              <div className="template-preview-dummy-image" />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (templateId === 'video-gallery') {
+      return (
+        <div className="template-preview-live-wrap">
+          <div className="template-preview-meta">Sample: Dummy preview</div>
+          <div className="template-preview-live template-preview-dummy-live">
+            <div className="template-preview-dummy-video">
+              <div className="template-preview-dummy-video-item" />
+              <div className="template-preview-dummy-video-item" />
             </div>
           </div>
         </div>
@@ -208,11 +286,12 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         positionParams = { pageId: currentPageId, insertBefore: false };
       }
       
-      console.log('📝 Creating page with params:', { selectedTemplate, pageTitle, insertPosition });
+      const createTemplateId = resolveTemplateForCreate(selectedTemplate);
+      console.log('📝 Creating page with params:', { selectedTemplate, createTemplateId, pageTitle, insertPosition });
       
       // Call API with correct parameters
       const response = await apiService.createPage(
-        selectedTemplate,
+        createTemplateId,
         pageTitle,
         null,
         positionParams
@@ -224,7 +303,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         console.log('🎉 Page created successfully:', response.page);
         
         // Refresh data and let parent navigate to the resolved, valid page
-        await onPageCreate(response.page);
+        await onPageCreate(response.page, { templateId: selectedTemplate });
         
         onClose();
       } else {
@@ -249,7 +328,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         <div className="add-page-dialog" onClick={(e) => e.stopPropagation()}>
           <div className="dialog-header">
             <h2>Add New Page</h2>
-            <button className="close-btn" onClick={onClose}>✕ Close</button>
+            <button className="close-btn" onClick={onClose} aria-label="Close">✕</button>
           </div>
 
           <div className="dialog-body">

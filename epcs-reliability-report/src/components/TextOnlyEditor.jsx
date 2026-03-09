@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './TextOnlyEditor.css';
+import { getTemplateBadge } from '../utils/templateInfo.jsx';
 
 const TextOnlyEditor = ({ page, onChange }) => {
   const [blocks, setBlocks] = useState(page.blocks || [{ id: 1, type: 'paragraph', content: page.content || '' }]);
@@ -64,6 +65,9 @@ const TextOnlyEditor = ({ page, onChange }) => {
 
   return (
     <div className="text-only-editor">
+      <div style={{ marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid #e5e7eb' }}>
+        {getTemplateBadge(page, true)}
+      </div>
       <div className="editor-header">
         <h3>Page Title</h3>
         <input
