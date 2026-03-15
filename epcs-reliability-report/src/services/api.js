@@ -1,15 +1,93 @@
-const API_URL = 'https://epcs-reliability-report.onrender.com/api';
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  import.meta.env.VITE_REACT_APP_API_URL ||
+  'https://epcs-reliability-report.onrender.com/api';
+
+const REMOTE_API_URL = 'https://epcs-reliability-report.onrender.com/api';
+const API_URL_FALLBACK = API_URL.includes('localhost') ? REMOTE_API_URL : null;
+
+const buildApiCandidates = () => [API_URL, API_URL_FALLBACK].filter(Boolean);
+
+const fetchJsonWithBaseFallback = async (path, options = {}) => {
+  const candidates = buildApiCandidates();
+  let lastError = null;
+
+  for (const baseUrl of candidates) {
+    try {
+      const res = await fetch(`${baseUrl}${path}`, options);
+      if (!res.ok) {
+        lastError = new Error(`HTTP ${res.status} for ${path}`);
+        continue;
+      }
+      return await res.json();
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError || new Error(`Failed to fetch ${path}`);
+};
+
+const fetchPagesViaFallback = async () => {
+  // Fallback path for backends that fail on bulk /pages query.
+  const candidates = buildApiCandidates();
+
+  for (const baseUrl of candidates) {
+    try {
+      const listRes = await fetch(`${baseUrl}/cms/list`);
+      if (!listRes.ok) continue;
+
+      const list = await listRes.json();
+      const sorted = Array.isArray(list)
+        ? [...list].sort((a, b) => Number(a.page_number || 0) - Number(b.page_number || 0))
+        : [];
+
+      const detailResults = await Promise.all(
+        sorted.map(async (item) => {
+          const pageId = item?.page_id;
+          if (!pageId) return null;
+          const detailRes = await fetch(`${baseUrl}/pages/${pageId}`);
+          if (!detailRes.ok) return null;
+          return detailRes.json();
+        })
+      );
+
+      const hydrated = detailResults.filter(Boolean);
+      if (hydrated.length > 0) return hydrated;
+    } catch {
+      // Try next candidate base URL.
+    }
+  }
+
+  throw new Error('Failed to fetch page list fallback');
+};
 
 export const apiService = {
   // Get all pages
   getPages: async () => {
     try {
-      const res = await fetch(`${API_URL}/pages`);
-      if (!res.ok) throw new Error('Failed to fetch pages');
+      let res;
+
+      try {
+        res = await fetch(`${API_URL}/pages`);
+      } catch (primaryError) {
+        if (!API_URL_FALLBACK) throw primaryError;
+        res = await fetch(`${API_URL_FALLBACK}/pages`);
+      }
+
+      if (!res.ok) {
+        // Try fallback without failing the app when bulk endpoint errors.
+        return await fetchPagesViaFallback();
+      }
       return res.json();
     } catch (error) {
-      console.error('Error fetching pages:', error);
-      throw error;
+      try {
+        return await fetchPagesViaFallback();
+      } catch (fallbackError) {
+        console.error('Error fetching pages:', error);
+        console.error('Fallback fetching pages failed:', fallbackError);
+        throw error;
+      }
     }
   },
 
@@ -88,9 +166,7 @@ export const apiService = {
   // Get available page templates
   getPageTemplates: async () => {
     try {
-      const res = await fetch(`${API_URL}/cms/templates`);
-      if (!res.ok) throw new Error('Failed to fetch templates');
-      return res.json();
+      return await fetchJsonWithBaseFallback('/cms/templates');
     } catch (error) {
       console.error('Error fetching templates:', error);
       throw error;
@@ -172,9 +248,7 @@ export const apiService = {
   getPageList: async (includeDeleted = false) => {
     try {
       const query = includeDeleted ? '?includeDeleted=true' : '';
-      const res = await fetch(`${API_URL}/cms/list${query}`);
-      if (!res.ok) throw new Error('Failed to fetch page list');
-      return res.json();
+      return await fetchJsonWithBaseFallback(`/cms/list${query}`);
     } catch (error) {
       console.error('Error fetching page list:', error);
       throw error;

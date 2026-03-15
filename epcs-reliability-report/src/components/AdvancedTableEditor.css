@@ -72,14 +72,15 @@
 }
 
 .table-wrapper {
-  overflow-x: auto;
+  overflow: visible;
   border: 1px solid #dee2e6;
   border-radius: 6px;
   background: #fff;
 }
 
 .editable-table {
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
   border-collapse: collapse;
   background: #fff;
 }

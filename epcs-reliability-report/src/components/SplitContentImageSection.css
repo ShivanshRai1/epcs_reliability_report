@@ -56,7 +56,7 @@
   padding: 0;
   background-color: white;
   min-height: 300px;
-  max-height: calc(100vh - 200px);
+  max-height: none;
 }
 
 .split-left {
@@ -66,8 +66,7 @@
   min-width: 0;
   background-color: white;
   border-right: 1px solid #ddd;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: visible;
 }
 
 .split-right {
@@ -86,7 +85,7 @@
   display: flex;
   flex-direction: column;
   padding: 16px;
-  overflow-y: auto;
+  overflow: visible;
 }
 
 /* Image Wrapper */
@@ -182,7 +181,7 @@
 
 .links-list {
   flex: 1;
-  overflow-y: auto;
+  overflow: visible;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -314,7 +313,7 @@
   flex-direction: column;
   padding: 1rem;
   gap: 1rem;
-  overflow-y: auto;
+  overflow: visible;
   background-color: white;
 }
 
@@ -462,8 +461,11 @@
 
 /* Image */
 .split-image {
+  width: 95%;
   max-width: 95%;
-  max-height: 100%;
+  max-height: none;
+  height: auto;
+  display: block;
   object-fit: contain;
   border: 1px solid #ddd;
   border-radius: 4px;

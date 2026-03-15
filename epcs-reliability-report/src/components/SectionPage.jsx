@@ -416,8 +416,15 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
     );
   }
 
-  // Render split content image page
-  if (page.pageType === 'split-content-image') {
+  // Render split content image page and split image variants
+  if (
+    page.pageType === 'split-content-image' ||
+    page.pageType === 'split-text-image' ||
+    page.pageType === 'split-links-image' ||
+    page.pageType === 'split-image-links' ||
+    page.pageType === 'split-image-image' ||
+    (page.pageType === 'split-content' && (page.splitTextImageMode || page.splitLinksImageMode))
+  ) {
     return (
       <SplitContentImageSection
         title={page.title}
@@ -427,6 +434,11 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
         leftContent={page.leftContent}
         imageUrl={page.imageUrl}
         layout={page.layout}
+        splitTextImageMode={page.splitTextImageMode}
+        splitLinksImageMode={page.splitLinksImageMode}
+        splitImageLinksMode={page.splitImageLinksMode}
+        splitImageImageMode={page.splitImageImageMode}
+        leftImageUrl={page.leftImageUrl}
         isEditing={isEditMode}
         onChange={(updatedData) => onImageChange(page.id, updatedData)}
         onImageModalOpen={page.imageUrl ? () => onImageClick(page.imageUrl, page.title) : undefined}

@@ -298,10 +298,15 @@ function App() {
       const updated = JSON.parse(JSON.stringify(prevData));
       const page = updated.pages.find(p => p.id === pageId);
       if (page) {
-        // Handle split-content-image pages (object with content and imageUrl)
-        if (data && typeof data === 'object' && 'content' in data && 'imageUrl' in data) {
-          page.content = data.content;
-          page.imageUrl = data.imageUrl;
+        // Handle split-content-image and its variants (partial object updates)
+        if (data && typeof data === 'object') {
+          if ('content' in data) page.content = data.content;
+          if ('imageUrl' in data) page.imageUrl = data.imageUrl;
+          if ('leftContent' in data) page.leftContent = data.leftContent;
+          if ('leftHeader' in data) page.leftHeader = data.leftHeader;
+          if ('rightHeader' in data) page.rightHeader = data.rightHeader;
+          if ('layout' in data) page.layout = data.layout;
+          if ('leftImageUrl' in data) page.leftImageUrl = data.leftImageUrl;
         } else {
           // Handle regular image pages (string URL)
           page.imageUrl = data;
@@ -427,6 +432,10 @@ function App() {
       const templateBehaviorFlags = {
         'link-only': { linkOnlyMode: true },
         'mixed-content': { mixedContentMode: true },
+        'split-text-image': { splitTextImageMode: true },
+        'split-links-image': { splitLinksImageMode: true },
+        'split-image-links': { splitImageLinksMode: true },
+        'split-image-image': { splitImageImageMode: true },
         'images-gallery': { galleryMode: true },
         'images-carousel': { carouselMode: true },
         'video-gallery': { videoGalleryMode: true }
@@ -673,7 +682,7 @@ function App() {
       />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} isReadMode={isReadMode} onEditToggle={handleEditToggle} onView={handleReadModeToggle} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} />} />
+        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} isReadMode={isReadMode} hasUnsavedChanges={changedPages.size > 0} onEditToggle={handleEditToggle} onView={handleReadModeToggle} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} />} />
         <Route path="*" element={<div className="App"><p>Page not found</p></div>} />
       </Routes>
     </>

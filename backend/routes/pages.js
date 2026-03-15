@@ -8,10 +8,19 @@ router.get('/', async (req, res) => {
   try {
     const connection = await pool.getConnection();
     const [rows] = await connection.query(
-      'SELECT page_id, page_number, page_type, title, page_data, updated_at, updated_by FROM pages WHERE is_deleted = FALSE ORDER BY position ASC'
+      'SELECT page_id, page_number, page_type, title, page_data, updated_at, updated_by, position FROM pages WHERE is_deleted = FALSE'
     );
     connection.release();
-    res.json(rows);
+
+    // Sort in app memory to avoid MySQL sort-buffer issues with large JSON payloads.
+    rows.sort((a, b) => {
+      const aPos = Number(a.position ?? a.page_number ?? 0);
+      const bPos = Number(b.position ?? b.page_number ?? 0);
+      return aPos - bPos;
+    });
+
+    const responseRows = rows.map(({ position, ...rest }) => rest);
+    res.json(responseRows);
   } catch (error) {
     console.error('Error fetching pages:', error);
     res.status(500).json({ error: error.message });
@@ -102,9 +111,15 @@ router.get('/export/full', async (req, res) => {
   try {
     const connection = await pool.getConnection();
     const [rows] = await connection.query(
-      'SELECT page_data FROM pages WHERE is_deleted = FALSE ORDER BY position ASC'
+      'SELECT page_data, page_number, position FROM pages WHERE is_deleted = FALSE'
     );
     connection.release();
+
+    rows.sort((a, b) => {
+      const aPos = Number(a.position ?? a.page_number ?? 0);
+      const bPos = Number(b.position ?? b.page_number ?? 0);
+      return aPos - bPos;
+    });
 
     const pages = rows.map(row => row.page_data);
     res.json({ pages });

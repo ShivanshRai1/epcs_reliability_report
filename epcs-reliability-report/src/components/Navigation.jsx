@@ -1,14 +1,8 @@
 import React, { useState } from 'react';
 
-const EXTERNAL_VIEW_URL = 'https://www.discoveree.io/EPCS_Reliability_Report/EPCS_Reliability_Report.php#pf1';
-
-const Navigation = ({ onNavigate, isEditMode, isReadMode, onEditToggle, onView, onUndo, onPublish, onSave, onCancel, onAddPage, onDeletePage, onManagePages, currentPageId, currentPageNumber, totalPages }) => {
+const Navigation = ({ onNavigate, isEditMode, isReadMode, isLiveMode, onEditToggle, onView, onToggleLive, onUndo, onPublish, onSave, onCancel, onAddPage, onDeletePage, onManagePages, currentPageId, currentPageNumber, totalPages }) => {
   const [isJumpMode, setIsJumpMode] = useState(false);
   const [jumpPageNumber, setJumpPageNumber] = useState(currentPageNumber?.toString() || '');
-
-  const handleOpenExternalView = () => {
-    window.open(EXTERNAL_VIEW_URL, '_blank', 'noopener,noreferrer');
-  };
 
   const handleJumpPageChange = (e) => {
     setJumpPageNumber(e.target.value);
@@ -67,24 +61,41 @@ const Navigation = ({ onNavigate, isEditMode, isReadMode, onEditToggle, onView, 
         )
       )}
 
-      {/* Read Mode button - ALWAYS VISIBLE, completely separate */}
-      <button 
-        className={`section-list-btn edit-view ${isReadMode ? 'read-mode-active' : ''}`} 
-        onClick={onView}
-        title={isReadMode ? 'Exit read-only mode' : 'Enter read-only mode'}
-      >
-        🔒 Read Mode {isReadMode ? 'ON' : 'OFF'}
-      </button>
-
-      {!isEditMode ? (
+      {isLiveMode ? (
         <>
-          <button className={`section-list-btn edit-toggle ${isReadMode ? 'edit-disabled' : ''}`} onClick={onEditToggle} disabled={isReadMode} title={isReadMode ? 'Read Mode is ON' : 'Enter edit mode'}>✏️ Edit</button>
-          <button className="section-list-btn edit-view-placeholder" onClick={handleOpenExternalView} title="Open external report view">👁 View</button>
+          <span className="section-list-btn" style={{ cursor: 'default', opacity: 0.9 }}>
+            🔴 LIVE PREVIEW
+          </span>
+          <button
+            className="section-list-btn edit-view-placeholder"
+            onClick={onToggleLive}
+            title="Exit live preview mode"
+          >
+            👁 Exit Live
+          </button>
         </>
-      ) : null}
-      
-      {/* Edit toolbar - only visible in edit mode */}
-      {isEditMode && (
+      ) : (
+        <>
+          {/* Read Mode button - always visible in development mode */}
+          <button 
+            className={`section-list-btn edit-view ${isReadMode ? 'read-mode-active' : ''}`} 
+            onClick={onView}
+            title={isReadMode ? 'Exit read-only mode' : 'Enter read-only mode'}
+          >
+            🔒 Read Mode {isReadMode ? 'ON' : 'OFF'}
+          </button>
+
+          {!isEditMode ? (
+            <>
+              <button className={`section-list-btn edit-toggle ${isReadMode ? 'edit-disabled' : ''}`} onClick={onEditToggle} disabled={isReadMode} title={isReadMode ? 'Read Mode is ON' : 'Enter edit mode'}>✏️ Edit</button>
+              <button className="section-list-btn edit-view-placeholder" onClick={onToggleLive} title="Open live preview mode">👁 View Live</button>
+            </>
+          ) : null}
+        </>
+      )}
+
+      {/* Edit toolbar - only visible in edit mode (hidden in live mode) */}
+      {isEditMode && !isLiveMode && (
         <>
           <button className="section-list-btn edit-manage" onClick={onManagePages} title="Manage pages (add/delete/reorder)">📄 Manage</button>
           <button className="section-list-btn edit-add" onClick={onAddPage} title="Add new page after current page">➕ Add</button>

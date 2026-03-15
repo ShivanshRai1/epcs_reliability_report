@@ -13,13 +13,24 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://epcs-reliability-report.netlify.app',
+  process.env.PRODUCTION_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'https://epcs-reliability-report.netlify.app',
-    process.env.PRODUCTION_URL
-  ],
+  origin: (origin, callback) => {
+    // Allow non-browser requests (curl, server-to-server)
+    if (!origin) return callback(null, true);
+
+    // Allow any localhost dev port (5173, 5174, etc.)
+    if (/^http:\/\/localhost:\d+$/.test(origin)) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
 

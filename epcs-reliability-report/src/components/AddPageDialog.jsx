@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiService } from '../services/api';
 import SectionPage from './SectionPage';
+import { lockBodyScroll, unlockBodyScroll } from '../utils/scrollLock';
 import './AddPageDialog.css';
 
 const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, existingPages = [] }) => {
@@ -19,12 +20,13 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       setPageTitle('');
       setSelectedTemplate(null);
       setError('');
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
+      lockBodyScroll();
     }
+
     return () => {
-      document.body.style.overflow = '';
+      if (isOpen) {
+        unlockBodyScroll();
+      }
     };
   }, [isOpen]);
 
@@ -42,6 +44,9 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
           id !== 'image-text' &&
           !name.includes('image + text') &&
           !name.includes('image-text') &&
+          id !== 'images-gallery' &&
+          id !== 'images-carousel' &&
+          id !== 'video-gallery' &&
           id !== 'just-tables' &&
           name !== 'just tables'
         );
@@ -62,9 +67,10 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       const ensuredTemplates = [
         { id: 'link-only', name: 'Links Only', description: 'Link-focused page without text blocks' },
         { id: 'mixed-content', name: 'Mixed Content', description: 'Text, links, and images in any order with reorder' },
-        { id: 'images-gallery', name: 'Images Gallery', description: 'Images in masonry/grid gallery layout' },
-        { id: 'images-carousel', name: 'Images Carousel', description: 'Images in slideshow/carousel mode' },
-        { id: 'video-gallery', name: 'Video Gallery', description: 'Embedded videos with metadata' }
+        { id: 'split-text-image', name: 'Split Text + Image', description: 'Text on left and image on right with optional headers' },
+        { id: 'split-links-image', name: 'Split Links + Image', description: 'Links on left and image on right with optional headers' },
+        { id: 'split-image-links', name: 'Split Image + Links', description: 'Image on left and links on right with optional headers' },
+        { id: 'split-image-image', name: 'Split Image + Image', description: 'Image on left and image on right with optional headers' }
       ];
       ensuredTemplates.forEach((t) => {
         if (!templateMap.has(t.id)) templateMap.set(t.id, t);
@@ -92,9 +98,10 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       'text-only': 'content',
       'just-images': 'image',
       'mixed-content': 'just-images',
-      'images-gallery': 'just-images',
-      'images-carousel': 'just-images',
-      'video-gallery': 'just-images',
+      'split-text-image': 'split-content-image',
+      'split-links-image': 'split-content-image',
+      'split-image-links': 'split-content-image',
+      'split-image-image': 'split-content-image',
       'split-content': 'split-content-image',
       'table': 'table',
       'heading': 'heading',
@@ -109,9 +116,6 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     const createTemplateMap = {
       'link-only': 'just-links',
       'mixed-content': 'just-images',
-      'images-gallery': 'just-images',
-      'images-carousel': 'just-images',
-      'video-gallery': 'just-images'
     };
     return createTemplateMap[templateId] || templateId;
   };
@@ -122,9 +126,13 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
 
     const preferredPreviewPageByTemplate = {
       'text-only': 26,
+      'split-text-image': 39,
+      'split-links-image': 14,
+      'split-image-links': 47,
+      'split-image-image': 45,
       'split-content': 28,
       'just-images': 7,
-      'mixed-content': 7
+      'mixed-content': 42
     };
 
     const preferredPageNumber = preferredPreviewPageByTemplate[templateId];
@@ -200,7 +208,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
 
       return (
         <div className="template-preview-live-wrap">
-          <div className="template-preview-meta">Sample: Page {sample.pageNumber}</div>
+          <div className="template-preview-meta">Slide {sample.pageNumber}</div>
           <div className="template-preview-live template-preview-table-live">
             <div className="template-preview-table-shell">
               <div className="template-preview-table-title">{sample.title || 'TABLE PAGE'}</div>
@@ -230,9 +238,9 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
 
     return (
       <div className="template-preview-live-wrap">
-        <div className="template-preview-meta">Sample: Page {sample.pageNumber}</div>
-        <div className="template-preview-live">
-          <div className="template-preview-scale">
+        <div className="template-preview-meta">Slide {sample.pageNumber}</div>
+        <div className="template-preview-live template-preview-live-page">
+          <div className={`template-preview-scale ${templateId === 'heading' ? 'template-preview-scale-heading' : ''}`}>
             <SectionPage
               page={sample}
               onLinkClick={() => {}}

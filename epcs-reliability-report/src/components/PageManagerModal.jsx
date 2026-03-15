@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { lockBodyScroll, unlockBodyScroll } from '../utils/scrollLock';
 import './PageManagerModal.css';
 
 const PageManagerModal = ({ 
@@ -21,14 +22,9 @@ const PageManagerModal = ({
   }, [pages, isOpen]);
 
   React.useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
+    if (!isOpen) return;
+    lockBodyScroll();
+    return () => unlockBodyScroll();
   }, [isOpen]);
 
   const resetFromProps = () => {

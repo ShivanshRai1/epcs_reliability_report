@@ -1,8 +1,7 @@
 import React from 'react';
+import { lockBodyScroll, unlockBodyScroll } from '../utils/scrollLock';
 
 const Modal = ({ isOpen, imageSrc, imageAlt, onClose, children }) => {
-  if (!isOpen) return null;
-
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {
       onClose();
@@ -16,15 +15,18 @@ const Modal = ({ isOpen, imageSrc, imageAlt, onClose, children }) => {
   };
 
   React.useEffect(() => {
-    if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'hidden';
-      return () => {
-        document.removeEventListener('keydown', handleKeyDown);
-        document.body.style.overflow = '';
-      };
-    }
+    if (!isOpen) return;
+
+    document.addEventListener('keydown', handleKeyDown);
+    lockBodyScroll();
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      unlockBodyScroll();
+    };
   }, [isOpen]);
+
+  if (!isOpen) return null;
 
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>

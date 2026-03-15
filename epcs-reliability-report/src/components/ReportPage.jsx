@@ -1,12 +1,39 @@
 import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import Navigation from './Navigation';
 import SectionPage from './SectionPage';
 import { isLikelyLinkTarget, toOpenableUrl } from '../utils/linkTarget';
 
-export default function ReportPage({ reportData, isEditMode, isReadMode, onEditToggle, onView, onUndo, onPublish, onCellChange, onHeadingChange, onImageChange, onIndexChange, onSave, onCancel, onImageClick, onAddPage, onDeletePage, onManagePages }) {
+export default function ReportPage({ reportData, isEditMode, isReadMode, hasUnsavedChanges, onEditToggle, onView, onUndo, onPublish, onCellChange, onHeadingChange, onImageChange, onIndexChange, onSave, onCancel, onImageClick, onAddPage, onDeletePage, onManagePages }) {
   const { pageId } = useParams();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isLiveMode = searchParams.get('live') === '1';
+
+  const withLiveQuery = (path) => {
+    if (!isLiveMode) return path;
+    return `${path}${path.includes('?') ? '&' : '?'}live=1`;
+  };
+
+  const handleToggleLive = () => {
+    if (!isLiveMode && hasUnsavedChanges) {
+      window.alert('Please Publish or Cancel your unsaved changes before entering View Live.');
+      return;
+    }
+
+    if (isLiveMode) {
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.delete('live');
+      setSearchParams(nextParams, { replace: true });
+      return;
+    }
+
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set('live', '1');
+    const qs = nextParams.toString();
+    const targetPath = `${window.location.pathname}${qs ? `?${qs}` : ''}`;
+    window.open(targetPath, '_blank', 'noopener,noreferrer');
+  };
 
   // Get page by id or number
   const getPage = (idOrNum) => {
@@ -26,22 +53,23 @@ export default function ReportPage({ reportData, isEditMode, isReadMode, onEditT
   const allIndexItems = indexPages.flatMap(p => (Array.isArray(p.content) ? p.content : []));
 
   const totalPages = reportData.pages.length;
+  const effectiveEditMode = isLiveMode ? false : isEditMode;
 
   const handleNav = (nav, pageNum) => {
     if (nav === 'home') {
-      navigate('/');
+      navigate(withLiveQuery('/'));
     } else if (nav === 'index') {
-      navigate('/page/1');
+      navigate(withLiveQuery('/page/1'));
     } else if (nav === 'previous') {
       if (page.pageNumber > 1) {
-        navigate(`/page/${page.pageNumber - 1}`);
+        navigate(withLiveQuery(`/page/${page.pageNumber - 1}`));
       } else {
-        navigate('/');
+        navigate(withLiveQuery('/'));
       }
     } else if (nav === 'next' && page.pageNumber < totalPages) {
-      navigate(`/page/${page.pageNumber + 1}`);
+      navigate(withLiveQuery(`/page/${page.pageNumber + 1}`));
     } else if (nav === 'jump' && pageNum) {
-      navigate(`/page/${pageNum}`);
+      navigate(withLiveQuery(`/page/${pageNum}`));
     }
   };
 
@@ -55,14 +83,14 @@ export default function ReportPage({ reportData, isEditMode, isReadMode, onEditT
     if (!Number.isNaN(numericTarget)) {
       const targetPageByNumber = reportData.pages.find(p => p.pageNumber === numericTarget);
       if (targetPageByNumber) {
-        navigate(`/page/${targetPageByNumber.pageNumber}`);
+        navigate(withLiveQuery(`/page/${targetPageByNumber.pageNumber}`));
         return;
       }
     }
 
     const targetPage = getPage(normalizedTarget);
     if (targetPage) {
-      navigate(`/page/${targetPage.pageNumber}`);
+      navigate(withLiveQuery(`/page/${targetPage.pageNumber}`));
       return;
     }
 
@@ -79,14 +107,14 @@ export default function ReportPage({ reportData, isEditMode, isReadMode, onEditT
       <div className="report-page">
         <button
           className="report-title-link"
-          onClick={() => navigate('/')}
+          onClick={() => navigate(withLiveQuery('/'))}
           aria-label="Go to home"
         >
           <h1>EPCS Reliability Report</h1>
         </button>
-        <Navigation onNavigate={handleNav} isEditMode={isEditMode} isReadMode={isReadMode} onEditToggle={onEditToggle} onView={onView} onUndo={() => onUndo(page.id)} onPublish={onPublish} onSave={onSave} onCancel={onCancel} onAddPage={() => onAddPage(page.id)} onDeletePage={() => onDeletePage(page)} onManagePages={onManagePages} currentPageId={page.id} currentPageNumber={page.pageNumber} totalPages={totalPages} />
+        <Navigation onNavigate={handleNav} isEditMode={effectiveEditMode} isReadMode={isReadMode} isLiveMode={isLiveMode} onEditToggle={onEditToggle} onView={onView} onToggleLive={handleToggleLive} onUndo={() => onUndo(page.id)} onPublish={onPublish} onSave={onSave} onCancel={onCancel} onAddPage={() => onAddPage(page.id)} onDeletePage={() => onDeletePage(page)} onManagePages={onManagePages} currentPageId={page.id} currentPageNumber={page.pageNumber} totalPages={totalPages} />
         <div className="section-card report-content">
-          <SectionPage page={page} onLinkClick={handleLinkClick} isEditMode={isEditMode} onCellChange={onCellChange} onHeadingChange={onHeadingChange} onImageChange={onImageChange} onIndexChange={onIndexChange} onImageClick={onImageClick} allIndexItems={allIndexItems} />
+          <SectionPage page={page} onLinkClick={handleLinkClick} isEditMode={effectiveEditMode} onCellChange={onCellChange} onHeadingChange={onHeadingChange} onImageChange={onImageChange} onIndexChange={onIndexChange} onImageClick={onImageClick} allIndexItems={allIndexItems} />
         </div>
       </div>
     </div>

@@ -49,11 +49,12 @@ router.get('/templates', async (req, res) => {
         { id: 'heading', name: 'Heading', description: 'Title and subtitle heading page' },
         { id: 'index', name: 'Index', description: 'List of linked items' },
         { id: 'image-text', name: 'Image + Text', description: 'Flexible image and text positioning' },
+        { id: 'split-text-image', name: 'Split Text + Image', description: 'Left side text, right side image with optional headers' },
+        { id: 'split-links-image', name: 'Split Links + Image', description: 'Left side links, right side image with optional headers' },
+        { id: 'split-image-links', name: 'Split Image + Links', description: 'Left side image, right side links with optional headers' },
+        { id: 'split-image-image', name: 'Split Image + Image', description: 'Left side image, right side image with optional headers' },
         { id: 'split-content', name: 'Split Content', description: 'Left/right content areas with flexible content types' },
-        { id: 'table', name: 'Table', description: 'Primary table page type' },
-        { id: 'images-gallery', name: 'Images Gallery', description: 'Images in masonry/grid gallery layout' },
-        { id: 'images-carousel', name: 'Images Carousel', description: 'Images in slideshow/carousel mode' },
-        { id: 'video-gallery', name: 'Video Gallery', description: 'Embedded videos with metadata' }
+        { id: 'table', name: 'Table', description: 'Primary table page type' }
       ]
     });
   } catch (error) {
@@ -138,6 +139,10 @@ router.post('/create', async (req, res) => {
     const templateToPageType = {
       'link-only': 'just-links',
       'mixed-content': 'just-images',
+      'split-text-image': 'split-content-image',
+      'split-links-image': 'split-content-image',
+      'split-image-links': 'split-content-image',
+      'split-image-image': 'split-content-image',
       'images-gallery': 'just-images',
       'images-carousel': 'just-images',
       'video-gallery': 'just-images'
@@ -154,6 +159,10 @@ router.post('/create', async (req, res) => {
       'heading': { title: title, subtitle: '' },
       'index': { content: [] },
       'image-text': { imageUrl: '', imageCaption: '', content: '', imagePosition: 'left', link: null },
+      'split-text-image': { leftHeader: '', rightHeader: '', content: [], leftContent: '', imageUrl: '', layout: 'normal', splitTextImageMode: true },
+      'split-links-image': { leftHeader: '', rightHeader: '', content: [], leftContent: '', imageUrl: '', layout: 'normal', splitLinksImageMode: true },
+      'split-image-links': { leftHeader: '', rightHeader: '', content: [], leftContent: '', imageUrl: '', layout: 'normal', splitImageLinksMode: true },
+      'split-image-image': { leftHeader: '', rightHeader: '', leftImageUrl: '', imageUrl: '', layout: 'normal', splitImageImageMode: true },
       'split-content': { left: {}, right: {}, image: {} },
       'table': { table: { rows: [], columns: [] }, captionTop: '', captionBottom: '', title: title },
       'images-gallery': { images: [], captions: [], galleryMode: true },

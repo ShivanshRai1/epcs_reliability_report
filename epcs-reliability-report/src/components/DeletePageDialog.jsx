@@ -1,17 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { lockBodyScroll, unlockBodyScroll } from '../utils/scrollLock';
 import './DeletePageDialog.css';
 
 const DeletePageDialog = ({ isOpen, onClose, page, onConfirmDelete, isDeleting = false }) => {
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
+    if (!isOpen || !page) return;
+    lockBodyScroll();
+    return () => unlockBodyScroll();
+  }, [isOpen, page]);
 
   if (!isOpen || !page) return null;
 
