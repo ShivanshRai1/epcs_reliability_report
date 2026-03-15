@@ -4,7 +4,7 @@ const API_URL =
   'https://epcs-reliability-report.onrender.com/api';
 
 const REMOTE_API_URL = 'https://epcs-reliability-report.onrender.com/api';
-const API_URL_FALLBACK = API_URL.includes('localhost') ? REMOTE_API_URL : null;
+const API_URL_FALLBACK = API_URL !== REMOTE_API_URL ? REMOTE_API_URL : null;
 
 const buildApiCandidates = () => [API_URL, API_URL_FALLBACK].filter(Boolean);
 
