@@ -66,8 +66,12 @@ export default function ReportPage({ reportData, isEditMode, isReadMode, hasUnsa
       } else {
         navigate(withLiveQuery('/'));
       }
-    } else if (nav === 'next' && page.pageNumber < totalPages) {
-      navigate(withLiveQuery(`/page/${page.pageNumber + 1}`));
+    } else if (nav === 'next') {
+      if (page.pageNumber < totalPages) {
+        navigate(withLiveQuery(`/page/${page.pageNumber + 1}`));
+      } else {
+        navigate(withLiveQuery('/'));
+      }
     } else if (nav === 'jump' && pageNum) {
       navigate(withLiveQuery(`/page/${pageNum}`));
     }
@@ -101,6 +105,22 @@ export default function ReportPage({ reportData, isEditMode, isReadMode, hasUnsa
       }
     }
   };
+
+  if (isLiveMode) {
+    const isLivePage5 = Number(page?.pageNumber) === 5 || Number(pageId) === 5;
+    const liveContentClassName = isLivePage5
+      ? 'pdf-viewer-content pdf-viewer-content-page-5'
+      : 'pdf-viewer-content';
+
+    return (
+      <div className="pdf-viewer-shell">
+        <div className={liveContentClassName}>
+          <SectionPage page={page} onLinkClick={handleLinkClick} isEditMode={false} onCellChange={onCellChange} onHeadingChange={onHeadingChange} onImageChange={onImageChange} onIndexChange={onIndexChange} onImageClick={onImageClick} allIndexItems={allIndexItems} />
+        </div>
+        <Navigation onNavigate={handleNav} isEditMode={false} isReadMode={false} isLiveMode={isLiveMode} onEditToggle={onEditToggle} onView={onView} onToggleLive={handleToggleLive} onUndo={() => onUndo(page.id)} onPublish={onPublish} onSave={onSave} onCancel={onCancel} onAddPage={() => onAddPage(page.id)} onDeletePage={() => onDeletePage(page)} onManagePages={onManagePages} currentPageId={page.id} currentPageNumber={page.pageNumber} totalPages={totalPages} />
+      </div>
+    );
+  }
 
   return (
     <div className="report-shell">

@@ -11,6 +11,8 @@ const DeletePageDialog = ({ isOpen, onClose, page, onConfirmDelete, isDeleting =
 
   if (!isOpen || !page) return null;
 
+  const resolvedPageId = page.id || page.page_id || page.pageId;
+
   return (
     <div className="delete-page-dialog-overlay" onClick={onClose}>
       <div className="delete-page-dialog" onClick={(e) => e.stopPropagation()}>
@@ -40,8 +42,8 @@ const DeletePageDialog = ({ isOpen, onClose, page, onConfirmDelete, isDeleting =
           </button>
           <button 
             className="btn-delete" 
-            onClick={() => onConfirmDelete(page.id)}
-            disabled={isDeleting}
+            onClick={() => onConfirmDelete(resolvedPageId)}
+            disabled={isDeleting || !resolvedPageId}
           >
             {isDeleting ? 'Deleting...' : '🗑 Delete Page'}
           </button>

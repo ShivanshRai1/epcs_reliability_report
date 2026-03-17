@@ -701,197 +701,258 @@ tr.row-pink td {
   justify-content: center;
 }
 
-/* Light mode support */
-@media (prefers-color-scheme: light) {
-  .page-heading-title {
-    color: #213547;
-  }
+/* Universal color scheme - not affected by system theme preference */
+/* Text colors that are readable on both light and dark backgrounds */
+p, span, h1, h2, h3, h4, h5, h6 {
+  color: inherit;
+}
 
-  .page-heading-subtitle {
-    color: #555;
-  }
+/* Links - consistent blue that shows on both backgrounds */
+a, .index-link {
+  color: #0066cc !important;
+}
 
-  .card, .section-card {
-    background: #f5f5f5;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  }
+a:hover, .index-link:hover {
+  color: #0052a3 !important;
+  text-decoration: underline;
+}
 
-  ul, ol {
-    color: #213547;
-  }
+/* PDF Viewer Style for Live Mode */
+.pdf-viewer-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #9b9b9b;
+  padding: 1.5rem;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
 
-  nav button, .section-list-btn {
-    background: #e0e0e0;
-    color: #213547;
-  }
+.pdf-viewer-content {
+  flex: 1;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 2rem;
+  overflow-y: auto;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+}
 
-  nav button:hover, .section-list-btn:hover {
-    background: #2e7be6;
-    color: #fff;
-  }
+/* Light background content - dark text */
+.pdf-viewer-content p,
+.pdf-viewer-content span,
+.pdf-viewer-content div,
+.pdf-viewer-content li,
+.pdf-viewer-content {
+  color: #333333 !important;
+}
 
-  .section-list-btn.selected {
-    background: #2e7be6;
-    color: #fff;
-  }
+/* Table cells keep white text since table background is dark navy */
+.pdf-viewer-content td,
+.pdf-viewer-content th {
+  color: #ffffff !important;
+}
 
-  /* Edit mode button text in light mode */
-  .edit-toggle {
-    background: #c0c0c0 !important;
-    color: #213547 !important;
-  }
+/* Special case: page 5 live-mode table text should be black */
+.pdf-viewer-content-page-5 td,
+.pdf-viewer-content-page-5 th {
+  color: #000000 !important;
+}
 
-  .edit-toggle:hover {
-    background: #2e7be6 !important;
-    color: #fff !important;
-  }
-  .edit-disabled {
-    background: #b0b0b0 !important;
-    color: #666 !important;
-    cursor: not-allowed !important;
-  }
+.pdf-viewer-content h1,
+.pdf-viewer-content h2,
+.pdf-viewer-content h3,
+.pdf-viewer-content h4,
+.pdf-viewer-content h5,
+.pdf-viewer-content h6 {
+  color: #333333 !important;
+}
 
-  .edit-disabled:hover {
-    background: #b0b0b0 !important;
-  }
+.pdf-viewer-content a {
+  color: #0066cc !important;
+  text-decoration: underline;
+}
 
-  .edit-unlock {
-    background: #67b7c7 !important;
-    color: #fff !important;
-  }
+.pdf-viewer-content a:hover {
+  color: #0052a3 !important;
+}
 
-  .edit-unlock:hover {
-    background: #4a9cb5 !important;
-    color: #fff !important;
-  }
+/* Keep text white on colored panels inside View Live mode */
+.pdf-viewer-content .split-heading,
+.pdf-viewer-content .split-heading *,
+.pdf-viewer-content .split-main-title,
+.pdf-viewer-content .split-main-title *,
+.pdf-viewer-content .left-header-box,
+.pdf-viewer-content .left-header-box *,
+.pdf-viewer-content .right-header-box,
+.pdf-viewer-content .right-header-box *,
+.pdf-viewer-content .split-left-header,
+.pdf-viewer-content .split-left-header *,
+.pdf-viewer-content .split-right-header,
+.pdf-viewer-content .split-right-header *,
+.pdf-viewer-content .split-link,
+.pdf-viewer-content .split-link:visited,
+.pdf-viewer-content .split-link:hover,
+.pdf-viewer-content .split-link:focus,
+.pdf-viewer-content .split-link:active,
+.pdf-viewer-content .split-link *,
+.pdf-viewer-content .link-button,
+.pdf-viewer-content .link-button * {
+  color: #ffffff !important;
+}
 
-  .edit-view {
-    background: #8d9aac !important;
-    color: #213547 !important;
-  }
+/* Keep dark text only on explicitly light header panels */
+.pdf-viewer-content .split-right-header[style*='rgb(232, 168, 124)'],
+.pdf-viewer-content .split-right-header[style*='#e8a87c'] {
+  color: #333333 !important;
+}
 
-  .edit-view:hover {
-    background: #7a8998 !important;
-    color: #213547 !important;
-  }
+.pdf-viewer-nav {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-top: 0;
+  background: #2c3e50;
+  padding: 12px 16px;
+  border-radius: 0 0 8px 8px;
+}
 
-  .edit-save,
-  .edit-add,
-  .edit-manage,
-  .edit-undo,
-  .edit-publish,
-  .edit-view,
-  .edit-delete,
-  .edit-cancel {
-    color: #fff !important;
-  }
+.pdf-nav-btn {
+  background: #2c3e50 !important;
+  color: #ffffff !important;
+  border: 1px solid #1a252f !important;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 0;
+  min-width: 80px;
+}
 
-  table {
-    background: #f5f5f5;
-  }
+.pdf-nav-btn:first-child {
+  border-radius: 4px 0 0 4px;
+}
 
-  th {
-    background: #2e7be6;
-    color: #fff;
-  }
+.pdf-nav-btn:last-child {
+  border-radius: 0 4px 4px 0;
+}
 
-  tr:nth-child(even) td {
-    background: #ececec;
-  }
+.pdf-nav-btn:hover {
+  background: #34495e !important;
+  border-color: #0066cc !important;
+}
 
-  th, td {
-    border: 1px solid #d0d0d0;
-    color: #213547;
-  }
+.pdf-nav-btn:active {
+  background: #1a252f !important;
+}
 
-  .heading-section h2 {
-    color: #213547;
-  }
+/* ── Universal heading colours ─────────────────────────────────────────────
+   White headings on dark backgrounds (normal mode + heading pages in live mode).
+   Dark headings only inside the pdf-viewer white-background content area.
+   Never rely on OS light/dark preference. */
 
-  .page-counter {
-    color: #213547;
-    background: #e8e8e8;
-  }
+/* Default: white headings everywhere on dark app shell */
+h1, h2, h3, h4, h5, h6 {
+  color: #ffffff;
+}
 
-  .page-counter-input {
-    background: #ffffff;
-    color: #213547;
-  }
+/* Main "EPCS Reliability Report" title */
+.report-title-link h1 {
+  color: #ffffff !important;
+}
 
-  .page-counter-input:focus {
-    border-color: #0052a3;
-    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
-  }
+/* Heading pages (starfield background) – always white */
+.page-heading-title {
+  color: #f6fbff !important;
+}
+.page-heading-subtitle {
+  color: #e0e6f0 !important;
+}
 
-  /* Force dark text on all content in light mode */
-  p, span, a, h1, h2, h3, h4, h5, h6, 
-  .content-text, .content-line,
-  .report-content,
-  li,
-  .index-title,
-  .index-list,
-  .index-list li,
-  .index-link {
-    color: #213547 !important;
-  }
+/* Normal nav buttons – keep light text */
+.section-list-btn {
+  color: #e0e6f0;
+}
 
-  a,
-  .index-link {
-    color: #0066cc !important;
-  }
+/* ── Light-background content areas ─────────────────────────────────────── */
+/* Split-content panels have white backgrounds → dark text */
+.split-section-wrapper h1,
+.split-section-wrapper h2,
+.split-section-wrapper h3,
+.split-section-wrapper h4,
+.split-content-display,
+.split-left-content-text,
+.left-content-area,
+.right-content-area {
+  color: #213547;
+}
 
-  a:hover {
-    color: #0052a3 !important;
-  }
+/* ── PDF viewer (live mode) ──────────────────────────────────────────────── */
+/* White-bg content: dark text */
+.pdf-viewer-content p,
+.pdf-viewer-content span,
+.pdf-viewer-content div,
+.pdf-viewer-content li {
+  color: #333333;
+}
 
-  .index-link:hover {
-    color: #0052a3 !important;
-  }
+/* Table cells: white text on dark navy table background */
+.pdf-viewer-content td,
+.pdf-viewer-content th {
+  color: #ffffff !important;
+}
 
-  /* Links page overrides */
-  .links-section {
-    color: #213547 !important;
-  }
+/* But heading pages inside live mode have dark background → white text */
+.pdf-viewer-content .page-heading-title {
+  color: #f6fbff !important;
+}
+.pdf-viewer-content .page-heading-subtitle {
+  color: #e0e6f0 !important;
+}
+.pdf-viewer-content h1,
+.pdf-viewer-content h2,
+.pdf-viewer-content h3,
+.pdf-viewer-content h4,
+.pdf-viewer-content h5,
+.pdf-viewer-content h6 {
+  color: #333333;
+}
+.pdf-viewer-content .page-heading h1,
+.pdf-viewer-content .page-heading h2,
+.pdf-viewer-content .heading-derating h1,
+.pdf-viewer-content .heading-derating h2 {
+  color: #ffffff !important;
+}
 
-  .links-section a {
-    color: #0066cc !important;
-  }
+/* Final override: page 5 live-mode table text must be black */
+.pdf-viewer-content.pdf-viewer-content-page-5 table td,
+.pdf-viewer-content.pdf-viewer-content-page-5 table th,
+.pdf-viewer-content-page-5 tr td,
+.pdf-viewer-content-page-5 tr th {
+  color: #000000 !important;
+}
 
-  /* Heading section text */
-  .heading-section,
-  .heading-section * {
-    color: #213547 !important;
-  }
+/* Link contrast defaults */
+a,
+.index-link {
+  color: #0066cc !important;
+}
 
-  /* Flexible layout text */
-  .flexible-layout-view,
-  .flexible-layout-view * {
-    color: #213547 !important;
-  }
+a:hover,
+.index-link:hover {
+  color: #0052a3 !important;
+}
 
-  /* Image section captions */
-  .image-section,
-  .image-caption,
-  .image-caption * {
-    color: #213547 !important;
-  }
-
-  /* Index page */
-  .index-page,
-  .index-page * {
-    color: #213547 !important;
-  }
-
-  .index-page a {
-    color: #0066cc !important;
-  }
-
-  /* Text-only page inline styles override */
-  div[style*="color: #e0e6f0"] {
-    color: #213547 !important;
-  }
-
-  div[style*="color: #fff"] {
-    color: #213547 !important;
-  }
+/* Button-like links must stay white on blue backgrounds */
+.split-link,
+.split-link:visited,
+.split-link:hover,
+.split-link:active,
+.link-button,
+.link-button:hover,
+.section-list-btn,
+.pdf-nav-btn {
+  color: #ffffff !important;
 }

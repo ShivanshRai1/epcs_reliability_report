@@ -135,7 +135,7 @@
   display: block;
   margin: 0.5rem 0;
   padding: 12px 20px;
-  color: white;
+  color: #ffffff !important;
   text-decoration: none;
   border: 1px solid #0066cc;
   border-radius: 4px;
@@ -148,6 +148,7 @@
 .split-link:hover {
   background-color: #0052a3;
   border-color: #0052a3;
+  color: #ffffff !important;
 }
 
 /* Section Styles */

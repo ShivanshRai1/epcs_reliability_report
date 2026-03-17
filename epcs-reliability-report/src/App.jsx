@@ -10,6 +10,8 @@ import PageManagerModal from './components/PageManagerModal';
 import PublishConfirmDialog from './components/PublishConfirmDialog';
 import { apiService } from './services/api';
 
+const OFFLINE_CACHE_KEY = 'epcs_report_cache_v1';
+
 function App() {
   const navigate = useNavigate();
   const [reportData, setReportData] = useState(null);
@@ -48,6 +50,30 @@ function App() {
         pageNumber: page.page_number
       }))
     };
+  };
+
+  const idMatches = (left, right) => String(left ?? '') === String(right ?? '');
+
+  const saveReportCache = (data) => {
+    try {
+      if (!data?.pages || !Array.isArray(data.pages)) return;
+      localStorage.setItem(OFFLINE_CACHE_KEY, JSON.stringify(data));
+    } catch (cacheErr) {
+      console.warn('Could not persist report cache:', cacheErr);
+    }
+  };
+
+  const loadReportCache = () => {
+    try {
+      const raw = localStorage.getItem(OFFLINE_CACHE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed?.pages || !Array.isArray(parsed.pages)) return null;
+      return parsed;
+    } catch (cacheErr) {
+      console.warn('Could not load report cache:', cacheErr);
+      return null;
+    }
   };
 
   const syncIndexPageContent = (data, staticIndexPages = []) => {
@@ -140,9 +166,58 @@ function App() {
         const syncedData = syncIndexPageContent(transformedData, staticIndexPages);
         setReportData(syncedData);
         setOriginalData(JSON.parse(JSON.stringify(syncedData)));
+        saveReportCache(syncedData);
       } catch (err) {
         console.error('Error loading report:', err);
-        setError(err.message);
+
+        // OFFLINE FALLBACK 1: Load last known report from browser cache.
+        const cachedData = loadReportCache();
+        if (cachedData) {
+          let staticIndexPages = [];
+          try {
+            const staticRes = await fetch('/structured_report_data.json');
+            if (staticRes.ok) {
+              const staticData = await staticRes.json();
+              staticIndexPages = (staticData.pages || []).filter(p => p.pageType === 'index');
+              staticIndexPagesRef.current = staticIndexPages;
+            }
+          } catch {
+            // Ignore static index fetch failure in offline mode.
+          }
+
+          const syncedCachedData = syncIndexPageContent(cachedData, staticIndexPages);
+          setReportData(syncedCachedData);
+          setOriginalData(JSON.parse(JSON.stringify(syncedCachedData)));
+          setError(null);
+          return;
+        }
+
+        // OFFLINE FALLBACK 2: Load bundled static report JSON.
+        try {
+          const staticRes = await fetch('/structured_report_data.json');
+          if (staticRes.ok) {
+            const staticData = await staticRes.json();
+            const staticPages = (staticData.pages || []).map((page, idx) => ({
+              ...page,
+              pageNumber: page.pageNumber || idx + 1
+            }));
+
+            const staticPayload = { pages: staticPages };
+            const staticIndexPages = staticPages.filter(p => p.pageType === 'index');
+            staticIndexPagesRef.current = staticIndexPages;
+            const syncedStaticData = syncIndexPageContent(staticPayload, staticIndexPages);
+
+            setReportData(syncedStaticData);
+            setOriginalData(JSON.parse(JSON.stringify(syncedStaticData)));
+            saveReportCache(syncedStaticData);
+            setError(null);
+            return;
+          }
+        } catch (staticErr) {
+          console.error('Error loading static report fallback:', staticErr);
+        }
+
+        setError(err.message || 'Failed to load report data');
       } finally {
         setLoading(false);
       }
@@ -353,24 +428,31 @@ function App() {
 
   const handleSave = async () => {
     try {
-      // Only save pages that were actually changed
+      // OFFLINE-FIRST: Update local state IMMEDIATELY
+      setOriginalData(JSON.parse(JSON.stringify(reportData)));
+      setChangedPages(new Set()); // Clear changed pages
+      setIsEditMode(false);
+      
+      console.log('✅ Local changes committed');
+      
+      // BACKGROUND SYNC: Save to backend without blocking UI (fire-and-forget)
+      // User sees save success immediately; backend sync is async and silent
       const pagesToSave = Array.from(changedPages);
       
       for (const pageId of pagesToSave) {
-        const page = reportData.pages.find(p => p.id === pageId);
+        const page = reportData.pages.find(p => idMatches(p.id, pageId));
         if (page) {
           const payload = { 
             page_data: { ...page }
           };
-          await apiService.savePage(page.id, payload);
+          apiService.savePage(page.id, payload)
+            .then(() => console.log(`✅ Backend save sync completed for page ${pageId}`))
+            .catch(err => console.warn(`⚠️ Backend save sync failed for page ${pageId} (offline mode OK):`, err.message));
         }
       }
-      
-      setOriginalData(JSON.parse(JSON.stringify(reportData)));
-      setChangedPages(new Set()); // Clear changed pages
-      setIsEditMode(false);
     } catch (err) {
-      console.error('Error saving report:', err);
+      console.error('Error in save flow:', err);
+      // Don't let errors block the local update
     }
   };
 
@@ -420,7 +502,49 @@ function App() {
   const handlePageCreate = async (newPage, options = {}) => {
     try {
       console.log('Page created:', newPage);
-      // Refresh pages list from backend
+
+      // OFFLINE fallback: create and insert page locally when backend create fails.
+      if (options?.localOnly) {
+        const localPageId = newPage?.id || newPage?.page_id || newPage?.pageId || `page_${Date.now()}`;
+        const localPage = {
+          ...newPage,
+          id: localPageId,
+          title: newPage?.title || 'New Page',
+          pageType: newPage?.pageType || newPage?.page_type || 'content'
+        };
+
+        const updatedPages = [...(reportData?.pages || [])];
+        const refPageId = options?.positionParams?.pageId;
+        const insertBefore = Boolean(options?.positionParams?.insertBefore);
+        let insertIndex = updatedPages.length;
+
+        if (refPageId) {
+          const refIndex = updatedPages.findIndex(p => idMatches(p.id, refPageId));
+          if (refIndex >= 0) {
+            insertIndex = insertBefore ? refIndex : refIndex + 1;
+          }
+        }
+
+        updatedPages.splice(insertIndex, 0, localPage);
+
+        let transformedData = { ...reportData, pages: updatedPages };
+        transformedData = syncIndexPageContent(transformedData, staticIndexPagesRef.current);
+
+        setReportData(transformedData);
+        setOriginalData(JSON.parse(JSON.stringify(transformedData)));
+        setIsEditMode(false);
+        setChangedPages(new Set());
+
+        const insertedPage = transformedData.pages.find(page => idMatches(page.id, localPageId));
+        if (insertedPage?.pageNumber) {
+          navigate(`/page/${insertedPage.pageNumber}`);
+          return insertedPage.pageNumber;
+        }
+
+        return null;
+      }
+      
+      // Refresh pages list from backend (this has fallback logic)
       const pagesFromApi = await apiService.getPages();
       console.log('Pages from API after creation:', pagesFromApi);
       
@@ -444,9 +568,9 @@ function App() {
       const templateId = options?.templateId;
       const behaviorFlags = templateBehaviorFlags[templateId];
 
-      // Enforce template-specific behavior flags without changing existing legacy page behaviors
+      // BACKGROUND SYNC: Apply behavior flags without blocking (fire-and-forget)
       if (behaviorFlags && createdPageId) {
-        const createdPage = transformedData.pages.find(page => page.id === createdPageId);
+        const createdPage = transformedData.pages.find(page => idMatches(page.id, createdPageId));
         const flagsToAdd = {};
         
         for (const [flagKey, flagValue] of Object.entries(behaviorFlags)) {
@@ -456,19 +580,22 @@ function App() {
         }
 
         if (createdPage && Object.keys(flagsToAdd).length > 0) {
-          try {
-            await apiService.savePage(createdPage.id, {
-              page_data: {
-                ...createdPage,
-                ...flagsToAdd
-              }
-            }, 'system');
-
-            const pagesAfterFlagSave = await apiService.getPages();
-            transformedData = transformPagesFromApi(pagesAfterFlagSave);
-          } catch (flagError) {
-            console.warn('Could not persist behavior flags, continuing with normal flow:', flagError);
-          }
+          // Don't await - let this sync in background
+          apiService.savePage(createdPage.id, {
+            page_data: {
+              ...createdPage,
+              ...flagsToAdd
+            }
+          }, 'system')
+            .then(() => {
+              console.log('✅ Behavior flags synced to backend');
+              // Optionally refresh to sync behavior flags, but don't block here
+              return apiService.getPages();
+            })
+            .then(pagesAfterFlagSave => {
+              console.log('✅ Behavior flags confirmed on backend');
+            })
+            .catch(err => console.warn('⚠️ Behavior flags sync failed (offline mode OK):', err.message));
         }
       }
       
@@ -485,7 +612,7 @@ function App() {
       let redirectPageNumber = null;
 
       if (createdPageId) {
-        const createdPage = transformedData.pages.find(page => page.id === createdPageId);
+        const createdPage = transformedData.pages.find(page => idMatches(page.id, createdPageId));
         if (createdPage?.pageNumber) {
           redirectPageNumber = createdPage.pageNumber;
         }
@@ -518,34 +645,33 @@ function App() {
   };
 
   const handleOpenDeleteDialog = (page) => {
-    setPageToDelete(page);
+    const normalizedPage = page
+      ? { ...page, id: page.id || page.page_id || page.pageId }
+      : null;
+    setPageToDelete(normalizedPage);
     setIsDeleteDialogOpen(true);
   };
 
   const handleConfirmDelete = async (pageId) => {
+    const resolvedPageId = pageId || pageToDelete?.id || pageToDelete?.page_id || pageToDelete?.pageId;
+    if (!resolvedPageId) {
+      console.error('❌ Cannot delete page: missing page id');
+      return;
+    }
+
     try {
-      setIsDeletingPageId(pageId);
-      console.log('🗑️ Deleting page:', pageId);
+      setIsDeletingPageId(resolvedPageId);
+      console.log('🗑️ Deleting page:', resolvedPageId);
       
       // Get current page number being deleted
-      const pageBeingDeleted = reportData.pages.find(p => p.id === pageId);
+      const pageBeingDeleted = reportData.pages.find(p => idMatches((p.id || p.page_id || p.pageId), resolvedPageId));
       const pageNumberDeleted = pageBeingDeleted?.pageNumber;
       console.log('📄 Page being deleted - number:', pageNumberDeleted);
-      
-      await apiService.deletePage(pageId);
-      console.log('✅ Delete API call completed');
 
-      // Refresh pages list
-      const pagesFromApi = await apiService.getPages();
-      console.log('📄 Pages from API:', pagesFromApi);
+      // OFFLINE-FIRST: Update local state IMMEDIATELY before any API calls
+      const updatedPages = reportData.pages.filter(p => !idMatches((p.id || p.page_id || p.pageId), resolvedPageId));
+      let transformedData = { ...reportData, pages: updatedPages };
       
-      const pagesArray = Array.isArray(pagesFromApi) ? pagesFromApi : [];
-      console.log('📊 Pages array:', pagesArray);
-      
-      let transformedData = transformPagesFromApi(pagesFromApi);
-
-      console.log('🔄 Transformed data:', transformedData);
-
       // Sync index page with new page numbers
       transformedData = syncIndexPageContent(transformedData, staticIndexPagesRef.current);
 
@@ -555,7 +681,6 @@ function App() {
       setPageToDelete(null);
       
       // Determine where to redirect after deletion
-      // If we deleted the current page, find the next available page
       const remainingPages = transformedData.pages.filter(p => p.pageType !== 'home');
       const totalRemainingPages = remainingPages.length;
       let redirectPageNumber = null;
@@ -592,9 +717,15 @@ function App() {
         }
       }
       
-      console.log('✅ Page deletion and refresh completed');
+      // BACKGROUND SYNC: Delete from backend without blocking UI (fire-and-forget)
+      // User sees delete immediately; backend sync is async and silent
+      apiService.deletePage(resolvedPageId)
+        .then(() => console.log('✅ Backend delete sync completed'))
+        .catch(err => console.warn('⚠️ Backend delete sync failed (offline mode OK):', err.message));
+      
+      console.log('✅ Page deleted locally, backend sync in progress');
     } catch (err) {
-      console.error('❌ Error deleting page:', err);
+      console.error('❌ Error in delete flow:', err);
     } finally {
       setIsDeletingPageId(null);
     }
@@ -607,13 +738,25 @@ function App() {
         throw new Error('Invalid page order');
       }
 
-      await apiService.reorderPages(pageOrder);
-
-      // Refresh pages list
-      const pagesFromApi = await apiService.getPages();
-      console.log('📄 Pages from API after reorder:', pagesFromApi);
+      // OFFLINE-FIRST: Update local state IMMEDIATELY
+      let transformedData = { ...reportData };
       
-      let transformedData = transformPagesFromApi(pagesFromApi);
+      // Reorder pages based on the new order
+      const reorderedPages = pageOrder
+        .map((pageId, index) => {
+          const page = transformedData.pages.find(p => idMatches((p.id || p.page_id || p.pageId), pageId));
+          if (page) {
+            return { ...page, pageNumber: index + 1 };
+          }
+          return null;
+        })
+        .filter(Boolean);
+
+      if (reorderedPages.length !== pageOrder.length) {
+        throw new Error('Invalid page order ids');
+      }
+
+      transformedData.pages = reorderedPages;
 
       // Sync index page with new page numbers
       transformedData = syncIndexPageContent(transformedData, staticIndexPagesRef.current);
@@ -621,10 +764,16 @@ function App() {
       setReportData(transformedData);
       setOriginalData(JSON.parse(JSON.stringify(transformedData)));
       
-      console.log('✅ Pages reordered successfully');
+      console.log('✅ Pages reordered locally');
+
+      // BACKGROUND SYNC: Update backend without blocking UI (fire-and-forget)
+      apiService.reorderPages(pageOrder)
+        .then(() => console.log('✅ Backend reorder sync completed'))
+        .catch(err => console.warn('⚠️ Backend reorder sync failed (offline mode OK):', err.message));
+      
       return true;
     } catch (err) {
-      console.error('❌ Error reordering pages:', err);
+      console.error('❌ Error in reorder flow:', err);
       return false;
     } finally {
       setIsReordering(false);
@@ -663,7 +812,7 @@ function App() {
         }}
         page={pageToDelete}
         onConfirmDelete={handleConfirmDelete}
-        isDeleting={isDeletingPageId === pageToDelete?.id}
+        isDeleting={idMatches(isDeletingPageId, pageToDelete?.id)}
       />
       <PublishConfirmDialog
         isOpen={isPublishDialogOpen}

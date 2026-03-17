@@ -91,7 +91,7 @@
 .link-button {
   padding: 12px 20px;
   background: #0066cc;
-  color: white;
+  color: #ffffff !important;
   border: 1px solid #0066cc;
   border-radius: 4px;
   cursor: pointer;
@@ -107,6 +107,7 @@
 .link-button:hover {
   background: #0052a3;
   border-color: #0052a3;
+  color: #ffffff !important;
 }
 
 .image-content {

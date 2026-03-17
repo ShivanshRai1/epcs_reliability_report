@@ -28,6 +28,36 @@ const fetchJsonWithBaseFallback = async (path, options = {}) => {
   throw lastError || new Error(`Failed to fetch ${path}`);
 };
 
+const deleteWithBaseFallback = async (pageId) => {
+  const candidates = buildApiCandidates();
+  const deletePaths = [`/cms/${pageId}`, `/cms/page/${pageId}`];
+  let lastError = null;
+
+  for (const baseUrl of candidates) {
+    for (const path of deletePaths) {
+      try {
+        const res = await fetch(`${baseUrl}${path}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!res.ok) {
+          lastError = new Error(`HTTP ${res.status} for ${path}`);
+          continue;
+        }
+
+        return await res.json();
+      } catch (error) {
+        lastError = error;
+      }
+    }
+  }
+
+  throw lastError || new Error('Failed to delete page');
+};
+
 const fetchPagesViaFallback = async () => {
   // Fallback path for backends that fail on bulk /pages query.
   const candidates = buildApiCandidates();
@@ -105,24 +135,34 @@ export const apiService = {
 
   // Save/update page
   savePage: async (pageId, payload, updatedBy = 'user') => {
-    try {
-      const res = await fetch(`${API_URL}/pages/${pageId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          page_data: payload.page_data,
-          updated_by: updatedBy
-        })
-      });
+    const candidates = buildApiCandidates();
+    let lastError = null;
 
-      if (!res.ok) throw new Error('Failed to save page');
-      return res.json();
-    } catch (error) {
-      console.error('Error saving page:', error);
-      throw error;
+    for (const baseUrl of candidates) {
+      try {
+        const res = await fetch(`${baseUrl}/pages/${pageId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            page_data: payload.page_data,
+            updated_by: updatedBy
+          })
+        });
+
+        if (!res.ok) {
+          lastError = new Error(`HTTP ${res.status} when saving page`);
+          continue;
+        }
+        return res.json();
+      } catch (error) {
+        lastError = error;
+      }
     }
+
+    console.error('Error saving page:', lastError);
+    throw lastError || new Error('Failed to save page');
   },
 
   // Get full report (all pages)
@@ -175,50 +215,49 @@ export const apiService = {
 
   // Create new page from template
   createPage: async (template, title, position = null, positionParams = null) => {
-    try {
-      console.log('🚀 API: Calling /cms/create with:', { template, title, position, positionParams });
-      
-      const res = await fetch(`${API_URL}/cms/create`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          template,
-          title,
-          position,
-          positionParams // Can include { pageId, insertBefore: true/false }
-        })
-      });
+    const candidates = buildApiCandidates();
+    let lastError = null;
 
-      const data = await res.json();
-      
-      if (!res.ok) {
-        const error = data.error || 'Failed to create page';
-        console.error('❌ API Error:', error);
-        throw new Error(error);
+    for (const baseUrl of candidates) {
+      try {
+        console.log('🚀 API: Calling /cms/create with:', { template, title, position, positionParams });
+        
+        const res = await fetch(`${baseUrl}/cms/create`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            template,
+            title,
+            position,
+            positionParams // Can include { pageId, insertBefore: true/false }
+          })
+        });
+
+        const data = await res.json();
+        
+        if (!res.ok) {
+          const error = data.error || `HTTP ${res.status} when creating page`;
+          lastError = new Error(error);
+          continue;
+        }
+        
+        console.log('✅ API Success:', data);
+        return data;
+      } catch (error) {
+        lastError = error;
       }
-      
-      console.log('✅ API Success:', data);
-      return data;
-    } catch (error) {
-      console.error('❌ Error creating page:', error.message);
-      throw error;
     }
+
+    console.error('❌ Error creating page:', lastError?.message);
+    throw lastError || new Error('Failed to create page');
   },
 
   // Delete page (soft delete)
   deletePage: async (pageId) => {
     try {
-      const res = await fetch(`${API_URL}/cms/${pageId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!res.ok) throw new Error('Failed to delete page');
-      return res.json();
+      return await deleteWithBaseFallback(pageId);
     } catch (error) {
       console.error('Error deleting page:', error);
       throw error;
@@ -227,21 +266,31 @@ export const apiService = {
 
   // Reorder pages in bulk
   reorderPages: async (pageOrder) => {
-    try {
-      const res = await fetch(`${API_URL}/cms/reorder`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ pageOrder })
-      });
+    const candidates = buildApiCandidates();
+    let lastError = null;
 
-      if (!res.ok) throw new Error('Failed to reorder pages');
-      return res.json();
-    } catch (error) {
-      console.error('Error reordering pages:', error);
-      throw error;
+    for (const baseUrl of candidates) {
+      try {
+        const res = await fetch(`${baseUrl}/cms/reorder`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ pageOrder })
+        });
+
+        if (!res.ok) {
+          lastError = new Error(`HTTP ${res.status} when reordering pages`);
+          continue;
+        }
+        return res.json();
+      } catch (error) {
+        lastError = error;
+      }
     }
+
+    console.error('Error reordering pages:', lastError);
+    throw lastError || new Error('Failed to reorder pages');
   },
 
   // Get page list (with optional filtering)

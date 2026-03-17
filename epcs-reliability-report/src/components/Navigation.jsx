@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 const Navigation = ({ onNavigate, isEditMode, isReadMode, isLiveMode, onEditToggle, onView, onToggleLive, onUndo, onPublish, onSave, onCancel, onAddPage, onDeletePage, onManagePages, currentPageId, currentPageNumber, totalPages }) => {
   const [isJumpMode, setIsJumpMode] = useState(false);
   const [jumpPageNumber, setJumpPageNumber] = useState(currentPageNumber?.toString() || '');
+  const isLastPage = Number(currentPageNumber) === Number(totalPages);
 
   const handleJumpPageChange = (e) => {
     setJumpPageNumber(e.target.value);
@@ -27,15 +28,27 @@ const Navigation = ({ onNavigate, isEditMode, isReadMode, isLiveMode, onEditTogg
     setJumpPageNumber(currentPageNumber?.toString() || '');
   };
 
+  // In live mode, always show only 4 buttons at bottom
+  if (isLiveMode) {
+    return (
+      <nav className="pdf-viewer-nav">
+        <button className="pdf-nav-btn" onClick={() => onNavigate('home')}>Home</button>
+        <button className="pdf-nav-btn" onClick={() => onNavigate('index')}>Index</button>
+        <button className="pdf-nav-btn" onClick={() => onNavigate('previous')}>← Previous</button>
+        <button className="pdf-nav-btn" onClick={() => onNavigate('next')}>{isLastPage ? 'Start Again >>' : 'Next →'}</button>
+      </nav>
+    );
+  }
+
   return (
     <nav style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center' }}>
       <button className="section-list-btn" onClick={() => onNavigate('home')}>🏠 Home</button>
       <button className="section-list-btn" onClick={() => onNavigate('index')}>📑 Index</button>
       <button className="section-list-btn" onClick={() => onNavigate('previous')}>⬅ Previous</button>
-      <button className="section-list-btn" onClick={() => onNavigate('next')}>Next ➡</button>
+      <button className="section-list-btn" onClick={() => onNavigate('next')}>{isLastPage ? 'Start Again ➡' : 'Next ➡'}</button>
       
-      {/* Page counter - editable for jump to page */}
-      {currentPageNumber && totalPages && (
+      {/* Page counter - editable for jump to page (hidden in live mode) */}
+      {!isLiveMode && currentPageNumber && totalPages && (
         isJumpMode ? (
           <input
             type="number"
@@ -61,20 +74,7 @@ const Navigation = ({ onNavigate, isEditMode, isReadMode, isLiveMode, onEditTogg
         )
       )}
 
-      {isLiveMode ? (
-        <>
-          <span className="section-list-btn" style={{ cursor: 'default', opacity: 0.9 }}>
-            🔴 LIVE PREVIEW
-          </span>
-          <button
-            className="section-list-btn edit-view-placeholder"
-            onClick={onToggleLive}
-            title="Exit live preview mode"
-          >
-            👁 Exit Live
-          </button>
-        </>
-      ) : (
+      {isLiveMode ? null : (
         <>
           {/* Read Mode button - always visible in development mode */}
           <button 
@@ -88,6 +88,7 @@ const Navigation = ({ onNavigate, isEditMode, isReadMode, isLiveMode, onEditTogg
           {!isEditMode ? (
             <>
               <button className={`section-list-btn edit-toggle ${isReadMode ? 'edit-disabled' : ''}`} onClick={onEditToggle} disabled={isReadMode} title={isReadMode ? 'Read Mode is ON' : 'Enter edit mode'}>✏️ Edit</button>
+              <button className="section-list-btn edit-delete" onClick={onDeletePage} title="Delete current page">🗑 Delete</button>
               <button className="section-list-btn edit-view-placeholder" onClick={onToggleLive} title="Open live preview mode">👁 View Live</button>
             </>
           ) : null}

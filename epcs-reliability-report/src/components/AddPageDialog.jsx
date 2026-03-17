@@ -13,6 +13,20 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
   const [templatesLoading, setTemplatesLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const offlineTemplateFallback = [
+    { id: 'text-only', name: 'Text Only', description: 'Simple text content page' },
+    { id: 'heading', name: 'Heading', description: 'Title and heading-focused page' },
+    { id: 'table', name: 'Table', description: 'Structured table page' },
+    { id: 'just-images', name: 'Images', description: 'Image-focused page' },
+    { id: 'just-links', name: 'Links + Text', description: 'Links with optional text blocks' },
+    { id: 'link-only', name: 'Links Only', description: 'Link-focused page without text blocks' },
+    { id: 'mixed-content', name: 'Mixed Content', description: 'Text, links, and images in any order with reorder' },
+    { id: 'split-text-image', name: 'Split Text + Image', description: 'Text on left and image on right with optional headers' },
+    { id: 'split-links-image', name: 'Split Links + Image', description: 'Links on left and image on right with optional headers' },
+    { id: 'split-image-links', name: 'Split Image + Links', description: 'Image on left and links on right with optional headers' },
+    { id: 'split-image-image', name: 'Split Image + Image', description: 'Image on left and image on right with optional headers' }
+  ];
+
   // Fetch available templates
   useEffect(() => {
     if (isOpen) {
@@ -79,10 +93,10 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       setTemplates(Array.from(templateMap.values()));
       setError('');
     } catch (err) {
-      const errorMsg = 'Failed to load templates: ' + err.message;
-      setError(errorMsg);
-      console.error('❌ Template fetch error:', err);
-      console.error('Error details:', err);
+      // Keep add flow usable when backend is offline.
+      setTemplates(offlineTemplateFallback);
+      setError('Backend unavailable. Using offline templates.');
+      console.error('❌ Template fetch error, switched to offline templates:', err);
     } finally {
       setTemplatesLoading(false);
     }
@@ -118,6 +132,51 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       'mixed-content': 'just-images',
     };
     return createTemplateMap[templateId] || templateId;
+  };
+
+  const buildLocalPageFallback = (templateId, title) => {
+    const pageType = getPageTypeForTemplate(templateId) || 'content';
+    const localId = `page_${Date.now()}`;
+    const basePage = {
+      id: localId,
+      title: title || 'New Page',
+      pageType,
+      content: [],
+      links: [],
+      images: [],
+      sections: [],
+      headings: [],
+      table: {
+        columns: [],
+        rows: []
+      }
+    };
+
+    if (templateId === 'link-only' || templateId === 'just-links') {
+      return { ...basePage, linkOnlyMode: true };
+    }
+
+    if (templateId === 'mixed-content') {
+      return { ...basePage, mixedContentMode: true };
+    }
+
+    if (templateId === 'split-text-image') {
+      return { ...basePage, splitTextImageMode: true };
+    }
+
+    if (templateId === 'split-links-image') {
+      return { ...basePage, splitLinksImageMode: true };
+    }
+
+    if (templateId === 'split-image-links') {
+      return { ...basePage, splitImageLinksMode: true };
+    }
+
+    if (templateId === 'split-image-image') {
+      return { ...basePage, splitImageImageMode: true };
+    }
+
+    return basePage;
   };
 
   const getSamplePageForTemplate = (templateId) => {
@@ -319,9 +378,21 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         console.error('❌ Creation failed:', response);
       }
     } catch (err) {
-      const errorMsg = err.message || 'Error creating page';
-      setError(errorMsg);
-      console.error('❌ Exception during page creation:', err);
+      console.warn('⚠️ Backend create failed, falling back to local create:', err?.message || err);
+      try {
+        const localPage = buildLocalPageFallback(selectedTemplate, pageTitle.trim());
+        await onPageCreate(localPage, {
+          templateId: selectedTemplate,
+          localOnly: true,
+          positionParams,
+          insertPosition
+        });
+        onClose();
+      } catch (fallbackErr) {
+        const errorMsg = fallbackErr.message || err.message || 'Error creating page';
+        setError(errorMsg);
+        console.error('❌ Local create fallback failed:', fallbackErr);
+      }
     } finally {
       setLoading(false);
     }
