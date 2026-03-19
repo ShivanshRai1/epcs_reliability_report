@@ -569,6 +569,7 @@ function App() {
         setOriginalData(JSON.parse(JSON.stringify(transformedData)));
         setIsEditMode(false);
         setChangedPages(new Set());
+        saveReportCache(transformedData);
 
         const insertedPage = transformedData.pages.find(page => idMatches(page.id, localPageId));
         if (insertedPage?.pageNumber) {
@@ -639,6 +640,7 @@ function App() {
       
       setReportData(transformedData);
       setOriginalData(JSON.parse(JSON.stringify(transformedData)));
+      saveReportCache(transformedData);
       
       // Exit edit mode after creating page
       setIsEditMode(false);
@@ -741,14 +743,10 @@ function App() {
         
         if (redirectPageNumber && redirectPageNumber <= totalRemainingPages) {
           console.log(`✅ Safe redirect: page ${redirectPageNumber} exists (total: ${totalRemainingPages})`);
-          setTimeout(() => {
-            window.location.href = `/page/${redirectPageNumber}`;
-          }, 500);
+          navigate(`/page/${redirectPageNumber}`);
         } else {
           console.warn(`⚠️ Redirect page ${redirectPageNumber} exceeds total ${totalRemainingPages}, going to Index`);
-          setTimeout(() => {
-            window.location.href = `/page/1`;
-          }, 500);
+          navigate('/page/1');
         }
       }
       
@@ -817,7 +815,7 @@ function App() {
 
   const handleNavigateToPage = (pageNumber) => {
     // Will be called from page manager to navigate to a specific page
-    window.location.href = `/page/${pageNumber}`;
+    navigate(`/page/${pageNumber}`);
   };
 
   const handleCloseModal = () => {

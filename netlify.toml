@@ -2,3 +2,9 @@
   base = "epcs-reliability-report"
   publish = "dist"
   command = "npm run build"
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://epcs-backend.onrender.com/api/:splat"
+  status = 200
+  force = true

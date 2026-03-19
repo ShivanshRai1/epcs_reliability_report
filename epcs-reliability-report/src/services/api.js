@@ -1,12 +1,20 @@
-const API_URL =
+const ENV_API_URL =
   import.meta.env.VITE_API_URL ||
   import.meta.env.VITE_REACT_APP_API_URL ||
-  'https://epcs-reliability-report.onrender.com/api';
+  '';
 
-const REMOTE_API_URL = 'https://epcs-reliability-report.onrender.com/api';
-const API_URL_FALLBACK = API_URL !== REMOTE_API_URL ? REMOTE_API_URL : null;
+// Default to same-origin API path so Netlify redirects / Vite proxy can avoid CORS issues.
+const API_URL = ENV_API_URL || '/api';
 
-const buildApiCandidates = () => [API_URL, API_URL_FALLBACK].filter(Boolean);
+const REMOTE_API_CANDIDATES = [
+  'https://epcs-backend.onrender.com/api',
+  'https://epcs-reliability-report.onrender.com/api'
+];
+
+const buildApiCandidates = () => {
+  const candidates = [API_URL, ...REMOTE_API_CANDIDATES].filter(Boolean);
+  return [...new Set(candidates)];
+};
 
 const fetchJsonWithBaseFallback = async (path, options = {}) => {
   const candidates = buildApiCandidates();
@@ -96,20 +104,20 @@ export const apiService = {
   // Get all pages
   getPages: async () => {
     try {
-      let res;
+      const candidates = buildApiCandidates();
 
-      try {
-        res = await fetch(`${API_URL}/pages`);
-      } catch (primaryError) {
-        if (!API_URL_FALLBACK) throw primaryError;
-        res = await fetch(`${API_URL_FALLBACK}/pages`);
+      for (const baseUrl of candidates) {
+        try {
+          const res = await fetch(`${baseUrl}/pages`);
+          if (!res.ok) continue;
+          return await res.json();
+        } catch {
+          // Try next base URL
+        }
       }
 
-      if (!res.ok) {
-        // Try fallback without failing the app when bulk endpoint errors.
-        return await fetchPagesViaFallback();
-      }
-      return res.json();
+      // Try fallback without failing the app when bulk endpoint errors.
+      return await fetchPagesViaFallback();
     } catch (error) {
       try {
         return await fetchPagesViaFallback();
