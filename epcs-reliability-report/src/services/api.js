@@ -4,11 +4,12 @@ const ENV_API_URL =
   '';
 
 // Default to same-origin API path so Netlify redirects / Vite proxy can avoid CORS issues.
-const API_URL = ENV_API_URL || '/api';
+const API_URL = '/api';
 
 const REMOTE_API_CANDIDATES = [
-  'https://epcs-backend.onrender.com/api',
-  'https://epcs-reliability-report.onrender.com/api'
+  ENV_API_URL,
+  'https://epcs-reliability-report.onrender.com/api',
+  'https://epcs-backend.onrender.com/api'
 ];
 
 const buildApiCandidates = () => {
