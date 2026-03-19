@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const Navigation = ({ onNavigate, isEditMode, isReadMode, isLiveMode, onEditToggle, onView, onToggleLive, onUndo, onPublish, onSave, onCancel, onAddPage, onDeletePage, onManagePages, currentPageId, currentPageNumber, totalPages }) => {
+const Navigation = ({ onNavigate, isEditMode, isLiveMode, onEditToggle, onToggleLive, onUndo, onPublish, onSave, onCancel, onAddPage, onDeletePage, onManagePages, currentPageId, currentPageNumber, totalPages }) => {
   const [isJumpMode, setIsJumpMode] = useState(false);
   const [jumpPageNumber, setJumpPageNumber] = useState(currentPageNumber?.toString() || '');
   const isLastPage = Number(currentPageNumber) === Number(totalPages);
@@ -31,11 +31,11 @@ const Navigation = ({ onNavigate, isEditMode, isReadMode, isLiveMode, onEditTogg
   // In live mode, always show only 4 buttons at bottom
   if (isLiveMode) {
     return (
-      <nav className="pdf-viewer-nav">
-        <button className="pdf-nav-btn" onClick={() => onNavigate('home')}>Home</button>
-        <button className="pdf-nav-btn" onClick={() => onNavigate('index')}>Index</button>
-        <button className="pdf-nav-btn" onClick={() => onNavigate('previous')}>← Previous</button>
-        <button className="pdf-nav-btn" onClick={() => onNavigate('next')}>{isLastPage ? 'Start Again >>' : 'Next →'}</button>
+      <nav className="pdf-viewer-nav legacy-live-nav d-flex justify-content-center align-items-center">
+        <button className="pdf-nav-btn legacy-live-nav-btn btn btn-primary" onClick={() => onNavigate('home')}>Home</button>
+        <button className="pdf-nav-btn legacy-live-nav-btn btn btn-primary" onClick={() => onNavigate('index')}>Index</button>
+        <button className="pdf-nav-btn legacy-live-nav-btn btn btn-primary" onClick={() => onNavigate('previous')}>&lt;&lt; Previous</button>
+        <button className="pdf-nav-btn legacy-live-nav-btn btn btn-primary" onClick={() => onNavigate('next')}>{isLastPage ? 'Start Again >>' : 'Next >>'}</button>
       </nav>
     );
   }
@@ -76,18 +76,9 @@ const Navigation = ({ onNavigate, isEditMode, isReadMode, isLiveMode, onEditTogg
 
       {isLiveMode ? null : (
         <>
-          {/* Read Mode button - always visible in development mode */}
-          <button 
-            className={`section-list-btn edit-view ${isReadMode ? 'read-mode-active' : ''}`} 
-            onClick={onView}
-            title={isReadMode ? 'Exit read-only mode' : 'Enter read-only mode'}
-          >
-            🔒 Read Mode {isReadMode ? 'ON' : 'OFF'}
-          </button>
-
           {!isEditMode ? (
             <>
-              <button className={`section-list-btn edit-toggle ${isReadMode ? 'edit-disabled' : ''}`} onClick={onEditToggle} disabled={isReadMode} title={isReadMode ? 'Read Mode is ON' : 'Enter edit mode'}>✏️ Edit</button>
+              <button className="section-list-btn edit-toggle" onClick={onEditToggle} title="Enter edit mode">✏️ Edit</button>
               <button className="section-list-btn edit-delete" onClick={onDeletePage} title="Delete current page">🗑 Delete</button>
               <button className="section-list-btn edit-view-placeholder" onClick={onToggleLive} title="Open live preview mode">👁 View Live</button>
             </>

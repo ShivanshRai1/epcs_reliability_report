@@ -16,7 +16,7 @@ import SplitContentRenderer from './SplitContentRenderer';
 import ContentSection from './ContentSection';
 import IndexEditor from './IndexEditor';
 
-const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingChange, onImageChange, onIndexChange, onImageClick, allIndexItems }) => {
+const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexPageOrdinal = null, onCellChange, onHeadingChange, onImageChange, onIndexChange, onImageClick, allIndexItems }) => {
   if (!page) return <div style={{ padding: '1.5rem 0' }}>No page data available.</div>;
 
   // Render heading page (just title + subtitle)
@@ -24,6 +24,15 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
     // Ensure all heading pages (4, 8, 10) use the same styling and structure
     // Use backgroundClass for all, default to 'heading-derating' if not provided
     const headingClass = page.backgroundClass || 'heading-derating';
+
+    if (isLiveMode && !isEditMode) {
+      return (
+        <div className="legacy-live-heading-page" style={{ backgroundImage: "url('/images/bg2.png')" }}>
+          <h2 className="legacy-live-heading-title">{page.title}</h2>
+          {page.subtitle && <h3 className="legacy-live-heading-subtitle">{page.subtitle}</h3>}
+        </div>
+      );
+    }
     
     if (isEditMode) {
       return (
@@ -263,9 +272,10 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
     }
 
     // Otherwise show read-only view
-    const itemsToRender = Array.isArray(allIndexItems) && allIndexItems.length > 0
-      ? allIndexItems
-      : (page.content || []);
+    const hasPageContent = Array.isArray(page.content) && page.content.length > 0;
+    const itemsToRender = hasPageContent
+      ? page.content
+      : (isLiveMode ? [] : (Array.isArray(allIndexItems) ? allIndexItems : []));
 
     const groupedItems = [];
     let currentParent = null;
@@ -284,6 +294,59 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
         groupedItems.push({ item, idx, children: [], orphanChild: true });
       }
     });
+
+    if (isLiveMode) {
+      const tone = Number(indexPageOrdinal) || 1;
+      const bannerTitle = page?.title || (tone === 1 ? 'INDEX' : 'INDEX cntd.');
+      const showContinued = tone < 3;
+
+      return (
+        <div className={`legacy-live-index legacy-live-index-tone-${tone}`}>
+          <div className="legacy-live-index-logo">EPC-SPACE</div>
+          <div className="legacy-live-index-banner">{bannerTitle}</div>
+
+          <div className="legacy-live-index-lines">
+            {groupedItems.map(group => {
+              const topIsChild = Boolean(group.orphanChild);
+              return (
+                <div key={group.idx} className={`legacy-live-index-group${topIsChild ? ' orphan-child' : ''}`}>
+                  <a
+                    href="#"
+                    className={`legacy-live-index-link ${topIsChild ? 'legacy-live-index-child-link' : 'legacy-live-index-parent-link'}`}
+                    onClick={e => {
+                      e.preventDefault();
+                      if (onLinkClick && group.item.target) onLinkClick(group.item.target);
+                    }}
+                  >
+                    {group.item.title}
+                  </a>
+
+                  {group.children.length > 0 && (
+                    <div className="legacy-live-index-children">
+                      {group.children.map(child => (
+                        <a
+                          key={child.idx}
+                          href="#"
+                          className="legacy-live-index-link legacy-live-index-child-link"
+                          onClick={e => {
+                            e.preventDefault();
+                            if (onLinkClick && child.item.target) onLinkClick(child.item.target);
+                          }}
+                        >
+                          {child.item.title}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {showContinued && <div className="legacy-live-index-continued">Continued on next page..</div>}
+        </div>
+      );
+    }
 
     return (
       <div>
@@ -351,18 +414,53 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
         </div>
       );
     }
-    
+
     // Handle both old (.data) and new (.rows) table structures
     const tableRows = page.table.rows || page.table.data || [];
-    
+    const pageNumber = Number(page?.pageNumber);
+    const isLivePage6 = isLiveMode && pageNumber === 6;
+    const isLivePage7 = isLiveMode && pageNumber === 7;
+    const useLegacyLiveTableChrome = isLivePage6 || isLivePage7;
+    const headingStyle = useLegacyLiveTableChrome
+      ? undefined
+      : { fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: '#fff' };
+    const captionStyle = useLegacyLiveTableChrome
+      ? undefined
+      : { fontSize: '0.95rem', color: '#ddd' };
+    const containerClassName = isLivePage6
+      ? 'legacy-live-page-6-table'
+      : isLivePage7
+        ? 'legacy-live-page-7-table'
+        : '';
+    const headingClassName = isLivePage6
+      ? 'legacy-live-page-6-title'
+      : isLivePage7
+        ? 'legacy-live-page-7-title'
+        : '';
+    const captionClassName = isLivePage6
+      ? 'legacy-live-page-6-caption'
+      : isLivePage7
+        ? 'legacy-live-page-7-caption'
+        : '';
+
     return (
-      <div>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: '#fff' }}>
+      <div className={containerClassName}>
+        {isLivePage6 && <div className="legacy-live-page-6-logo">EPC·SPACE</div>}
+        {isLivePage7 && <div className="legacy-live-page-7-logo">EPC·SPACE</div>}
+        <h2 className={headingClassName} style={headingStyle}>
           {page.title}
         </h2>
-        {page.captionTop && <div style={{ marginBottom: '1rem', fontSize: '0.95rem', color: '#ddd' }}>{page.captionTop}</div>}
+        {page.captionTop && (
+          <div className={captionClassName} style={{ marginBottom: '1rem', ...(captionStyle || {}) }}>
+            {page.captionTop}
+          </div>
+        )}
         <Table columns={page.table.columns} data={tableRows} isEditMode={false} pageId={page.id} onCellChange={onCellChange} />
-        {page.captionBottom && <div style={{ marginTop: '1rem', fontSize: '0.95rem', color: '#ddd' }}>{page.captionBottom}</div>}
+        {page.captionBottom && (
+          <div className={captionClassName} style={{ marginTop: '1rem', ...(captionStyle || {}) }}>
+            {page.captionBottom}
+          </div>
+        )}
         {Array.isArray(page.tableContentBlocks) && page.tableContentBlocks.length > 0 && (
           <div style={{ marginTop: '1.5rem' }}>
             {page.tableContentBlocks.map((block, bIdx) => {
@@ -397,7 +495,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
   // Render image page
   if (page.pageType === 'image') {
     return (
-      <div style={{ textAlign: 'center' }}>
+      <div className={isLiveMode ? 'legacy-live-image-page' : ''} style={{ textAlign: 'center' }}>
         {page.title && (
           <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: '#fff' }}>
             {page.title}
@@ -428,12 +526,14 @@ const SectionPage = ({ page, onLinkClick, isEditMode, onCellChange, onHeadingCha
     return (
       <SplitContentImageSection
         title={page.title}
+        pageNumber={page.pageNumber}
         leftHeader={page.leftHeader}
         rightHeader={page.rightHeader}
         content={page.content}
         leftContent={page.leftContent}
         imageUrl={page.imageUrl}
         layout={page.layout}
+        isLiveMode={isLiveMode}
         splitTextImageMode={page.splitTextImageMode}
         splitLinksImageMode={page.splitLinksImageMode}
         splitImageLinksMode={page.splitImageLinksMode}

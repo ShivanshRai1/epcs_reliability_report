@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import './App.css';
 import Home from './components/Home';
 import ReportPage from './components/ReportPage';
@@ -11,14 +11,15 @@ import PublishConfirmDialog from './components/PublishConfirmDialog';
 import { apiService } from './services/api';
 
 const OFFLINE_CACHE_KEY = 'epcs_report_cache_v1';
+const LIVE_LEGACY_CSS_FILES = ['/bootstrap.min.css', '/base.min.css', '/fancy.min.css', '/main.css', '/lightbox.css'];
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [isReadMode, setIsReadMode] = useState(false);
   const [originalData, setOriginalData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -37,6 +38,33 @@ function App() {
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
   // Cache of static index pages loaded from public JSON (preserves curated content/levels)
   const staticIndexPagesRef = useRef([]);
+
+  useEffect(() => {
+    const isLiveMode = new URLSearchParams(location.search).get('live') === '1';
+
+    if (isLiveMode) {
+      LIVE_LEGACY_CSS_FILES.forEach((href) => {
+        const existing = document.querySelector(`link[data-live-legacy-css="${href}"]`);
+        if (existing) {
+          return;
+        }
+
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = href;
+        link.setAttribute('data-live-legacy-css', href);
+        document.head.appendChild(link);
+      });
+      return;
+    }
+
+    LIVE_LEGACY_CSS_FILES.forEach((href) => {
+      const existing = document.querySelector(`link[data-live-legacy-css="${href}"]`);
+      if (existing) {
+        existing.remove();
+      }
+    });
+  }, [location.search]);
 
   const transformPagesFromApi = (pagesFromApi) => {
     const pagesArray = Array.isArray(pagesFromApi) ? pagesFromApi : [];
@@ -92,20 +120,18 @@ function App() {
     const targetPages = nonIndexPages.filter(p => p.pageType !== 'home');
     const livePagesById = new Map(targetPages.map((p) => [p.id, p]));
 
-    // Build one curated list by combining all static index pages (1,2,3...),
-    // then keep only targets that still exist and refresh title from the live page.
-    const curatedItems = (staticIndexPages || []).flatMap((sp) => sp.content || []);
-    const curatedContent = curatedItems
-      .filter((item) => livePagesById.has(item.target))
-      .map((item) => {
-        const livePage = livePagesById.get(item.target);
-        return {
-          ...item,
-          title: livePage?.title || item.title
-        };
-      });
+    const curatedStaticIndexPages = [...(staticIndexPages || [])]
+      .sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0))
+      .map((sp, idx) => ({
+        ...sp,
+        pageType: 'index',
+        title: sp?.title || `INDEX${idx > 0 ? ' cntd.' : ''}`,
+        content: (sp.content || []).filter((item) => livePagesById.has(item.target))
+      }));
 
-    const staticTargets = new Set(curatedItems.map((item) => item.target));
+    const staticTargets = new Set(
+      curatedStaticIndexPages.flatMap((p) => (p.content || []).map((item) => item.target))
+    );
 
     // Only append dynamic pages with auto-generated IDs (page_<number>).
     // Also block known legacy-like noise titles that should never appear in the appended section.
@@ -124,14 +150,29 @@ function App() {
       level: 0
     }));
 
-    const firstIndexPage = {
-      ...indexPages[0],
-      title: indexPages[0]?.title || staticIndexPages?.[0]?.title || 'INDEX',
-      content: [...curatedContent, ...newContent]
-    };
+    let effectiveIndexPages = [];
+    if (curatedStaticIndexPages.length > 0) {
+      effectiveIndexPages = curatedStaticIndexPages;
+      if (newContent.length > 0) {
+        const lastIdx = effectiveIndexPages.length - 1;
+        const lastIndexPage = effectiveIndexPages[lastIdx] || { title: 'INDEX cntd.', content: [] };
+        effectiveIndexPages[lastIdx] = {
+          ...lastIndexPage,
+          content: [...(lastIndexPage.content || []), ...newContent]
+        };
+      }
+    } else {
+      const mergedContent = indexPages.flatMap((p) => (p.content || []));
+      effectiveIndexPages = [
+        {
+          ...indexPages[0],
+          title: indexPages[0]?.title || 'INDEX',
+          content: [...mergedContent, ...newContent]
+        }
+      ];
+    }
 
-    // Keep exactly one index page in UI data.
-    const allPages = [firstIndexPage, ...nonIndexPages];
+    const allPages = [...effectiveIndexPages, ...nonIndexPages];
 
     const normalizedPages = allPages.map((page, idx) => ({
       ...page,
@@ -226,13 +267,7 @@ function App() {
   }, []);
 
   const handleEditToggle = () => {
-    if (isReadMode) return;
     setIsEditMode(true);
-  };
-
-  const handleReadModeToggle = () => {
-    setIsReadMode(prev => !prev);
-    setIsEditMode(false);
   };
   const handleUndoAll = (pageId) => {
     if (!pageId) return;
@@ -831,7 +866,7 @@ function App() {
       />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} isReadMode={isReadMode} hasUnsavedChanges={changedPages.size > 0} onEditToggle={handleEditToggle} onView={handleReadModeToggle} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} />} />
+        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} hasUnsavedChanges={changedPages.size > 0} onEditToggle={handleEditToggle} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} />} />
         <Route path="*" element={<div className="App"><p>Page not found</p></div>} />
       </Routes>
     </>

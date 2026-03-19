@@ -7,7 +7,7 @@ body {
   margin: 0;
   min-height: 100vh;
   overflow-y: auto;
-  overflow-x: auto;
+  overflow-x: hidden;
 }
 
 #root {
@@ -18,14 +18,16 @@ body {
 .report-shell {
   min-height: 100vh;
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   padding: 1.5rem;
+  box-sizing: border-box;
 }
 
 .report-page {
   width: min(1100px, 100vw - 2rem);
-  min-height: min(720px, 100vh - 2rem);
+  height: min(calc(100vh - 4rem), 90vh);
   background: rgba(20, 28, 48, 0.98);
   border-radius: 1.2rem;
   box-shadow: 0 6px 32px rgba(0,0,0,0.25);
@@ -33,7 +35,7 @@ body {
   display: flex;
   flex-direction: column;
   text-align: center;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .App {
@@ -164,9 +166,10 @@ h1 {
 
 .report-content {
   flex: 1;
-  overflow: visible;
+  overflow: auto;
   margin-top: 0.3rem;
   display: block;
+  min-height: 0;
 }
 
 .report-content:has(.page-heading) {
@@ -385,9 +388,10 @@ table {
   overflow: visible;
   box-shadow: 0 2px 8px rgba(0,0,0,0.10);
   font-size: 0.65rem;
+  border: 2px solid #5a7a9e;
 }
 th, td {
-  border: 1px solid #2e3650;
+  border: 1px solid #5a7a9e;
   padding: 0.2rem 0.3rem;
   text-align: left;
 }
@@ -475,6 +479,13 @@ tr.row-pink td {
   overflow: visible;
 }
 
+.modal-content.modal-content-image {
+  max-width: min(74vw, 920px);
+  background: #f2f2f2;
+  padding: 0.55rem;
+  border-radius: 0.25rem;
+}
+
 @keyframes slideIn {
   from {
     transform: scale(0.9);
@@ -487,10 +498,18 @@ tr.row-pink td {
 }
 
 .modal-image {
-  max-width: 100%;
-  max-height: 80vh;
+  max-width: min(70vw, 860px);
+  max-height: 74vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
   display: block;
   border-radius: 0.4rem;
+}
+
+.modal-image.modal-image-sharp {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
 
 .modal-close {
@@ -722,21 +741,193 @@ a:hover, .index-link:hover {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #9b9b9b;
-  padding: 1.5rem;
+  align-items: center;
+  background:
+    repeating-linear-gradient(135deg, #a6a6a6 0px, #a6a6a6 2px, #9d9d9d 2px, #9d9d9d 4px);
+  padding: 10px 10px 8px;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .pdf-viewer-content {
-  flex: 1;
   background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  padding: 2rem;
-  overflow-y: auto;
+  width: min(1360px, 99vw, calc((100vh - 70px) * 16 / 9));
+  max-width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  min-height: 0;
+  flex: 0 0 auto;
+  border-radius: 0;
+  border: 1px solid #6d6d6d;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+  padding: 0;
+  overflow: hidden;
   margin-bottom: 0;
   display: flex;
   flex-direction: column;
+}
+
+/* Live canvas wrapper for all page payloads (current and future page types). */
+.legacy-live-page {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 16px 20px;
+  overflow: hidden;
+  color: #222222;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  line-height: 1.35;
+  box-sizing: border-box;
+}
+
+.legacy-live-page.legacy-live-page-heading {
+  padding: 0;
+}
+
+.legacy-live-home-page {
+  padding: 0;
+}
+
+.legacy-live-home-pf {
+  margin: 0 auto !important;
+}
+
+.legacy-live-page * {
+  font-family: inherit;
+}
+
+.legacy-live-page h1,
+.legacy-live-page h2,
+.legacy-live-page h3,
+.legacy-live-page h4,
+.legacy-live-page h5,
+.legacy-live-page h6 {
+  color: #222222;
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  line-height: 1.2;
+}
+
+.legacy-live-page h1 {
+  font-size: 1.45rem;
+}
+
+.legacy-live-page h2 {
+  font-size: 1.28rem;
+}
+
+.legacy-live-page p,
+.legacy-live-page li,
+.legacy-live-page td,
+.legacy-live-page th,
+.legacy-live-page span,
+.legacy-live-page div {
+  color: #222222;
+  font-size: 13px;
+}
+
+.legacy-live-page a {
+  color: #005fa8 !important;
+  text-decoration: underline;
+}
+
+.legacy-live-page a:hover {
+  color: #004a84 !important;
+}
+
+.legacy-live-page ul,
+.legacy-live-page ol {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.legacy-live-page img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Prevent clipping on image-only pages in live mode by fitting image to canvas. */
+.legacy-live-image-page {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.legacy-live-image-page .image-section {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.legacy-live-image-page .image-section img {
+  width: auto !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain;
+}
+
+/* Heading-only pages in live mode should match legacy bg2 template look. */
+.legacy-live-heading-page {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  border-radius: 0 !important;
+  overflow: hidden;
+}
+
+.legacy-live-heading-title {
+  margin: 0;
+  color: #ffffff !important;
+  font-size: 52px !important;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.pdf-viewer-content .legacy-live-heading-title {
+  color: #ffffff !important;
+}
+
+.legacy-live-heading-subtitle {
+  margin: 0;
+  color: #e8f2ff !important;
+  font-size: 24px !important;
+  font-weight: 400;
+  line-height: 1.2;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.32);
+}
+
+/* Remove modern card treatment in live mode and keep flat legacy look. */
+.legacy-live-page .content-section,
+.legacy-live-page .split-content-renderer,
+.legacy-live-page .split-content-section,
+.legacy-live-page .split-section-wrapper,
+.legacy-live-page .section-card {
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Preserve heading pages visual in live mode. */
+.legacy-live-page .page-heading,
+.legacy-live-page .heading-derating,
+.legacy-live-page .heading-rad-hard,
+.legacy-live-page .heading-failure {
+  color: #ffffff;
 }
 
 /* Light background content - dark text */
@@ -811,41 +1002,540 @@ a:hover, .index-link:hover {
 .pdf-viewer-nav {
   display: flex;
   justify-content: center;
-  gap: 0;
-  margin-top: 0;
-  background: #2c3e50;
-  padding: 12px 16px;
-  border-radius: 0 0 8px 8px;
+  gap: 1px;
+  margin-top: 14px;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
 }
 
-.pdf-nav-btn {
-  background: #2c3e50 !important;
-  color: #ffffff !important;
-  border: 1px solid #1a252f !important;
-  padding: 10px 20px;
-  font-size: 14px;
+/* Legacy-like index pages in live mode (3-page split look). */
+.legacy-live-index {
+  position: relative;
+  height: 100%;
+  padding: 6px 26px 14px;
+  color: #2f5f84;
+  box-sizing: border-box;
+}
+
+.legacy-live-index-logo {
+  font-size: 22px !important;
+  font-weight: 600;
+  color: #1f82d2 !important;
+  line-height: 1;
+  margin: 0 0 10px 0;
+  letter-spacing: 0.04em;
+}
+
+.legacy-live-index-banner {
+  background: #1177bc;
+  color: #eaf5ff !important;
+  font-size: 40px !important;
   font-weight: 500;
+  text-transform: none;
+  line-height: 1.15;
+  text-align: center;
+  padding: 6px 12px;
+  margin-bottom: 12px;
+}
+
+.legacy-live-index-lines {
+  padding: 0 10px;
+}
+
+.legacy-live-index-group {
+  margin-bottom: 8px;
+}
+
+.legacy-live-index-link {
+  display: block;
+  text-decoration: underline;
+  line-height: 1.16;
+  font-size: 20px !important;
+  font-weight: 500;
+}
+
+.legacy-live-index-parent-link {
+  margin-left: 0;
+}
+
+.legacy-live-index-children {
+  margin-top: 1px;
+}
+
+.legacy-live-index-child-link {
+  margin-left: 40px;
+}
+
+.legacy-live-index-tone-1 .legacy-live-index-parent-link {
+  color: #2f6ba3 !important;
+}
+
+.legacy-live-index-tone-1 .legacy-live-index-child-link {
+  color: #d6682f !important;
+}
+
+.legacy-live-index-tone-2 .legacy-live-index-parent-link {
+  color: #d56a2e !important;
+}
+
+.legacy-live-index-tone-2 .legacy-live-index-child-link {
+  color: #92459a !important;
+}
+
+.legacy-live-index-tone-3 .legacy-live-index-parent-link {
+  color: #4f8197 !important;
+}
+
+.legacy-live-index-tone-3 .legacy-live-index-child-link {
+  color: #1fb0e8 !important;
+}
+
+.legacy-live-index-continued {
+  position: absolute;
+  right: 70px;
+  bottom: 22px;
+  background: #013b75 !important;
+  color: #ffffff !important;
+  border: 1px solid #012a52;
+  font-size: 15px !important;
+  line-height: 1;
+  padding: 6px 12px;
+  font-weight: 700;
+  letter-spacing: 0.1px;
+  -webkit-text-fill-color: #ffffff;
+}
+
+.pdf-nav-btn, .legacy-live-nav-btn {
+  background: #01305c !important;
+  color: #ffffff !important;
+  border: 1px solid #012846 !important;
+  padding: 3px 15px !important;
+  font-size: 10px !important;
+  font-weight: 500;
+  line-height: 1.1;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
+  margin: 0 !important;
+  min-width: 0;
+  border-radius: 0 !important;
+}
+
+.pdf-nav-btn:hover, .legacy-live-nav-btn:hover {
+  background: #0f4f8f !important;
+  border-color: #0a3f73 !important;
+}
+
+.pdf-nav-btn:active, .legacy-live-nav-btn:active {
+  background: #012846 !important;
+}
+
+/* Keep live-mode tables fully visible and force clear grid lines. */
+.legacy-live-page table {
+  width: 100% !important;
+  table-layout: fixed !important;
+  border-collapse: collapse !important;
+  border: 1px solid rgba(0, 0, 0, 0.5) !important;
+}
+
+.legacy-live-page th,
+.legacy-live-page td {
+  border: 1px solid rgba(0, 0, 0, 0.5) !important;
+  padding: 3px 6px !important;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  font-size: 12px !important;
+  line-height: 1.25 !important;
+}
+
+.legacy-live-page th {
+  background: #2f74c0 !important;
+  color: #000000 !important;
+}
+
+/* Page 5 live-mode should match the legacy beige table theme. */
+.pdf-viewer-content.pdf-viewer-content-page-5 .legacy-live-page > div > h2 {
+  margin: 0 0 8px 0 !important;
+  padding: 4px 10px !important;
+  text-align: center !important;
+  background: #0f87c9 !important;
+  color: #ffffff !important;
+  font-size: 28px !important;
+  font-weight: 500 !important;
+  line-height: 1.1 !important;
+  text-transform: uppercase;
+}
+
+.pdf-viewer-content.pdf-viewer-content-page-5 .legacy-live-page table {
+  background: #e6d5c8 !important;
+  border: 1px solid rgba(0, 0, 0, 0.35) !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+.pdf-viewer-content.pdf-viewer-content-page-5 .legacy-live-page th,
+.pdf-viewer-content.pdf-viewer-content-page-5 .legacy-live-page td {
+  border: 1px solid rgba(0, 0, 0, 0.28) !important;
+  color: #101010 !important;
+  font-size: 12.5px !important;
+  line-height: 1.25 !important;
+}
+
+.pdf-viewer-content.pdf-viewer-content-page-5 .legacy-live-page th {
+  background: #16a7dc !important;
+  color: #041723 !important;
+  text-align: center !important;
+  font-weight: 500 !important;
+}
+
+.pdf-viewer-content.pdf-viewer-content-page-5 .legacy-live-page tbody td {
+  background: #e7d7cc !important;
+}
+
+.pdf-viewer-content.pdf-viewer-content-page-5 .legacy-live-page tbody tr:nth-child(even) td {
+  background: #e2d1c5 !important;
+}
+
+/* Page 6 live-mode should match the legacy green table theme. */
+.legacy-live-page-6-table {
+  padding-top: 2px;
+}
+
+.legacy-live-page-6-logo {
+  color: #2b8fd2 !important;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin: 0 0 8px 2px;
+  line-height: 1;
+}
+
+.legacy-live-page-6-title {
+  margin: 0 0 8px 0 !important;
+  padding: 5px 12px !important;
+  text-align: center !important;
+  background: #0f87c9 !important;
+  font-size: 22px !important;
+  font-weight: 500 !important;
+  line-height: 1.1 !important;
+  text-transform: uppercase;
+}
+
+.pdf-viewer-content .legacy-live-page-6-table .legacy-live-page-6-title {
+  color: #ffffff !important;
+}
+
+.legacy-live-page-6-caption {
+  color: #1d2d38 !important;
+}
+
+.legacy-live-page-6-table table {
+  background: #b7dfbf !important;
+  border: 1px solid rgba(0, 0, 0, 0.33) !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+.pdf-viewer-content .legacy-live-page-6-table th,
+.pdf-viewer-content .legacy-live-page-6-table td {
+  border: 1px solid rgba(0, 0, 0, 0.25) !important;
+  color: #000000 !important;
+  font-size: 11.5px !important;
+  line-height: 1.2 !important;
+}
+
+.pdf-viewer-content .legacy-live-page-6-table th {
+  background: #18a9dc !important;
+  color: #000000 !important;
+  text-align: center !important;
+  font-weight: 500 !important;
+}
+
+.legacy-live-page-6-table tbody td {
+  background: #b6dfbf !important;
+}
+
+.legacy-live-page-6-table tbody tr:nth-child(even) td {
+  background: #aed9b7 !important;
+}
+
+/* Page 7 live-mode should match the multi-color legacy qualified table theme. */
+.legacy-live-page-7-table {
+  padding-top: 2px;
+}
+
+.legacy-live-page-7-logo {
+  color: #2b8fd2 !important;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin: 0 0 8px 2px;
+  line-height: 1;
+}
+
+.legacy-live-page-7-title {
+  margin: 0 0 8px 0 !important;
+  padding: 5px 12px !important;
+  text-align: center !important;
+  background: #0f76bb !important;
+  color: #ffffff !important;
+  font-size: 22px !important;
+  font-weight: 500 !important;
+  line-height: 1.1 !important;
+  text-transform: uppercase;
+  text-decoration: underline;
+}
+
+.legacy-live-page-7-caption {
+  color: #1d2d38 !important;
+}
+
+.legacy-live-page-7-table table {
+  border: 1px solid rgba(0, 0, 0, 0.35) !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+.pdf-viewer-content .legacy-live-page-7-table th,
+.pdf-viewer-content .legacy-live-page-7-table td {
+  border: 1px solid rgba(0, 0, 0, 0.28) !important;
+  color: #000000 !important;
+  font-size: 11.5px !important;
+  line-height: 1.2 !important;
+}
+
+.pdf-viewer-content .legacy-live-page-7-table th {
+  background: #18a9dc !important;
+  color: #000000 !important;
+  text-align: center !important;
+  font-weight: 500 !important;
+}
+
+.legacy-live-page-7-table tbody td {
+  background: #c9dbef !important;
+}
+
+.legacy-live-page-7-table tbody tr.row-pink td {
+  background: #d9bddf !important;
+}
+
+.legacy-live-page-7-table tbody tr.row-light-blue td {
+  background: #8bc8e3 !important;
+}
+
+.legacy-live-page-7-table tbody tr.row-cyan td {
+  background: #9ec3e2 !important;
+}
+
+.legacy-live-page-7-table tbody tr.row-green td {
+  background: #8dd36f !important;
+}
+
+.legacy-live-page-7-table tbody tr.row-beige td {
+  background: #e8c09f !important;
+}
+
+.pdf-viewer-content .legacy-live-page-7-table .legacy-live-page-7-title {
+  color: #ffffff !important;
+}
+
+/* Shared legacy styling for all split-content live pages. */
+.legacy-live-split-page {
+  padding-top: 2px;
+}
+
+.legacy-live-split-logo {
+  color: #2b8fd2 !important;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin: 0 0 8px 2px;
+  line-height: 1;
+}
+
+.legacy-live-split-page .split-main-title {
+  padding: 8px 14px !important;
+}
+
+.legacy-live-split-page .split-main-title h1 {
+  color: #ffffff !important;
+  font-size: 20px !important;
+  font-weight: 500 !important;
   margin: 0;
-  min-width: 80px;
+  letter-spacing: 0.01em;
+  text-decoration: underline;
 }
 
-.pdf-nav-btn:first-child {
-  border-radius: 4px 0 0 4px;
+.legacy-live-split-page .split-content-display {
+  padding-left: 8px;
 }
 
-.pdf-nav-btn:last-child {
-  border-radius: 0 4px 4px 0;
+.legacy-live-split-page .split-link,
+.legacy-live-split-page .split-link:visited,
+.legacy-live-split-page .split-link:hover,
+.legacy-live-split-page .split-link:active,
+.legacy-live-split-page .split-link:focus {
+  display: block;
+  margin: 0 0 12px 0;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  text-decoration: underline !important;
+  text-align: left;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.25;
+  color: #4f8599 !important;
+  -webkit-text-fill-color: #4f8599;
 }
 
-.pdf-nav-btn:hover {
-  background: #34495e !important;
-  border-color: #0066cc !important;
+.legacy-live-split-page .split-link.split-link-primary {
+  color: #4f8599 !important;
+  -webkit-text-fill-color: #4f8599;
 }
 
-.pdf-nav-btn:active {
-  background: #1a252f !important;
+.legacy-live-split-page .split-image {
+  width: 100% !important;
+  max-width: 100% !important;
+  border: 1px solid #d2d2d2;
+}
+
+/* Page 13 live-mode should match legacy radiation-results split layout. */
+.legacy-live-page-13-split {
+  padding-top: 2px;
+}
+
+.legacy-live-page-13-logo {
+  color: #2b8fd2 !important;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin: 0 0 8px 2px;
+  line-height: 1;
+}
+
+.legacy-live-page-13-split .split-main-title {
+  padding: 8px 14px !important;
+}
+
+.legacy-live-page-13-split .split-main-title h1 {
+  color: #ffffff !important;
+  font-size: 20px !important;
+  font-weight: 500 !important;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+.legacy-live-page-13-split .split-content-display {
+  padding-top: 8px;
+}
+
+.legacy-live-page-13-split .split-link,
+.legacy-live-page-13-split .split-link:visited,
+.legacy-live-page-13-split .split-link:hover,
+.legacy-live-page-13-split .split-link:active,
+.legacy-live-page-13-split .split-link:focus {
+  display: inline;
+  margin: 0;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #2f2f2f !important;
+  -webkit-text-fill-color: #2f2f2f;
+  text-decoration: underline !important;
+  text-align: left;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.legacy-live-page-13-split .split-image {
+  width: 100% !important;
+  max-width: 100% !important;
+  border: 1px solid #d9d9d9;
+}
+
+/* Page 15 live-mode should mirror legacy split-report styling. */
+.legacy-live-page-15-split {
+  padding-top: 2px;
+}
+
+.legacy-live-page-15-logo {
+  color: #2b8fd2 !important;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin: 0 0 8px 2px;
+  line-height: 1;
+}
+
+.legacy-live-page-15-split .split-main-title {
+  padding: 8px 14px !important;
+}
+
+.legacy-live-page-15-split .split-main-title h1 {
+  color: #ffffff !important;
+  font-size: 22px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
+.legacy-live-page-15-split .split-link {
+  display: block;
+  margin: 0 0 12px 0;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #1f2a36 !important;
+  text-decoration: underline !important;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+.legacy-live-page-15-split .split-content-display {
+  padding-left: 8px;
+}
+
+.legacy-live-page-15-split .split-link,
+.legacy-live-page-15-split .split-link:visited,
+.legacy-live-page-15-split .split-link:hover,
+.legacy-live-page-15-split .split-link:active,
+.legacy-live-page-15-split .split-link:focus {
+  color: #3f7f93 !important;
+  -webkit-text-fill-color: #3f7f93;
+}
+
+.legacy-live-page-15-split .split-link.split-link-highlight {
+  font-size: 18px;
+  line-height: 1.2;
+  margin: 0 0 8px 0;
+  font-weight: 400;
+}
+
+.legacy-live-page-15-split .split-link.split-link-subitem {
+  margin-left: 88px;
+  font-size: 16px;
+  line-height: 1.2;
+  margin-bottom: 8px;
+  color: #0e74bb !important;
+  -webkit-text-fill-color: #0e74bb;
+}
+
+.legacy-live-page-15-split .split-link:hover {
+  background: transparent !important;
+  color: #0a4e8d !important;
+}
+
+.legacy-live-page-15-split .split-image {
+  width: 100% !important;
+  max-width: 100% !important;
+  border: 1px solid #d2d2d2;
 }
 
 /* ── Universal heading colours ─────────────────────────────────────────────

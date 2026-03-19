@@ -2,6 +2,8 @@ import React from 'react';
 import { lockBodyScroll, unlockBodyScroll } from '../utils/scrollLock';
 
 const Modal = ({ isOpen, imageSrc, imageAlt, onClose, children }) => {
+  const isImageOnly = !children && Boolean(imageSrc);
+
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {
       onClose();
@@ -30,12 +32,12 @@ const Modal = ({ isOpen, imageSrc, imageAlt, onClose, children }) => {
 
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
-      <div className="modal-content">
+      <div className={`modal-content${isImageOnly ? ' modal-content-image' : ''}`}>
         <button className="modal-close" onClick={onClose} aria-label="Close">✕</button>
         {children ? (
           children
         ) : (
-          <img src={imageSrc} alt={imageAlt} className="modal-image" />
+          <img src={imageSrc} alt={imageAlt} className="modal-image modal-image-sharp" />
         )}
       </div>
     </div>

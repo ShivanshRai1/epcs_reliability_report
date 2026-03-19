@@ -6,11 +6,13 @@ import LinkTargetInput from './LinkTargetInput';
 
 export default function SplitContentImageSection({
   title,
+  pageNumber,
   leftHeader,
   rightHeader,
   content,
   leftContent,
   imageUrl,
+  isLiveMode = false,
   isEditing,
   onChange,
   onImageModalOpen,
@@ -148,6 +150,9 @@ export default function SplitContentImageSection({
   const hasLeftHeader = Boolean(String(displayLeftHeader || '').trim());
   const hasRightHeader = Boolean(String(displayRightHeader || '').trim());
   const contentLayout = splitImageLinksMode ? 'reversed' : layout;
+  const isLiveSplitPage = isLiveMode && !isEditing;
+  const isLivePage13 = isLiveMode && Number(pageNumber) === 13;
+  const isLivePage15 = isLiveMode && Number(pageNumber) === 15;
 
   const leftImageEditorBlock = (
     isEditing ? (
@@ -278,22 +283,30 @@ export default function SplitContentImageSection({
 
       return (
         <div className="split-content-display">
-          {links.map((link, idx) => {
-            const openableUrl = toOpenableUrl(link.url || '');
-            if (!openableUrl) return null;
+          {(() => {
+            const hasHierarchy = links.some((item) => String(item?.style || '').toLowerCase() === 'highlight');
+            return links.map((link, idx) => {
+              const openableUrl = toOpenableUrl(link.url || '');
+              if (!openableUrl) return null;
 
-            return (
-              <a
-                key={idx}
-                href={openableUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="split-link"
-              >
-                {link.text}
-              </a>
-            );
-          })}
+              const isHighlight = String(link?.style || '').toLowerCase() === 'highlight';
+              const linkClassName = hasHierarchy
+                ? `split-link${isHighlight ? ' split-link-highlight' : ' split-link-subitem'}`
+                : 'split-link split-link-primary';
+
+              return (
+                <a
+                  key={idx}
+                  href={openableUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={linkClassName}
+                >
+                  {link.text}
+                </a>
+              );
+            });
+          })()}
         </div>
       );
     }
@@ -364,22 +377,30 @@ export default function SplitContentImageSection({
     }
     return (
       <div className="split-content-display">
-        {links.map((link, idx) => {
-          const openableUrl = toOpenableUrl(link.url || '');
-          if (!openableUrl) return null;
+        {(() => {
+          const hasHierarchy = links.some((item) => String(item?.style || '').toLowerCase() === 'highlight');
+          return links.map((link, idx) => {
+            const openableUrl = toOpenableUrl(link.url || '');
+            if (!openableUrl) return null;
 
-          return (
-            <a
-              key={idx}
-              href={openableUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="split-link"
-            >
-              {link.text}
-            </a>
-          );
-        })}
+            const isHighlight = String(link?.style || '').toLowerCase() === 'highlight';
+            const linkClassName = hasHierarchy
+              ? `split-link${isHighlight ? ' split-link-highlight' : ' split-link-subitem'}`
+              : 'split-link split-link-primary';
+
+            return (
+              <a
+                key={idx}
+                href={openableUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={linkClassName}
+              >
+                {link.text}
+              </a>
+            );
+          });
+        })()}
       </div>
     );
   };
@@ -415,7 +436,8 @@ export default function SplitContentImageSection({
   );
 
   return (
-    <div className="split-section-wrapper">
+    <div className={`split-section-wrapper${isLiveSplitPage ? ' legacy-live-split-page' : ''}${isLivePage13 ? ' legacy-live-page-13-split' : ''}${isLivePage15 ? ' legacy-live-page-15-split' : ''}`}>
+      {isLiveSplitPage && <div className="legacy-live-split-logo">EPC·SPACE</div>}
       {title && (
         <div className="split-main-title">
           <h1>{title}</h1>
@@ -460,7 +482,14 @@ export default function SplitContentImageSection({
               <div style={{ flex: 1, padding: '16px' }}>{renderContent()}</div>
             </div>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-              <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '16px', overflow: 'hidden' }}>{imageEditorBlock}</div>
+              <div style={{
+                flex: 1,
+                display: 'flex',
+                justifyContent: isLiveSplitPage ? 'flex-start' : 'center',
+                alignItems: isLiveSplitPage ? 'flex-start' : 'center',
+                padding: isLiveSplitPage ? '8px 16px 16px' : '16px',
+                overflow: 'hidden'
+              }}>{imageEditorBlock}</div>
             </div>
           </>
         )}

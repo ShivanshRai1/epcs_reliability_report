@@ -41,3 +41,10 @@
 .next-btn:hover {
   background: #1a5bb8;
 }
+
+/* Live mode home — bg1.png slide canvas */
+.live-home-canvas {
+  background: #001a45 url('/images/bg1.png') center / cover no-repeat;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
