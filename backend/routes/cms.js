@@ -63,6 +63,106 @@ router.get('/templates', async (req, res) => {
   }
 });
 
+// GET - Audit page positions for integrity issues
+router.get('/audit-positions', async (req, res) => {
+  try {
+    const connection = await pool.getConnection();
+    
+    const [pages] = await connection.query(
+      'SELECT page_id, position, page_number, page_type, title FROM pages WHERE is_deleted = FALSE ORDER BY position ASC'
+    );
+    connection.release();
+
+    const issues = [];
+    const expectedPositions = new Set();
+    
+    // Check for gaps, duplicates, and mismatches
+    for (let i = 0; i < pages.length; i++) {
+      const expected = i + 1;
+      const actual = pages[i].position;
+      const pageNum = pages[i].page_number;
+      
+      expectedPositions.add(expected);
+      
+      if (actual !== expected) {
+        issues.push({
+          page_id: pages[i].page_id,
+          title: pages[i].title,
+          severity: 'CRITICAL',
+          issue: `Position mismatch: expected ${expected}, got ${actual}`
+        });
+      }
+      
+      if (pageNum !== expected) {
+        issues.push({
+          page_id: pages[i].page_id,
+          title: pages[i].title,
+          severity: 'HIGH',
+          issue: `page_number mismatch: expected ${expected}, got ${pageNum}`
+        });
+      }
+    }
+
+    res.json({
+      total_pages: pages.length,
+      integrity_status: issues.length === 0 ? 'OK' : 'CORRUPTED',
+      issues: issues,
+      pages: pages.map(p => ({
+        page_id: p.page_id,
+        position: p.position,
+        page_number: p.page_number,
+        page_type: p.page_type,
+        title: p.title
+      }))
+    });
+  } catch (error) {
+    console.error('Error auditing positions:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST - Repair page positions (rebuild sequentially)
+router.post('/repair-positions', async (req, res) => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+    
+    const [pages] = await connection.query(
+      'SELECT page_id, page_type, title FROM pages WHERE is_deleted = FALSE ORDER BY position ASC'
+    );
+    
+    console.log(`🔧 REPAIR: Rebuilding positions for ${pages.length} pages...`);
+    
+    for (let i = 0; i < pages.length; i++) {
+      const newPosition = i + 1;
+      await connection.query(
+        'UPDATE pages SET position = ?, page_number = ? WHERE page_id = ?',
+        [newPosition, newPosition, pages[i].page_id]
+      );
+      console.log(`  📍 ${pages[i].page_id} (${pages[i].page_type}): position/page_number ${newPosition}`);
+    }
+    
+    await connection.commit();
+    connection.release();
+    
+    console.log(`✅ REPAIR: Positions repaired for ${pages.length} pages`);
+    
+    res.json({
+      success: true,
+      message: `Repaired positions for ${pages.length} pages`,
+      pages_affected: pages.length
+    });
+  } catch (error) {
+    if (connection) {
+      await connection.rollback();
+      connection.release();
+    }
+    console.error('❌ Error repairing positions:', error);
+    res.status(500).json({ error: error.message, message: 'Failed to repair positions' });
+  }
+});
+
 // POST - Create new page with template
 router.post('/create', async (req, res) => {
   try {

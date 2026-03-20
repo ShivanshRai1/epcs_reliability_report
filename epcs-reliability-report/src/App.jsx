@@ -10,7 +10,7 @@ import PageManagerModal from './components/PageManagerModal';
 import PublishConfirmDialog from './components/PublishConfirmDialog';
 import { apiService } from './services/api';
 
-const OFFLINE_CACHE_KEY = 'epcs_report_cache_v1';
+const OFFLINE_CACHE_KEY = 'epcs_report_cache_v2';
 const LIVE_LEGACY_CSS_FILES = ['/bootstrap.min.css', '/base.min.css', '/fancy.min.css', '/main.css', '/lightbox.css'];
 
 function App() {
@@ -109,6 +109,7 @@ function App() {
       return data;
     }
 
+    // Sort pages by backend pageNumber to maintain canonical ordering from database
     const sortedPages = [...data.pages].sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
     const indexPages = sortedPages.filter(p => p.pageType === 'index');
 
@@ -120,14 +121,24 @@ function App() {
     const targetPages = nonIndexPages.filter(p => p.pageType !== 'home');
     const livePagesById = new Map(targetPages.map((p) => [p.id, p]));
 
+    // Update index pages with curated static content
     const curatedStaticIndexPages = [...(staticIndexPages || [])]
       .sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0))
-      .map((sp, idx) => ({
-        ...sp,
-        pageType: 'index',
-        title: sp?.title || `INDEX${idx > 0 ? ' cntd.' : ''}`,
-        content: (sp.content || []).filter((item) => livePagesById.has(item.target))
-      }));
+      .map((sp) => {
+        // Find matching index page from backend by position
+        const matchingBackendIndexPage = indexPages.find(ip => 
+          String(ip.id) === String(sp.id) || ip.pageNumber === sp.pageNumber
+        );
+        
+        return {
+          ...matchingBackendIndexPage,
+          ...sp,
+          pageType: 'index',
+          title: sp?.title || matchingBackendIndexPage?.title || 'INDEX',
+          // Filter index content to only include pages that actually exist
+          content: (sp.content || []).filter((item) => livePagesById.has(item.target))
+        };
+      });
 
     const staticTargets = new Set(
       curatedStaticIndexPages.flatMap((p) => (p.content || []).map((item) => item.target))
@@ -172,14 +183,13 @@ function App() {
       ];
     }
 
+    // Combine index and non-index pages, preserving original backend pageNumbers
     const allPages = [...effectiveIndexPages, ...nonIndexPages];
 
-    const normalizedPages = allPages.map((page, idx) => ({
-      ...page,
-      pageNumber: idx + 1
-    }));
+    // Sort final result by original pageNumber (DO NOT renormalize)
+    const resultPages = allPages.sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
 
-    return { ...data, pages: normalizedPages };
+    return { ...data, pages: resultPages };
   };
 
   useEffect(() => {
