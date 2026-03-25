@@ -38,6 +38,7 @@ function App() {
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
   const [isTestMode, setIsTestMode] = useState(() => apiService.getTestModeState().enabled);
   const [isSeedingTestData, setIsSeedingTestData] = useState(false);
+  const [isPublishingTestData, setIsPublishingTestData] = useState(false);
   // Cache of static index pages loaded from public JSON (preserves curated content/levels)
   const staticIndexPagesRef = useRef([]);
 
@@ -88,6 +89,30 @@ function App() {
       window.alert(`Failed to seed test data: ${err.message}`);
     } finally {
       setIsSeedingTestData(false);
+    }
+  };
+
+  const handlePublishTestData = async () => {
+    try {
+      setIsPublishingTestData(true);
+
+      const mode = apiService.getTestModeState();
+      if (!mode.enabled) {
+        window.alert('Enable test mode first.');
+        return;
+      }
+
+      const confirmed = window.confirm('Publish all test changes to production? This will replace production data with test data.');
+      if (!confirmed) return;
+
+      const result = await apiService.publishTestData();
+      window.alert(`Test changes published successfully. Pages: ${result.pages_count}`);
+      window.location.reload();
+    } catch (err) {
+      console.error('Error publishing test data:', err);
+      window.alert(`Failed to publish test data: ${err.message}`);
+    } finally {
+      setIsPublishingTestData(false);
     }
   };
 
@@ -926,7 +951,7 @@ function App() {
       />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} hasUnsavedChanges={changedPages.size > 0} onEditToggle={handleEditToggle} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} isTestMode={isTestMode} isSeedingTestData={isSeedingTestData} onToggleTestMode={handleToggleTestMode} onSeedTestData={handleSeedTestData} />} />
+        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} hasUnsavedChanges={changedPages.size > 0} onEditToggle={handleEditToggle} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} isTestMode={isTestMode} isSeedingTestData={isSeedingTestData} isPublishingTestData={isPublishingTestData} onToggleTestMode={handleToggleTestMode} onSeedTestData={handleSeedTestData} onPublishTestData={handlePublishTestData} />} />
         <Route path="*" element={<div className="App"><p>Page not found</p></div>} />
       </Routes>
     </>

@@ -378,5 +378,14 @@ export const apiService = {
         'Content-Type': 'application/json'
       }
     });
+  },
+
+  publishTestData: async () => {
+    return await fetchJsonWithBaseFallback('/test/publish', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
   }
 };

@@ -55,4 +55,40 @@ router.post('/seed', requireTestControlAuth, async (req, res) => {
   }
 });
 
+router.post('/publish', requireTestControlAuth, async (req, res) => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    await connection.query('TRUNCATE TABLE pages');
+    await connection.query('TRUNCATE TABLE page_history');
+
+    await connection.query('INSERT INTO pages SELECT * FROM pages_test');
+    await connection.query('INSERT INTO page_history SELECT * FROM page_history_test');
+
+    const [[pagesCountRow]] = await connection.query('SELECT COUNT(*) AS count FROM pages');
+    const [[historyCountRow]] = await connection.query('SELECT COUNT(*) AS count FROM page_history');
+
+    await connection.commit();
+
+    res.json({
+      success: true,
+      message: 'Test changes published to production',
+      pages_count: Number(pagesCountRow?.count || 0),
+      page_history_count: Number(historyCountRow?.count || 0)
+    });
+  } catch (error) {
+    if (connection) {
+      await connection.rollback();
+    }
+    console.error('Error publishing test data to production:', error);
+    res.status(500).json({ error: error.message });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+});
+
 export default router;

@@ -4,7 +4,7 @@ import Navigation from './Navigation';
 import SectionPage from './SectionPage';
 import { isLikelyLinkTarget, toOpenableUrl } from '../utils/linkTarget';
 
-export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, onEditToggle, onUndo, onPublish, onCellChange, onHeadingChange, onImageChange, onIndexChange, onSave, onCancel, onImageClick, onAddPage, onDeletePage, onManagePages, isTestMode, isSeedingTestData, onToggleTestMode, onSeedTestData }) {
+export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, onEditToggle, onUndo, onPublish, onCellChange, onHeadingChange, onImageChange, onIndexChange, onSave, onCancel, onImageClick, onAddPage, onDeletePage, onManagePages, isTestMode, isSeedingTestData, isPublishingTestData, onToggleTestMode, onSeedTestData, onPublishTestData }) {
   const { pageId } = useParams();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -123,7 +123,7 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
             <SectionPage page={page} onLinkClick={handleLinkClick} isEditMode={false} isLiveMode={true} indexPageOrdinal={indexPageOrdinal} onCellChange={onCellChange} onHeadingChange={onHeadingChange} onImageChange={onImageChange} onIndexChange={onIndexChange} onImageClick={onImageClick} allIndexItems={allIndexItems} />
           </div>
         </div>
-        <Navigation onNavigate={handleNav} isEditMode={false} isLiveMode={isLiveMode} onEditToggle={onEditToggle} onToggleLive={handleToggleLive} onUndo={() => onUndo(page.id)} onPublish={onPublish} onSave={onSave} onCancel={onCancel} onAddPage={() => onAddPage(page.id)} onDeletePage={() => onDeletePage(page)} onManagePages={onManagePages} currentPageId={page.id} currentPageNumber={page.pageNumber} totalPages={totalPages} isTestMode={isTestMode} isSeedingTestData={isSeedingTestData} onToggleTestMode={onToggleTestMode} onSeedTestData={onSeedTestData} />
+        <Navigation onNavigate={handleNav} isEditMode={false} isLiveMode={isLiveMode} onEditToggle={onEditToggle} onToggleLive={handleToggleLive} onUndo={() => onUndo(page.id)} onPublish={onPublish} onSave={onSave} onCancel={onCancel} onAddPage={() => onAddPage(page.id)} onDeletePage={() => onDeletePage(page)} onManagePages={onManagePages} currentPageId={page.id} currentPageNumber={page.pageNumber} totalPages={totalPages} isTestMode={isTestMode} isSeedingTestData={isSeedingTestData} isPublishingTestData={isPublishingTestData} onToggleTestMode={onToggleTestMode} onSeedTestData={onSeedTestData} onPublishTestData={onPublishTestData} />
       </div>
     );
   }
@@ -138,7 +138,7 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
         >
           <h1>EPCS Reliability Report</h1>
         </button>
-        <Navigation onNavigate={handleNav} isEditMode={effectiveEditMode} isLiveMode={isLiveMode} onEditToggle={onEditToggle} onToggleLive={handleToggleLive} onUndo={() => onUndo(page.id)} onPublish={onPublish} onSave={onSave} onCancel={onCancel} onAddPage={() => onAddPage(page.id)} onDeletePage={() => onDeletePage(page)} onManagePages={onManagePages} currentPageId={page.id} currentPageNumber={page.pageNumber} totalPages={totalPages} isTestMode={isTestMode} isSeedingTestData={isSeedingTestData} onToggleTestMode={onToggleTestMode} onSeedTestData={onSeedTestData} />
+        <Navigation onNavigate={handleNav} isEditMode={effectiveEditMode} isLiveMode={isLiveMode} onEditToggle={onEditToggle} onToggleLive={handleToggleLive} onUndo={() => onUndo(page.id)} onPublish={onPublish} onSave={onSave} onCancel={onCancel} onAddPage={() => onAddPage(page.id)} onDeletePage={() => onDeletePage(page)} onManagePages={onManagePages} currentPageId={page.id} currentPageNumber={page.pageNumber} totalPages={totalPages} isTestMode={isTestMode} isSeedingTestData={isSeedingTestData} isPublishingTestData={isPublishingTestData} onToggleTestMode={onToggleTestMode} onSeedTestData={onSeedTestData} onPublishTestData={onPublishTestData} />
         <div className="section-card report-content">
           <SectionPage page={page} onLinkClick={handleLinkClick} isEditMode={effectiveEditMode} isLiveMode={false} indexPageOrdinal={indexPageOrdinal} onCellChange={onCellChange} onHeadingChange={onHeadingChange} onImageChange={onImageChange} onIndexChange={onIndexChange} onImageClick={onImageClick} allIndexItems={allIndexItems} />
         </div>

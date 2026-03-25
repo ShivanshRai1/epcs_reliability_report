@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const Navigation = ({ onNavigate, isEditMode, isLiveMode, onEditToggle, onToggleLive, onUndo, onPublish, onSave, onCancel, onAddPage, onDeletePage, onManagePages, currentPageId, currentPageNumber, totalPages, isTestMode, isSeedingTestData, onToggleTestMode, onSeedTestData }) => {
+const Navigation = ({ onNavigate, isEditMode, isLiveMode, onEditToggle, onToggleLive, onUndo, onPublish, onSave, onCancel, onAddPage, onDeletePage, onManagePages, currentPageId, currentPageNumber, totalPages, isTestMode, isSeedingTestData, isPublishingTestData, onToggleTestMode, onSeedTestData, onPublishTestData }) => {
   const [isJumpMode, setIsJumpMode] = useState(false);
   const [jumpPageNumber, setJumpPageNumber] = useState(currentPageNumber?.toString() || '');
   const isLastPage = Number(currentPageNumber) === Number(totalPages);
@@ -91,6 +91,16 @@ const Navigation = ({ onNavigate, isEditMode, isLiveMode, onEditToggle, onToggle
               title="Re-seed persistent test tables from production"
             >
               {isSeedingTestData ? 'Seeding...' : 'Seed Test Data'}
+            </button>
+          )}
+          {isTestMode && (
+            <button
+              className="section-list-btn test-mode-publish"
+              onClick={onPublishTestData}
+              disabled={isPublishingTestData}
+              title="Publish all test changes to production"
+            >
+              {isPublishingTestData ? 'Publishing...' : '📤 Publish from Test'}
             </button>
           )}
         </>
