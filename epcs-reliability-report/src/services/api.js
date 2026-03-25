@@ -18,7 +18,7 @@ const isLocalhost = () => {
 
 const REMOTE_API_CANDIDATES = [
   ENV_API_URL,
-  'https://epcs-reliability-report.onrender.com/api'
+  'https://epcs-backend.onrender.com/api'
 ];
 
 const buildApiCandidates = () => {
