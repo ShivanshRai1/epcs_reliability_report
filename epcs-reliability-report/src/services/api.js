@@ -8,13 +8,23 @@ const TEST_MODE_ENABLED_KEY = 'epcs_test_mode_enabled';
 // Default to same-origin API path so Netlify redirects / Vite proxy can avoid CORS issues.
 const API_URL = '/api';
 
+const isLocalhost = () => {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+};
+
 const REMOTE_API_CANDIDATES = [
   ENV_API_URL,
   'https://epcs-reliability-report.onrender.com/api'
 ];
 
 const buildApiCandidates = () => {
-  const candidates = [API_URL, ...REMOTE_API_CANDIDATES].filter(Boolean);
+  const candidates = isLocalhost()
+    ? [API_URL, ...REMOTE_API_CANDIDATES].filter(Boolean)
+    : [API_URL];
   return [...new Set(candidates)];
 };
 
