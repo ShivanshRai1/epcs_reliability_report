@@ -26,8 +26,8 @@ body {
 }
 
 .report-page {
-  width: min(1100px, 100vw - 2rem);
-  height: min(calc(100vh - 4rem), 90vh);
+  width: min(1400px, 100vw - 1.5rem);
+  height: min(calc(100vh - 2rem), 96vh);
   background: rgba(20, 28, 48, 0.98);
   border-radius: 1.2rem;
   box-shadow: 0 6px 32px rgba(0,0,0,0.25);
