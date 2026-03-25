@@ -1,5 +1,6 @@
 import express from 'express';
 import pool from '../config/database.js';
+import { getTableNames } from '../config/dataMode.js';
 
 const router = express.Router();
 
@@ -11,10 +12,10 @@ const router = express.Router();
  */
 
 // Helper function: Rebuild all page positions to be consecutive (1, 2, 3, ...)
-async function rebuildPositions(connection) {
+async function rebuildPositions(connection, pagesTable) {
   try {
     const [pages] = await connection.query(
-      'SELECT page_id, page_type, title FROM pages WHERE is_deleted = FALSE ORDER BY position ASC'
+      `SELECT page_id, page_type, title FROM ${pagesTable} WHERE is_deleted = FALSE ORDER BY position ASC`
     );
     
     console.log(`🔧 Rebuilding positions for ${pages.length} pages...`);
@@ -23,7 +24,7 @@ async function rebuildPositions(connection) {
     for (let i = 0; i < pages.length; i++) {
       const newPosition = i + 1;
       await connection.query(
-        'UPDATE pages SET position = ?, page_number = ? WHERE page_id = ?',
+        `UPDATE ${pagesTable} SET position = ?, page_number = ? WHERE page_id = ?`,
         [newPosition, newPosition, pages[i].page_id]
       );
       console.log(`  📍 ${pages[i].page_id}: position ${newPosition}`);
@@ -66,10 +67,11 @@ router.get('/templates', async (req, res) => {
 // GET - Audit page positions for integrity issues
 router.get('/audit-positions', async (req, res) => {
   try {
+    const { pagesTable } = getTableNames(req);
     const connection = await pool.getConnection();
     
     const [pages] = await connection.query(
-      'SELECT page_id, position, page_number, page_type, title FROM pages WHERE is_deleted = FALSE ORDER BY position ASC'
+      `SELECT page_id, position, page_number, page_type, title FROM ${pagesTable} WHERE is_deleted = FALSE ORDER BY position ASC`
     );
     connection.release();
 
@@ -125,11 +127,12 @@ router.get('/audit-positions', async (req, res) => {
 router.post('/repair-positions', async (req, res) => {
   let connection;
   try {
+    const { pagesTable } = getTableNames(req);
     connection = await pool.getConnection();
     await connection.beginTransaction();
     
     const [pages] = await connection.query(
-      'SELECT page_id, page_type, title FROM pages WHERE is_deleted = FALSE ORDER BY position ASC'
+      `SELECT page_id, page_type, title FROM ${pagesTable} WHERE is_deleted = FALSE ORDER BY position ASC`
     );
     
     console.log(`🔧 REPAIR: Rebuilding positions for ${pages.length} pages...`);
@@ -137,7 +140,7 @@ router.post('/repair-positions', async (req, res) => {
     for (let i = 0; i < pages.length; i++) {
       const newPosition = i + 1;
       await connection.query(
-        'UPDATE pages SET position = ?, page_number = ? WHERE page_id = ?',
+        `UPDATE ${pagesTable} SET position = ?, page_number = ? WHERE page_id = ?`,
         [newPosition, newPosition, pages[i].page_id]
       );
       console.log(`  📍 ${pages[i].page_id} (${pages[i].page_type}): position/page_number ${newPosition}`);
@@ -166,6 +169,7 @@ router.post('/repair-positions', async (req, res) => {
 // POST - Create new page with template
 router.post('/create', async (req, res) => {
   try {
+    const { pagesTable, historyTable } = getTableNames(req);
     const connection = await pool.getConnection();
     const { template, title, position, insertAfterPageId, positionParams } = req.body;
 
@@ -187,7 +191,7 @@ router.post('/create', async (req, res) => {
     // Handle new positionParams format (supports before/after)
     if (positionParams && positionParams.pageId) {
       const [refPageRows] = await connection.query(
-        'SELECT position FROM pages WHERE page_id = ? AND is_deleted = FALSE',
+        `SELECT position FROM ${pagesTable} WHERE page_id = ? AND is_deleted = FALSE`,
         [positionParams.pageId]
       );
       if (refPageRows.length > 0) {
@@ -199,7 +203,7 @@ router.post('/create', async (req, res) => {
     } else if (insertAfterPageId) {
       // Legacy support for old API calls
       const [afterPageRows] = await connection.query(
-        'SELECT position FROM pages WHERE page_id = ? AND is_deleted = FALSE',
+        `SELECT position FROM ${pagesTable} WHERE page_id = ? AND is_deleted = FALSE`,
         [insertAfterPageId]
       );
       if (afterPageRows.length > 0) {
@@ -210,7 +214,7 @@ router.post('/create', async (req, res) => {
     // If position not specified, add to end
     if (!insertPosition) {
       const [maxPosition] = await connection.query(
-        'SELECT MAX(position) as maxPos FROM pages WHERE is_deleted = FALSE'
+        `SELECT MAX(position) as maxPos FROM ${pagesTable} WHERE is_deleted = FALSE`
       );
       insertPosition = (maxPosition[0]?.maxPos || 0) + 1;
       console.log(`📍 No position specified, adding to end at position ${insertPosition}`);
@@ -220,13 +224,13 @@ router.post('/create', async (req, res) => {
     if (insertPosition) {
       console.log(`📍 Shifting pages at position >= ${insertPosition}`);
       const [shiftCount] = await connection.query(
-        'SELECT COUNT(*) as cnt FROM pages WHERE position >= ? AND is_deleted = FALSE',
+        `SELECT COUNT(*) as cnt FROM ${pagesTable} WHERE position >= ? AND is_deleted = FALSE`,
         [insertPosition]
       );
       console.log(`📊 Shifting ${shiftCount[0].cnt} pages at/after position ${insertPosition}`);
       
       await connection.query(
-        'UPDATE pages SET position = position + 1, page_number = page_number + 1 WHERE position >= ? AND is_deleted = FALSE',
+        `UPDATE ${pagesTable} SET position = position + 1, page_number = page_number + 1 WHERE position >= ? AND is_deleted = FALSE`,
         [insertPosition]
       );
       console.log('✅ Shift complete');
@@ -274,7 +278,7 @@ router.post('/create', async (req, res) => {
 
     // Insert new page
     await connection.query(
-      `INSERT INTO pages 
+      `INSERT INTO ${pagesTable} 
        (page_id, page_number, position, page_type, page_template, title, page_data, updated_by, is_deleted)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, FALSE)`,
       [pageId, pageNumber, insertPosition, resolvedPageType, template, title, JSON.stringify(pageData), 'system']
@@ -283,14 +287,14 @@ router.post('/create', async (req, res) => {
     // Record in history
     if (process.env.TRACK_HISTORY === 'true') {
       await connection.query(
-        `INSERT INTO page_history (page_id, page_number, old_data, new_data, changed_by, change_description)
+        `INSERT INTO ${historyTable} (page_id, page_number, old_data, new_data, changed_by, change_description)
          VALUES (?, ?, ?, ?, ?, ?)`,
         [pageId, pageNumber, '{}', JSON.stringify(pageData), 'system', 'Page created']
       );
     }
 
     // Rebuild all positions to ensure they're consecutive (1, 2, 3, ...)
-    await rebuildPositions(connection);
+    await rebuildPositions(connection, pagesTable);
 
     connection.release();
 
@@ -312,12 +316,13 @@ router.post('/create', async (req, res) => {
 router.delete('/:pageId', async (req, res) => {
   let connection;
   try {
+    const { pagesTable } = getTableNames(req);
     connection = await pool.getConnection();
     const { pageId } = req.params;
 
     // Get the page to delete
     const [pageRows] = await connection.query(
-      'SELECT page_number, position FROM pages WHERE page_id = ? AND is_deleted = FALSE',
+      `SELECT page_number, position FROM ${pagesTable} WHERE page_id = ? AND is_deleted = FALSE`,
       [pageId]
     );
 
@@ -329,13 +334,13 @@ router.delete('/:pageId', async (req, res) => {
     // Soft delete the page
     console.log('🗑️ Soft deleting page:', pageId);
     await connection.query(
-      'UPDATE pages SET is_deleted = TRUE, updated_at = CURRENT_TIMESTAMP WHERE page_id = ?',
+      `UPDATE ${pagesTable} SET is_deleted = TRUE, updated_at = CURRENT_TIMESTAMP WHERE page_id = ?`,
       [pageId]
     );
 
     // Rebuild all positions to ensure they're consecutive
     console.log('🔧 Rebuilding positions after delete...');
-    await rebuildPositions(connection);
+    await rebuildPositions(connection, pagesTable);
     console.log('✅ Positions rebuilt after delete');
 
     res.json({
@@ -357,6 +362,7 @@ router.delete('/:pageId', async (req, res) => {
 router.patch('/reorder', async (req, res) => {
   let connection;
   try {
+    const { pagesTable, historyTable } = getTableNames(req);
     connection = await pool.getConnection();
     const { pageOrder } = req.body; // Array of page_ids in desired order
 
@@ -373,7 +379,7 @@ router.patch('/reorder', async (req, res) => {
     for (let i = 0; i < pageOrder.length; i++) {
       console.log(`  - pageId=${pageOrder[i]}, position=${i+1}, page_number=${i+1}`);
       const [updateResult] = await connection.query(
-        'UPDATE pages SET position = ?, page_number = ?, updated_at = CURRENT_TIMESTAMP WHERE page_id = ?',
+        `UPDATE ${pagesTable} SET position = ?, page_number = ?, updated_at = CURRENT_TIMESTAMP WHERE page_id = ?`,
         [i + 1, i + 1, pageOrder[i]]
       );
 
@@ -385,7 +391,7 @@ router.patch('/reorder', async (req, res) => {
     // Record reorder in history
     if (process.env.TRACK_HISTORY === 'true') {
       await connection.query(
-        `INSERT INTO page_history (page_id, page_number, change_description, changed_by, old_data, new_data)
+        `INSERT INTO ${historyTable} (page_id, page_number, change_description, changed_by, old_data, new_data)
          VALUES (?, ?, ?, ?, ?, ?)`,
         ['bulk_reorder', 0, 'Pages reordered', 'system', '{}', JSON.stringify({ pageOrder })]
       );
@@ -419,10 +425,11 @@ router.patch('/reorder', async (req, res) => {
 // GET - Get pages with filtering options
 router.get('/list', async (req, res) => {
   try {
+    const { pagesTable } = getTableNames(req);
     const connection = await pool.getConnection();
     const { includeDeleted } = req.query;
 
-    let query = 'SELECT page_id, page_number, page_type, page_template, title, position FROM pages';
+    let query = `SELECT page_id, page_number, page_type, page_template, title, position FROM ${pagesTable}`;
     if (includeDeleted !== 'true') {
       query += ' WHERE is_deleted = FALSE';
     }
@@ -442,11 +449,12 @@ router.get('/list', async (req, res) => {
 // REPAIR - Rebuild all page positions to be consecutive (1, 2, 3, ...)
 router.post('/repair/rebuild-positions', async (req, res) => {
   try {
+    const { pagesTable } = getTableNames(req);
     const connection = await pool.getConnection();
 
     // Get all non-deleted pages ordered by current position
     const [pages] = await connection.query(
-      'SELECT page_id, page_number, position FROM pages WHERE is_deleted = FALSE ORDER BY position ASC'
+      `SELECT page_id, page_number, position FROM ${pagesTable} WHERE is_deleted = FALSE ORDER BY position ASC`
     );
 
     console.log(`🔧 Rebuilding positions for ${pages.length} pages...`);
@@ -457,7 +465,7 @@ router.post('/repair/rebuild-positions', async (req, res) => {
       const pageId = pages[i].page_id;
       
       await connection.query(
-        'UPDATE pages SET position = ?, page_number = ? WHERE page_id = ? AND is_deleted = FALSE',
+        `UPDATE ${pagesTable} SET position = ?, page_number = ? WHERE page_id = ? AND is_deleted = FALSE`,
         [newPosition, newPosition, pageId]
       );
       

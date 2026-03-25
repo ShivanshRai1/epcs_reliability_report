@@ -1,14 +1,16 @@
 import express from 'express';
 import pool from '../config/database.js';
+import { getTableNames } from '../config/dataMode.js';
 
 const router = express.Router();
 
 // GET all pages
 router.get('/', async (req, res) => {
   try {
+    const { pagesTable } = getTableNames(req);
     const connection = await pool.getConnection();
     const [rows] = await connection.query(
-      'SELECT page_id, page_number, page_type, title, page_data, updated_at, updated_by, position FROM pages WHERE is_deleted = FALSE'
+      `SELECT page_id, page_number, page_type, title, page_data, updated_at, updated_by, position FROM ${pagesTable} WHERE is_deleted = FALSE`
     );
     connection.release();
 
@@ -30,9 +32,10 @@ router.get('/', async (req, res) => {
 // GET single page
 router.get('/:pageId', async (req, res) => {
   try {
+    const { pagesTable } = getTableNames(req);
     const connection = await pool.getConnection();
     const [rows] = await connection.query(
-      'SELECT * FROM pages WHERE page_id = ? AND is_deleted = FALSE',
+      `SELECT * FROM ${pagesTable} WHERE page_id = ? AND is_deleted = FALSE`,
       [req.params.pageId]
     );
     connection.release();
@@ -51,13 +54,14 @@ router.get('/:pageId', async (req, res) => {
 // POST/UPDATE page
 router.post('/:pageId', async (req, res) => {
   try {
+    const { pagesTable, historyTable } = getTableNames(req);
     const connection = await pool.getConnection();
     const pageUpdateData = req.body;
     const updatedBy = req.body.updated_by || 'system';
 
     // Get existing page from database
     const [existing] = await connection.query(
-      'SELECT page_id, page_number, page_type, title, page_data FROM pages WHERE page_id = ?',
+      `SELECT page_id, page_number, page_type, title, page_data FROM ${pagesTable} WHERE page_id = ?`,
       [req.params.pageId]
     );
 
@@ -72,7 +76,7 @@ router.post('/:pageId', async (req, res) => {
     // Save old data to history
     if (process.env.TRACK_HISTORY === 'true') {
       await connection.query(
-        'INSERT INTO page_history (page_id, page_number, old_data, new_data, changed_by, change_description) VALUES (?, ?, ?, ?, ?, ?)',
+        `INSERT INTO ${historyTable} (page_id, page_number, old_data, new_data, changed_by, change_description) VALUES (?, ?, ?, ?, ?, ?)`,
         [
           currentPage.page_id,
           currentPage.page_number,
@@ -88,7 +92,7 @@ router.post('/:pageId', async (req, res) => {
 
     // Update page
     await connection.query(
-      `UPDATE pages SET page_data = ?, title = ?, updated_by = ?, updated_at = CURRENT_TIMESTAMP 
+      `UPDATE ${pagesTable} SET page_data = ?, title = ?, updated_by = ?, updated_at = CURRENT_TIMESTAMP 
        WHERE page_id = ?`,
       [
         JSON.stringify(mergedPageData),
@@ -109,9 +113,10 @@ router.post('/:pageId', async (req, res) => {
 // GET full report (all pages as JSON)
 router.get('/export/full', async (req, res) => {
   try {
+    const { pagesTable } = getTableNames(req);
     const connection = await pool.getConnection();
     const [rows] = await connection.query(
-      'SELECT page_data, page_number, position FROM pages WHERE is_deleted = FALSE'
+      `SELECT page_data, page_number, position FROM ${pagesTable} WHERE is_deleted = FALSE`
     );
     connection.release();
 

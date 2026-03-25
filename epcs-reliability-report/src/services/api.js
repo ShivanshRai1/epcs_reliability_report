@@ -3,6 +3,9 @@ const ENV_API_URL =
   import.meta.env.VITE_REACT_APP_API_URL ||
   '';
 
+const TEST_MODE_ENABLED_KEY = 'epcs_test_mode_enabled';
+const TEST_MODE_TOKEN_KEY = 'epcs_test_mode_token';
+
 // Default to same-origin API path so Netlify redirects / Vite proxy can avoid CORS issues.
 const API_URL = '/api';
 
@@ -16,13 +19,40 @@ const buildApiCandidates = () => {
   return [...new Set(candidates)];
 };
 
+const getTestModeState = () => {
+  try {
+    const enabled = localStorage.getItem(TEST_MODE_ENABLED_KEY) === '1';
+    const token = localStorage.getItem(TEST_MODE_TOKEN_KEY) || '';
+    return { enabled, token };
+  } catch {
+    return { enabled: false, token: '' };
+  }
+};
+
+const withModeRequest = (options = {}) => {
+  const mode = getTestModeState();
+  const headers = { ...(options.headers || {}) };
+
+  if (mode.enabled) {
+    headers['X-Test-Mode'] = '1';
+    if (mode.token) {
+      headers['X-Test-Token'] = mode.token;
+    }
+  }
+
+  return {
+    ...options,
+    headers
+  };
+};
+
 const fetchJsonWithBaseFallback = async (path, options = {}) => {
   const candidates = buildApiCandidates();
   let lastError = null;
 
   for (const baseUrl of candidates) {
     try {
-      const res = await fetch(`${baseUrl}${path}`, options);
+      const res = await fetch(`${baseUrl}${path}`, withModeRequest(options));
       if (!res.ok) {
         lastError = new Error(`HTTP ${res.status} for ${path}`);
         continue;
@@ -44,12 +74,12 @@ const deleteWithBaseFallback = async (pageId) => {
   for (const baseUrl of candidates) {
     for (const path of deletePaths) {
       try {
-        const res = await fetch(`${baseUrl}${path}`, {
+        const res = await fetch(`${baseUrl}${path}`, withModeRequest({
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json'
           }
-        });
+        }));
 
         if (!res.ok) {
           lastError = new Error(`HTTP ${res.status} for ${path}`);
@@ -72,7 +102,7 @@ const fetchPagesViaFallback = async () => {
 
   for (const baseUrl of candidates) {
     try {
-      const listRes = await fetch(`${baseUrl}/cms/list`);
+      const listRes = await fetch(`${baseUrl}/cms/list`, withModeRequest());
       if (!listRes.ok) continue;
 
       const list = await listRes.json();
@@ -84,7 +114,7 @@ const fetchPagesViaFallback = async () => {
         sorted.map(async (item) => {
           const pageId = item?.page_id;
           if (!pageId) return null;
-          const detailRes = await fetch(`${baseUrl}/pages/${pageId}`);
+          const detailRes = await fetch(`${baseUrl}/pages/${pageId}`, withModeRequest());
           if (!detailRes.ok) return null;
           return detailRes.json();
         })
@@ -108,7 +138,7 @@ export const apiService = {
 
       for (const baseUrl of candidates) {
         try {
-          const res = await fetch(`${baseUrl}/pages`);
+          const res = await fetch(`${baseUrl}/pages`, withModeRequest());
           if (!res.ok) continue;
           return await res.json();
         } catch {
@@ -132,7 +162,7 @@ export const apiService = {
   // Get single page
   getPage: async (pageId) => {
     try {
-      const res = await fetch(`${API_URL}/pages/${pageId}`);
+      const res = await fetch(`${API_URL}/pages/${pageId}`, withModeRequest());
       if (!res.ok) throw new Error('Page not found');
       return res.json();
     } catch (error) {
@@ -148,7 +178,7 @@ export const apiService = {
 
     for (const baseUrl of candidates) {
       try {
-        const res = await fetch(`${baseUrl}/pages/${pageId}`, {
+        const res = await fetch(`${baseUrl}/pages/${pageId}`, withModeRequest({
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -157,7 +187,7 @@ export const apiService = {
             page_data: payload.page_data,
             updated_by: updatedBy
           })
-        });
+        }));
 
         if (!res.ok) {
           lastError = new Error(`HTTP ${res.status} when saving page`);
@@ -176,7 +206,7 @@ export const apiService = {
   // Get full report (all pages)
   getFullReport: async () => {
     try {
-      const res = await fetch(`${API_URL}/pages/export/full`);
+      const res = await fetch(`${API_URL}/pages/export/full`, withModeRequest());
       if (!res.ok) throw new Error('Failed to fetch report');
       return res.json();
     } catch (error) {
@@ -188,7 +218,7 @@ export const apiService = {
   // Get page history
   getPageHistory: async (pageId) => {
     try {
-      const res = await fetch(`${API_URL}/history/${pageId}`);
+      const res = await fetch(`${API_URL}/history/${pageId}`, withModeRequest());
       if (!res.ok) throw new Error('Failed to fetch history');
       return res.json();
     } catch (error) {
@@ -200,7 +230,7 @@ export const apiService = {
   // Get all recent changes
   getAllHistory: async () => {
     try {
-      const res = await fetch(`${API_URL}/history`);
+      const res = await fetch(`${API_URL}/history`, withModeRequest());
       if (!res.ok) throw new Error('Failed to fetch all history');
       return res.json();
     } catch (error) {
@@ -230,7 +260,7 @@ export const apiService = {
       try {
         console.log('🚀 API: Calling /cms/create with:', { template, title, position, positionParams });
         
-        const res = await fetch(`${baseUrl}/cms/create`, {
+        const res = await fetch(`${baseUrl}/cms/create`, withModeRequest({
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -241,7 +271,7 @@ export const apiService = {
             position,
             positionParams // Can include { pageId, insertBefore: true/false }
           })
-        });
+        }));
 
         const data = await res.json();
         
@@ -279,13 +309,13 @@ export const apiService = {
 
     for (const baseUrl of candidates) {
       try {
-        const res = await fetch(`${baseUrl}/cms/reorder`, {
+        const res = await fetch(`${baseUrl}/cms/reorder`, withModeRequest({
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ pageOrder })
-        });
+        }));
 
         if (!res.ok) {
           lastError = new Error(`HTTP ${res.status} when reordering pages`);
@@ -316,10 +346,10 @@ export const apiService = {
   repairPagePositions: async () => {
     try {
       console.log('🔧 Calling repair endpoint to rebuild page positions...');
-      const res = await fetch(`${API_URL}/cms/repair/rebuild-positions`, {
+      const res = await fetch(`${API_URL}/cms/repair/rebuild-positions`, withModeRequest({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
-      });
+      }));
       if (!res.ok) throw new Error('Failed to repair positions');
       const result = await res.json();
       console.log('✅ Repair result:', result);
@@ -328,5 +358,29 @@ export const apiService = {
       console.error('❌ Error repairing positions:', error);
       throw error;
     }
+  },
+
+  getTestModeState: () => getTestModeState(),
+
+  setTestMode: (enabled, token = null) => {
+    const nextEnabled = !!enabled;
+    localStorage.setItem(TEST_MODE_ENABLED_KEY, nextEnabled ? '1' : '0');
+    if (token !== null) {
+      localStorage.setItem(TEST_MODE_TOKEN_KEY, String(token || ''));
+    }
+    return getTestModeState();
+  },
+
+  getTestStatus: async () => {
+    return await fetchJsonWithBaseFallback('/test/status');
+  },
+
+  seedTestData: async () => {
+    return await fetchJsonWithBaseFallback('/test/seed', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
   }
 };

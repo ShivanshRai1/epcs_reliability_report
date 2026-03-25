@@ -36,8 +36,95 @@ function App() {
   const [pageUndoHistory, setPageUndoHistory] = useState({});
   const [publishedData, setPublishedData] = useState(null);
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
+  const [isTestMode, setIsTestMode] = useState(() => apiService.getTestModeState().enabled);
+  const [isSeedingTestData, setIsSeedingTestData] = useState(false);
   // Cache of static index pages loaded from public JSON (preserves curated content/levels)
   const staticIndexPagesRef = useRef([]);
+
+  const syncTestModeState = () => {
+    setIsTestMode(apiService.getTestModeState().enabled);
+  };
+
+  const handleToggleTestMode = async () => {
+    try {
+      const current = apiService.getTestModeState();
+
+      if (current.enabled) {
+        apiService.setTestMode(false);
+        syncTestModeState();
+        window.location.reload();
+        return;
+      }
+
+      let token = current.token;
+      if (!token) {
+        token = window.prompt('Enter test mode token') || '';
+      }
+
+      if (!token) {
+        window.alert('Test mode token is required.');
+        return;
+      }
+
+      apiService.setTestMode(true, token);
+      syncTestModeState();
+
+      let status;
+      try {
+        status = await apiService.getTestStatus();
+      } catch (statusErr) {
+        apiService.setTestMode(false);
+        syncTestModeState();
+        window.alert(`Could not verify test mode: ${statusErr.message}`);
+        return;
+      }
+
+      if (!status?.allowTestMode || status?.activeMode !== 'test') {
+        apiService.setTestMode(false);
+        syncTestModeState();
+        window.alert('Server did not accept test mode. Check ALLOW_TEST_MODE and TEST_MODE_TOKEN.');
+        return;
+      }
+
+      const shouldSeed = window.confirm('Seed persistent test data from production now? Recommended the first time.');
+      if (shouldSeed) {
+        try {
+          await apiService.seedTestData();
+        } catch (seedErr) {
+          window.alert(`Test mode enabled, but seeding failed: ${seedErr.message}`);
+        }
+      }
+
+      window.location.reload();
+    } catch (err) {
+      console.error('Error toggling test mode:', err);
+      window.alert(`Failed to toggle test mode: ${err.message}`);
+    }
+  };
+
+  const handleSeedTestData = async () => {
+    try {
+      setIsSeedingTestData(true);
+
+      const mode = apiService.getTestModeState();
+      if (!mode.enabled) {
+        window.alert('Enable test mode first.');
+        return;
+      }
+
+      const confirmed = window.confirm('Seed persistent test tables from production now? This replaces current test data.');
+      if (!confirmed) return;
+
+      const result = await apiService.seedTestData();
+      window.alert(`Test data seeded successfully. Pages: ${result.pages_test_count}`);
+      window.location.reload();
+    } catch (err) {
+      console.error('Error seeding test data:', err);
+      window.alert(`Failed to seed test data: ${err.message}`);
+    } finally {
+      setIsSeedingTestData(false);
+    }
+  };
 
   useEffect(() => {
     const isLiveMode = new URLSearchParams(location.search).get('live') === '1';
@@ -874,7 +961,7 @@ function App() {
       />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} hasUnsavedChanges={changedPages.size > 0} onEditToggle={handleEditToggle} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} />} />
+        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} hasUnsavedChanges={changedPages.size > 0} onEditToggle={handleEditToggle} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} isTestMode={isTestMode} isSeedingTestData={isSeedingTestData} onToggleTestMode={handleToggleTestMode} onSeedTestData={handleSeedTestData} />} />
         <Route path="*" element={<div className="App"><p>Page not found</p></div>} />
       </Routes>
     </>

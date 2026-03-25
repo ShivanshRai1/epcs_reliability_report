@@ -3,9 +3,11 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import pool from './config/database.js';
+import { attachDataMode } from './config/dataMode.js';
 import pagesRoute from './routes/pages.js';
 import historyRoute from './routes/history.js';
 import cmsRoute from './routes/cms.js';
+import testRoute from './routes/test.js';
 
 dotenv.config();
 
@@ -52,9 +54,11 @@ app.head('/', (req, res) => {
 });
 
 // API Routes
+app.use('/api', attachDataMode);
 app.use('/api/pages', pagesRoute);
 app.use('/api/history', historyRoute);
 app.use('/api/cms', cmsRoute);
+app.use('/api/test', testRoute);
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -73,7 +77,10 @@ app.get('/', (req, res) => {
       'POST /api/cms/create',
       'DELETE /api/cms/:pageId',
       'PATCH /api/cms/reorder',
-      'GET /api/cms/list'
+      'GET /api/cms/list',
+      '--- Test Mode Endpoints ---',
+      'GET /api/test/status',
+      'POST /api/test/seed'
     ]
   });
 });

@@ -1,14 +1,16 @@
 import express from 'express';
 import pool from '../config/database.js';
+import { getTableNames } from '../config/dataMode.js';
 
 const router = express.Router();
 
 // GET page history
 router.get('/:pageId', async (req, res) => {
   try {
+    const { historyTable } = getTableNames(req);
     const connection = await pool.getConnection();
     const [rows] = await connection.query(
-      'SELECT * FROM page_history WHERE page_id = ? ORDER BY changed_at DESC LIMIT 50',
+      `SELECT * FROM ${historyTable} WHERE page_id = ? ORDER BY changed_at DESC LIMIT 50`,
       [req.params.pageId]
     );
     connection.release();
@@ -22,9 +24,10 @@ router.get('/:pageId', async (req, res) => {
 // GET all history (recent changes)
 router.get('/', async (req, res) => {
   try {
+    const { historyTable } = getTableNames(req);
     const connection = await pool.getConnection();
     const [rows] = await connection.query(
-      'SELECT * FROM page_history ORDER BY changed_at DESC LIMIT 100'
+      `SELECT * FROM ${historyTable} ORDER BY changed_at DESC LIMIT 100`
     );
     connection.release();
     res.json(rows);

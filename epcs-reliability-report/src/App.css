@@ -371,6 +371,38 @@ nav button:hover, .section-list-btn:hover {
   background: #3ba047 !important;
 }
 
+.test-mode-active {
+  background: #7a2f2f !important;
+  color: #fff !important;
+}
+
+.test-mode-active:hover {
+  background: #a03a3a !important;
+}
+
+.test-mode-inactive {
+  background: #3f4c6b !important;
+  color: #fff !important;
+}
+
+.test-mode-inactive:hover {
+  background: #586b94 !important;
+}
+
+.test-mode-seed {
+  background: #7a6a3a !important;
+  color: #fff !important;
+}
+
+.test-mode-seed:hover {
+  background: #9a8a4a !important;
+}
+
+.test-mode-seed:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
 .edit-view {
   background: #5a5f7a !important;
 }
