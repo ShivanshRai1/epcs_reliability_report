@@ -1678,3 +1678,53 @@ a:hover,
 .pdf-nav-btn {
   color: #ffffff !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   NORMAL MODE LIGHT THEME (report-shell only)
+   ═════════════════════════════════════════════════════════════════════════ */
+
+.report-shell .report-page {
+  background: #f7fbff !important;
+  color: #1f2937 !important;
+}
+
+.report-shell h1,
+.report-shell h2,
+.report-shell h3,
+.report-shell h4,
+.report-shell h5,
+.report-shell h6 {
+  color: #1f2937 !important;
+}
+
+.report-shell p,
+.report-shell span,
+.report-shell li,
+.report-shell td,
+.report-shell th {
+  color: #1f2937 !important;
+}
+
+.report-shell .report-content {
+  background: #ffffff !important;
+  border: 1px solid #d9e4f2 !important;
+}
+
+.report-shell .index-scroll-container {
+  background: #ffffff !important;
+  border: 1px solid #d9e4f2 !important;
+}
+
+.report-shell table {
+  background: #ffffff !important;
+  border: 1px solid #bfcfe4 !important;
+}
+
+.report-shell th {
+  background: #dbe8f8 !important;
+  color: #18273c !important;
+}
+
+.report-shell tr:nth-child(even) td {
+  background: #f5f9ff !important;
+}
