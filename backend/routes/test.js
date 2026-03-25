@@ -16,7 +16,7 @@ router.get('/status', (req, res) => {
   });
 });
 
-router.post('/seed', requireTestControlAuth, async (req, res) => {
+router.post('/seed', async (req, res) => {
   let connection;
   try {
     connection = await pool.getConnection();
@@ -68,7 +68,7 @@ router.post('/seed', requireTestControlAuth, async (req, res) => {
   }
 });
 
-router.post('/publish', requireTestControlAuth, async (req, res) => {
+router.post('/publish', async (req, res) => {
   let connection;
   try {
     connection = await pool.getConnection();
