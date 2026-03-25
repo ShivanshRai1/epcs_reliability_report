@@ -441,7 +441,6 @@ router.get('/list', async (req, res) => {
     res.json(rows);
 
   } catch (error) {
-    console.error('Error fetching page list:', error);
     res.status(500).json({ error: error.message });
   }
 });

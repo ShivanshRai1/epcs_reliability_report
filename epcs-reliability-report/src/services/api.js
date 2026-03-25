@@ -109,7 +109,10 @@ const fetchPagesViaFallback = async () => {
   for (const baseUrl of candidates) {
     try {
       const listRes = await fetch(`${baseUrl}/cms/list`, withModeRequest());
-      if (!listRes.ok) continue;
+      if (!listRes.ok) {
+        // Silently try next candidate
+        continue;
+      }
 
       const list = await listRes.json();
       const sorted = Array.isArray(list)
