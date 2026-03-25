@@ -60,17 +60,6 @@ function App() {
       apiService.setTestMode(true);
       syncTestModeState();
       window.alert('You are now in test mode. All edits will be saved to isolated test tables.');
-
-      const shouldSeed = window.confirm('Seed persistent test data from production now? Recommended the first time.');
-      if (shouldSeed) {
-        try {
-          await apiService.seedTestData();
-          window.alert('Test data seeded successfully.');
-        } catch (seedErr) {
-          window.alert(`Seeding failed: ${seedErr.message}`);
-        }
-      }
-
       window.location.reload();
     } catch (err) {
       console.error('Error toggling test mode:', err);
