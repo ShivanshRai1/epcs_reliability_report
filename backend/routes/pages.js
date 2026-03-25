@@ -24,6 +24,7 @@ router.get('/', async (req, res) => {
     const responseRows = rows.map(({ position, ...rest }) => rest);
     res.json(responseRows);
   } catch (error) {
+    console.error('Error fetching pages:', error);
     res.status(500).json({ error: error.message });
   }
 });

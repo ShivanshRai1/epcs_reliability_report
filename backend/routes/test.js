@@ -22,19 +22,32 @@ router.post('/seed', requireTestControlAuth, async (req, res) => {
     connection = await pool.getConnection();
     await connection.beginTransaction();
 
+    console.log('🌱 Starting test table seed...');
+    
     await connection.query('CREATE TABLE IF NOT EXISTS pages_test LIKE pages');
+    console.log('✅ pages_test table created/verified');
+    
     await connection.query('CREATE TABLE IF NOT EXISTS page_history_test LIKE page_history');
+    console.log('✅ page_history_test table created/verified');
 
     await connection.query('TRUNCATE TABLE pages_test');
+    console.log('✅ pages_test truncated');
+    
     await connection.query('TRUNCATE TABLE page_history_test');
+    console.log('✅ page_history_test truncated');
 
     await connection.query('INSERT INTO pages_test SELECT * FROM pages');
+    console.log('✅ Data copied to pages_test');
+    
     await connection.query('INSERT INTO page_history_test SELECT * FROM page_history');
+    console.log('✅ Data copied to page_history_test');
 
     const [[pagesCountRow]] = await connection.query('SELECT COUNT(*) AS count FROM pages_test');
     const [[historyCountRow]] = await connection.query('SELECT COUNT(*) AS count FROM page_history_test');
 
     await connection.commit();
+    
+    console.log(`✅ Seeding complete: ${pagesCountRow?.count} pages, ${historyCountRow?.count} history records`);
 
     res.json({
       success: true,
@@ -46,7 +59,7 @@ router.post('/seed', requireTestControlAuth, async (req, res) => {
     if (connection) {
       await connection.rollback();
     }
-    console.error('Error seeding test tables:', error);
+    console.error('❌ Error seeding test tables:', error.message);
     res.status(500).json({ error: error.message });
   } finally {
     if (connection) {

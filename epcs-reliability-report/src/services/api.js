@@ -105,14 +105,12 @@ const deleteWithBaseFallback = async (pageId) => {
 const fetchPagesViaFallback = async () => {
   // Fallback path for backends that fail on bulk /pages query.
   const candidates = buildApiCandidates();
+  let lastError = null;
 
   for (const baseUrl of candidates) {
     try {
       const listRes = await fetch(`${baseUrl}/cms/list`, withModeRequest());
-      if (!listRes.ok) {
-        // Silently try next candidate
-        continue;
-      }
+      if (!listRes.ok) continue;
 
       const list = await listRes.json();
       const sorted = Array.isArray(list)
