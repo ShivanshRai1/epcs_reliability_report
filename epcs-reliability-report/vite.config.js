@@ -10,7 +10,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: process.env.VITE_PROXY_TARGET || 'https://epcs-backend.onrender.com',
+        target: process.env.VITE_PROXY_TARGET || 'https://epcs-reliability-report.onrender.com',
         changeOrigin: true,
         secure: true,
       },
