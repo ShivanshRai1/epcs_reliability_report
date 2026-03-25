@@ -5,11 +5,10 @@ import { requireTestControlAuth } from '../config/dataMode.js';
 const router = express.Router();
 
 router.get('/status', (req, res) => {
-  const dataMode = req.dataMode || { allowTestMode: false, isTestMode: false, tokenValid: false };
+  const dataMode = req.dataMode || { allowTestMode: false, isTestMode: false };
   res.json({
     allowTestMode: !!dataMode.allowTestMode,
     activeMode: dataMode.isTestMode ? 'test' : 'production',
-    testHeadersAccepted: !!dataMode.tokenValid,
     testTables: {
       pages: 'pages_test',
       history: 'page_history_test'

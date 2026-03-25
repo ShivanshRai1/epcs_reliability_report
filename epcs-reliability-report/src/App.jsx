@@ -52,46 +52,22 @@ function App() {
       if (current.enabled) {
         apiService.setTestMode(false);
         syncTestModeState();
+        window.alert('You are now in production mode.');
         window.location.reload();
         return;
       }
 
-      let token = current.token;
-      if (!token) {
-        token = window.prompt('Enter test mode token') || '';
-      }
-
-      if (!token) {
-        window.alert('Test mode token is required.');
-        return;
-      }
-
-      apiService.setTestMode(true, token);
+      apiService.setTestMode(true);
       syncTestModeState();
-
-      let status;
-      try {
-        status = await apiService.getTestStatus();
-      } catch (statusErr) {
-        apiService.setTestMode(false);
-        syncTestModeState();
-        window.alert(`Could not verify test mode: ${statusErr.message}`);
-        return;
-      }
-
-      if (!status?.allowTestMode || status?.activeMode !== 'test') {
-        apiService.setTestMode(false);
-        syncTestModeState();
-        window.alert('Server did not accept test mode. Check ALLOW_TEST_MODE and TEST_MODE_TOKEN.');
-        return;
-      }
+      window.alert('You are now in test mode. All edits will be saved to isolated test tables.');
 
       const shouldSeed = window.confirm('Seed persistent test data from production now? Recommended the first time.');
       if (shouldSeed) {
         try {
           await apiService.seedTestData();
+          window.alert('Test data seeded successfully.');
         } catch (seedErr) {
-          window.alert(`Test mode enabled, but seeding failed: ${seedErr.message}`);
+          window.alert(`Seeding failed: ${seedErr.message}`);
         }
       }
 

@@ -4,7 +4,6 @@ const ENV_API_URL =
   '';
 
 const TEST_MODE_ENABLED_KEY = 'epcs_test_mode_enabled';
-const TEST_MODE_TOKEN_KEY = 'epcs_test_mode_token';
 
 // Default to same-origin API path so Netlify redirects / Vite proxy can avoid CORS issues.
 const API_URL = '/api';
@@ -22,10 +21,9 @@ const buildApiCandidates = () => {
 const getTestModeState = () => {
   try {
     const enabled = localStorage.getItem(TEST_MODE_ENABLED_KEY) === '1';
-    const token = localStorage.getItem(TEST_MODE_TOKEN_KEY) || '';
-    return { enabled, token };
+    return { enabled };
   } catch {
-    return { enabled: false, token: '' };
+    return { enabled: false };
   }
 };
 
@@ -35,9 +33,7 @@ const withModeRequest = (options = {}) => {
 
   if (mode.enabled) {
     headers['X-Test-Mode'] = '1';
-    if (mode.token) {
-      headers['X-Test-Token'] = mode.token;
-    }
+
   }
 
   return {
