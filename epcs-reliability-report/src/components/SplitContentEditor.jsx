@@ -65,6 +65,9 @@ const SplitContentEditor = ({ page, onChange }) => {
   const [title, setTitle] = useState(page.title || '');
   const [leftHeader, setLeftHeader] = useState(page.leftHeader || '');
   const [rightHeader, setRightHeader] = useState(page.rightHeader || '');
+  const [titleColor, setTitleColor] = useState(page.titleColor || '#0052a3');
+  const [leftHeaderColor, setLeftHeaderColor] = useState(page.leftHeaderColor || '#5fc574');
+  const [rightHeaderColor, setRightHeaderColor] = useState(page.rightHeaderColor || '#e8a87c');
   const [leftBlocks, setLeftBlocks] = useState(normalizeSideBlocks(page, 'left'));
   const [rightBlocks, setRightBlocks] = useState(normalizeSideBlocks(page, 'right'));
   const [leftTextDraft, setLeftTextDraft] = useState('');
@@ -80,6 +83,9 @@ const SplitContentEditor = ({ page, onChange }) => {
     setTitle(page.title || '');
     setLeftHeader(page.leftHeader || '');
     setRightHeader(page.rightHeader || '');
+    setTitleColor(page.titleColor || '#0052a3');
+    setLeftHeaderColor(page.leftHeaderColor || '#5fc574');
+    setRightHeaderColor(page.rightHeaderColor || '#e8a87c');
     setLeftBlocks(normalizeSideBlocks(page, 'left'));
     setRightBlocks(normalizeSideBlocks(page, 'right'));
     setLeftTextDraft('');
@@ -96,6 +102,9 @@ const SplitContentEditor = ({ page, onChange }) => {
     const nextTitle = nextValues.title ?? title;
     const nextLeftHeader = nextValues.leftHeader ?? leftHeader;
     const nextRightHeader = nextValues.rightHeader ?? rightHeader;
+    const nextTitleColor = nextValues.titleColor ?? titleColor;
+    const nextLeftHeaderColor = nextValues.leftHeaderColor ?? leftHeaderColor;
+    const nextRightHeaderColor = nextValues.rightHeaderColor ?? rightHeaderColor;
     const nextLeftBlocks = nextValues.leftBlocks ?? leftBlocks;
     const nextRightBlocks = nextValues.rightBlocks ?? rightBlocks;
     const leftLegacy = legacyFromBlocks(nextLeftBlocks);
@@ -106,6 +115,9 @@ const SplitContentEditor = ({ page, onChange }) => {
       title: nextTitle,
       leftHeader: nextLeftHeader,
       rightHeader: nextRightHeader,
+      titleColor: nextTitleColor,
+      leftHeaderColor: nextLeftHeaderColor,
+      rightHeaderColor: nextRightHeaderColor,
       leftBlocks: nextLeftBlocks,
       rightBlocks: nextRightBlocks,
       leftContentType: leftLegacy.contentType,
@@ -379,6 +391,18 @@ const SplitContentEditor = ({ page, onChange }) => {
           placeholder="Enter page heading"
           className="title-input"
         />
+        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', fontSize: '0.85rem', color: '#555' }}>
+          Title banner color:
+          <input
+            type="color"
+            value={titleColor}
+            onChange={(e) => {
+              setTitleColor(e.target.value);
+              emitChange({ titleColor: e.target.value });
+            }}
+            style={{ width: '36px', height: '28px', padding: '2px', border: '1px solid #b9c7da', borderRadius: '4px', cursor: 'pointer' }}
+          />
+        </label>
       </div>
 
       {/* Left Section */}
@@ -395,6 +419,18 @@ const SplitContentEditor = ({ page, onChange }) => {
             placeholder="e.g., Features, Description"
             className="header-input"
           />
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', fontSize: '0.85rem', color: '#555' }}>
+            Left header color:
+            <input
+              type="color"
+              value={leftHeaderColor}
+              onChange={(e) => {
+                setLeftHeaderColor(e.target.value);
+                emitChange({ leftHeaderColor: e.target.value });
+              }}
+              style={{ width: '36px', height: '28px', padding: '2px', border: '1px solid #b9c7da', borderRadius: '4px', cursor: 'pointer' }}
+            />
+          </label>
         </div>
 
         {renderSideEditor('left')}
@@ -414,6 +450,18 @@ const SplitContentEditor = ({ page, onChange }) => {
             placeholder="e.g., Specifications, Example"
             className="header-input"
           />
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', fontSize: '0.85rem', color: '#555' }}>
+            Right header color:
+            <input
+              type="color"
+              value={rightHeaderColor}
+              onChange={(e) => {
+                setRightHeaderColor(e.target.value);
+                emitChange({ rightHeaderColor: e.target.value });
+              }}
+              style={{ width: '36px', height: '28px', padding: '2px', border: '1px solid #b9c7da', borderRadius: '4px', cursor: 'pointer' }}
+            />
+          </label>
         </div>
 
         {renderSideEditor('right')}

@@ -21,7 +21,7 @@ const normalizeBlocksForRender = (blocks, contentType, content, image) => {
   return [];
 };
 
-const SplitContentRenderer = ({ title, leftHeader, rightHeader, leftContentType, rightContentType, leftContent, rightContent, leftImage, rightImage, leftBlocks, rightBlocks, onLinkClick, onImageClick }) => {
+const SplitContentRenderer = ({ title, leftHeader, rightHeader, titleColor, leftHeaderColor, rightHeaderColor, leftContentType, rightContentType, leftContent, rightContent, leftImage, rightImage, leftBlocks, rightBlocks, onLinkClick, onImageClick }) => {
   const renderContent = (contentType, content, image) => {
     if (contentType === 'text') {
       return (
@@ -104,7 +104,7 @@ const SplitContentRenderer = ({ title, leftHeader, rightHeader, leftContentType,
     <div className="split-content-renderer">
       {/* Main Heading */}
       {title && (
-        <div className="split-heading">
+        <div className="split-heading" style={{ background: titleColor || undefined }}>
           {title}
         </div>
       )}
@@ -113,12 +113,12 @@ const SplitContentRenderer = ({ title, leftHeader, rightHeader, leftContentType,
       {(leftHeader || rightHeader) && (
         <div className="split-headers">
           {leftHeader && (
-            <div className="left-header-box">
+            <div className="left-header-box" style={{ backgroundColor: leftHeaderColor || undefined }}>
               {leftHeader}
             </div>
           )}
           {rightHeader && (
-            <div className="right-header-box">
+            <div className="right-header-box" style={{ backgroundColor: rightHeaderColor || undefined }}>
               {rightHeader}
             </div>
           )}

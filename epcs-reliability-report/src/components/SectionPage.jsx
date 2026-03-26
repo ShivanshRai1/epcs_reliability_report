@@ -175,6 +175,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
             {page.title}
           </div>
         )}
+        {page.intro && (
           <p style={{ fontSize: '0.95rem', color: '#e0e6f0', marginTop: '1rem', marginBottom: '1.5rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
             {page.intro}
           </p>
@@ -610,6 +611,9 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
         title={page.title}
         leftHeader={page.leftHeader}
         rightHeader={page.rightHeader}
+        titleColor={page.titleColor}
+        leftHeaderColor={page.leftHeaderColor}
+        rightHeaderColor={page.rightHeaderColor}
         leftContentType={page.leftContentType}
         rightContentType={page.rightContentType}
         leftContent={page.leftContent}
@@ -626,6 +630,36 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
 
   // Render content page (pure text, editable)
   if (page.pageType === 'content') {
+    if (isEditMode) {
+      return (
+        <div>
+          <div style={{ display: 'grid', gap: '8px', marginBottom: '1rem' }}>
+            <input
+              type="text"
+              value={page.title || ''}
+              onChange={(e) => onCellChange(page.id, { title: e.target.value })}
+              placeholder="Enter page title"
+              style={{ width: '100%', padding: '10px 12px', border: '1px solid #b9c7da', borderRadius: '6px' }}
+            />
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: '#555' }}>
+              Title banner color:
+              <input
+                type="color"
+                value={page.titleColor || '#0052a3'}
+                onChange={(e) => onCellChange(page.id, { titleColor: e.target.value })}
+                style={{ width: '36px', height: '28px', padding: '2px', border: '1px solid #b9c7da', borderRadius: '4px', cursor: 'pointer' }}
+              />
+            </label>
+          </div>
+          <ContentSection
+            content={page.content}
+            isEditing={true}
+            onChange={(newContent) => onCellChange(page.id, { content: newContent })}
+          />
+        </div>
+      );
+    }
+
     return (
       <div>
         {page.title && (
@@ -644,7 +678,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
         )}
         <ContentSection
           content={page.content}
-          isEditing={isEditMode}
+          isEditing={false}
           onChange={(newContent) => onHeadingChange(page.id, newContent)}
         />
       </div>
