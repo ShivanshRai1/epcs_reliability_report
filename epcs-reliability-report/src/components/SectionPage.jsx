@@ -48,8 +48,8 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
     }
     
     return (
-      <div className={`page-heading ${headingClass}`}>
-        <div className="page-heading-content">
+      <div className={`page-heading ${headingClass}`} style={{ color: '#ffffff' }}>
+        <div className="page-heading-content" style={{ color: '#ffffff' }}>
           <HeadingSection
             heading={page.title}
             isEditMode={false}

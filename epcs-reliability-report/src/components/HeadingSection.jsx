@@ -38,7 +38,7 @@ const HeadingSection = ({ heading, isEditMode, onChange }) => {
   }
   return (
     <div className="heading-section">
-      <h2>{heading}</h2>
+      <h2 style={{ color: '#ffffff' }}>{heading}</h2>
     </div>
   );
 };
