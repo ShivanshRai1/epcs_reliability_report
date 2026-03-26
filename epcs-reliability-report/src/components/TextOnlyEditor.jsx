@@ -128,6 +128,7 @@ const TextOnlyEditor = ({ page, onChange }) => {
               placeholder="Enter text content..."
               className={`block-content ${block.type}`}
               rows={block.type === 'paragraph' ? 4 : 2}
+              style={{ background: '#ffffff', color: '#213547' }}
             />
           </div>
         ))}
