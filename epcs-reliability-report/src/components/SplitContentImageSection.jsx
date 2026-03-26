@@ -459,7 +459,7 @@ export default function SplitContentImageSection({
           flex: 1, padding: '12px 16px', fontWeight: 600, textAlign: 'center',
           fontSize: '0.95rem', letterSpacing: '0.5px', textTransform: 'uppercase',
           backgroundColor: hasRightHeader ? '#e8a87c' : '#e9e9e9',
-          color: hasRightHeader ? '#333' : 'transparent'
+          color: hasRightHeader ? '#ffffff' : 'transparent'
         }}>
           {displayRightHeader || '\u00A0'}
         </div>

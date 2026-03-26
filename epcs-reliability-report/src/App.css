@@ -1025,10 +1025,10 @@ a:hover, .index-link:hover {
   color: #ffffff !important;
 }
 
-/* Keep dark text only on explicitly light header panels */
+/* Right header text is white for consistency on colored panels. */
 .pdf-viewer-content .split-right-header[style*='rgb(232, 168, 124)'],
 .pdf-viewer-content .split-right-header[style*='#e8a87c'] {
-  color: #333333 !important;
+  color: #ffffff !important;
 }
 
 .pdf-viewer-nav {
