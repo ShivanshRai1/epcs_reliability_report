@@ -131,7 +131,6 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
   const resolveTemplateForCreate = (templateId) => {
     const createTemplateMap = {
       'link-only': 'just-links',
-      'mixed-content': 'just-images',
     };
     return createTemplateMap[templateId] || templateId;
   };

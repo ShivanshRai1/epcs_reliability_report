@@ -259,7 +259,7 @@ router.post('/create', async (req, res) => {
       'just-links': { links: [], title: title },
       'link-only': { links: [], linkBlocks: [], title: title, linkOnlyMode: true },
       'just-images': { images: [], captions: [] },
-      'mixed-content': { pageBlocks: [], images: [], captions: [] },
+      'mixed-content': { pageBlocks: [], images: [], captions: [], mixedContentMode: true },
       'heading': { title: title, subtitle: '' },
       'index': { content: [] },
       'image-text': { imageUrl: '', imageCaption: '', content: '', imagePosition: 'left', link: null },
