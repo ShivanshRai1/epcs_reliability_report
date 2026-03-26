@@ -1697,6 +1697,16 @@ a:hover,
   color: #1f2937 !important;
 }
 
+/* Exception: heading pages keep white text */
+.report-shell .page-heading h1,
+.report-shell .page-heading h2,
+.report-shell .page-heading h3,
+.report-shell .page-heading h4,
+.report-shell .page-heading h5,
+.report-shell .page-heading h6 {
+  color: #f6fbff !important;
+}
+
 .report-shell p,
 .report-shell span,
 .report-shell li,
@@ -1729,18 +1739,11 @@ a:hover,
   background: #f5f9ff !important;
 }
 
-/* Heading pages: always white text, even in normal light mode */
-.report-shell .page-heading,
-.report-shell .page-heading *,
-.report-shell .page-heading h1,
-.report-shell .page-heading h2,
-.report-shell .page-heading h3,
-.report-shell .page-heading h4,
-.report-shell .page-heading h5,
-.report-shell .page-heading h6,
-.report-shell .page-heading-content h1,
-.report-shell .page-heading-content h2,
-.report-shell .page-heading-title,
-.report-shell .page-heading-subtitle {
+/* Heading pages: force white text on all elements regardless of rules above */
+.report-shell .page-heading {
+  color: #f6fbff !important;
+}
+
+.report-shell .page-heading * {
   color: #f6fbff !important;
 }
