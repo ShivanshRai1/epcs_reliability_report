@@ -12,6 +12,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
   const [loading, setLoading] = useState(false);
   const [templatesLoading, setTemplatesLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showAllTemplates, setShowAllTemplates] = useState(false);
 
   const offlineTemplateFallback = [
     { id: 'text-only', name: 'Text Only', description: 'Simple text content page' },
@@ -33,6 +34,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       setPageTitle('');
       setSelectedTemplate(null);
       setError('');
+      setShowAllTemplates(false);
       lockBodyScroll();
     }
 
@@ -101,6 +103,13 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     const template = templates.find(t => t.id === templateId);
     if (template) setPageTitle(template.name);
   };
+
+  const primaryTemplateOrder = ['split-content', 'just-images', 'text-only', 'heading'];
+  const primaryTemplates = primaryTemplateOrder
+    .map((id) => templates.find((template) => template.id === id))
+    .filter(Boolean);
+  const hiddenTemplates = templates.filter((template) => !primaryTemplateOrder.includes(template.id));
+  const displayedTemplates = showAllTemplates ? [...primaryTemplates, ...hiddenTemplates] : primaryTemplates;
 
   const getPageTypeForTemplate = (templateId) => {
     if (!templateId) return null;
@@ -427,21 +436,42 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
               {templatesLoading && <div className="loading-message">Loading templates...</div>}
               {!templatesLoading && templates.length === 0 && <div className="error-message">No templates available</div>}
               {templates.length > 0 && (
-                <div className="templates-grid">
-                  {templates.map((template) => (
-                    <div
-                      key={template.id}
-                      className={`template-card ${selectedTemplate === template.id ? 'selected' : ''}`}
-                      onClick={() => handleTemplateSelect(template.id)}
-                    >
-                      <div className="template-preview">
-                        {renderTemplatePreview(template.id)}
+                <>
+                  <div className="templates-grid">
+                    {displayedTemplates.map((template) => (
+                      <div
+                        key={template.id}
+                        className={`template-card ${selectedTemplate === template.id ? 'selected' : ''}`}
+                        onClick={() => handleTemplateSelect(template.id)}
+                      >
+                        <div className="template-preview">
+                          {renderTemplatePreview(template.id)}
+                        </div>
+                        <div className="template-name">{template.name}</div>
+                        <div className="template-description">{template.description}</div>
                       </div>
-                      <div className="template-name">{template.name}</div>
-                      <div className="template-description">{template.description}</div>
+                    ))}
+                  </div>
+                  {!showAllTemplates && hiddenTemplates.length > 0 && (
+                    <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'center' }}>
+                      <button
+                        type="button"
+                        onClick={() => setShowAllTemplates(true)}
+                        style={{
+                          padding: '0.5rem 1rem',
+                          borderRadius: '8px',
+                          border: '1px solid #c2cad8',
+                          background: '#f4f7fb',
+                          color: '#1f2937',
+                          cursor: 'pointer',
+                          fontWeight: 600,
+                        }}
+                      >
+                        View more
+                      </button>
                     </div>
-                  ))}
-                </div>
+                  )}
+                </>
               )}
             </div>
 
