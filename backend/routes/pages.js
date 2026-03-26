@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
     const { pagesTable } = getTableNames(req);
     const connection = await pool.getConnection();
     const [rows] = await connection.query(
-      `SELECT page_id, page_number, page_type, title, page_data, updated_at, updated_by, position FROM ${pagesTable} WHERE is_deleted = FALSE`
+      `SELECT page_id, page_number, page_type, page_template, title, page_data, updated_at, updated_by, position FROM ${pagesTable} WHERE is_deleted = FALSE`
     );
     connection.release();
 

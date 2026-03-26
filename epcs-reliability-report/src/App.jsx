@@ -152,6 +152,7 @@ function App() {
         id: page.page_id,
         title: page.title,
         pageType: page.page_type,
+        pageTemplate: page.page_template,
         pageNumber: page.page_number
       }))
     };

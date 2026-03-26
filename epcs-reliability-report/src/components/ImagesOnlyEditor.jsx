@@ -43,8 +43,9 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
 
   // mixedContentMode creates a true distinction from Just Images.
   // Backward safety: if legacy page already has non-image blocks, keep mixed UI available.
+  const isMixedTemplate = page.pageTemplate === 'mixed-content';
   const hasNonImageBlocks = blocks.some((b) => b.type !== 'image');
-  const isMixedMode = Boolean(page.mixedContentMode) || hasNonImageBlocks;
+  const isMixedMode = Boolean(page.mixedContentMode) || isMixedTemplate || hasNonImageBlocks;
 
   const [newLinkTitle, setNewLinkTitle] = useState('');
   const [newLinkTarget, setNewLinkTarget] = useState('');
@@ -57,9 +58,9 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
     setBottomText(page.bottomText || '');
   }, [page.id]);
 
-  const emit = (nextBlocks, nextTitle = title, nextIntro = intro, nextBottom = bottomText) => {
+  const emit = (nextBlocks, nextTitle = title, nextIntro = intro, nextBottom = bottomText, forceMixedMode = false) => {
     const { images, captions } = toLegacy(nextBlocks);
-    const nextMixedMode = Boolean(page.mixedContentMode) || nextBlocks.some((b) => b.type !== 'image');
+    const nextMixedMode = forceMixedMode || Boolean(page.mixedContentMode) || isMixedTemplate || nextBlocks.some((b) => b.type !== 'image');
     onChange({
       ...page,
       title: nextTitle,
@@ -71,6 +72,10 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
       imageContentBlocks: nextBlocks.filter(b => b.type !== 'image'),
       mixedContentMode: nextMixedMode
     });
+  };
+
+  const enableMixedMode = () => {
+    emit(blocks, title, intro, bottomText, true);
   };
 
   const moveBlock = (id, dir) => {
@@ -183,6 +188,17 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
       {/* ── Add actions ── */}
       <div className="editor-section">
         <label>{isMixedMode ? 'Add Content:' : 'Add Images:'}</label>
+
+        {!isMixedMode && (
+          <div className="content-block-add-section">
+            <h4>Need links or text blocks?</h4>
+            <div className="block-add-btn-row">
+              <button className="add-image-btn" onClick={enableMixedMode}>
+                Enable Mixed Content
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="content-block-add-section">
           <h4>Image</h4>
