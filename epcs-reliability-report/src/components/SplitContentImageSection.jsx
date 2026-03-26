@@ -617,31 +617,31 @@ export default function SplitContentImageSection({
               </select>
             </label>
             <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
-              Title size
+              Title size (rem)
               <input type="number" min="0.8" max="3" step="0.05" value={titleFontSizeData} onChange={(e) => { const val = Number(e.target.value) || 1.2; setTitleFontSizeData(val); emitImmediateChange({ titleFontSize: val }); }} style={{ padding: '6px 8px', border: '1px solid #c8d3e7', borderRadius: '6px' }} />
             </label>
             <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
-              Header size
+              Header size (rem)
               <input type="number" min="0.75" max="2.5" step="0.05" value={headerFontSizeData} onChange={(e) => { const val = Number(e.target.value) || 0.95; setHeaderFontSizeData(val); emitImmediateChange({ headerFontSize: val }); }} style={{ padding: '6px 8px', border: '1px solid #c8d3e7', borderRadius: '6px' }} />
             </label>
             <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
-              Content size
+              Content size (rem)
               <input type="number" min="0.7" max="2" step="0.05" value={contentFontSizeData} onChange={(e) => { const val = Number(e.target.value) || 0.95; setContentFontSizeData(val); emitImmediateChange({ contentFontSize: val }); }} style={{ padding: '6px 8px', border: '1px solid #c8d3e7', borderRadius: '6px' }} />
             </label>
             <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
-              Left width
+              Left image width (px)
               <input type="number" min="0" step="10" value={leftImageWidthData || ''} placeholder="Auto" onChange={(e) => { const val = e.target.value === '' ? null : Number(e.target.value); setLeftImageWidthData(val); emitImmediateChange({ leftImageWidth: val }); }} style={{ padding: '6px 8px', border: '1px solid #c8d3e7', borderRadius: '6px' }} />
             </label>
             <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
-              Left height
+              Left image height (px)
               <input type="number" min="0" step="10" value={leftImageHeightData || ''} placeholder="Auto" onChange={(e) => { const val = e.target.value === '' ? null : Number(e.target.value); setLeftImageHeightData(val); emitImmediateChange({ leftImageHeight: val }); }} style={{ padding: '6px 8px', border: '1px solid #c8d3e7', borderRadius: '6px' }} />
             </label>
             <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
-              Right width
+              Right image width (px)
               <input type="number" min="0" step="10" value={rightImageWidthData || ''} placeholder="Auto" onChange={(e) => { const val = e.target.value === '' ? null : Number(e.target.value); setRightImageWidthData(val); emitImmediateChange({ rightImageWidth: val }); }} style={{ padding: '6px 8px', border: '1px solid #c8d3e7', borderRadius: '6px' }} />
             </label>
             <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
-              Right height
+              Right image height (px)
               <input type="number" min="0" step="10" value={rightImageHeightData || ''} placeholder="Auto" onChange={(e) => { const val = e.target.value === '' ? null : Number(e.target.value); setRightImageHeightData(val); emitImmediateChange({ rightImageHeight: val }); }} style={{ padding: '6px 8px', border: '1px solid #c8d3e7', borderRadius: '6px' }} />
             </label>
           </div>
