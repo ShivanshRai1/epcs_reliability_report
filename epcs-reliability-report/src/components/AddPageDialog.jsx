@@ -18,13 +18,12 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     { id: 'heading', name: 'Heading', description: 'Title and heading-focused page' },
     { id: 'table', name: 'Table', description: 'Structured table page' },
     { id: 'just-images', name: 'Images', description: 'Image-focused page' },
-    { id: 'just-links', name: 'Links + Text', description: 'Links with optional text blocks' },
-    { id: 'link-only', name: 'Links Only', description: 'Link-focused page without text blocks' },
     { id: 'mixed-content', name: 'Mixed Content', description: 'Text, links, and images in any order with reorder' },
     { id: 'split-text-image', name: 'Split Text + Image', description: 'Text on left and image on right with optional headers' },
     { id: 'split-links-image', name: 'Split Links + Image', description: 'Links on left and image on right with optional headers' },
     { id: 'split-image-links', name: 'Split Image + Links', description: 'Image on left and links on right with optional headers' },
-    { id: 'split-image-image', name: 'Split Image + Image', description: 'Image on left and image on right with optional headers' }
+    { id: 'split-image-image', name: 'Split Image + Image', description: 'Image on left and image on right with optional headers' },
+    { id: 'split-content', name: 'Split Content', description: 'Flexible left/right content areas with optional headers' }
   ];
 
   // Fetch available templates
@@ -55,6 +54,10 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         const id = String(template.id || '').toLowerCase();
         const name = String(template.name || '').toLowerCase();
         return (
+          id !== 'just-links' &&
+          id !== 'link-only' &&
+          !name.includes('links + text') &&
+          !name.includes('link only') &&
           id !== 'image-text' &&
           !name.includes('image + text') &&
           !name.includes('image-text') &&
@@ -69,22 +72,13 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       // Ensure additional functional templates are always visible even when API list is old.
       const templateMap = new Map(filteredTemplates.map((t) => [t.id, t]));
 
-      // Override copy so similar templates are clearly differentiated.
-      if (templateMap.has('just-links')) {
-        templateMap.set('just-links', {
-          ...templateMap.get('just-links'),
-          name: 'Links + Text',
-          description: 'Links with optional text blocks'
-        });
-      }
-
       const ensuredTemplates = [
-        { id: 'link-only', name: 'Links Only', description: 'Link-focused page without text blocks' },
         { id: 'mixed-content', name: 'Mixed Content', description: 'Text, links, and images in any order with reorder' },
         { id: 'split-text-image', name: 'Split Text + Image', description: 'Text on left and image on right with optional headers' },
         { id: 'split-links-image', name: 'Split Links + Image', description: 'Links on left and image on right with optional headers' },
         { id: 'split-image-links', name: 'Split Image + Links', description: 'Image on left and links on right with optional headers' },
-        { id: 'split-image-image', name: 'Split Image + Image', description: 'Image on left and image on right with optional headers' }
+        { id: 'split-image-image', name: 'Split Image + Image', description: 'Image on left and image on right with optional headers' },
+        { id: 'split-content', name: 'Split Content', description: 'Flexible left/right content areas with optional headers' }
       ];
       ensuredTemplates.forEach((t) => {
         if (!templateMap.has(t.id)) templateMap.set(t.id, t);
@@ -186,14 +180,15 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     if (!pageType || !Array.isArray(existingPages)) return null;
 
     const preferredPreviewPageByTemplate = {
-      'text-only': 26,
-      'split-text-image': 39,
-      'split-links-image': 14,
-      'split-image-links': 47,
-      'split-image-image': 45,
-      'split-content': 28,
-      'just-images': 7,
-      'mixed-content': 42
+      'text-only': 28,
+      'heading': 8,
+      'just-images': 9,
+      'split-text-image': 41,
+      'split-links-image': 16,
+      'split-image-links': 49,
+      'split-image-image': 47,
+      'split-content': 30,
+      'mixed-content': 44
     };
 
     const preferredPageNumber = preferredPreviewPageByTemplate[templateId];
