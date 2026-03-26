@@ -29,6 +29,11 @@ export const TEMPLATE_INFO = {
  */
 export const getTemplateInfo = (page) => {
   if (!page) return null;
+
+  // Prefer active behavior modes over stored template ID for legacy pages.
+  if (page.mixedContentMode) {
+    return TEMPLATE_INFO['mixed-content'];
+  }
   
   // Try to get template ID from various keys
   const templateId = page.page_template || page.pageTemplate || page.templateId;
