@@ -1728,3 +1728,12 @@ a:hover,
 .report-shell tr:nth-child(even) td {
   background: #f5f9ff !important;
 }
+
+/* Heading pages: always white text, even in normal light mode */
+.report-shell .page-heading-title {
+  color: #f6fbff !important;
+}
+
+.report-shell .page-heading-subtitle {
+  color: #e0e6f0 !important;
+}

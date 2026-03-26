@@ -10,6 +10,11 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
   const [searchParams, setSearchParams] = useSearchParams();
   const isLiveMode = searchParams.get('live') === '1';
 
+  // Filter pages: exclude page 5 from normal mode
+  const visiblePages = isLiveMode 
+    ? reportData.pages 
+    : reportData.pages.filter(p => p.pageNumber !== 5);
+
   const withLiveQuery = (path) => {
     if (!isLiveMode) return path;
     return `${path}${path.includes('?') ? '&' : '?'}live=1`;
@@ -35,11 +40,16 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
     window.open(targetPath, '_blank', 'noopener,noreferrer');
   };
 
-  // Get page by id or number
+  // Get page by id or number from visible pages (or all pages if in live mode)
   const getPage = (idOrNum) => {
-    if (!idOrNum) return reportData.pages[0];
+    if (!idOrNum) return visiblePages[0];
     if (!isNaN(Number(idOrNum))) {
-      return reportData.pages.find(p => p.pageNumber === Number(idOrNum));
+      const pageNum = Number(idOrNum);
+      // In normal mode, skip page 5
+      if (!isLiveMode && pageNum === 5) {
+        return visiblePages.find(p => p.pageNumber === 6) || visiblePages[0];
+      }
+      return reportData.pages.find(p => p.pageNumber === pageNum);
     }
     return reportData.pages.find(p => p.id === idOrNum);
   };
@@ -55,7 +65,7 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
     ? Math.max(1, indexPages.findIndex((p) => String(p.id) === String(page.id)) + 1)
     : null;
 
-  const totalPages = reportData.pages.length;
+  const totalPages = visiblePages.length;
   const effectiveEditMode = isLiveMode ? false : isEditMode;
 
   const handleNav = (nav, pageNum) => {
@@ -64,19 +74,34 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
     } else if (nav === 'index') {
       navigate(withLiveQuery('/page/1'));
     } else if (nav === 'previous') {
-      if (page.pageNumber > 1) {
-        navigate(withLiveQuery(`/page/${page.pageNumber - 1}`));
+      let prevPageNum = page.pageNumber - 1;
+      // Skip page 5 in normal mode when going backward
+      if (!isLiveMode && prevPageNum === 5) {
+        prevPageNum = 4;
+      }
+      if (prevPageNum >= 1) {
+        navigate(withLiveQuery(`/page/${prevPageNum}`));
       } else {
         navigate(withLiveQuery('/'));
       }
     } else if (nav === 'next') {
-      if (page.pageNumber < totalPages) {
-        navigate(withLiveQuery(`/page/${page.pageNumber + 1}`));
+      let nextPageNum = page.pageNumber + 1;
+      // Skip page 5 in normal mode when going forward
+      if (!isLiveMode && nextPageNum === 5) {
+        nextPageNum = 6;
+      }
+      if (nextPageNum <= reportData.pages.length) {
+        navigate(withLiveQuery(`/page/${nextPageNum}`));
       } else {
         navigate(withLiveQuery('/'));
       }
     } else if (nav === 'jump' && pageNum) {
-      navigate(withLiveQuery(`/page/${pageNum}`));
+      // Skip page 5 in normal mode
+      let targetPageNum = pageNum;
+      if (!isLiveMode && targetPageNum === 5) {
+        targetPageNum = 6;
+      }
+      navigate(withLiveQuery(`/page/${targetPageNum}`));
     }
   };
 
