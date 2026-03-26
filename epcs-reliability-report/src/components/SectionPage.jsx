@@ -496,10 +496,19 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
   if (page.pageType === 'image') {
     return (
       <div className={isLiveMode ? 'legacy-live-image-page' : ''} style={{ textAlign: 'center' }}>
-        {page.title && (
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: '#fff' }}>
+        {page.title && !isEditMode && (
+          <div style={{
+            background: 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)',
+            color: 'white',
+            padding: '20px 24px',
+            fontSize: '1.3rem',
+            fontWeight: 600,
+            textAlign: 'center',
+            letterSpacing: '0.5px',
+            marginBottom: '1.2rem',
+          }}>
             {page.title}
-          </h2>
+          </div>
         )}
         <ImageSection
           imageSrc={page.imageUrl}
