@@ -1697,6 +1697,13 @@ a:hover,
   color: #1f2937 !important;
 }
 
+/* Split-content blue banner titles in normal mode must stay white. */
+.report-shell .split-main-title,
+.report-shell .split-main-title *,
+.report-shell .split-main-title h1 {
+  color: #ffffff !important;
+}
+
 /* Exception: heading pages keep white text */
 .report-shell .page-heading h1,
 .report-shell .page-heading h2,
