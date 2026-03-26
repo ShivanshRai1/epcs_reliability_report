@@ -509,6 +509,16 @@ function App() {
           if ('titleColor' in data) page.titleColor = data.titleColor;
           if ('leftHeaderColor' in data) page.leftHeaderColor = data.leftHeaderColor;
           if ('rightHeaderColor' in data) page.rightHeaderColor = data.rightHeaderColor;
+          if ('fontFamily' in data) page.fontFamily = data.fontFamily;
+          if ('titleFontSize' in data) page.titleFontSize = data.titleFontSize;
+          if ('headerFontSize' in data) page.headerFontSize = data.headerFontSize;
+          if ('contentFontSize' in data) page.contentFontSize = data.contentFontSize;
+          if ('imageWidth' in data) page.imageWidth = data.imageWidth;
+          if ('imageHeight' in data) page.imageHeight = data.imageHeight;
+          if ('leftImageWidth' in data) page.leftImageWidth = data.leftImageWidth;
+          if ('leftImageHeight' in data) page.leftImageHeight = data.leftImageHeight;
+          if ('rightImageWidth' in data) page.rightImageWidth = data.rightImageWidth;
+          if ('rightImageHeight' in data) page.rightImageHeight = data.rightImageHeight;
         } else {
           // Handle regular image pages (string URL)
           page.imageUrl = data;

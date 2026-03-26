@@ -40,6 +40,8 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
   const [title, setTitle] = useState(page.title || '');
   const [intro, setIntro] = useState(page.intro || '');
   const [bottomText, setBottomText] = useState(page.bottomText || '');
+  const [imageWidth, setImageWidth] = useState(Number(page.imageWidth) > 0 ? Number(page.imageWidth) : null);
+  const [imageHeight, setImageHeight] = useState(Number(page.imageHeight) > 0 ? Number(page.imageHeight) : null);
 
   // mixedContentMode creates a true distinction from Just Images.
   // Backward safety: if legacy page already has non-image blocks, keep mixed UI available.
@@ -56,9 +58,11 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
     setTitle(page.title || '');
     setIntro(page.intro || '');
     setBottomText(page.bottomText || '');
+    setImageWidth(Number(page.imageWidth) > 0 ? Number(page.imageWidth) : null);
+    setImageHeight(Number(page.imageHeight) > 0 ? Number(page.imageHeight) : null);
   }, [page.id]);
 
-  const emit = (nextBlocks, nextTitle = title, nextIntro = intro, nextBottom = bottomText, forceMixedMode = false) => {
+  const emit = (nextBlocks, nextTitle = title, nextIntro = intro, nextBottom = bottomText, forceMixedMode = false, nextImageWidth = imageWidth, nextImageHeight = imageHeight) => {
     const { images, captions } = toLegacy(nextBlocks);
     const nextMixedMode = forceMixedMode || Boolean(page.mixedContentMode) || isMixedTemplate || nextBlocks.some((b) => b.type !== 'image');
     onChange({
@@ -70,7 +74,9 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
       images,
       captions,
       imageContentBlocks: nextBlocks.filter(b => b.type !== 'image'),
-      mixedContentMode: nextMixedMode
+      mixedContentMode: nextMixedMode,
+      imageWidth: nextImageWidth,
+      imageHeight: nextImageHeight
     });
   };
 
@@ -171,6 +177,40 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
             style={{ width: '36px', height: '28px', padding: '2px', border: '1px solid #b9c7da', borderRadius: '4px', cursor: 'pointer' }}
           />
         </label>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '8px' }}>
+          <label style={{ display: 'grid', gap: '4px', fontSize: '0.85rem', color: '#555' }}>
+            Image width (px)
+            <input
+              type="number"
+              min="0"
+              step="10"
+              value={imageWidth || ''}
+              placeholder="Auto"
+              className="title-input"
+              onChange={(e) => {
+                const nextValue = e.target.value === '' ? null : Number(e.target.value);
+                setImageWidth(nextValue);
+                emit(blocks, title, intro, bottomText, false, nextValue, imageHeight);
+              }}
+            />
+          </label>
+          <label style={{ display: 'grid', gap: '4px', fontSize: '0.85rem', color: '#555' }}>
+            Image height (px)
+            <input
+              type="number"
+              min="0"
+              step="10"
+              value={imageHeight || ''}
+              placeholder="Auto"
+              className="title-input"
+              onChange={(e) => {
+                const nextValue = e.target.value === '' ? null : Number(e.target.value);
+                setImageHeight(nextValue);
+                emit(blocks, title, intro, bottomText, false, imageWidth, nextValue);
+              }}
+            />
+          </label>
+        </div>
       </div>
       <div className="editor-section">
         <label>Intro Text (optional):</label>
@@ -261,7 +301,7 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
                     <>
                       <div className="image-preview">
                         {block.src
-                          ? <img src={block.src} alt={`Block ${idx + 1}`} />
+                          ? <img src={block.src} alt={`Block ${idx + 1}`} style={{ width: imageWidth ? `${imageWidth}px` : undefined, height: imageHeight ? `${imageHeight}px` : undefined, objectFit: imageWidth || imageHeight ? 'contain' : undefined, maxWidth: '100%' }} />
                           : <div className="placeholder">No image</div>}
                       </div>
                       <label>Image URL:</label>

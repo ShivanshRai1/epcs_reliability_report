@@ -21,17 +21,29 @@ const normalizeBlocksForRender = (blocks, contentType, content, image) => {
   return [];
 };
 
-const SplitContentRenderer = ({ title, leftHeader, rightHeader, titleColor, leftHeaderColor, rightHeaderColor, leftContentType, rightContentType, leftContent, rightContent, leftImage, rightImage, leftBlocks, rightBlocks, onLinkClick, onImageClick }) => {
-  const renderContent = (contentType, content, image) => {
+const SplitContentRenderer = ({ title, leftHeader, rightHeader, titleColor, leftHeaderColor, rightHeaderColor, fontFamily, titleFontSize, headerFontSize, contentFontSize, imageWidth, imageHeight, leftImageWidth, leftImageHeight, rightImageWidth, rightImageHeight, leftContentType, rightContentType, leftContent, rightContent, leftImage, rightImage, leftBlocks, rightBlocks, onLinkClick, onImageClick }) => {
+  const resolvedTitleSize = Number(titleFontSize) > 0 ? Number(titleFontSize) : 1.3;
+  const resolvedHeaderSize = Number(headerFontSize) > 0 ? Number(headerFontSize) : 0.95;
+  const resolvedContentSize = Number(contentFontSize) > 0 ? Number(contentFontSize) : 0.95;
+  const leftWidth = Number(leftImageWidth || imageWidth) > 0 ? Number(leftImageWidth || imageWidth) : null;
+  const leftHeight = Number(leftImageHeight || imageHeight) > 0 ? Number(leftImageHeight || imageHeight) : null;
+  const rightWidth = Number(rightImageWidth || imageWidth) > 0 ? Number(rightImageWidth || imageWidth) : null;
+  const rightHeight = Number(rightImageHeight || imageHeight) > 0 ? Number(rightImageHeight || imageHeight) : null;
+  const renderContent = (contentType, content, image, side = 'left') => {
+    const sideImageStyle = {
+      width: side === 'left' && leftWidth ? `${leftWidth}px` : side === 'right' && rightWidth ? `${rightWidth}px` : undefined,
+      height: side === 'left' && leftHeight ? `${leftHeight}px` : side === 'right' && rightHeight ? `${rightHeight}px` : undefined,
+      objectFit: (side === 'left' ? (leftWidth || leftHeight) : (rightWidth || rightHeight)) ? 'contain' : undefined
+    };
     if (contentType === 'text') {
       return (
-        <div className="content-display text-content">
+        <div className="content-display text-content" style={{ fontSize: `${resolvedContentSize}rem` }}>
           {content}
         </div>
       );
     } else if (contentType === 'link') {
       return (
-        <div className="content-display link-content">
+        <div className="content-display link-content" style={{ fontSize: `${resolvedContentSize}rem` }}>
           <button
             className="link-button"
             onClick={() => onLinkClick && onLinkClick(content)}
@@ -49,6 +61,7 @@ const SplitContentRenderer = ({ title, leftHeader, rightHeader, titleColor, left
               src={image} 
               alt="content-image"
               className="content-image"
+              style={sideImageStyle}
             />
           )}
         </div>
@@ -57,10 +70,16 @@ const SplitContentRenderer = ({ title, leftHeader, rightHeader, titleColor, left
     return null;
   };
 
-  const renderBlock = (block, idx) => {
+  const renderBlock = (block, idx, side) => {
+    const sideImageStyle = {
+      width: side === 'left' && leftWidth ? `${leftWidth}px` : side === 'right' && rightWidth ? `${rightWidth}px` : undefined,
+      height: side === 'left' && leftHeight ? `${leftHeight}px` : side === 'right' && rightHeight ? `${rightHeight}px` : undefined,
+      objectFit: (side === 'left' ? (leftWidth || leftHeight) : (rightWidth || rightHeight)) ? 'contain' : undefined,
+      cursor: onImageClick ? 'pointer' : 'default'
+    };
     if (block.type === 'text') {
       return (
-        <div key={block.id || `text-${idx}`} className="content-display text-content split-block-render-item">
+        <div key={block.id || `text-${idx}`} className="content-display text-content split-block-render-item" style={{ fontSize: `${resolvedContentSize}rem` }}>
           {block.text}
         </div>
       );
@@ -75,7 +94,7 @@ const SplitContentRenderer = ({ title, leftHeader, rightHeader, titleColor, left
               alt="content-image"
               className="content-image"
               onClick={() => onImageClick && onImageClick(block.imageUrl, title || 'Image')}
-              style={{ cursor: onImageClick ? 'pointer' : 'default' }}
+              style={sideImageStyle}
             />
           )}
         </div>
@@ -101,10 +120,10 @@ const SplitContentRenderer = ({ title, leftHeader, rightHeader, titleColor, left
   const normalizedRightBlocks = normalizeBlocksForRender(rightBlocks, rightContentType, rightContent, rightImage);
 
   return (
-    <div className="split-content-renderer">
+    <div className="split-content-renderer" style={{ fontFamily: fontFamily || 'inherit' }}>
       {/* Main Heading */}
       {title && (
-        <div className="split-heading" style={{ background: titleColor || undefined }}>
+        <div className="split-heading" style={{ background: titleColor || undefined, fontSize: `${resolvedTitleSize}rem` }}>
           {title}
         </div>
       )}
@@ -113,12 +132,12 @@ const SplitContentRenderer = ({ title, leftHeader, rightHeader, titleColor, left
       {(leftHeader || rightHeader) && (
         <div className="split-headers">
           {leftHeader && (
-            <div className="left-header-box" style={{ backgroundColor: leftHeaderColor || undefined }}>
+            <div className="left-header-box" style={{ backgroundColor: leftHeaderColor || undefined, fontSize: `${resolvedHeaderSize}rem` }}>
               {leftHeader}
             </div>
           )}
           {rightHeader && (
-            <div className="right-header-box" style={{ backgroundColor: rightHeaderColor || undefined }}>
+            <div className="right-header-box" style={{ backgroundColor: rightHeaderColor || undefined, fontSize: `${resolvedHeaderSize}rem` }}>
               {rightHeader}
             </div>
           )}
@@ -129,13 +148,13 @@ const SplitContentRenderer = ({ title, leftHeader, rightHeader, titleColor, left
       <div className="split-content">
         <div className="left-content-area">
           {normalizedLeftBlocks.length > 0
-            ? <div className="split-block-render-list">{normalizedLeftBlocks.map(renderBlock)}</div>
-            : renderContent(leftContentType, leftContent, leftImage)}
+            ? <div className="split-block-render-list">{normalizedLeftBlocks.map((block, idx) => renderBlock(block, idx, 'left'))}</div>
+            : renderContent(leftContentType, leftContent, leftImage, 'left')}
         </div>
         <div className="right-content-area">
           {normalizedRightBlocks.length > 0
-            ? <div className="split-block-render-list">{normalizedRightBlocks.map(renderBlock)}</div>
-            : renderContent(rightContentType, rightContent, rightImage)}
+            ? <div className="split-block-render-list">{normalizedRightBlocks.map((block, idx) => renderBlock(block, idx, 'right'))}</div>
+            : renderContent(rightContentType, rightContent, rightImage, 'right')}
         </div>
       </div>
     </div>

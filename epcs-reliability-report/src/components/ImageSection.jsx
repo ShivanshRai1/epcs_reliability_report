@@ -1,7 +1,17 @@
 import React, { useRef } from "react";
 
-const ImageSection = ({ imageSrc, pageTitle, titleColor, isEditMode, onChange, onTitleChange, onTitleColorChange, onImageClick }) => {
+const ImageSection = ({ imageSrc, pageTitle, titleColor, imageWidth, imageHeight, isEditMode, onChange, onTitleChange, onTitleColorChange, onImageSizeChange, onImageClick }) => {
   const fileInputRef = useRef();
+
+  const widthValue = Number(imageWidth) > 0 ? Number(imageWidth) : '';
+  const heightValue = Number(imageHeight) > 0 ? Number(imageHeight) : '';
+  const imageStyle = {
+    maxWidth: '100%',
+    width: widthValue ? `${widthValue}px` : undefined,
+    height: heightValue ? `${heightValue}px` : undefined,
+    objectFit: widthValue || heightValue ? 'contain' : undefined,
+    cursor: onImageClick ? 'zoom-in' : 'default'
+  };
 
   const handleFileChange = e => {
     const file = e.target.files[0];
@@ -69,7 +79,35 @@ const ImageSection = ({ imageSrc, pageTitle, titleColor, isEditMode, onChange, o
           </label>
         </div>
         <div className="image-preview">
-          {imageSrc && <img src={imageSrc} alt="Preview" />}
+          {imageSrc && <img src={imageSrc} alt="Preview" style={imageStyle} />}
+        </div>
+        <div>
+          <label>
+            <span>Image Width (px):</span>
+            <input
+              type="number"
+              min="0"
+              step="10"
+              value={widthValue}
+              onChange={(e) => onImageSizeChange && onImageSizeChange({ imageWidth: e.target.value === '' ? null : Number(e.target.value) })}
+              className="image-url-input"
+              placeholder="Auto"
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            <span>Image Height (px):</span>
+            <input
+              type="number"
+              min="0"
+              step="10"
+              value={heightValue}
+              onChange={(e) => onImageSizeChange && onImageSizeChange({ imageHeight: e.target.value === '' ? null : Number(e.target.value) })}
+              className="image-url-input"
+              placeholder="Auto"
+            />
+          </label>
         </div>
       </div>
     );
@@ -81,7 +119,7 @@ const ImageSection = ({ imageSrc, pageTitle, titleColor, isEditMode, onChange, o
         <img
           src={imageSrc}
           alt="Section"
-          style={{ maxWidth: "100%", cursor: onImageClick ? "zoom-in" : "default" }}
+          style={imageStyle}
           onClick={onImageClick}
         />
       )}

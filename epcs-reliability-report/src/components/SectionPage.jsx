@@ -19,6 +19,104 @@ import IndexEditor from './IndexEditor';
 const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexPageOrdinal = null, onCellChange, onHeadingChange, onImageChange, onIndexChange, onImageClick, allIndexItems }) => {
   if (!page) return <div style={{ padding: '1.5rem 0' }}>No page data available.</div>;
 
+  const toPositiveNumber = (value, fallback) => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+  };
+
+  const fontFamily = page.fontFamily || 'inherit';
+  const titleFontSize = toPositiveNumber(page.titleFontSize, 1.2);
+  const headerFontSize = toPositiveNumber(page.headerFontSize, 0.95);
+  const contentFontSize = toPositiveNumber(page.contentFontSize, 0.95);
+  const imageWidth = toPositiveNumber(page.imageWidth, 0);
+  const imageHeight = toPositiveNumber(page.imageHeight, 0);
+
+  const pageTextStyle = {
+    fontFamily,
+  };
+
+  const imageSizingStyle = {
+    width: imageWidth > 0 ? `${imageWidth}px` : undefined,
+    height: imageHeight > 0 ? `${imageHeight}px` : undefined,
+    objectFit: (imageWidth > 0 || imageHeight > 0) ? 'contain' : undefined,
+  };
+
+  const hasImageSizing = [
+    'image',
+    'just-images',
+    'split-content-image',
+    'split-text-image',
+    'split-links-image',
+    'split-image-links',
+    'split-image-image',
+    'split-content'
+  ].includes(page.pageType);
+
+  const updatePageDisplaySettings = (field, value) => {
+    if (!onCellChange) return;
+    onCellChange(page.id, { [field]: value });
+  };
+
+  const renderDisplaySettingsPanel = () => {
+    if (!isEditMode || isLiveMode) return null;
+
+    return (
+      <div style={{ marginBottom: '12px', padding: '10px 12px', border: '1px solid #d6deec', borderRadius: '8px', background: '#f4f7fc' }}>
+        <div style={{ fontWeight: 600, marginBottom: '8px', color: '#1f2937', fontSize: '0.9rem' }}>Display Settings</div>
+        <div style={{ display: 'grid', gap: '8px', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}>
+          <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
+            Font family
+            <select
+              value={fontFamily}
+              onChange={(e) => updatePageDisplaySettings('fontFamily', e.target.value)}
+              style={{ padding: '6px 8px', border: '1px solid #c8d3e7', borderRadius: '6px' }}
+            >
+              <option value="inherit">Default</option>
+              <option value="Arial, sans-serif">Arial</option>
+              <option value="Verdana, sans-serif">Verdana</option>
+              <option value="Tahoma, sans-serif">Tahoma</option>
+              <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+              <option value="Georgia, serif">Georgia</option>
+              <option value="'Times New Roman', serif">Times New Roman</option>
+              <option value="'Courier New', monospace">Courier New</option>
+            </select>
+          </label>
+          <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
+            Title size (rem)
+            <input type="number" min="0.8" max="3" step="0.05" value={titleFontSize} onChange={(e) => updatePageDisplaySettings('titleFontSize', Number(e.target.value) || 1.2)} style={{ padding: '6px 8px', border: '1px solid #c8d3e7', borderRadius: '6px' }} />
+          </label>
+          <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
+            Header size (rem)
+            <input type="number" min="0.75" max="2.5" step="0.05" value={headerFontSize} onChange={(e) => updatePageDisplaySettings('headerFontSize', Number(e.target.value) || 0.95)} style={{ padding: '6px 8px', border: '1px solid #c8d3e7', borderRadius: '6px' }} />
+          </label>
+          <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
+            Content size (rem)
+            <input type="number" min="0.7" max="2" step="0.05" value={contentFontSize} onChange={(e) => updatePageDisplaySettings('contentFontSize', Number(e.target.value) || 0.95)} style={{ padding: '6px 8px', border: '1px solid #c8d3e7', borderRadius: '6px' }} />
+          </label>
+          {hasImageSizing && (
+            <>
+              <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
+                Image width (px)
+                <input type="number" min="0" step="10" value={imageWidth || ''} onChange={(e) => updatePageDisplaySettings('imageWidth', e.target.value === '' ? null : Number(e.target.value))} placeholder="Auto" style={{ padding: '6px 8px', border: '1px solid #c8d3e7', borderRadius: '6px' }} />
+              </label>
+              <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
+                Image height (px)
+                <input type="number" min="0" step="10" value={imageHeight || ''} onChange={(e) => updatePageDisplaySettings('imageHeight', e.target.value === '' ? null : Number(e.target.value))} placeholder="Auto" style={{ padding: '6px 8px', border: '1px solid #c8d3e7', borderRadius: '6px' }} />
+              </label>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const wrapEditContent = (content) => (
+    <div style={pageTextStyle}>
+      {renderDisplaySettingsPanel()}
+      {content}
+    </div>
+  );
+
   // Render heading page (just title + subtitle)
   if (page.pageType === 'heading') {
     // Ensure all heading pages (4, 8, 10) use the same styling and structure
@@ -35,7 +133,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
     }
     
     if (isEditMode) {
-      return (
+      return wrapEditContent(
         <div className={`page-heading ${headingClass}`}>
           <div className="page-heading-content">
             <HeadingPageEditor
@@ -66,17 +164,17 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
   // Render text-only page
   if (page.pageType === 'text-only') {
     if (isEditMode) {
-      return <TextOnlyEditor page={page} onChange={(updatedPage) => onCellChange(page.id, updatedPage)} />;
+      return wrapEditContent(<TextOnlyEditor page={page} onChange={(updatedPage) => onCellChange(page.id, updatedPage)} />);
     }
     
     return (
-      <div style={{ color: '#e0e6f0', lineHeight: 1.6 }}>
+      <div style={{ color: '#e0e6f0', lineHeight: 1.6, ...pageTextStyle }}>
         {page.title && (
           <div style={{
             background: page.titleColor || 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)',
             color: 'white',
             padding: '14px 24px',
-            fontSize: '1.2rem',
+            fontSize: `${titleFontSize}rem`,
             fontWeight: 600,
             textAlign: 'center',
             letterSpacing: '0.5px',
@@ -85,7 +183,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
             {page.title}
           </div>
         )}
-        <div style={{ whiteSpace: 'pre-wrap', fontSize: '0.95rem' }}>{page.content}</div>
+        <div style={{ whiteSpace: 'pre-wrap', fontSize: `${contentFontSize}rem` }}>{page.content}</div>
       </div>
     );
   }
@@ -93,7 +191,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
   // Render just-links page
   if (page.pageType === 'just-links') {
     if (isEditMode) {
-      return <LinksOnlyEditor page={page} onChange={(updatedPage) => onCellChange(page.id, updatedPage)} />;
+      return wrapEditContent(<LinksOnlyEditor page={page} onChange={(updatedPage) => onCellChange(page.id, updatedPage)} />);
     }
 
     const mixedBlocks = Array.isArray(page.linkBlocks) && page.linkBlocks.length > 0
@@ -103,13 +201,13 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
         : []);
     
     return (
-      <div>
+      <div style={pageTextStyle}>
         {page.title && (
           <div style={{
             background: page.titleColor || 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)',
             color: 'white',
             padding: '14px 24px',
-            fontSize: '1.2rem',
+            fontSize: `${titleFontSize}rem`,
             fontWeight: 600,
             textAlign: 'center',
             letterSpacing: '0.5px',
@@ -156,17 +254,17 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
   // Render just-images page
   if (page.pageType === 'just-images') {
     if (isEditMode) {
-      return <ImagesOnlyEditor page={page} onChange={(updatedPage) => onCellChange(page.id, updatedPage)} />;
+      return wrapEditContent(<ImagesOnlyEditor page={page} onChange={(updatedPage) => onCellChange(page.id, updatedPage)} />);
     }
     
     return (
-      <div style={{ textAlign: 'center' }}>
+      <div style={{ textAlign: 'center', ...pageTextStyle }}>
         {page.title && (
           <div style={{
             background: page.titleColor || 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)',
             color: 'white',
             padding: '14px 24px',
-            fontSize: '1.2rem',
+            fontSize: `${titleFontSize}rem`,
             fontWeight: 600,
             textAlign: 'center',
             letterSpacing: '0.5px',
@@ -176,7 +274,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
           </div>
         )}
         {page.intro && (
-          <p style={{ fontSize: '0.95rem', color: '#e0e6f0', marginTop: '1rem', marginBottom: '1.5rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+          <p style={{ fontSize: `${contentFontSize}rem`, color: '#e0e6f0', marginTop: '1rem', marginBottom: '1.5rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
             {page.intro}
           </p>
         )}
@@ -191,7 +289,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
                     <img
                       src={block.src}
                       alt={block.caption || `Image ${bIdx + 1}`}
-                      style={{ maxWidth: '100%', height: 'auto', borderRadius: '4px', cursor: 'pointer' }}
+                      style={{ maxWidth: '100%', height: 'auto', borderRadius: '4px', cursor: 'pointer', ...imageSizingStyle }}
                       onClick={() => onImageClick(block.src, block.caption || `Image ${bIdx + 1}`)}
                     />
                     {block.caption && (
@@ -228,7 +326,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
                 <img
                   src={img}
                   alt={`Image ${idx + 1}`}
-                  style={{ maxWidth: '100%', height: 'auto', borderRadius: '4px', cursor: 'pointer' }}
+                  style={{ maxWidth: '100%', height: 'auto', borderRadius: '4px', cursor: 'pointer', ...imageSizingStyle }}
                   onClick={() => onImageClick(img, page.captions?.[idx] || `Image ${idx + 1}`)}
                 />
                 {page.captions?.[idx] && (
@@ -252,7 +350,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
         )}
 
         {page.bottomText && (
-          <p style={{ fontSize: '0.95rem', color: '#e0e6f0', marginTop: '1.5rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+          <p style={{ fontSize: `${contentFontSize}rem`, color: '#e0e6f0', marginTop: '1.5rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
             {page.bottomText}
           </p>
         )}
@@ -263,7 +361,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
   // Render image-text page (flexible layout)
   if (page.pageType === 'image-text') {
     if (isEditMode) {
-      return <FlexibleLayoutEditor page={page} onChange={(updatedPage) => onCellChange(page.id, updatedPage)} />;
+      return wrapEditContent(<FlexibleLayoutEditor page={page} onChange={(updatedPage) => onCellChange(page.id, updatedPage)} />);
     }
     
     return (
@@ -294,7 +392,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
   if (page.pageType === 'index') {
     // If in edit mode, show the editor
     if (isEditMode) {
-      return (
+      return wrapEditContent(
         <div>
           <IndexEditor 
             page={page} 
@@ -435,7 +533,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
   // Render table page
   if (page.pageType === 'table' && page.table) {
     if (isEditMode) {
-      return (
+      return wrapEditContent(
         <div>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: '#fff' }}>
             {page.title}
@@ -528,13 +626,13 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
   // Render image page
   if (page.pageType === 'image') {
     return (
-      <div className={isLiveMode ? 'legacy-live-image-page' : ''} style={{ textAlign: 'center' }}>
+      <div className={isLiveMode ? 'legacy-live-image-page' : ''} style={{ textAlign: 'center', ...pageTextStyle }}>
         {page.title && !isEditMode && (
           <div style={{
             background: page.titleColor || 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)',
             color: 'white',
             padding: '20px 24px',
-            fontSize: '1.3rem',
+            fontSize: `${titleFontSize}rem`,
             fontWeight: 600,
             textAlign: 'center',
             letterSpacing: '0.5px',
@@ -543,18 +641,23 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
             {page.title}
           </div>
         )}
+        {isEditMode && renderDisplaySettingsPanel()}
         <ImageSection
           imageSrc={page.imageUrl}
           pageTitle={page.title}
           titleColor={page.titleColor}
+          imageWidth={page.imageWidth}
+          imageHeight={page.imageHeight}
+          contentFontSize={contentFontSize}
           isEditMode={isEditMode}
           onChange={(newImageUrl) => onImageChange(page.id, newImageUrl)}
           onTitleChange={(newTitle) => onCellChange(page.id, { title: newTitle })}
           onTitleColorChange={(newColor) => onImageChange(page.id, { titleColor: newColor })}
+          onImageSizeChange={(sizePatch) => onImageChange(page.id, sizePatch)}
           onImageClick={page.imageUrl ? () => onImageClick(page.imageUrl, page.title) : undefined}
         />
         {page.description && (
-          <p style={{ fontSize: '0.9rem', color: '#e0e6f0', marginTop: '1rem' }}>{page.description}</p>
+          <p style={{ fontSize: `${contentFontSize}rem`, color: '#e0e6f0', marginTop: '1rem' }}>{page.description}</p>
         )}
       </div>
     );
@@ -588,6 +691,16 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
         titleColor={page.titleColor}
         leftHeaderColor={page.leftHeaderColor}
         rightHeaderColor={page.rightHeaderColor}
+        fontFamily={fontFamily}
+        titleFontSize={titleFontSize}
+        headerFontSize={headerFontSize}
+        contentFontSize={contentFontSize}
+        imageWidth={page.imageWidth}
+        imageHeight={page.imageHeight}
+        leftImageWidth={page.leftImageWidth}
+        leftImageHeight={page.leftImageHeight}
+        rightImageWidth={page.rightImageWidth}
+        rightImageHeight={page.rightImageHeight}
         isEditing={isEditMode}
         onChange={(updatedData) => onImageChange(page.id, updatedData)}
         onImageModalOpen={page.imageUrl ? () => onImageClick(page.imageUrl, page.title) : undefined}
@@ -598,7 +711,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
   // Render split content page (new two-column layout)
   if (page.pageType === 'split-content') {
     if (isEditMode) {
-      return (
+      return wrapEditContent(
         <SplitContentEditor
           page={page}
           onChange={(updatedPage) => onCellChange(page.id, updatedPage)}
@@ -614,6 +727,16 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
         titleColor={page.titleColor}
         leftHeaderColor={page.leftHeaderColor}
         rightHeaderColor={page.rightHeaderColor}
+        fontFamily={fontFamily}
+        titleFontSize={titleFontSize}
+        headerFontSize={headerFontSize}
+        contentFontSize={contentFontSize}
+        imageWidth={page.imageWidth}
+        imageHeight={page.imageHeight}
+        leftImageWidth={page.leftImageWidth}
+        leftImageHeight={page.leftImageHeight}
+        rightImageWidth={page.rightImageWidth}
+        rightImageHeight={page.rightImageHeight}
         leftContentType={page.leftContentType}
         rightContentType={page.rightContentType}
         leftContent={page.leftContent}
@@ -631,7 +754,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
   // Render content page (pure text, editable)
   if (page.pageType === 'content') {
     if (isEditMode) {
-      return (
+      return wrapEditContent(
         <div>
           <div style={{ display: 'grid', gap: '8px', marginBottom: '1rem' }}>
             <input
