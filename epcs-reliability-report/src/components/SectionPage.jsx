@@ -503,8 +503,10 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
         )}
         <ImageSection
           imageSrc={page.imageUrl}
+          pageTitle={page.title}
           isEditMode={isEditMode}
           onChange={(newImageUrl) => onImageChange(page.id, newImageUrl)}
+          onTitleChange={(newTitle) => onCellChange(page.id, { title: newTitle })}
           onImageClick={page.imageUrl ? () => onImageClick(page.imageUrl, page.title) : undefined}
         />
         {page.description && (

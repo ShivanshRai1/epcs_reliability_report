@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 
-const ImageSection = ({ imageSrc, isEditMode, onChange, onImageClick }) => {
+const ImageSection = ({ imageSrc, pageTitle, isEditMode, onChange, onTitleChange, onImageClick }) => {
   const fileInputRef = useRef();
 
   const handleFileChange = e => {
@@ -21,6 +21,18 @@ const ImageSection = ({ imageSrc, isEditMode, onChange, onImageClick }) => {
   if (isEditMode) {
     return (
       <div className="image-section-edit">
+        <div>
+          <label>
+            <span>Page Title:</span>
+            <input
+              type="text"
+              value={pageTitle || ''}
+              onChange={(e) => onTitleChange && onTitleChange(e.target.value)}
+              className="image-url-input"
+              placeholder="Enter page title"
+            />
+          </label>
+        </div>
         <div>
           <label>
             <span>Upload Image:</span>
