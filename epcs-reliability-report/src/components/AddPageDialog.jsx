@@ -98,10 +98,12 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     }
   };
 
-  const handleTemplateSelect = (templateId) => {
+  const handleTemplateSelect = async (templateId) => {
     setSelectedTemplate(templateId);
     const template = templates.find(t => t.id === templateId);
-    if (template) setPageTitle(template.name);
+    const title = template ? template.name : pageTitle;
+    setPageTitle(title);
+    await createPageWithConfig(templateId, title);
   };
 
   const primaryTemplateOrder = ['split-content', 'just-images', 'text-only', 'heading'];
@@ -322,27 +324,16 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     );
   };
 
-  const handleCreatePage = async () => {
-    if (!selectedTemplate) {
+  const createPageWithConfig = async (templateIdOverride, pageTitleOverride) => {
+    const templateId = templateIdOverride || selectedTemplate;
+    const title = pageTitleOverride !== undefined ? pageTitleOverride : pageTitle;
+
+    if (!templateId) {
       setError('Please select a template');
       return;
     }
 
-    if (!pageTitle.trim()) {
-      setError('Please enter a page title');
-      return;
-    }
-
-    await createPageWithConfig();
-  };
-
-  const createPageWithConfig = async () => {
-    if (!selectedTemplate) {
-      setError('Please select a template');
-      return;
-    }
-
-    if (!pageTitle.trim()) {
+    if (!title.trim()) {
       setError('Please enter a page title');
       return;
     }
@@ -359,13 +350,13 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         positionParams = { pageId: currentPageId, insertBefore: false };
       }
       
-      const createTemplateId = resolveTemplateForCreate(selectedTemplate);
-      console.log('📝 Creating page with params:', { selectedTemplate, createTemplateId, pageTitle, insertPosition });
+      const createTemplateId = resolveTemplateForCreate(templateId);
+      console.log('📝 Creating page with params:', { templateId, createTemplateId, title, insertPosition });
       
       // Call API with correct parameters
       const response = await apiService.createPage(
         createTemplateId,
-        pageTitle,
+        title,
         null,
         positionParams
       );
@@ -376,7 +367,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         console.log('🎉 Page created successfully:', response.page);
         
         // Refresh data and let parent navigate to the resolved, valid page
-        await onPageCreate(response.page, { templateId: selectedTemplate });
+        await onPageCreate(response.page, { templateId });
         
         onClose();
       } else {
@@ -386,9 +377,9 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     } catch (err) {
       console.warn('⚠️ Backend create failed, falling back to local create:', err?.message || err);
       try {
-        const localPage = buildLocalPageFallback(selectedTemplate, pageTitle.trim());
+        const localPage = buildLocalPageFallback(templateId, title.trim());
         await onPageCreate(localPage, {
-          templateId: selectedTemplate,
+          templateId,
           localOnly: true,
           positionParams,
           insertPosition
@@ -427,8 +418,48 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
                 onChange={(e) => setPageTitle(e.target.value)}
                 placeholder="Enter page title"
                 className="page-title-input"
+                disabled={loading}
               />
             </div>
+
+            {/* Insert Position */}
+            {currentPageId && (
+              <div className="form-group">
+                <label>Insert Position:</label>
+                <div className="position-options">
+                  <label className="radio-label">
+                    <input
+                      type="radio"
+                      value="before"
+                      checked={insertPosition === 'before'}
+                      onChange={(e) => setInsertPosition(e.target.value)}
+                      disabled={loading}
+                    />
+                    Before current page
+                  </label>
+                  <label className="radio-label">
+                    <input
+                      type="radio"
+                      value="after"
+                      checked={insertPosition === 'after'}
+                      onChange={(e) => setInsertPosition(e.target.value)}
+                      disabled={loading}
+                    />
+                    After current page
+                  </label>
+                  <label className="radio-label">
+                    <input
+                      type="radio"
+                      value="at-end"
+                      checked={insertPosition === 'at-end'}
+                      onChange={(e) => setInsertPosition(e.target.value)}
+                      disabled={loading}
+                    />
+                    At end of document
+                  </label>
+                </div>
+              </div>
+            )}
 
             {/* Template Selection */}
             <div className="form-group">
@@ -441,8 +472,8 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
                     {displayedTemplates.map((template) => (
                       <div
                         key={template.id}
-                        className={`template-card ${selectedTemplate === template.id ? 'selected' : ''}`}
-                        onClick={() => handleTemplateSelect(template.id)}
+                        className={`template-card ${selectedTemplate === template.id ? 'selected' : ''} ${loading ? 'template-card-disabled' : ''}`}
+                        onClick={() => !loading && handleTemplateSelect(template.id)}
                       >
                         <div className="template-preview">
                           {renderTemplatePreview(template.id)}
@@ -457,13 +488,14 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
                       <button
                         type="button"
                         onClick={() => setShowAllTemplates(true)}
+                        disabled={loading}
                         style={{
                           padding: '0.5rem 1rem',
                           borderRadius: '8px',
                           border: '1px solid #c2cad8',
                           background: '#f4f7fb',
                           color: '#1f2937',
-                          cursor: 'pointer',
+                          cursor: loading ? 'not-allowed' : 'pointer',
                           fontWeight: 600,
                         }}
                       >
@@ -475,57 +507,9 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
               )}
             </div>
 
-            {/* Insert Position */}
-            {currentPageId && (
-              <div className="form-group">
-                <label>Insert Position:</label>
-                <div className="position-options">
-                  <label className="radio-label">
-                    <input
-                      type="radio"
-                      value="before"
-                      checked={insertPosition === 'before'}
-                      onChange={(e) => setInsertPosition(e.target.value)}
-                    />
-                    Before current page
-                  </label>
-                  <label className="radio-label">
-                    <input
-                      type="radio"
-                      value="after"
-                      checked={insertPosition === 'after'}
-                      onChange={(e) => setInsertPosition(e.target.value)}
-                    />
-                    After current page
-                  </label>
-                  <label className="radio-label">
-                    <input
-                      type="radio"
-                      value="at-end"
-                      checked={insertPosition === 'at-end'}
-                      onChange={(e) => setInsertPosition(e.target.value)}
-                    />
-                    At end of document
-                  </label>
-                </div>
-              </div>
-            )}
-
-            {/* Error message */}
+            {/* Loading / Error message */}
+            {loading && <div className="loading-message" style={{ textAlign: 'center', padding: '0.5rem' }}>Creating page...</div>}
             {error && <div className="error-message">{error}</div>}
-          </div>
-
-          <div className="dialog-footer">
-            <button className="btn-cancel" onClick={onClose} disabled={loading}>
-              ❌ Cancel
-            </button>
-            <button 
-              className="btn-create" 
-              onClick={handleCreatePage}
-              disabled={loading || !selectedTemplate || !pageTitle.trim()}
-            >
-              {loading ? 'Creating...' : '➕ Create Page'}
-            </button>
           </div>
         </div>
       </div>
