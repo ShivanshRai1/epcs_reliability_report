@@ -1747,3 +1747,8 @@ a:hover,
 .report-shell .page-heading * {
   color: #f6fbff !important;
 }
+
+/* Extra strong: h2 inside heading pages must be white */
+.report-shell .page-heading h2 {
+  color: #ffffff !important;
+}
