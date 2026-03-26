@@ -695,6 +695,18 @@ function App() {
       const templateId = options?.templateId;
       const behaviorFlags = templateBehaviorFlags[templateId];
 
+      // Apply behavior flags immediately in local state so UI mode is correct
+      // right after redirect (before background save/refresh completes).
+      if (behaviorFlags && createdPageId) {
+        transformedData = {
+          ...transformedData,
+          pages: transformedData.pages.map((page) => {
+            if (!idMatches(page.id, createdPageId)) return page;
+            return { ...page, ...behaviorFlags };
+          })
+        };
+      }
+
       // BACKGROUND SYNC: Apply behavior flags without blocking (fire-and-forget)
       if (behaviorFlags && createdPageId) {
         const createdPage = transformedData.pages.find(page => idMatches(page.id, createdPageId));
