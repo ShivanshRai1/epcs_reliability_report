@@ -104,6 +104,8 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
 
   const handleTemplateSelect = (templateId) => {
     setSelectedTemplate(templateId);
+    const template = templates.find(t => t.id === templateId);
+    if (template) setPageTitle(template.name);
   };
 
   const getPageTypeForTemplate = (templateId) => {
