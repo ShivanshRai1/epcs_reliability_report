@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 
-const ImageSection = ({ imageSrc, pageTitle, isEditMode, onChange, onTitleChange, onImageClick }) => {
+const ImageSection = ({ imageSrc, pageTitle, titleColor, isEditMode, onChange, onTitleChange, onTitleColorChange, onImageClick }) => {
   const fileInputRef = useRef();
 
   const handleFileChange = e => {
@@ -30,6 +30,17 @@ const ImageSection = ({ imageSrc, pageTitle, isEditMode, onChange, onTitleChange
               onChange={(e) => onTitleChange && onTitleChange(e.target.value)}
               className="image-url-input"
               placeholder="Enter page title"
+            />
+          </label>
+        </div>
+        <div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>Title banner color:</span>
+            <input
+              type="color"
+              value={titleColor || '#0052a3'}
+              onChange={(e) => onTitleColorChange && onTitleColorChange(e.target.value)}
+              style={{ width: '36px', height: '28px', padding: '2px', border: '1px solid #b9c7da', borderRadius: '4px', cursor: 'pointer' }}
             />
           </label>
         </div>

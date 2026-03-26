@@ -21,13 +21,19 @@ export default function SplitContentImageSection({
   splitLinksImageMode = false,
   splitImageLinksMode = false,
   splitImageImageMode = false,
-  leftImageUrl
+  leftImageUrl,
+  titleColor,
+  leftHeaderColor,
+  rightHeaderColor
 }) {
   const [showImageModal, setShowImageModal] = useState(false);
   const [modalImageSrc, setModalImageSrc] = useState('');
   const [titleData, setTitleData] = useState(title || '');
   const [leftHeaderData, setLeftHeaderData] = useState(leftHeader || '');
   const [rightHeaderData, setRightHeaderData] = useState(rightHeader || '');
+  const [titleColorData, setTitleColorData] = useState(titleColor || '#0052a3');
+  const [leftHeaderColorData, setLeftHeaderColorData] = useState(leftHeaderColor || '#5fc574');
+  const [rightHeaderColorData, setRightHeaderColorData] = useState(rightHeaderColor || '#e8a87c');
   const [links, setLinks] = useState([]);
   const [imageUrlData, setImageUrlData] = useState(imageUrl || '');
   const [leftImageUrlData, setLeftImageUrlData] = useState(leftImageUrl || '');
@@ -44,6 +50,9 @@ export default function SplitContentImageSection({
       imageUrl: imageUrlData,
       leftContent: leftContentData,
       leftImageUrl: leftImageUrlData,
+      titleColor: titleColorData,
+      leftHeaderColor: leftHeaderColorData,
+      rightHeaderColor: rightHeaderColorData,
       ...overrides
     });
   };
@@ -109,13 +118,16 @@ export default function SplitContentImageSection({
         content: links,
         imageUrl: imageUrlData,
         leftContent: leftContentData,
-        leftImageUrl: leftImageUrlData
+        leftImageUrl: leftImageUrlData,
+        titleColor: titleColorData,
+        leftHeaderColor: leftHeaderColorData,
+        rightHeaderColor: rightHeaderColorData,
       });
     }, 300); // Debounce: wait 300ms after changes stop before saving
     
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [titleData, leftHeaderData, rightHeaderData, links, imageUrlData, leftContentData, leftImageUrlData, isEditing]);
+  }, [titleData, leftHeaderData, rightHeaderData, links, imageUrlData, leftContentData, leftImageUrlData, titleColorData, leftHeaderColorData, rightHeaderColorData, isEditing]);
 
   const handleLinkChange = (idx, field, value) => {
     const updatedLinks = [...links];
@@ -469,45 +481,76 @@ export default function SplitContentImageSection({
       {isLiveSplitPage && <div className="legacy-live-split-logo">EPC·SPACE</div>}
       {isEditing && (
         <div style={{ display: 'grid', gap: '8px', padding: '10px 12px', background: '#f4f6fb', borderBottom: '1px solid #d8dee9' }}>
-          <input
-            type="text"
-            value={titleData}
-            onChange={(e) => {
-              const next = String(e.target.value);
-              setTitleData(next);
-              emitImmediateChange({ title: next });
-            }}
-            placeholder="Main heading (e.g., DIE LEVEL RELIABILITY)"
-            style={{ width: '100%', padding: '8px 10px', border: '1px solid #b9c7da', borderRadius: '6px' }}
-          />
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <input
+              type="text"
+              value={titleData}
+              onChange={(e) => {
+                const next = String(e.target.value);
+                setTitleData(next);
+                emitImmediateChange({ title: next });
+              }}
+              placeholder="Main heading (e.g., DIE LEVEL RELIABILITY)"
+              style={{ flex: 1, padding: '8px 10px', border: '1px solid #b9c7da', borderRadius: '6px' }}
+            />
+            <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: '#555', whiteSpace: 'nowrap' }}>
+              Title color
+              <input
+                type="color"
+                value={titleColorData}
+                onChange={(e) => { setTitleColorData(e.target.value); emitImmediateChange({ titleColor: e.target.value }); }}
+                style={{ width: '32px', height: '28px', padding: '2px', border: '1px solid #b9c7da', borderRadius: '4px', cursor: 'pointer' }}
+              />
+            </label>
+          </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-            <input
-              type="text"
-              value={leftHeaderData}
-              onChange={(e) => {
-                const next = String(e.target.value);
-                setLeftHeaderData(next);
-                emitImmediateChange({ leftHeader: next });
-              }}
-              placeholder="Left header"
-              style={{ width: '100%', padding: '8px 10px', border: '1px solid #b9c7da', borderRadius: '6px' }}
-            />
-            <input
-              type="text"
-              value={rightHeaderData}
-              onChange={(e) => {
-                const next = String(e.target.value);
-                setRightHeaderData(next);
-                emitImmediateChange({ rightHeader: next });
-              }}
-              placeholder="Right header"
-              style={{ width: '100%', padding: '8px 10px', border: '1px solid #b9c7da', borderRadius: '6px' }}
-            />
+            <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+              <input
+                type="text"
+                value={leftHeaderData}
+                onChange={(e) => {
+                  const next = String(e.target.value);
+                  setLeftHeaderData(next);
+                  emitImmediateChange({ leftHeader: next });
+                }}
+                placeholder="Left header"
+                style={{ flex: 1, padding: '8px 10px', border: '1px solid #b9c7da', borderRadius: '6px' }}
+              />
+              <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: '#555', whiteSpace: 'nowrap' }}>
+                <input
+                  type="color"
+                  value={leftHeaderColorData}
+                  onChange={(e) => { setLeftHeaderColorData(e.target.value); emitImmediateChange({ leftHeaderColor: e.target.value }); }}
+                  style={{ width: '32px', height: '28px', padding: '2px', border: '1px solid #b9c7da', borderRadius: '4px', cursor: 'pointer' }}
+                />
+              </label>
+            </div>
+            <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+              <input
+                type="text"
+                value={rightHeaderData}
+                onChange={(e) => {
+                  const next = String(e.target.value);
+                  setRightHeaderData(next);
+                  emitImmediateChange({ rightHeader: next });
+                }}
+                placeholder="Right header"
+                style={{ flex: 1, padding: '8px 10px', border: '1px solid #b9c7da', borderRadius: '6px' }}
+              />
+              <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: '#555', whiteSpace: 'nowrap' }}>
+                <input
+                  type="color"
+                  value={rightHeaderColorData}
+                  onChange={(e) => { setRightHeaderColorData(e.target.value); emitImmediateChange({ rightHeaderColor: e.target.value }); }}
+                  style={{ width: '32px', height: '28px', padding: '2px', border: '1px solid #b9c7da', borderRadius: '4px', cursor: 'pointer' }}
+                />
+              </label>
+            </div>
           </div>
         </div>
       )}
       {titleData && (
-        <div className="split-main-title">
+        <div className="split-main-title" style={{ background: titleColorData || undefined }}>
           <h1>{titleData}</h1>
         </div>
       )}
@@ -517,7 +560,7 @@ export default function SplitContentImageSection({
         <div style={{
           flex: 1, padding: '12px 16px', fontWeight: 600, textAlign: 'center',
           fontSize: '0.95rem', letterSpacing: '0.5px', textTransform: 'uppercase',
-          backgroundColor: hasLeftHeader ? '#5fc574' : '#e9e9e9',
+          backgroundColor: hasLeftHeader ? (leftHeaderColorData || '#5fc574') : '#e9e9e9',
           color: hasLeftHeader ? 'white' : 'transparent',
           borderRight: '1px solid rgba(0,0,0,0.1)'
         }}>
@@ -526,7 +569,7 @@ export default function SplitContentImageSection({
         <div style={{
           flex: 1, padding: '12px 16px', fontWeight: 600, textAlign: 'center',
           fontSize: '0.95rem', letterSpacing: '0.5px', textTransform: 'uppercase',
-          backgroundColor: hasRightHeader ? '#e8a87c' : '#e9e9e9',
+          backgroundColor: hasRightHeader ? (rightHeaderColorData || '#e8a87c') : '#e9e9e9',
           color: hasRightHeader ? '#ffffff' : 'transparent'
         }}>
           {displayRightHeader || '\u00A0'}

@@ -505,6 +505,9 @@ function App() {
           if ('rightHeader' in data) page.rightHeader = data.rightHeader;
           if ('layout' in data) page.layout = data.layout;
           if ('leftImageUrl' in data) page.leftImageUrl = data.leftImageUrl;
+          if ('titleColor' in data) page.titleColor = data.titleColor;
+          if ('leftHeaderColor' in data) page.leftHeaderColor = data.leftHeaderColor;
+          if ('rightHeaderColor' in data) page.rightHeaderColor = data.rightHeaderColor;
         } else {
           // Handle regular image pages (string URL)
           page.imageUrl = data;

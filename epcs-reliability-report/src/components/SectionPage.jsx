@@ -71,9 +71,20 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
     
     return (
       <div style={{ color: '#e0e6f0', lineHeight: 1.6 }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: '#fff' }}>
-          {page.title}
-        </h2>
+        {page.title && (
+          <div style={{
+            background: page.titleColor || 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)',
+            color: 'white',
+            padding: '14px 24px',
+            fontSize: '1.2rem',
+            fontWeight: 600,
+            textAlign: 'center',
+            letterSpacing: '0.5px',
+            marginBottom: '1.2rem',
+          }}>
+            {page.title}
+          </div>
+        )}
         <div style={{ whiteSpace: 'pre-wrap', fontSize: '0.95rem' }}>{page.content}</div>
       </div>
     );
@@ -93,7 +104,20 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
     
     return (
       <div>
-        <h2 className="index-title">{page.title}</h2>
+        {page.title && (
+          <div style={{
+            background: page.titleColor || 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)',
+            color: 'white',
+            padding: '14px 24px',
+            fontSize: '1.2rem',
+            fontWeight: 600,
+            textAlign: 'center',
+            letterSpacing: '0.5px',
+            marginBottom: '1rem',
+          }}>
+            {page.title}
+          </div>
+        )}
         <div className="index-list">
           {mixedBlocks.map((block, idx) => {
             if (block.type === 'text') {
@@ -138,11 +162,19 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
     return (
       <div style={{ textAlign: 'center' }}>
         {page.title && (
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: '#fff' }}>
+          <div style={{
+            background: page.titleColor || 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)',
+            color: 'white',
+            padding: '14px 24px',
+            fontSize: '1.2rem',
+            fontWeight: 600,
+            textAlign: 'center',
+            letterSpacing: '0.5px',
+            marginBottom: '1.2rem',
+          }}>
             {page.title}
-          </h2>
+          </div>
         )}
-        {page.intro && (
           <p style={{ fontSize: '0.95rem', color: '#e0e6f0', marginTop: '1rem', marginBottom: '1.5rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
             {page.intro}
           </p>
@@ -498,7 +530,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
       <div className={isLiveMode ? 'legacy-live-image-page' : ''} style={{ textAlign: 'center' }}>
         {page.title && !isEditMode && (
           <div style={{
-            background: 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)',
+            background: page.titleColor || 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)',
             color: 'white',
             padding: '20px 24px',
             fontSize: '1.3rem',
@@ -513,9 +545,11 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
         <ImageSection
           imageSrc={page.imageUrl}
           pageTitle={page.title}
+          titleColor={page.titleColor}
           isEditMode={isEditMode}
           onChange={(newImageUrl) => onImageChange(page.id, newImageUrl)}
           onTitleChange={(newTitle) => onCellChange(page.id, { title: newTitle })}
+          onTitleColorChange={(newColor) => onImageChange(page.id, { titleColor: newColor })}
           onImageClick={page.imageUrl ? () => onImageClick(page.imageUrl, page.title) : undefined}
         />
         {page.description && (
@@ -550,6 +584,9 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
         splitImageLinksMode={page.splitImageLinksMode}
         splitImageImageMode={page.splitImageImageMode}
         leftImageUrl={page.leftImageUrl}
+        titleColor={page.titleColor}
+        leftHeaderColor={page.leftHeaderColor}
+        rightHeaderColor={page.rightHeaderColor}
         isEditing={isEditMode}
         onChange={(updatedData) => onImageChange(page.id, updatedData)}
         onImageModalOpen={page.imageUrl ? () => onImageClick(page.imageUrl, page.title) : undefined}
@@ -591,9 +628,20 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
   if (page.pageType === 'content') {
     return (
       <div>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: '#fff' }}>
-          {page.title}
-        </h2>
+        {page.title && (
+          <div style={{
+            background: page.titleColor || 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)',
+            color: 'white',
+            padding: '14px 24px',
+            fontSize: '1.2rem',
+            fontWeight: 600,
+            textAlign: 'center',
+            letterSpacing: '0.5px',
+            marginBottom: '1.2rem',
+          }}>
+            {page.title}
+          </div>
+        )}
         <ContentSection
           content={page.content}
           isEditing={isEditMode}
@@ -606,9 +654,20 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
   // Render content page (generic text/list)
   return (
     <div>
-      <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: '#fff' }}>
-        {page.title}
-      </h2>
+      {page.title && (
+        <div style={{
+          background: page.titleColor || 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)',
+          color: 'white',
+          padding: '14px 24px',
+          fontSize: '1.2rem',
+          fontWeight: 600,
+          textAlign: 'center',
+          letterSpacing: '0.5px',
+          marginBottom: '1.2rem',
+        }}>
+          {page.title}
+        </div>
+      )}
       {page.content && (
         <ul>
           {page.content.map((item, idx) => (

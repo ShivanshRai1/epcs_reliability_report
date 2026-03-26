@@ -157,6 +157,15 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
         <input type="text" value={title}
           onChange={e => { setTitle(e.target.value); emit(blocks, e.target.value, intro, bottomText); }}
           placeholder="Enter page title" className="title-input" />
+        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', fontSize: '0.85rem', color: '#555' }}>
+          Title banner color:
+          <input
+            type="color"
+            value={page.titleColor || '#0052a3'}
+            onChange={(e) => onChange({ ...page, titleColor: e.target.value })}
+            style={{ width: '36px', height: '28px', padding: '2px', border: '1px solid #b9c7da', borderRadius: '4px', cursor: 'pointer' }}
+          />
+        </label>
       </div>
       <div className="editor-section">
         <label>Intro Text (optional):</label>
