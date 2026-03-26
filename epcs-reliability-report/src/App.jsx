@@ -497,6 +497,7 @@ function App() {
       if (page) {
         // Handle split-content-image and its variants (partial object updates)
         if (data && typeof data === 'object') {
+          if ('title' in data) page.title = data.title;
           if ('content' in data) page.content = data.content;
           if ('imageUrl' in data) page.imageUrl = data.imageUrl;
           if ('leftContent' in data) page.leftContent = data.leftContent;

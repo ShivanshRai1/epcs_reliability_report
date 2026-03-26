@@ -25,6 +25,9 @@ export default function SplitContentImageSection({
 }) {
   const [showImageModal, setShowImageModal] = useState(false);
   const [modalImageSrc, setModalImageSrc] = useState('');
+  const [titleData, setTitleData] = useState(title || '');
+  const [leftHeaderData, setLeftHeaderData] = useState(leftHeader || '');
+  const [rightHeaderData, setRightHeaderData] = useState(rightHeader || '');
   const [links, setLinks] = useState([]);
   const [imageUrlData, setImageUrlData] = useState(imageUrl || '');
   const [leftImageUrlData, setLeftImageUrlData] = useState(leftImageUrl || '');
@@ -34,6 +37,9 @@ export default function SplitContentImageSection({
   const emitImmediateChange = (overrides = {}) => {
     if (!isEditing || !onChange) return;
     onChange({
+      title: titleData,
+      leftHeader: leftHeaderData,
+      rightHeader: rightHeaderData,
       content: links,
       imageUrl: imageUrlData,
       leftContent: leftContentData,
@@ -41,6 +47,21 @@ export default function SplitContentImageSection({
       ...overrides
     });
   };
+
+  useEffect(() => {
+    if (isEditing) return;
+    setTitleData(typeof title === 'string' ? title : (title ? String(title) : ''));
+  }, [title, isEditing]);
+
+  useEffect(() => {
+    if (isEditing) return;
+    setLeftHeaderData(typeof leftHeader === 'string' ? leftHeader : (leftHeader ? String(leftHeader) : ''));
+  }, [leftHeader, isEditing]);
+
+  useEffect(() => {
+    if (isEditing) return;
+    setRightHeaderData(typeof rightHeader === 'string' ? rightHeader : (rightHeader ? String(rightHeader) : ''));
+  }, [rightHeader, isEditing]);
 
   useEffect(() => {
     // Only sync from props when NOT editing to avoid flickering
@@ -81,12 +102,20 @@ export default function SplitContentImageSection({
     if (!isEditing || !onChange) return;
     
     const timer = setTimeout(() => {
-      onChange({ content: links, imageUrl: imageUrlData, leftContent: leftContentData, leftImageUrl: leftImageUrlData });
+      onChange({
+        title: titleData,
+        leftHeader: leftHeaderData,
+        rightHeader: rightHeaderData,
+        content: links,
+        imageUrl: imageUrlData,
+        leftContent: leftContentData,
+        leftImageUrl: leftImageUrlData
+      });
     }, 300); // Debounce: wait 300ms after changes stop before saving
     
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [links, imageUrlData, leftContentData, leftImageUrlData, isEditing]);
+  }, [titleData, leftHeaderData, rightHeaderData, links, imageUrlData, leftContentData, leftImageUrlData, isEditing]);
 
   const handleLinkChange = (idx, field, value) => {
     const updatedLinks = [...links];
@@ -145,8 +174,8 @@ export default function SplitContentImageSection({
     setShowImageModal(false);
   };
 
-  const displayLeftHeader = layout === 'reversed' ? rightHeader : leftHeader;
-  const displayRightHeader = layout === 'reversed' ? leftHeader : rightHeader;
+  const displayLeftHeader = layout === 'reversed' ? rightHeaderData : leftHeaderData;
+  const displayRightHeader = layout === 'reversed' ? leftHeaderData : rightHeaderData;
   const hasLeftHeader = Boolean(String(displayLeftHeader || '').trim());
   const hasRightHeader = Boolean(String(displayRightHeader || '').trim());
   const contentLayout = splitImageLinksMode ? 'reversed' : layout;
@@ -438,9 +467,48 @@ export default function SplitContentImageSection({
   return (
     <div className={`split-section-wrapper${isLiveSplitPage ? ' legacy-live-split-page' : ''}${isLivePage13 ? ' legacy-live-page-13-split' : ''}${isLivePage15 ? ' legacy-live-page-15-split' : ''}`}>
       {isLiveSplitPage && <div className="legacy-live-split-logo">EPC·SPACE</div>}
-      {title && (
+      {isEditing && (
+        <div style={{ display: 'grid', gap: '8px', padding: '10px 12px', background: '#f4f6fb', borderBottom: '1px solid #d8dee9' }}>
+          <input
+            type="text"
+            value={titleData}
+            onChange={(e) => {
+              const next = String(e.target.value);
+              setTitleData(next);
+              emitImmediateChange({ title: next });
+            }}
+            placeholder="Main heading (e.g., DIE LEVEL RELIABILITY)"
+            style={{ width: '100%', padding: '8px 10px', border: '1px solid #b9c7da', borderRadius: '6px' }}
+          />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            <input
+              type="text"
+              value={leftHeaderData}
+              onChange={(e) => {
+                const next = String(e.target.value);
+                setLeftHeaderData(next);
+                emitImmediateChange({ leftHeader: next });
+              }}
+              placeholder="Left header"
+              style={{ width: '100%', padding: '8px 10px', border: '1px solid #b9c7da', borderRadius: '6px' }}
+            />
+            <input
+              type="text"
+              value={rightHeaderData}
+              onChange={(e) => {
+                const next = String(e.target.value);
+                setRightHeaderData(next);
+                emitImmediateChange({ rightHeader: next });
+              }}
+              placeholder="Right header"
+              style={{ width: '100%', padding: '8px 10px', border: '1px solid #b9c7da', borderRadius: '6px' }}
+            />
+          </div>
+        </div>
+      )}
+      {titleData && (
         <div className="split-main-title">
-          <h1>{title}</h1>
+          <h1>{titleData}</h1>
         </div>
       )}
 
