@@ -512,12 +512,11 @@ tr.row-pink td {
 }
 
 .modal-content.modal-content-image {
-  width: min(92vw, 1280px);
-  max-height: 88vh;
+  max-width: min(74vw, 920px);
   background: #f2f2f2;
   padding: 0.55rem;
   border-radius: 0.25rem;
-  overflow: auto;
+  overflow: hidden;
 }
 
 @keyframes slideIn {
@@ -531,14 +530,25 @@ tr.row-pink td {
   }
 }
 
+.modal-image-viewport {
+  width: min(70vw, 860px);
+  height: 74vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
 .modal-image {
-  width: 200%;
-  max-width: none;
-  max-height: none;
+  max-width: min(70vw, 860px);
+  max-height: 74vh;
+  width: auto;
   height: auto;
   object-fit: contain;
   display: block;
   border-radius: 0.4rem;
+  transform-origin: center center;
+  transition: transform 0.12s ease-out;
 }
 
 .modal-image.modal-image-sharp {
