@@ -512,10 +512,12 @@ tr.row-pink td {
 }
 
 .modal-content.modal-content-image {
-  max-width: min(74vw, 920px);
+  width: min(92vw, 1280px);
+  max-height: 88vh;
   background: #f2f2f2;
   padding: 0.55rem;
   border-radius: 0.25rem;
+  overflow: auto;
 }
 
 @keyframes slideIn {
@@ -530,9 +532,9 @@ tr.row-pink td {
 }
 
 .modal-image {
-  max-width: min(70vw, 860px);
-  max-height: 74vh;
-  width: auto;
+  width: 200%;
+  max-width: none;
+  max-height: none;
   height: auto;
   object-fit: contain;
   display: block;
