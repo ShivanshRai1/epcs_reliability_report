@@ -7,7 +7,6 @@ import './AddPageDialog.css';
 const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, existingPages = [] }) => {
   const [templates, setTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
-  const [pageTitle, setPageTitle] = useState('');
   const [insertPosition, setInsertPosition] = useState('after'); // 'before', 'after' or 'at-end'
   const [loading, setLoading] = useState(false);
   const [templatesLoading, setTemplatesLoading] = useState(false);
@@ -31,7 +30,6 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
   useEffect(() => {
     if (isOpen) {
       fetchTemplates();
-      setPageTitle('');
       setSelectedTemplate(null);
       setError('');
       setShowAllTemplates(false);
@@ -100,10 +98,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
 
   const handleTemplateSelect = async (templateId) => {
     setSelectedTemplate(templateId);
-    const template = templates.find(t => t.id === templateId);
-    const title = template ? template.name : pageTitle;
-    setPageTitle(title);
-    await createPageWithConfig(templateId, title);
+    await createPageWithConfig(templateId);
   };
 
   const primaryTemplateOrder = ['split-content', 'just-images', 'text-only', 'heading'];
@@ -324,17 +319,13 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     );
   };
 
-  const createPageWithConfig = async (templateIdOverride, pageTitleOverride) => {
+  const createPageWithConfig = async (templateIdOverride) => {
     const templateId = templateIdOverride || selectedTemplate;
-    const title = pageTitleOverride !== undefined ? pageTitleOverride : pageTitle;
+    const template = templates.find((t) => t.id === templateId);
+    const title = (template?.name || 'New Page').trim();
 
     if (!templateId) {
       setError('Please select a template');
-      return;
-    }
-
-    if (!title.trim()) {
-      setError('Please enter a page title');
       return;
     }
 
@@ -408,20 +399,6 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
           </div>
 
           <div className="dialog-body">
-            {/* Page Title */}
-            <div className="form-group">
-              <label htmlFor="page-title">Page Title:</label>
-              <input
-                id="page-title"
-                type="text"
-                value={pageTitle}
-                onChange={(e) => setPageTitle(e.target.value)}
-                placeholder="Enter page title"
-                className="page-title-input"
-                disabled={loading}
-              />
-            </div>
-
             {/* Insert Position */}
             {currentPageId && (
               <div className="form-group">
