@@ -160,6 +160,11 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
     // Ensure all heading pages (4, 8, 10) use the same styling and structure
     // Use backgroundClass for all, default to 'heading-derating' if not provided
     const headingClass = page.backgroundClass || 'heading-derating';
+    const headingVerticalAlign = page.headingVerticalAlign || 'center';
+    const headingJustifyContent = headingVerticalAlign === 'top' ? 'flex-start' : headingVerticalAlign === 'bottom' ? 'flex-end' : 'center';
+    const headingFontFamily = page.headingFontFamily || page.fontFamily || 'inherit';
+    const headingTitleFontSize = toPositiveNumber(page.headingTitleFontSize, 3.25);
+    const headingSubtitleFontSize = toPositiveNumber(page.headingSubtitleFontSize, 1.5);
     const defaultHeadingBackground = '/images/bg2.png';
     const customHeadingBackground = typeof page.headingBackgroundImage === 'string' ? page.headingBackgroundImage.trim() : '';
     const useCustomHeadingBackground = page.headingBackgroundMode === 'custom' && Boolean(customHeadingBackground);
@@ -169,14 +174,31 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
       backgroundImage: `url('${effectiveHeadingBackground}')`,
       backgroundRepeat: 'no-repeat',
       backgroundSize: 'cover',
-      backgroundPosition: 'center'
+      backgroundPosition: 'center',
+      justifyContent: headingJustifyContent
+    };
+    const headingContentStyle = {
+      color: '#ffffff',
+      fontFamily: headingFontFamily
+    };
+    const headingTitleStyle = {
+      fontFamily: headingFontFamily,
+      fontSize: `${headingTitleFontSize}rem`
+    };
+    const headingSubtitleStyle = {
+      fontFamily: headingFontFamily,
+      fontSize: `${headingSubtitleFontSize}rem`
+    };
+    const legacyHeadingVars = {
+      '--legacy-heading-title-size': `${headingTitleFontSize}rem`,
+      '--legacy-heading-subtitle-size': `${headingSubtitleFontSize}rem`
     };
 
     if (isLiveMode && !isEditMode) {
       return (
-        <div className="legacy-live-heading-page" style={headingBackgroundStyle}>
-          <h2 className="legacy-live-heading-title">{page.title}</h2>
-          {page.subtitle && <h3 className="legacy-live-heading-subtitle">{page.subtitle}</h3>}
+        <div className="legacy-live-heading-page" style={{ ...headingBackgroundStyle, ...headingContentStyle, ...legacyHeadingVars }}>
+          <h2 className="legacy-live-heading-title" style={headingTitleStyle}>{page.title}</h2>
+          {page.subtitle && <h3 className="legacy-live-heading-subtitle" style={headingSubtitleStyle}>{page.subtitle}</h3>}
         </div>
       );
     }
@@ -195,15 +217,16 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
     }
     
     return (
-      <div className={`page-heading ${headingClass}`} style={{ color: '#ffffff', ...headingBackgroundStyle }}>
-        <div className="page-heading-content" style={{ color: '#ffffff' }}>
+      <div className={`page-heading ${headingClass}`} style={{ ...headingContentStyle, ...headingBackgroundStyle }}>
+        <div className="page-heading-content" style={headingContentStyle}>
           <HeadingSection
             heading={page.title}
             isEditMode={false}
             onChange={(newValue) => onHeadingChange(page.id, newValue)}
+            headingStyle={headingTitleStyle}
           />
           {page.subtitle && (
-            <h3 className="page-heading-subtitle">{page.subtitle}</h3>
+            <h3 className="page-heading-subtitle" style={headingSubtitleStyle}>{page.subtitle}</h3>
           )}
         </div>
       </div>

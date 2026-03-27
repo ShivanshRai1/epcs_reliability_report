@@ -932,7 +932,7 @@ a:hover, .index-link:hover {
 .legacy-live-heading-title {
   margin: 0;
   color: #ffffff !important;
-  font-size: 52px !important;
+  font-size: var(--legacy-heading-title-size, 52px) !important;
   font-weight: 600;
   line-height: 1.1;
   letter-spacing: 0.02em;
@@ -948,7 +948,7 @@ a:hover, .index-link:hover {
 .legacy-live-heading-subtitle {
   margin: 0;
   color: #e8f2ff !important;
-  font-size: 24px !important;
+  font-size: var(--legacy-heading-subtitle-size, 24px) !important;
   font-weight: 400;
   line-height: 1.2;
   text-align: center;

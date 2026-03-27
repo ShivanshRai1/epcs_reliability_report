@@ -23,7 +23,7 @@ function AutoResizeInput({ value, onChange, className, placeholder }) {
   );
 }
 
-const HeadingSection = ({ heading, isEditMode, onChange }) => {
+const HeadingSection = ({ heading, isEditMode, onChange, headingStyle = {} }) => {
   if (isEditMode) {
     return (
       <div className="heading-section">
@@ -38,7 +38,7 @@ const HeadingSection = ({ heading, isEditMode, onChange }) => {
   }
   return (
     <div className="heading-section">
-      <h2 style={{ color: '#ffffff' }}>{heading}</h2>
+      <h2 style={{ color: '#ffffff', ...headingStyle }}>{heading}</h2>
     </div>
   );
 };

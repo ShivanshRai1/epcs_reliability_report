@@ -7,13 +7,24 @@ const HeadingPageEditor = ({ page, onChange }) => {
   const [subtitle, setSubtitle] = useState(page.subtitle || '');
   const [headingBackgroundMode, setHeadingBackgroundMode] = useState(page.headingBackgroundMode || 'default');
   const [headingBackgroundImage, setHeadingBackgroundImage] = useState(page.headingBackgroundImage || '');
+  const [headingVerticalAlign, setHeadingVerticalAlign] = useState(page.headingVerticalAlign || 'center');
+  const [headingFontFamily, setHeadingFontFamily] = useState(page.headingFontFamily || 'inherit');
+  const [headingTitleFontSize, setHeadingTitleFontSize] = useState(Number(page.headingTitleFontSize) > 0 ? Number(page.headingTitleFontSize) : 3.25);
+  const [headingSubtitleFontSize, setHeadingSubtitleFontSize] = useState(Number(page.headingSubtitleFontSize) > 0 ? Number(page.headingSubtitleFontSize) : 1.5);
 
   useEffect(() => {
     setTitle(page.title || '');
     setSubtitle(page.subtitle || '');
     setHeadingBackgroundMode(page.headingBackgroundMode || 'default');
     setHeadingBackgroundImage(page.headingBackgroundImage || '');
-  }, [page.id, page.title, page.subtitle, page.headingBackgroundMode, page.headingBackgroundImage]);
+    setHeadingVerticalAlign(page.headingVerticalAlign || 'center');
+    setHeadingFontFamily(page.headingFontFamily || 'inherit');
+    setHeadingTitleFontSize(Number(page.headingTitleFontSize) > 0 ? Number(page.headingTitleFontSize) : 3.25);
+    setHeadingSubtitleFontSize(Number(page.headingSubtitleFontSize) > 0 ? Number(page.headingSubtitleFontSize) : 1.5);
+  }, [page.id, page.title, page.subtitle, page.headingBackgroundMode, page.headingBackgroundImage, page.headingVerticalAlign, page.headingFontFamily, page.headingTitleFontSize, page.headingSubtitleFontSize]);
+
+  const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+  const formatRem = (value) => `${Number(value || 0).toFixed(2).replace(/\.00$/, '').replace(/(\.\d*[1-9])0$/, '$1')} rem`;
 
   const handleTitleChange = (e) => {
     const newTitle = e.target.value;
@@ -59,6 +70,41 @@ const HeadingPageEditor = ({ page, onChange }) => {
     onChange({ ...page, headingBackgroundMode: 'default', headingBackgroundImage: '' });
   };
 
+  const handleVerticalAlignChange = (e) => {
+    const align = e.target.value;
+    setHeadingVerticalAlign(align);
+    onChange({ ...page, headingVerticalAlign: align });
+  };
+
+  const handleHeadingFontFamilyChange = (e) => {
+    const family = e.target.value;
+    setHeadingFontFamily(family);
+    onChange({ ...page, headingFontFamily: family });
+  };
+
+  const adjustTitleSize = (delta) => {
+    const next = clamp(headingTitleFontSize + delta, 1.4, 6);
+    setHeadingTitleFontSize(next);
+    onChange({ ...page, headingTitleFontSize: next });
+  };
+
+  const adjustSubtitleSize = (delta) => {
+    const next = clamp(headingSubtitleFontSize + delta, 0.8, 3);
+    setHeadingSubtitleFontSize(next);
+    onChange({ ...page, headingSubtitleFontSize: next });
+  };
+
+  const renderStepper = ({ label, value, onDecrease, onIncrease }) => (
+    <div className="heading-stepper-wrap">
+      <div className="heading-stepper-label">{label}</div>
+      <div className="heading-stepper-buttons">
+        <button type="button" onClick={onDecrease} className="heading-stepper-btn">-</button>
+        <button type="button" onClick={onIncrease} className="heading-stepper-btn">+</button>
+      </div>
+      <div className="heading-stepper-value">{formatRem(value)}</div>
+    </div>
+  );
+
   return (
     <div className="heading-page-editor">
       <div style={{ marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid #e5e7eb' }}>
@@ -96,9 +142,56 @@ const HeadingPageEditor = ({ page, onChange }) => {
           onChange={handleBackgroundModeChange}
           className="heading-bg-select"
         >
-          <option value="default">Default (bg2)</option>
+          <option value="default">Default</option>
           <option value="custom">Custom background</option>
         </select>
+      </div>
+
+      <div className="heading-editor-section">
+        <label htmlFor="heading-vertical-align">Heading position:</label>
+        <select
+          id="heading-vertical-align"
+          value={headingVerticalAlign}
+          onChange={handleVerticalAlignChange}
+          className="heading-bg-select"
+        >
+          <option value="center">Center</option>
+          <option value="top">Top</option>
+          <option value="bottom">Bottom</option>
+        </select>
+      </div>
+
+      <div className="heading-editor-section">
+        <label htmlFor="heading-font-family">Heading font family:</label>
+        <select
+          id="heading-font-family"
+          value={headingFontFamily}
+          onChange={handleHeadingFontFamilyChange}
+          className="heading-bg-select"
+        >
+          <option value="inherit">Default</option>
+          <option value="Arial, sans-serif">Arial</option>
+          <option value="Verdana, sans-serif">Verdana</option>
+          <option value="Tahoma, sans-serif">Tahoma</option>
+          <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+          <option value="Georgia, serif">Georgia</option>
+          <option value="'Times New Roman', serif">Times New Roman</option>
+        </select>
+      </div>
+
+      <div className="heading-editor-section heading-stepper-grid">
+        {renderStepper({
+          label: 'Title size',
+          value: headingTitleFontSize,
+          onDecrease: () => adjustTitleSize(-0.1),
+          onIncrease: () => adjustTitleSize(0.1)
+        })}
+        {renderStepper({
+          label: 'Subtitle size',
+          value: headingSubtitleFontSize,
+          onDecrease: () => adjustSubtitleSize(-0.05),
+          onIncrease: () => adjustSubtitleSize(0.05)
+        })}
       </div>
 
       {headingBackgroundMode === 'custom' && (
