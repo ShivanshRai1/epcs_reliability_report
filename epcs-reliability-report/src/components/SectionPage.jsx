@@ -61,12 +61,22 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
     if (!isEditMode || isLiveMode) return null;
 
     const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
-    const renderStepper = ({ label, onDecrease, onIncrease }) => (
+    const formatValue = (value, unit, allowAuto = false) => {
+      const numeric = Number(value || 0);
+      if (allowAuto && numeric <= 0) return 'Auto';
+      if (unit === 'px') return `${Math.round(numeric)} px`;
+      return `${numeric.toFixed(2).replace(/\.00$/, '').replace(/(\.\d*[1-9])0$/, '$1')} ${unit}`;
+    };
+
+    const renderStepper = ({ label, value, unit, allowAuto = false, onDecrease, onIncrease }) => (
       <div style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
         <div>{label}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <button type="button" onClick={onDecrease} style={{ width: '30px', height: '30px', borderRadius: '6px', border: '1px solid #7d8fb3', background: '#ffffff', color: '#0f172a', cursor: 'pointer', fontWeight: 700, fontSize: '18px', lineHeight: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>-</button>
           <button type="button" onClick={onIncrease} style={{ width: '30px', height: '30px', borderRadius: '6px', border: '1px solid #7d8fb3', background: '#ffffff', color: '#0f172a', cursor: 'pointer', fontWeight: 700, fontSize: '18px', lineHeight: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+        </div>
+        <div style={{ fontSize: '0.75rem', color: '#475569', textAlign: 'center', minHeight: '18px' }}>
+          {formatValue(value, unit, allowAuto)}
         </div>
       </div>
     );
@@ -94,16 +104,22 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
           </label>
           {renderStepper({
             label: 'Title size',
+            value: titleFontSize,
+            unit: 'rem',
             onDecrease: () => updatePageDisplaySettings('titleFontSize', clamp(titleFontSize - 0.05, 0.8, 3)),
             onIncrease: () => updatePageDisplaySettings('titleFontSize', clamp(titleFontSize + 0.05, 0.8, 3))
           })}
           {renderStepper({
             label: 'Header size',
+            value: headerFontSize,
+            unit: 'rem',
             onDecrease: () => updatePageDisplaySettings('headerFontSize', clamp(headerFontSize - 0.05, 0.75, 2.5)),
             onIncrease: () => updatePageDisplaySettings('headerFontSize', clamp(headerFontSize + 0.05, 0.75, 2.5))
           })}
           {renderStepper({
             label: 'Content size',
+            value: contentFontSize,
+            unit: 'rem',
             onDecrease: () => updatePageDisplaySettings('contentFontSize', clamp(contentFontSize - 0.05, 0.7, 2)),
             onIncrease: () => updatePageDisplaySettings('contentFontSize', clamp(contentFontSize + 0.05, 0.7, 2))
           })}
@@ -111,11 +127,17 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
             <>
               {renderStepper({
                 label: 'image width',
+                value: imageWidth,
+                unit: 'px',
+                allowAuto: true,
                 onDecrease: () => updatePageDisplaySettings('imageWidth', Math.max(0, imageWidth - 50) || null),
                 onIncrease: () => updatePageDisplaySettings('imageWidth', (imageWidth > 0 ? imageWidth : 0) + 50)
               })}
               {renderStepper({
                 label: 'image height',
+                value: imageHeight,
+                unit: 'px',
+                allowAuto: true,
                 onDecrease: () => updatePageDisplaySettings('imageHeight', Math.max(0, imageHeight - 50) || null),
                 onIncrease: () => updatePageDisplaySettings('imageHeight', (imageHeight > 0 ? imageHeight : 0) + 50)
               })}
