@@ -74,8 +74,9 @@ router.post('/publish', async (req, res) => {
     connection = await pool.getConnection();
     await connection.beginTransaction();
 
-    await connection.query('TRUNCATE TABLE pages');
+    // Clear dependent history rows before parent pages rows.
     await connection.query('TRUNCATE TABLE page_history');
+    await connection.query('TRUNCATE TABLE pages');
 
     await connection.query('INSERT INTO pages SELECT * FROM pages_test');
     await connection.query('INSERT INTO page_history SELECT * FROM page_history_test');
