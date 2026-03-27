@@ -8,7 +8,7 @@
 /* Main Title */
 .split-main-title {
   background: linear-gradient(135deg, #0052a3 0%, #0066cc 100%);
-  color: white;
+  color: inherit;
   padding: 20px 24px;
   font-size: 1.3rem;
   font-weight: 600;
@@ -103,14 +103,14 @@
 .split-content-display {
   font-size: 0.95rem;
   line-height: 1.6;
-  color: #213547;
+  color: inherit;
 }
 
 /* Left Content Text Display */
 .split-left-content-text {
   font-size: 0.95rem;
   line-height: 1.8;
-  color: #213547;
+  color: inherit;
   white-space: pre-wrap;
   word-wrap: break-word;
 }
@@ -135,7 +135,7 @@
   display: block;
   margin: 0.5rem 0;
   padding: 12px 20px;
-  color: #ffffff !important;
+  color: inherit !important;
   text-decoration: none;
   border: 1px solid #0066cc;
   border-radius: 4px;
@@ -148,7 +148,7 @@
 .split-link:hover {
   background-color: #0052a3;
   border-color: #0052a3;
-  color: #ffffff !important;
+  color: inherit !important;
 }
 
 /* Section Styles */

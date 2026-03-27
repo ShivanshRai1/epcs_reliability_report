@@ -842,6 +842,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
         titleColor={page.titleColor}
         leftHeaderColor={page.leftHeaderColor}
         rightHeaderColor={page.rightHeaderColor}
+        textColor={pageTextColor}
         fontFamily={fontFamily}
         titleFontSize={titleFontSize}
         headerFontSize={headerFontSize}

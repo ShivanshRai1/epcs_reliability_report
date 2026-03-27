@@ -21,7 +21,8 @@ const normalizeBlocksForRender = (blocks, contentType, content, image) => {
   return [];
 };
 
-const SplitContentRenderer = ({ title, leftHeader, rightHeader, titleColor, leftHeaderColor, rightHeaderColor, fontFamily, titleFontSize, headerFontSize, contentFontSize, imageWidth, imageHeight, leftImageWidth, leftImageHeight, rightImageWidth, rightImageHeight, leftContentType, rightContentType, leftContent, rightContent, leftImage, rightImage, leftBlocks, rightBlocks, onLinkClick, onImageClick }) => {
+const SplitContentRenderer = ({ title, leftHeader, rightHeader, titleColor, leftHeaderColor, rightHeaderColor, textColor, fontFamily, titleFontSize, headerFontSize, contentFontSize, imageWidth, imageHeight, leftImageWidth, leftImageHeight, rightImageWidth, rightImageHeight, leftContentType, rightContentType, leftContent, rightContent, leftImage, rightImage, leftBlocks, rightBlocks, onLinkClick, onImageClick }) => {
+  const resolvedTextColor = textColor || '#e0e6f0';
   const resolvedTitleSize = Number(titleFontSize) > 0 ? Number(titleFontSize) : 1.3;
   const resolvedHeaderSize = Number(headerFontSize) > 0 ? Number(headerFontSize) : 0.95;
   const resolvedContentSize = Number(contentFontSize) > 0 ? Number(contentFontSize) : 0.95;
@@ -37,15 +38,16 @@ const SplitContentRenderer = ({ title, leftHeader, rightHeader, titleColor, left
     };
     if (contentType === 'text') {
       return (
-        <div className="content-display text-content" style={{ fontSize: `${resolvedContentSize}rem` }}>
+        <div className="content-display text-content" style={{ fontSize: `${resolvedContentSize}rem`, color: resolvedTextColor }}>
           {content}
         </div>
       );
     } else if (contentType === 'link') {
       return (
-        <div className="content-display link-content" style={{ fontSize: `${resolvedContentSize}rem` }}>
+        <div className="content-display link-content" style={{ fontSize: `${resolvedContentSize}rem`, color: resolvedTextColor }}>
           <button
             className="link-button"
+            style={{ color: resolvedTextColor }}
             onClick={() => onLinkClick && onLinkClick(content)}
             title={content}
           >
@@ -79,7 +81,7 @@ const SplitContentRenderer = ({ title, leftHeader, rightHeader, titleColor, left
     };
     if (block.type === 'text') {
       return (
-        <div key={block.id || `text-${idx}`} className="content-display text-content split-block-render-item" style={{ fontSize: `${resolvedContentSize}rem` }}>
+        <div key={block.id || `text-${idx}`} className="content-display text-content split-block-render-item" style={{ fontSize: `${resolvedContentSize}rem`, color: resolvedTextColor }}>
           {block.text}
         </div>
       );
@@ -104,9 +106,10 @@ const SplitContentRenderer = ({ title, leftHeader, rightHeader, titleColor, left
     const linkLabel = block.title || block.target || 'Link';
     const linkTarget = block.target || block.title || '';
     return (
-      <div key={block.id || `link-${idx}`} className="content-display link-content split-block-render-item">
+      <div key={block.id || `link-${idx}`} className="content-display link-content split-block-render-item" style={{ color: resolvedTextColor }}>
         <button
           className="link-button"
+          style={{ color: resolvedTextColor }}
           onClick={() => onLinkClick && onLinkClick(linkTarget)}
           title={linkTarget}
         >
@@ -120,10 +123,10 @@ const SplitContentRenderer = ({ title, leftHeader, rightHeader, titleColor, left
   const normalizedRightBlocks = normalizeBlocksForRender(rightBlocks, rightContentType, rightContent, rightImage);
 
   return (
-    <div className="split-content-renderer" style={{ fontFamily: fontFamily || 'inherit' }}>
+    <div className="split-content-renderer" style={{ fontFamily: fontFamily || 'inherit', color: resolvedTextColor }}>
       {/* Main Heading */}
       {title && (
-        <div className="split-heading" style={{ background: titleColor || undefined, fontSize: `${resolvedTitleSize}rem` }}>
+        <div className="split-heading" style={{ background: titleColor || undefined, fontSize: `${resolvedTitleSize}rem`, color: resolvedTextColor }}>
           {title}
         </div>
       )}
@@ -132,12 +135,12 @@ const SplitContentRenderer = ({ title, leftHeader, rightHeader, titleColor, left
       {(leftHeader || rightHeader) && (
         <div className="split-headers">
           {leftHeader && (
-            <div className="left-header-box" style={{ backgroundColor: leftHeaderColor || undefined, fontSize: `${resolvedHeaderSize}rem` }}>
+            <div className="left-header-box" style={{ backgroundColor: leftHeaderColor || undefined, fontSize: `${resolvedHeaderSize}rem`, color: resolvedTextColor }}>
               {leftHeader}
             </div>
           )}
           {rightHeader && (
-            <div className="right-header-box" style={{ backgroundColor: rightHeaderColor || undefined, fontSize: `${resolvedHeaderSize}rem` }}>
+            <div className="right-header-box" style={{ backgroundColor: rightHeaderColor || undefined, fontSize: `${resolvedHeaderSize}rem`, color: resolvedTextColor }}>
               {rightHeader}
             </div>
           )}
