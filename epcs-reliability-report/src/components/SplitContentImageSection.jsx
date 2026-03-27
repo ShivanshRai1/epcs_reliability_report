@@ -252,6 +252,8 @@ export default function SplitContentImageSection({
     objectFit: rightImageWidthData || rightImageHeightData ? 'contain' : undefined,
     cursor: 'pointer'
   };
+  const hasLeftImageControl = splitImageLinksMode || splitImageImageMode;
+  const hasRightImageControl = splitTextImageMode || splitLinksImageMode || splitImageImageMode || (!splitTextImageMode && !splitLinksImageMode && !splitImageLinksMode && !splitImageImageMode);
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
   const formatValue = (value, unit, allowAuto = false) => {
     const numeric = Number(value || 0);
@@ -656,7 +658,7 @@ export default function SplitContentImageSection({
               onDecrease: () => { const val = clamp(contentFontSizeData - 0.05, 0.7, 2); setContentFontSizeData(val); emitImmediateChange({ contentFontSize: val }); },
               onIncrease: () => { const val = clamp(contentFontSizeData + 0.05, 0.7, 2); setContentFontSizeData(val); emitImmediateChange({ contentFontSize: val }); }
             })}
-            {renderStepper({
+            {hasLeftImageControl && renderStepper({
               label: 'Left image width',
               value: leftImageWidthData,
               unit: 'px',
@@ -664,7 +666,7 @@ export default function SplitContentImageSection({
               onDecrease: () => { const val = Math.max(0, (leftImageWidthData || 0) - 50) || null; setLeftImageWidthData(val); emitImmediateChange({ leftImageWidth: val }); },
               onIncrease: () => { const val = (leftImageWidthData || 0) + 50; setLeftImageWidthData(val); emitImmediateChange({ leftImageWidth: val }); }
             })}
-            {renderStepper({
+            {hasLeftImageControl && renderStepper({
               label: 'Left image height',
               value: leftImageHeightData,
               unit: 'px',
@@ -672,7 +674,7 @@ export default function SplitContentImageSection({
               onDecrease: () => { const val = Math.max(0, (leftImageHeightData || 0) - 50) || null; setLeftImageHeightData(val); emitImmediateChange({ leftImageHeight: val }); },
               onIncrease: () => { const val = (leftImageHeightData || 0) + 50; setLeftImageHeightData(val); emitImmediateChange({ leftImageHeight: val }); }
             })}
-            {renderStepper({
+            {hasRightImageControl && renderStepper({
               label: 'Right image width',
               value: rightImageWidthData,
               unit: 'px',
@@ -680,7 +682,7 @@ export default function SplitContentImageSection({
               onDecrease: () => { const val = Math.max(0, (rightImageWidthData || 0) - 50) || null; setRightImageWidthData(val); emitImmediateChange({ rightImageWidth: val }); },
               onIncrease: () => { const val = (rightImageWidthData || 0) + 50; setRightImageWidthData(val); emitImmediateChange({ rightImageWidth: val }); }
             })}
-            {renderStepper({
+            {hasRightImageControl && renderStepper({
               label: 'Right image height',
               value: rightImageHeightData,
               unit: 'px',
@@ -693,7 +695,7 @@ export default function SplitContentImageSection({
       )}
       {titleData && (
         <div className="split-main-title" style={{ background: titleColorData || undefined, fontFamily: fontFamilyData, fontSize: `${titleFontSizeData}rem` }}>
-          <h1>{titleData}</h1>
+          <h1 style={{ fontSize: `${titleFontSizeData}rem`, margin: 0 }}>{titleData}</h1>
         </div>
       )}
 
