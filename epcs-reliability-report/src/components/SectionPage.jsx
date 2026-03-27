@@ -28,6 +28,8 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
   const titleFontSize = toPositiveNumber(page.titleFontSize, 1.2);
   const headerFontSize = toPositiveNumber(page.headerFontSize, 0.95);
   const contentFontSize = toPositiveNumber(page.contentFontSize, 0.95);
+  const headingTitleFontSize = toPositiveNumber(page.headingTitleFontSize, 3.25);
+  const headingSubtitleFontSize = toPositiveNumber(page.headingSubtitleFontSize, 1.5);
   const imageWidth = toPositiveNumber(page.imageWidth, 0);
   const imageHeight = toPositiveNumber(page.imageHeight, 0);
 
@@ -59,6 +61,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
 
   const renderDisplaySettingsPanel = () => {
     if (!isEditMode || isLiveMode) return null;
+    const isHeadingPage = page.pageType === 'heading';
 
     const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
     const formatValue = (value, unit, allowAuto = false) => {
@@ -104,19 +107,43 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
           </label>
           {renderStepper({
             label: 'Title size',
-            value: titleFontSize,
+            value: isHeadingPage ? headingTitleFontSize : titleFontSize,
             unit: 'rem',
-            onDecrease: () => updatePageDisplaySettings('titleFontSize', clamp(titleFontSize - 0.05, 0.8, 3)),
-            onIncrease: () => updatePageDisplaySettings('titleFontSize', clamp(titleFontSize + 0.05, 0.8, 3))
+            onDecrease: () => {
+              if (isHeadingPage) {
+                onHeadingChange?.(page.id, { headingTitleFontSize: clamp(headingTitleFontSize - 0.1, 1.4, 6) });
+                return;
+              }
+              updatePageDisplaySettings('titleFontSize', clamp(titleFontSize - 0.05, 0.8, 3));
+            },
+            onIncrease: () => {
+              if (isHeadingPage) {
+                onHeadingChange?.(page.id, { headingTitleFontSize: clamp(headingTitleFontSize + 0.1, 1.4, 6) });
+                return;
+              }
+              updatePageDisplaySettings('titleFontSize', clamp(titleFontSize + 0.05, 0.8, 3));
+            }
           })}
           {renderStepper({
-            label: 'Header size',
-            value: headerFontSize,
+            label: isHeadingPage ? 'Subtitle size' : 'Header size',
+            value: isHeadingPage ? headingSubtitleFontSize : headerFontSize,
             unit: 'rem',
-            onDecrease: () => updatePageDisplaySettings('headerFontSize', clamp(headerFontSize - 0.05, 0.75, 2.5)),
-            onIncrease: () => updatePageDisplaySettings('headerFontSize', clamp(headerFontSize + 0.05, 0.75, 2.5))
+            onDecrease: () => {
+              if (isHeadingPage) {
+                onHeadingChange?.(page.id, { headingSubtitleFontSize: clamp(headingSubtitleFontSize - 0.05, 0.8, 3) });
+                return;
+              }
+              updatePageDisplaySettings('headerFontSize', clamp(headerFontSize - 0.05, 0.75, 2.5));
+            },
+            onIncrease: () => {
+              if (isHeadingPage) {
+                onHeadingChange?.(page.id, { headingSubtitleFontSize: clamp(headingSubtitleFontSize + 0.05, 0.8, 3) });
+                return;
+              }
+              updatePageDisplaySettings('headerFontSize', clamp(headerFontSize + 0.05, 0.75, 2.5));
+            }
           })}
-          {renderStepper({
+          {!isHeadingPage && renderStepper({
             label: 'Content size',
             value: contentFontSize,
             unit: 'rem',
@@ -163,8 +190,6 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
     const headingVerticalAlign = page.headingVerticalAlign || 'center';
     const headingJustifyContent = headingVerticalAlign === 'top' ? 'flex-start' : headingVerticalAlign === 'bottom' ? 'flex-end' : 'center';
     const headingFontFamily = page.headingFontFamily || page.fontFamily || 'inherit';
-    const headingTitleFontSize = toPositiveNumber(page.headingTitleFontSize, 3.25);
-    const headingSubtitleFontSize = toPositiveNumber(page.headingSubtitleFontSize, 1.5);
     const defaultHeadingBackground = '/images/bg2.png';
     const customHeadingBackground = typeof page.headingBackgroundImage === 'string' ? page.headingBackgroundImage.trim() : '';
     const useCustomHeadingBackground = page.headingBackgroundMode === 'custom' && Boolean(customHeadingBackground);

@@ -9,8 +9,6 @@ const HeadingPageEditor = ({ page, onChange }) => {
   const [headingBackgroundImage, setHeadingBackgroundImage] = useState(page.headingBackgroundImage || '');
   const [headingVerticalAlign, setHeadingVerticalAlign] = useState(page.headingVerticalAlign || 'center');
   const [headingFontFamily, setHeadingFontFamily] = useState(page.headingFontFamily || 'inherit');
-  const [headingTitleFontSize, setHeadingTitleFontSize] = useState(Number(page.headingTitleFontSize) > 0 ? Number(page.headingTitleFontSize) : 3.25);
-  const [headingSubtitleFontSize, setHeadingSubtitleFontSize] = useState(Number(page.headingSubtitleFontSize) > 0 ? Number(page.headingSubtitleFontSize) : 1.5);
 
   useEffect(() => {
     setTitle(page.title || '');
@@ -19,12 +17,7 @@ const HeadingPageEditor = ({ page, onChange }) => {
     setHeadingBackgroundImage(page.headingBackgroundImage || '');
     setHeadingVerticalAlign(page.headingVerticalAlign || 'center');
     setHeadingFontFamily(page.headingFontFamily || 'inherit');
-    setHeadingTitleFontSize(Number(page.headingTitleFontSize) > 0 ? Number(page.headingTitleFontSize) : 3.25);
-    setHeadingSubtitleFontSize(Number(page.headingSubtitleFontSize) > 0 ? Number(page.headingSubtitleFontSize) : 1.5);
-  }, [page.id, page.title, page.subtitle, page.headingBackgroundMode, page.headingBackgroundImage, page.headingVerticalAlign, page.headingFontFamily, page.headingTitleFontSize, page.headingSubtitleFontSize]);
-
-  const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
-  const formatRem = (value) => `${Number(value || 0).toFixed(2).replace(/\.00$/, '').replace(/(\.\d*[1-9])0$/, '$1')} rem`;
+  }, [page.id, page.title, page.subtitle, page.headingBackgroundMode, page.headingBackgroundImage, page.headingVerticalAlign, page.headingFontFamily]);
 
   const handleTitleChange = (e) => {
     const newTitle = e.target.value;
@@ -81,29 +74,6 @@ const HeadingPageEditor = ({ page, onChange }) => {
     setHeadingFontFamily(family);
     onChange({ ...page, headingFontFamily: family });
   };
-
-  const adjustTitleSize = (delta) => {
-    const next = clamp(headingTitleFontSize + delta, 1.4, 6);
-    setHeadingTitleFontSize(next);
-    onChange({ ...page, headingTitleFontSize: next });
-  };
-
-  const adjustSubtitleSize = (delta) => {
-    const next = clamp(headingSubtitleFontSize + delta, 0.8, 3);
-    setHeadingSubtitleFontSize(next);
-    onChange({ ...page, headingSubtitleFontSize: next });
-  };
-
-  const renderStepper = ({ label, value, onDecrease, onIncrease }) => (
-    <div className="heading-stepper-wrap">
-      <div className="heading-stepper-label">{label}</div>
-      <div className="heading-stepper-buttons">
-        <button type="button" onClick={onDecrease} className="heading-stepper-btn">-</button>
-        <button type="button" onClick={onIncrease} className="heading-stepper-btn">+</button>
-      </div>
-      <div className="heading-stepper-value">{formatRem(value)}</div>
-    </div>
-  );
 
   return (
     <div className="heading-page-editor">
@@ -177,21 +147,6 @@ const HeadingPageEditor = ({ page, onChange }) => {
           <option value="Georgia, serif">Georgia</option>
           <option value="'Times New Roman', serif">Times New Roman</option>
         </select>
-      </div>
-
-      <div className="heading-editor-section heading-stepper-grid">
-        {renderStepper({
-          label: 'Title size',
-          value: headingTitleFontSize,
-          onDecrease: () => adjustTitleSize(-0.1),
-          onIncrease: () => adjustTitleSize(0.1)
-        })}
-        {renderStepper({
-          label: 'Subtitle size',
-          value: headingSubtitleFontSize,
-          onDecrease: () => adjustSubtitleSize(-0.05),
-          onIncrease: () => adjustSubtitleSize(0.05)
-        })}
       </div>
 
       {headingBackgroundMode === 'custom' && (
