@@ -1686,12 +1686,6 @@ a:hover,
 }
 
 /* Button-like links must stay white on blue backgrounds */
-.split-link,
-.split-link:visited,
-.split-link:hover,
-.split-link:active,
-.link-button,
-.link-button:hover,
 .section-list-btn,
 .pdf-nav-btn {
   color: #ffffff !important;
@@ -1715,11 +1709,11 @@ a:hover,
   color: #1f2937 !important;
 }
 
-/* Split-content blue banner titles in normal mode must stay white. */
+/* Split-content banner titles should follow dynamic page text color. */
 .report-shell .split-main-title,
 .report-shell .split-main-title *,
 .report-shell .split-main-title h1 {
-  color: #ffffff !important;
+  color: inherit !important;
 }
 
 /* Exception: heading pages keep white text */
@@ -1737,7 +1731,7 @@ a:hover,
 .report-shell li,
 .report-shell td,
 .report-shell th {
-  color: #1f2937 !important;
+  color: inherit !important;
 }
 
 .report-shell .report-content {
