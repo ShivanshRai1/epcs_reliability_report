@@ -28,6 +28,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
   const titleFontSize = toPositiveNumber(page.titleFontSize, 1.2);
   const headerFontSize = toPositiveNumber(page.headerFontSize, 0.95);
   const contentFontSize = toPositiveNumber(page.contentFontSize, 0.95);
+  const pageTextColor = page.textColor || '#e0e6f0';
   const headingTitleFontSize = toPositiveNumber(page.headingTitleFontSize, 3.25);
   const headingSubtitleFontSize = toPositiveNumber(page.headingSubtitleFontSize, 1.5);
   const imageWidth = toPositiveNumber(page.imageWidth, 0);
@@ -35,7 +36,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
 
   const pageTextStyle = {
     fontFamily,
-    color: page.textColor || '#e0e6f0',
+    color: pageTextColor,
   };
 
   const imageSizingStyle = {
@@ -217,16 +218,18 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
       alignItems: isEditMode ? 'flex-start' : headingAlignItems
     };
     const headingContentStyle = {
-      color: '#ffffff',
+      color: pageTextColor,
       fontFamily: headingFontFamily
     };
     const headingTitleStyle = {
       fontFamily: headingFontFamily,
-      fontSize: `${headingTitleFontSize}rem`
+      fontSize: `${headingTitleFontSize}rem`,
+      color: pageTextColor
     };
     const headingSubtitleStyle = {
       fontFamily: headingFontFamily,
-      fontSize: `${headingSubtitleFontSize}rem`
+      fontSize: `${headingSubtitleFontSize}rem`,
+      color: pageTextColor
     };
     const legacyHeadingVars = {
       '--legacy-heading-title-size': `${headingTitleFontSize}rem`,
@@ -279,7 +282,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
     }
     
     return (
-      <div style={{ color: '#e0e6f0', lineHeight: 1.6, ...pageTextStyle }}>
+      <div style={{ lineHeight: 1.6, ...pageTextStyle }}>
         {page.title && (
           <div style={{
             background: page.titleColor || 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)',
@@ -331,7 +334,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
           {mixedBlocks.map((block, idx) => {
             if (block.type === 'text') {
               return (
-                <p key={block.id || `text-${idx}`} style={{ color: '#e0e6f0', lineHeight: 1.6, margin: '0 0 0.8rem 0', whiteSpace: 'pre-wrap' }}>
+                <p key={block.id || `text-${idx}`} style={{ color: pageTextColor, lineHeight: 1.6, margin: '0 0 0.8rem 0', whiteSpace: 'pre-wrap' }}>
                   {block.text}
                 </p>
               );
@@ -385,7 +388,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
           </div>
         )}
         {page.intro && (
-          <p style={{ fontSize: `${contentFontSize}rem`, color: '#e0e6f0', marginTop: '1rem', marginBottom: '1.5rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+          <p style={{ fontSize: `${contentFontSize}rem`, color: pageTextColor, marginTop: '1rem', marginBottom: '1.5rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
             {page.intro}
           </p>
         )}
@@ -421,7 +424,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
               }
               if (block.type === 'text') {
                 return (
-                  <p key={block.id || bIdx} style={{ fontSize: '0.95rem', color: '#e0e6f0', lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: '0.8rem', textAlign: 'left' }}>
+                  <p key={block.id || bIdx} style={{ fontSize: '0.95rem', color: pageTextColor, lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: '0.8rem', textAlign: 'left' }}>
                     {block.text}
                   </p>
                 );
@@ -453,7 +456,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
                       {block.title}
                     </a>
                   </div>
-                : <p key={block.id || bIdx} style={{ fontSize: '0.95rem', color: '#e0e6f0', lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: '0.8rem', textAlign: 'left' }}>
+                : <p key={block.id || bIdx} style={{ fontSize: '0.95rem', color: pageTextColor, lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: '0.8rem', textAlign: 'left' }}>
                     {block.text}
                   </p>
             ))}
@@ -461,7 +464,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
         )}
 
         {page.bottomText && (
-          <p style={{ fontSize: `${contentFontSize}rem`, color: '#e0e6f0', marginTop: '1.5rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+          <p style={{ fontSize: `${contentFontSize}rem`, color: pageTextColor, marginTop: '1.5rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
             {page.bottomText}
           </p>
         )}
@@ -484,7 +487,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
           </div>
         )}
         
-        <div style={{ color: '#e0e6f0', fontSize: '0.95rem', lineHeight: 1.6 }}>
+        <div style={{ color: pageTextColor, fontSize: '0.95rem', lineHeight: 1.6 }}>
           <p>{page.content}</p>
           {page.link && <a href="#" style={{ color: '#2e7be6', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); onLinkClick(page.link); }}>Continue →</a>}
         </div>
@@ -646,7 +649,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
     if (isEditMode) {
       return wrapEditContent(
         <div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: '#fff' }}>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: pageTextColor }}>
             {page.title}
           </h2>
           <AdvancedTableEditor 
@@ -665,7 +668,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
     const useLegacyLiveTableChrome = isLivePage6 || isLivePage7;
     const headingStyle = useLegacyLiveTableChrome
       ? undefined
-      : { fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: '#fff' };
+      : { fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: pageTextColor };
     const captionStyle = useLegacyLiveTableChrome
       ? undefined
       : { fontSize: '0.95rem', color: '#ddd' };
@@ -723,7 +726,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
                 );
               }
               return (
-                <p key={block.id || bIdx} style={{ fontSize: '0.95rem', color: '#e0e6f0', lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: '0.8rem' }}>
+                <p key={block.id || bIdx} style={{ fontSize: '0.95rem', color: pageTextColor, lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: '0.8rem' }}>
                   {block.text}
                 </p>
               );
@@ -768,7 +771,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
           onImageClick={page.imageUrl ? () => onImageClick(page.imageUrl, page.title) : undefined}
         />
         {page.description && (
-          <p style={{ fontSize: `${contentFontSize}rem`, color: '#e0e6f0', marginTop: '1rem' }}>{page.description}</p>
+          <p style={{ fontSize: `${contentFontSize}rem`, color: pageTextColor, marginTop: '1rem' }}>{page.description}</p>
         )}
       </div>
     );
@@ -802,6 +805,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
         titleColor={page.titleColor}
         leftHeaderColor={page.leftHeaderColor}
         rightHeaderColor={page.rightHeaderColor}
+        textColor={pageTextColor}
         fontFamily={fontFamily}
         titleFontSize={titleFontSize}
         headerFontSize={headerFontSize}

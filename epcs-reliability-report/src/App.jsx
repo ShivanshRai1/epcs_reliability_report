@@ -509,6 +509,7 @@ function App() {
           if ('titleColor' in data) page.titleColor = data.titleColor;
           if ('leftHeaderColor' in data) page.leftHeaderColor = data.leftHeaderColor;
           if ('rightHeaderColor' in data) page.rightHeaderColor = data.rightHeaderColor;
+          if ('textColor' in data) page.textColor = data.textColor;
           if ('fontFamily' in data) page.fontFamily = data.fontFamily;
           if ('titleFontSize' in data) page.titleFontSize = data.titleFontSize;
           if ('headerFontSize' in data) page.headerFontSize = data.headerFontSize;
