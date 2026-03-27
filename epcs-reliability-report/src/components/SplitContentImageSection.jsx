@@ -266,14 +266,21 @@ export default function SplitContentImageSection({
     if (unit === 'px') return `${Math.round(numeric)} px`;
     return `${numeric.toFixed(2).replace(/\.00$/, '').replace(/(\.\d*[1-9])0$/, '$1')} ${unit}`;
   };
-  const renderStepper = ({ label, value, unit, allowAuto = false, onDecrease, onIncrease }) => (
+  const isAtMaxValue = (value, max) => {
+    if (typeof max !== 'number') return false;
+    const numeric = Number(value || 0);
+    if (!Number.isFinite(numeric)) return false;
+    return numeric >= max - 0.0001;
+  };
+
+  const renderStepper = ({ label, value, unit, allowAuto = false, max, onDecrease, onIncrease }) => (
     <div style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
       <div>{label}</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
         <button type="button" onClick={onDecrease} style={{ width: '30px', height: '30px', borderRadius: '6px', border: '1px solid #7d8fb3', background: '#ffffff', color: '#0f172a', cursor: 'pointer', fontWeight: 700, fontSize: '18px', lineHeight: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>-</button>
         <button type="button" onClick={onIncrease} style={{ width: '30px', height: '30px', borderRadius: '6px', border: '1px solid #7d8fb3', background: '#ffffff', color: '#0f172a', cursor: 'pointer', fontWeight: 700, fontSize: '18px', lineHeight: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
       </div>
-      <div style={{ fontSize: '0.75rem', color: '#1f2937', fontWeight: 700, textAlign: 'center', minHeight: '18px' }}>
+      <div style={{ fontSize: '0.75rem', color: isAtMaxValue(value, max) ? '#dc2626' : '#1f2937', fontWeight: 700, textAlign: 'center', minHeight: '18px' }}>
         {formatValue(value, unit, allowAuto)}
       </div>
     </div>
@@ -646,6 +653,7 @@ export default function SplitContentImageSection({
               label: 'Title size',
               value: titleFontSizeData,
               unit: 'rem',
+              max: 3,
               onDecrease: () => { const val = clamp(titleFontSizeData - 0.05, 0.8, 3); setTitleFontSizeData(val); emitImmediateChange({ titleFontSize: val }); },
               onIncrease: () => { const val = clamp(titleFontSizeData + 0.05, 0.8, 3); setTitleFontSizeData(val); emitImmediateChange({ titleFontSize: val }); }
             })}
@@ -653,6 +661,7 @@ export default function SplitContentImageSection({
               label: 'Header size',
               value: headerFontSizeData,
               unit: 'rem',
+              max: 2.5,
               onDecrease: () => { const val = clamp(headerFontSizeData - 0.05, 0.75, 2.5); setHeaderFontSizeData(val); emitImmediateChange({ headerFontSize: val }); },
               onIncrease: () => { const val = clamp(headerFontSizeData + 0.05, 0.75, 2.5); setHeaderFontSizeData(val); emitImmediateChange({ headerFontSize: val }); }
             })}
@@ -660,6 +669,7 @@ export default function SplitContentImageSection({
               label: 'Content size',
               value: contentFontSizeData,
               unit: 'rem',
+              max: 2,
               onDecrease: () => { const val = clamp(contentFontSizeData - 0.05, 0.7, 2); setContentFontSizeData(val); emitImmediateChange({ contentFontSize: val }); },
               onIncrease: () => { const val = clamp(contentFontSizeData + 0.05, 0.7, 2); setContentFontSizeData(val); emitImmediateChange({ contentFontSize: val }); }
             })}
@@ -668,32 +678,36 @@ export default function SplitContentImageSection({
               value: leftImageWidthData,
               unit: 'px',
               allowAuto: true,
+              max: 550,
               onDecrease: () => { const val = Math.max(0, (leftImageWidthData || 0) - 50) || null; setLeftImageWidthData(val); emitImmediateChange({ leftImageWidth: val }); },
-              onIncrease: () => { const val = (leftImageWidthData || 0) + 50; setLeftImageWidthData(val); emitImmediateChange({ leftImageWidth: val }); }
+              onIncrease: () => { const val = Math.min(550, (leftImageWidthData || 0) + 50) || null; setLeftImageWidthData(val); emitImmediateChange({ leftImageWidth: val }); }
             })}
             {hasLeftImageControl && renderStepper({
               label: 'Left image height',
               value: leftImageHeightData,
               unit: 'px',
               allowAuto: true,
+              max: 550,
               onDecrease: () => { const val = Math.max(0, (leftImageHeightData || 0) - 50) || null; setLeftImageHeightData(val); emitImmediateChange({ leftImageHeight: val }); },
-              onIncrease: () => { const val = (leftImageHeightData || 0) + 50; setLeftImageHeightData(val); emitImmediateChange({ leftImageHeight: val }); }
+              onIncrease: () => { const val = Math.min(550, (leftImageHeightData || 0) + 50) || null; setLeftImageHeightData(val); emitImmediateChange({ leftImageHeight: val }); }
             })}
             {hasRightImageControl && renderStepper({
               label: 'Right image width',
               value: rightImageWidthData,
               unit: 'px',
               allowAuto: true,
+              max: 550,
               onDecrease: () => { const val = Math.max(0, (rightImageWidthData || 0) - 50) || null; setRightImageWidthData(val); emitImmediateChange({ rightImageWidth: val }); },
-              onIncrease: () => { const val = (rightImageWidthData || 0) + 50; setRightImageWidthData(val); emitImmediateChange({ rightImageWidth: val }); }
+              onIncrease: () => { const val = Math.min(550, (rightImageWidthData || 0) + 50) || null; setRightImageWidthData(val); emitImmediateChange({ rightImageWidth: val }); }
             })}
             {hasRightImageControl && renderStepper({
               label: 'Right image height',
               value: rightImageHeightData,
               unit: 'px',
               allowAuto: true,
+              max: 550,
               onDecrease: () => { const val = Math.max(0, (rightImageHeightData || 0) - 50) || null; setRightImageHeightData(val); emitImmediateChange({ rightImageHeight: val }); },
-              onIncrease: () => { const val = (rightImageHeightData || 0) + 50; setRightImageHeightData(val); emitImmediateChange({ rightImageHeight: val }); }
+              onIncrease: () => { const val = Math.min(550, (rightImageHeightData || 0) + 50) || null; setRightImageHeightData(val); emitImmediateChange({ rightImageHeight: val }); }
             })}
           </div>
         </div>
