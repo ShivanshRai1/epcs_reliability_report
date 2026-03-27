@@ -35,6 +35,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
 
   const pageTextStyle = {
     fontFamily,
+    color: page.textColor || '#e0e6f0',
   };
 
   const imageSizingStyle = {
@@ -104,6 +105,16 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
               <option value="'Times New Roman', serif">Times New Roman</option>
               <option value="'Courier New', monospace">Courier New</option>
             </select>
+          </label>
+          <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
+            Text color
+            <input
+              type="color"
+              value={page.textColor || '#e0e6f0'}
+              onChange={(e) => updatePageDisplaySettings('textColor', e.target.value)}
+              style={{ width: '100%', height: '32px', padding: '2px', border: '1px solid #c8d3e7', borderRadius: '6px', cursor: 'pointer' }}
+              title="Page text color"
+            />
           </label>
           {renderStepper({
             label: 'Title size',
