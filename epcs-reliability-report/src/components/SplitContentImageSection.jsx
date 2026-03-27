@@ -382,7 +382,7 @@ export default function SplitContentImageSection({
           <div className="split-links-editor">
             <div className="links-list">
               {links.length === 0 && (
-                <div className="no-links-placeholder">No links added yet</div>
+                <div className="no-links-placeholder" style={{ color: textColorData }}>No links added yet</div>
               )}
               {links.map((link, idx) => (
                 <div key={`link-${idx}`} className="link-edit-row">
@@ -478,7 +478,7 @@ export default function SplitContentImageSection({
         <div className="split-links-editor">
           <div className="links-list">
             {links.length === 0 && (
-              <div className="no-links-placeholder">No links added yet</div>
+              <div className="no-links-placeholder" style={{ color: textColorData }}>No links added yet</div>
             )}
             {links.map((link, idx) => (
               <div key={`link-${idx}`} className="link-edit-row">
@@ -575,7 +575,7 @@ export default function SplitContentImageSection({
   );
 
   return (
-    <div className={`split-section-wrapper${isLiveSplitPage ? ' legacy-live-split-page' : ''}${isLivePage13 ? ' legacy-live-page-13-split' : ''}${isLivePage15 ? ' legacy-live-page-15-split' : ''}`}>
+    <div className={`split-section-wrapper${isLiveSplitPage ? ' legacy-live-split-page' : ''}${isLivePage13 ? ' legacy-live-page-13-split' : ''}${isLivePage15 ? ' legacy-live-page-15-split' : ''}`} style={{ color: textColorData }}>
       {isLiveSplitPage && <div className="legacy-live-split-logo">EPC·SPACE</div>}
       {isEditing && (
         <div style={{ display: 'grid', gap: '8px', padding: '10px 12px', background: '#f4f6fb', borderBottom: '1px solid #d8dee9' }}>
@@ -730,7 +730,7 @@ export default function SplitContentImageSection({
         </div>
       )}
       {titleData && (
-        <div className="split-main-title" style={{ background: titleColorData || undefined, fontFamily: fontFamilyData, fontSize: `${titleFontSizeData}rem` }}>
+        <div className="split-main-title" style={{ background: titleColorData || undefined, fontFamily: fontFamilyData, fontSize: `${titleFontSizeData}rem`, color: textColorData }}>
           <h1 style={{ fontSize: `${titleFontSizeData}rem`, margin: 0, color: textColorData }}>{titleData}</h1>
         </div>
       )}
