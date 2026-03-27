@@ -253,21 +253,12 @@ export default function SplitContentImageSection({
     cursor: 'pointer'
   };
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
-  const formatValue = (value, decimals = 2) => Number(value).toFixed(decimals).replace(/\.00$/, '').replace(/(\.\d*[1-9])0$/, '$1');
-  const renderStepper = ({ label, value, unit = '', onDecrease, onIncrease, onAuto }) => (
+  const renderStepper = ({ label, onDecrease, onIncrease }) => (
     <div style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
       <div>{label}</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
         <button type="button" onClick={onDecrease} style={{ width: '30px', height: '30px', borderRadius: '6px', border: '1px solid #7d8fb3', background: '#ffffff', color: '#0f172a', cursor: 'pointer', fontWeight: 700, fontSize: '18px', lineHeight: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>-</button>
-        <div style={{ flex: 1, textAlign: 'center', padding: '6px 8px', border: '1px solid #c8d3e7', borderRadius: '6px', background: '#fff', minHeight: '28px' }}>
-          {value === null || value === undefined || value === 0 ? 'Auto' : `${formatValue(value, unit === 'px' ? 0 : 2)}${unit ? ` ${unit}` : ''}`}
-        </div>
         <button type="button" onClick={onIncrease} style={{ width: '30px', height: '30px', borderRadius: '6px', border: '1px solid #7d8fb3', background: '#ffffff', color: '#0f172a', cursor: 'pointer', fontWeight: 700, fontSize: '18px', lineHeight: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
-        {onAuto && (
-          <button type="button" onClick={onAuto} style={{ padding: '6px 8px', borderRadius: '6px', border: '1px solid #7d8fb3', background: '#ffffff', color: '#0f172a', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600 }}>
-            Auto
-          </button>
-        )}
       </div>
     </div>
   );
@@ -637,56 +628,38 @@ export default function SplitContentImageSection({
             </label>
             {renderStepper({
               label: 'Title size',
-              value: titleFontSizeData,
-              unit: 'rem',
               onDecrease: () => { const val = clamp(titleFontSizeData - 0.05, 0.8, 3); setTitleFontSizeData(val); emitImmediateChange({ titleFontSize: val }); },
               onIncrease: () => { const val = clamp(titleFontSizeData + 0.05, 0.8, 3); setTitleFontSizeData(val); emitImmediateChange({ titleFontSize: val }); }
             })}
             {renderStepper({
               label: 'Header size',
-              value: headerFontSizeData,
-              unit: 'rem',
               onDecrease: () => { const val = clamp(headerFontSizeData - 0.05, 0.75, 2.5); setHeaderFontSizeData(val); emitImmediateChange({ headerFontSize: val }); },
               onIncrease: () => { const val = clamp(headerFontSizeData + 0.05, 0.75, 2.5); setHeaderFontSizeData(val); emitImmediateChange({ headerFontSize: val }); }
             })}
             {renderStepper({
               label: 'Content size',
-              value: contentFontSizeData,
-              unit: 'rem',
               onDecrease: () => { const val = clamp(contentFontSizeData - 0.05, 0.7, 2); setContentFontSizeData(val); emitImmediateChange({ contentFontSize: val }); },
               onIncrease: () => { const val = clamp(contentFontSizeData + 0.05, 0.7, 2); setContentFontSizeData(val); emitImmediateChange({ contentFontSize: val }); }
             })}
             {renderStepper({
               label: 'Left image width',
-              value: leftImageWidthData,
-              unit: 'px',
               onDecrease: () => { const val = Math.max(0, (leftImageWidthData || 0) - 50) || null; setLeftImageWidthData(val); emitImmediateChange({ leftImageWidth: val }); },
-              onIncrease: () => { const val = (leftImageWidthData || 0) + 50; setLeftImageWidthData(val); emitImmediateChange({ leftImageWidth: val }); },
-              onAuto: () => { setLeftImageWidthData(null); emitImmediateChange({ leftImageWidth: null }); }
+              onIncrease: () => { const val = (leftImageWidthData || 0) + 50; setLeftImageWidthData(val); emitImmediateChange({ leftImageWidth: val }); }
             })}
             {renderStepper({
               label: 'Left image height',
-              value: leftImageHeightData,
-              unit: 'px',
               onDecrease: () => { const val = Math.max(0, (leftImageHeightData || 0) - 50) || null; setLeftImageHeightData(val); emitImmediateChange({ leftImageHeight: val }); },
-              onIncrease: () => { const val = (leftImageHeightData || 0) + 50; setLeftImageHeightData(val); emitImmediateChange({ leftImageHeight: val }); },
-              onAuto: () => { setLeftImageHeightData(null); emitImmediateChange({ leftImageHeight: null }); }
+              onIncrease: () => { const val = (leftImageHeightData || 0) + 50; setLeftImageHeightData(val); emitImmediateChange({ leftImageHeight: val }); }
             })}
             {renderStepper({
               label: 'Right image width',
-              value: rightImageWidthData,
-              unit: 'px',
               onDecrease: () => { const val = Math.max(0, (rightImageWidthData || 0) - 50) || null; setRightImageWidthData(val); emitImmediateChange({ rightImageWidth: val }); },
-              onIncrease: () => { const val = (rightImageWidthData || 0) + 50; setRightImageWidthData(val); emitImmediateChange({ rightImageWidth: val }); },
-              onAuto: () => { setRightImageWidthData(null); emitImmediateChange({ rightImageWidth: null }); }
+              onIncrease: () => { const val = (rightImageWidthData || 0) + 50; setRightImageWidthData(val); emitImmediateChange({ rightImageWidth: val }); }
             })}
             {renderStepper({
               label: 'Right image height',
-              value: rightImageHeightData,
-              unit: 'px',
               onDecrease: () => { const val = Math.max(0, (rightImageHeightData || 0) - 50) || null; setRightImageHeightData(val); emitImmediateChange({ rightImageHeight: val }); },
-              onIncrease: () => { const val = (rightImageHeightData || 0) + 50; setRightImageHeightData(val); emitImmediateChange({ rightImageHeight: val }); },
-              onAuto: () => { setRightImageHeightData(null); emitImmediateChange({ rightImageHeight: null }); }
+              onIncrease: () => { const val = (rightImageHeightData || 0) + 50; setRightImageHeightData(val); emitImmediateChange({ rightImageHeight: val }); }
             })}
           </div>
         </div>
