@@ -256,6 +256,7 @@ export default function SplitContentImageSection({
     objectFit: rightImageWidthData || rightImageHeightData ? 'contain' : undefined,
     cursor: 'pointer'
   };
+  const rightImageHasCustomSize = Boolean(rightImageWidthData || rightImageHeightData);
   const hasLeftImageControl = splitImageLinksMode || splitImageImageMode;
   const hasRightImageControl = splitTextImageMode || splitLinksImageMode || splitImageImageMode || (!splitTextImageMode && !splitLinksImageMode && !splitImageLinksMode && !splitImageImageMode);
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
@@ -730,8 +731,8 @@ export default function SplitContentImageSection({
       <div style={{ display: 'flex', minHeight: '300px', backgroundColor: 'white' }}>
         {contentLayout === 'reversed' ? (
           <>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRight: '1px solid #ddd', overflow: 'hidden' }}>
-              <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '16px', overflow: 'hidden' }}>{imageEditorBlock}</div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRight: '1px solid #ddd', overflow: rightImageHasCustomSize ? 'visible' : 'hidden' }}>
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '16px', overflow: rightImageHasCustomSize ? 'visible' : 'hidden' }}>{imageEditorBlock}</div>
             </div>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'visible' }}>
               <div style={{ flex: 1, padding: '16px' }}>{renderContent()}</div>
@@ -742,14 +743,14 @@ export default function SplitContentImageSection({
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRight: '1px solid #ddd', overflow: 'visible' }}>
               <div style={{ flex: 1, padding: '16px' }}>{renderContent()}</div>
             </div>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: rightImageHasCustomSize ? 'visible' : 'hidden' }}>
               <div style={{
                 flex: 1,
                 display: 'flex',
                 justifyContent: isLiveSplitPage ? 'flex-start' : 'center',
                 alignItems: isLiveSplitPage ? 'flex-start' : 'center',
                 padding: isLiveSplitPage ? '8px 16px 16px' : '16px',
-                overflow: 'hidden'
+                overflow: rightImageHasCustomSize ? 'visible' : 'hidden'
               }}>{imageEditorBlock}</div>
             </div>
           </>
