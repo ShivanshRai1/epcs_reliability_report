@@ -160,10 +160,21 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
     // Ensure all heading pages (4, 8, 10) use the same styling and structure
     // Use backgroundClass for all, default to 'heading-derating' if not provided
     const headingClass = page.backgroundClass || 'heading-derating';
+    const defaultHeadingBackground = '/images/bg2.png';
+    const customHeadingBackground = typeof page.headingBackgroundImage === 'string' ? page.headingBackgroundImage.trim() : '';
+    const useCustomHeadingBackground = page.headingBackgroundMode === 'custom' && Boolean(customHeadingBackground);
+    const effectiveHeadingBackground = useCustomHeadingBackground ? customHeadingBackground : defaultHeadingBackground;
+    const headingBackgroundStyle = {
+      backgroundColor: '#061427',
+      backgroundImage: `url('${effectiveHeadingBackground}')`,
+      backgroundRepeat: 'no-repeat',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center'
+    };
 
     if (isLiveMode && !isEditMode) {
       return (
-        <div className="legacy-live-heading-page" style={{ backgroundImage: "url('/images/bg2.png')" }}>
+        <div className="legacy-live-heading-page" style={headingBackgroundStyle}>
           <h2 className="legacy-live-heading-title">{page.title}</h2>
           {page.subtitle && <h3 className="legacy-live-heading-subtitle">{page.subtitle}</h3>}
         </div>
@@ -172,7 +183,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
     
     if (isEditMode) {
       return wrapEditContent(
-        <div className={`page-heading ${headingClass}`}>
+        <div className={`page-heading ${headingClass}`} style={headingBackgroundStyle}>
           <div className="page-heading-content">
             <HeadingPageEditor
               page={page}
@@ -184,7 +195,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
     }
     
     return (
-      <div className={`page-heading ${headingClass}`} style={{ color: '#ffffff' }}>
+      <div className={`page-heading ${headingClass}`} style={{ color: '#ffffff', ...headingBackgroundStyle }}>
         <div className="page-heading-content" style={{ color: '#ffffff' }}>
           <HeadingSection
             heading={page.title}

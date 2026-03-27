@@ -35,6 +35,54 @@
   transition: all 0.2s;
 }
 
+.heading-bg-select,
+.heading-bg-file {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(100, 165, 255, 0.3);
+  border-radius: 4px;
+  color: #e0e6f0;
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+.heading-bg-select:focus,
+.heading-bg-file:focus {
+  outline: none;
+  border-color: rgba(100, 165, 255, 0.7);
+  box-shadow: 0 0 8px rgba(100, 165, 255, 0.2);
+}
+
+.heading-bg-preview-wrap {
+  width: 100%;
+  border: 1px solid rgba(100, 165, 255, 0.35);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+
+.heading-bg-preview {
+  width: 100%;
+  max-height: 170px;
+  object-fit: cover;
+  display: block;
+}
+
+.heading-bg-reset-btn {
+  padding: 0.6rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid rgba(239, 68, 68, 0.7);
+  background: rgba(127, 29, 29, 0.35);
+  color: #fecaca;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.heading-bg-reset-btn:hover {
+  background: rgba(153, 27, 27, 0.45);
+}
+
 .heading-title-input:focus,
 .heading-subtitle-input:focus {
   outline: none;
@@ -65,7 +113,9 @@
   }
 
   .heading-title-input,
-  .heading-subtitle-input {
+  .heading-subtitle-input,
+  .heading-bg-select,
+  .heading-bg-file {
     background-color: rgba(255, 255, 255, 0.9);
     border: 1px solid rgba(0, 0, 0, 0.2);
     color: #213547;
@@ -80,5 +130,11 @@
   .heading-title-input::placeholder,
   .heading-subtitle-input::placeholder {
     color: rgba(33, 53, 71, 0.5);
+  }
+
+  .heading-bg-reset-btn {
+    border: 1px solid rgba(220, 38, 38, 0.6);
+    background: rgba(254, 226, 226, 0.9);
+    color: #991b1b;
   }
 }
