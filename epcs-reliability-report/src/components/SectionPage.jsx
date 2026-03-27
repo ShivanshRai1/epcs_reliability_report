@@ -75,7 +75,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
           <button type="button" onClick={onDecrease} style={{ width: '30px', height: '30px', borderRadius: '6px', border: '1px solid #7d8fb3', background: '#ffffff', color: '#0f172a', cursor: 'pointer', fontWeight: 700, fontSize: '18px', lineHeight: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>-</button>
           <button type="button" onClick={onIncrease} style={{ width: '30px', height: '30px', borderRadius: '6px', border: '1px solid #7d8fb3', background: '#ffffff', color: '#0f172a', cursor: 'pointer', fontWeight: 700, fontSize: '18px', lineHeight: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
         </div>
-        <div style={{ fontSize: '0.75rem', color: '#475569', textAlign: 'center', minHeight: '18px' }}>
+        <div style={{ fontSize: '0.75rem', color: '#1f2937', fontWeight: 700, textAlign: 'center', minHeight: '18px' }}>
           {formatValue(value, unit, allowAuto)}
         </div>
       </div>
