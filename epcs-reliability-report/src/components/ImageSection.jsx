@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import ResizableImage from './ResizableImage';
 
 const ImageSection = ({ imageSrc, pageTitle, titleColor, imageWidth, imageHeight, isEditMode, onChange, onTitleChange, onTitleColorChange, onImageSizeChange, onImageClick }) => {
   const fileInputRef = useRef();
@@ -79,7 +80,14 @@ const ImageSection = ({ imageSrc, pageTitle, titleColor, imageWidth, imageHeight
           </label>
         </div>
         <div className="image-preview">
-          {imageSrc && <img src={imageSrc} alt="Preview" style={imageStyle} />}
+          {imageSrc && (
+            <ResizableImage
+              src={imageSrc}
+              imageWidth={widthValue}
+              imageHeight={heightValue}
+              onResize={onImageSizeChange}
+            />
+          )}
         </div>
         <div>
           <label>
