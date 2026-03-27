@@ -60,6 +60,27 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
   const renderDisplaySettingsPanel = () => {
     if (!isEditMode || isLiveMode) return null;
 
+    const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+    const formatValue = (value, decimals = 2) => Number(value).toFixed(decimals).replace(/\.00$/, '').replace(/(\.\d*[1-9])0$/, '$1');
+
+    const renderStepper = ({ label, value, onDecrease, onIncrease, unit = '', auto = false }) => (
+      <div style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
+        <div>{label}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <button type="button" onClick={onDecrease} style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid #c8d3e7', background: '#fff', cursor: 'pointer', fontWeight: 700 }}>-</button>
+          <div style={{ flex: 1, textAlign: 'center', padding: '6px 8px', border: '1px solid #c8d3e7', borderRadius: '6px', background: '#fff', minHeight: '28px' }}>
+            {auto && (!value || value <= 0) ? 'Auto' : `${formatValue(value, unit === 'px' ? 0 : 2)}${unit ? ` ${unit}` : ''}`}
+          </div>
+          <button type="button" onClick={onIncrease} style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid #c8d3e7', background: '#fff', cursor: 'pointer', fontWeight: 700 }}>+</button>
+          {auto && (
+            <button type="button" onClick={() => updatePageDisplaySettings(label.includes('width') ? 'imageWidth' : 'imageHeight', null)} style={{ padding: '6px 8px', borderRadius: '6px', border: '1px solid #c8d3e7', background: '#fff', cursor: 'pointer', fontSize: '0.75rem' }}>
+              Auto
+            </button>
+          )}
+        </div>
+      </div>
+    );
+
     return (
       <div style={{ marginBottom: '12px', padding: '10px 12px', border: '1px solid #d6deec', borderRadius: '8px', background: '#f4f7fc' }}>
         <div style={{ fontWeight: 600, marginBottom: '8px', color: '#1f2937', fontSize: '0.9rem' }}>Display Settings</div>
@@ -81,28 +102,45 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
               <option value="'Courier New', monospace">Courier New</option>
             </select>
           </label>
-          <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
-            Title size (rem)
-            <input type="number" min="0.8" max="3" step="0.05" value={titleFontSize} onChange={(e) => updatePageDisplaySettings('titleFontSize', Number(e.target.value) || 1.2)} style={{ padding: '6px 8px', border: '1px solid #c8d3e7', borderRadius: '6px' }} />
-          </label>
-          <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
-            Header size (rem)
-            <input type="number" min="0.75" max="2.5" step="0.05" value={headerFontSize} onChange={(e) => updatePageDisplaySettings('headerFontSize', Number(e.target.value) || 0.95)} style={{ padding: '6px 8px', border: '1px solid #c8d3e7', borderRadius: '6px' }} />
-          </label>
-          <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
-            Content size (rem)
-            <input type="number" min="0.7" max="2" step="0.05" value={contentFontSize} onChange={(e) => updatePageDisplaySettings('contentFontSize', Number(e.target.value) || 0.95)} style={{ padding: '6px 8px', border: '1px solid #c8d3e7', borderRadius: '6px' }} />
-          </label>
+          {renderStepper({
+            label: 'Title size',
+            value: titleFontSize,
+            unit: 'rem',
+            onDecrease: () => updatePageDisplaySettings('titleFontSize', clamp(titleFontSize - 0.05, 0.8, 3)),
+            onIncrease: () => updatePageDisplaySettings('titleFontSize', clamp(titleFontSize + 0.05, 0.8, 3))
+          })}
+          {renderStepper({
+            label: 'Header size',
+            value: headerFontSize,
+            unit: 'rem',
+            onDecrease: () => updatePageDisplaySettings('headerFontSize', clamp(headerFontSize - 0.05, 0.75, 2.5)),
+            onIncrease: () => updatePageDisplaySettings('headerFontSize', clamp(headerFontSize + 0.05, 0.75, 2.5))
+          })}
+          {renderStepper({
+            label: 'Content size',
+            value: contentFontSize,
+            unit: 'rem',
+            onDecrease: () => updatePageDisplaySettings('contentFontSize', clamp(contentFontSize - 0.05, 0.7, 2)),
+            onIncrease: () => updatePageDisplaySettings('contentFontSize', clamp(contentFontSize + 0.05, 0.7, 2))
+          })}
           {hasImageSizing && (
             <>
-              <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
-                Image width (px)
-                <input type="number" min="0" step="10" value={imageWidth || ''} onChange={(e) => updatePageDisplaySettings('imageWidth', e.target.value === '' ? null : Number(e.target.value))} placeholder="Auto" style={{ padding: '6px 8px', border: '1px solid #c8d3e7', borderRadius: '6px' }} />
-              </label>
-              <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
-                Image height (px)
-                <input type="number" min="0" step="10" value={imageHeight || ''} onChange={(e) => updatePageDisplaySettings('imageHeight', e.target.value === '' ? null : Number(e.target.value))} placeholder="Auto" style={{ padding: '6px 8px', border: '1px solid #c8d3e7', borderRadius: '6px' }} />
-              </label>
+              {renderStepper({
+                label: 'image width',
+                value: imageWidth,
+                unit: 'px',
+                auto: true,
+                onDecrease: () => updatePageDisplaySettings('imageWidth', Math.max(0, imageWidth - 50) || null),
+                onIncrease: () => updatePageDisplaySettings('imageWidth', (imageWidth > 0 ? imageWidth : 0) + 50)
+              })}
+              {renderStepper({
+                label: 'image height',
+                value: imageHeight,
+                unit: 'px',
+                auto: true,
+                onDecrease: () => updatePageDisplaySettings('imageHeight', Math.max(0, imageHeight - 50) || null),
+                onIncrease: () => updatePageDisplaySettings('imageHeight', (imageHeight > 0 ? imageHeight : 0) + 50)
+              })}
             </>
           )}
         </div>
