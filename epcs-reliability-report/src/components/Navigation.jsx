@@ -90,7 +90,7 @@ const Navigation = ({ onNavigate, isEditMode, isLiveMode, onEditToggle, onToggle
               disabled={isSeedingTestData}
               title="Re-seed persistent test tables from production"
             >
-              {isSeedingTestData ? 'Seeding...' : 'Seed Test Data'}
+              {isSeedingTestData ? 'Resetting...' : 'Reset Test Data'}
             </button>
           )}
           {isTestMode && (
