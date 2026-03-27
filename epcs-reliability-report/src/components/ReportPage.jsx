@@ -144,7 +144,7 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
     return (
       <div className="pdf-viewer-shell container-fluid legacy-live-shell">
         <div className={`${liveContentClassName} legacy-live-canvas mx-auto`}>
-          <div className={`legacy-live-page${isLiveHeadingPage ? ' legacy-live-page-heading' : ''}`}>
+          <div className={`legacy-live-page${isLiveHeadingPage ? ' legacy-live-page-heading' : ''}`} style={{ color: page.textColor || '#222222' }}>
             <SectionPage page={page} onLinkClick={handleLinkClick} isEditMode={false} isLiveMode={true} indexPageOrdinal={indexPageOrdinal} onCellChange={onCellChange} onHeadingChange={onHeadingChange} onImageChange={onImageChange} onIndexChange={onIndexChange} onImageClick={onImageClick} allIndexItems={allIndexItems} />
           </div>
         </div>

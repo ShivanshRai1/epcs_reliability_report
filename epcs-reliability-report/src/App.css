@@ -852,7 +852,7 @@ a:hover, .index-link:hover {
 .legacy-live-page h4,
 .legacy-live-page h5,
 .legacy-live-page h6 {
-  color: #222222;
+  color: inherit;
   margin-top: 0;
   margin-bottom: 0.75rem;
   line-height: 1.2;
@@ -872,7 +872,7 @@ a:hover, .index-link:hover {
 .legacy-live-page th,
 .legacy-live-page span,
 .legacy-live-page div {
-  color: #222222;
+  color: inherit;
   font-size: 13px;
 }
 
