@@ -1084,34 +1084,34 @@ a:hover, .index-link:hover {
 
 .pdf-viewer-content .legacy-live-page .content-row-group {
   color: #cc6a2d !important;
-  font-size: 14px;
+  font-size: 20px;
   font-weight: 500;
-  margin: 0 0 8px 0;
+  margin: 0 0 10px 0;
   line-height: 1.0;
   letter-spacing: 0;
 }
 
 .pdf-viewer-content .legacy-live-page .content-row-blue {
   color: #2e98e6 !important;
-  font-size: 10px;
+  font-size: 15px;
   font-weight: 500;
-  margin: 0 0 2px 0;
+  margin: 0 0 4px 0;
   padding-left: 42px;
 }
 
 .pdf-viewer-content .legacy-live-page .content-row-orange {
   color: #d7803f !important;
-  font-size: 10px;
+  font-size: 15px;
   font-weight: 500;
-  margin: 0 0 8px 0;
+  margin: 0 0 10px 0;
   padding-left: 42px;
 }
 
 .pdf-viewer-content .legacy-live-page .content-row-line {
   color: #2e98e6 !important;
-  font-size: 10px;
+  font-size: 15px;
   font-weight: 500;
-  margin: 0 0 2px 0;
+  margin: 0 0 4px 0;
   padding-left: 42px;
 }
 
