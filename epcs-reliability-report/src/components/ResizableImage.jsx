@@ -139,6 +139,35 @@ const ResizableImage = ({ src, imageWidth, imageHeight, onResize, alt }) => {
       ))}
 
       {selected && (
+        <button
+          type="button"
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            setSize({ w: null, h: null });
+            if (onResize) onResize({ imageWidth: null, imageHeight: null });
+          }}
+          style={{
+            position: 'absolute',
+            top: '6px',
+            right: '6px',
+            fontSize: '10px',
+            color: '#fff',
+            background: 'rgba(220,38,38,0.85)',
+            border: 'none',
+            padding: '2px 7px',
+            borderRadius: '3px',
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+            lineHeight: 1.6,
+            zIndex: 21,
+          }}
+        >
+          Reset size
+        </button>
+      )}
+
+      {selected && (
         <span style={{
           position: 'absolute',
           bottom: '6px',
