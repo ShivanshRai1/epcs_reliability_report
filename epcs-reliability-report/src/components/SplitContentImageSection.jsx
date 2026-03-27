@@ -243,12 +243,16 @@ export default function SplitContentImageSection({
   const leftImageStyle = {
     width: leftImageWidthData ? `${leftImageWidthData}px` : undefined,
     height: leftImageHeightData ? `${leftImageHeightData}px` : undefined,
+    maxWidth: leftImageWidthData || leftImageHeightData ? 'none' : undefined,
+    maxHeight: leftImageWidthData || leftImageHeightData ? 'none' : undefined,
     objectFit: leftImageWidthData || leftImageHeightData ? 'contain' : undefined,
     cursor: 'pointer'
   };
   const rightImageStyle = {
     width: rightImageWidthData ? `${rightImageWidthData}px` : undefined,
     height: rightImageHeightData ? `${rightImageHeightData}px` : undefined,
+    maxWidth: rightImageWidthData || rightImageHeightData ? 'none' : undefined,
+    maxHeight: rightImageWidthData || rightImageHeightData ? 'none' : undefined,
     objectFit: rightImageWidthData || rightImageHeightData ? 'contain' : undefined,
     cursor: 'pointer'
   };
