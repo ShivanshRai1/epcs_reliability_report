@@ -918,6 +918,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
         <ContentSection
           content={page.content}
           isEditing={false}
+          isLiveMode={isLiveMode}
           onChange={(newContent) => onHeadingChange(page.id, newContent)}
         />
       </div>
