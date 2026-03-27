@@ -3,11 +3,24 @@ import './HeadingPageEditor.css';
 import { getTemplateBadge } from '../utils/templateInfo.jsx';
 
 const HeadingPageEditor = ({ page, onChange }) => {
+  const deriveHorizontalAlign = (sourcePage) => {
+    if (sourcePage.headingHorizontalAlign) return sourcePage.headingHorizontalAlign;
+    if (sourcePage.headingVerticalAlign === 'top') return 'left';
+    if (sourcePage.headingVerticalAlign === 'bottom') return 'right';
+    return 'center';
+  };
+  const toLegacyHorizontalValue = (align) => {
+    if (align === 'left') return 'top';
+    if (align === 'right') return 'bottom';
+    return 'center';
+  };
+
   const [title, setTitle] = useState(page.title || '');
   const [subtitle, setSubtitle] = useState(page.subtitle || '');
   const [headingBackgroundMode, setHeadingBackgroundMode] = useState(page.headingBackgroundMode || 'default');
   const [headingBackgroundImage, setHeadingBackgroundImage] = useState(page.headingBackgroundImage || '');
-  const [headingVerticalAlign, setHeadingVerticalAlign] = useState(page.headingVerticalAlign || 'center');
+  const [headingHorizontalAlign, setHeadingHorizontalAlign] = useState(deriveHorizontalAlign(page));
+  const [headingVerticalPosition, setHeadingVerticalPosition] = useState(page.headingVerticalPosition || 'center');
   const [headingFontFamily, setHeadingFontFamily] = useState(page.headingFontFamily || 'inherit');
 
   useEffect(() => {
@@ -15,9 +28,10 @@ const HeadingPageEditor = ({ page, onChange }) => {
     setSubtitle(page.subtitle || '');
     setHeadingBackgroundMode(page.headingBackgroundMode || 'default');
     setHeadingBackgroundImage(page.headingBackgroundImage || '');
-    setHeadingVerticalAlign(page.headingVerticalAlign || 'center');
+    setHeadingHorizontalAlign(deriveHorizontalAlign(page));
+    setHeadingVerticalPosition(page.headingVerticalPosition || 'center');
     setHeadingFontFamily(page.headingFontFamily || 'inherit');
-  }, [page.id, page.title, page.subtitle, page.headingBackgroundMode, page.headingBackgroundImage, page.headingVerticalAlign, page.headingFontFamily]);
+  }, [page.id, page.title, page.subtitle, page.headingBackgroundMode, page.headingBackgroundImage, page.headingHorizontalAlign, page.headingVerticalAlign, page.headingVerticalPosition, page.headingFontFamily]);
 
   const handleTitleChange = (e) => {
     const newTitle = e.target.value;
@@ -63,10 +77,20 @@ const HeadingPageEditor = ({ page, onChange }) => {
     onChange({ ...page, headingBackgroundMode: 'default', headingBackgroundImage: '' });
   };
 
-  const handleVerticalAlignChange = (e) => {
+  const handleHorizontalAlignChange = (e) => {
     const align = e.target.value;
-    setHeadingVerticalAlign(align);
-    onChange({ ...page, headingVerticalAlign: align });
+    setHeadingHorizontalAlign(align);
+    onChange({
+      ...page,
+      headingHorizontalAlign: align,
+      headingVerticalAlign: toLegacyHorizontalValue(align)
+    });
+  };
+
+  const handleVerticalPositionChange = (e) => {
+    const position = e.target.value;
+    setHeadingVerticalPosition(position);
+    onChange({ ...page, headingVerticalPosition: position });
   };
 
   const handleHeadingFontFamilyChange = (e) => {
@@ -118,15 +142,29 @@ const HeadingPageEditor = ({ page, onChange }) => {
       </div>
 
       <div className="heading-editor-section">
-        <label htmlFor="heading-vertical-align">Heading position:</label>
+        <label htmlFor="heading-horizontal-align">Heading horizontal position:</label>
         <select
-          id="heading-vertical-align"
-          value={headingVerticalAlign}
-          onChange={handleVerticalAlignChange}
+          id="heading-horizontal-align"
+          value={headingHorizontalAlign}
+          onChange={handleHorizontalAlignChange}
           className="heading-bg-select"
         >
+          <option value="left">Left</option>
           <option value="center">Center</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+      <div className="heading-editor-section">
+        <label htmlFor="heading-vertical-position">Heading vertical position:</label>
+        <select
+          id="heading-vertical-position"
+          value={headingVerticalPosition}
+          onChange={handleVerticalPositionChange}
+          className="heading-bg-select"
+        >
           <option value="top">Top</option>
+          <option value="center">Center</option>
           <option value="bottom">Bottom</option>
         </select>
       </div>

@@ -187,8 +187,10 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
     // Ensure all heading pages (4, 8, 10) use the same styling and structure
     // Use backgroundClass for all, default to 'heading-derating' if not provided
     const headingClass = page.backgroundClass || 'heading-derating';
-    const headingVerticalAlign = page.headingVerticalAlign || 'center';
-    const headingJustifyContent = headingVerticalAlign === 'top' ? 'flex-start' : headingVerticalAlign === 'bottom' ? 'flex-end' : 'center';
+    const headingHorizontalAlign = page.headingHorizontalAlign || (page.headingVerticalAlign === 'top' ? 'left' : page.headingVerticalAlign === 'bottom' ? 'right' : 'center');
+    const headingVerticalPosition = page.headingVerticalPosition || 'center';
+    const headingJustifyContent = headingHorizontalAlign === 'left' ? 'flex-start' : headingHorizontalAlign === 'right' ? 'flex-end' : 'center';
+    const headingAlignItems = headingVerticalPosition === 'top' ? 'flex-start' : headingVerticalPosition === 'bottom' ? 'flex-end' : 'center';
     const headingFontFamily = page.headingFontFamily || page.fontFamily || 'inherit';
     const defaultHeadingBackground = '/images/bg2.png';
     const customHeadingBackground = typeof page.headingBackgroundImage === 'string' ? page.headingBackgroundImage.trim() : '';
@@ -200,7 +202,8 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
       backgroundRepeat: 'no-repeat',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
-      justifyContent: headingJustifyContent
+      justifyContent: headingJustifyContent,
+      alignItems: isEditMode ? 'flex-start' : headingAlignItems
     };
     const headingContentStyle = {
       color: '#ffffff',
