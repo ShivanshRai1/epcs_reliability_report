@@ -74,9 +74,10 @@ router.post('/publish', async (req, res) => {
     connection = await pool.getConnection();
     await connection.beginTransaction();
 
-    // Clear dependent history rows before parent pages rows.
-    await connection.query('TRUNCATE TABLE page_history');
-    await connection.query('TRUNCATE TABLE pages');
+    // Use DELETE instead of TRUNCATE because InnoDB foreign keys can block
+    // TRUNCATE even when dependent rows were cleared first.
+    await connection.query('DELETE FROM page_history');
+    await connection.query('DELETE FROM pages');
 
     await connection.query('INSERT INTO pages SELECT * FROM pages_test');
     await connection.query('INSERT INTO page_history SELECT * FROM page_history_test');
