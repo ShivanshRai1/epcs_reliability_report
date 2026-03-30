@@ -186,7 +186,9 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
 
     const preferredPreviewPageByTemplate = {
       'text-only': 28,
-      'heading': 8,
+      'heading': 4,
+      'index': 1,
+      'table': 5,
       'just-images': 9,
       'split-text-image': 41,
       'split-links-image': 16,
@@ -206,50 +208,6 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
   };
 
   const renderTemplatePreview = (templateId) => {
-    if (templateId === 'text-only') {
-      return (
-        <div className="template-preview-live-wrap">
-          <div className="template-preview-meta">Latest style</div>
-          <div className="template-preview-live template-preview-modern template-preview-modern-text">
-            <div className="template-preview-modern-titlebar">TEXT ONLY PAGE</div>
-            <div className="template-preview-modern-text-body">
-              <div className="template-preview-modern-text-line" />
-              <div className="template-preview-modern-text-line" />
-              <div className="template-preview-modern-text-line short" />
-              <div className="template-preview-modern-text-line" />
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (templateId === 'heading') {
-      return (
-        <div className="template-preview-live-wrap">
-          <div className="template-preview-meta">Latest style</div>
-          <div className="template-preview-live template-preview-modern template-preview-modern-heading">
-            <div className="template-preview-modern-heading-title">PART LISTS</div>
-            <div className="template-preview-modern-heading-subtitle">EPCS DISCRETE PART NUMBERS</div>
-          </div>
-        </div>
-      );
-    }
-
-    if (templateId === 'index') {
-      return (
-        <div className="template-preview-live-wrap">
-          <div className="template-preview-meta">Latest style</div>
-          <div className="template-preview-live template-preview-modern template-preview-modern-index">
-            <div className="template-preview-modern-index-title">INDEX</div>
-            <div className="template-preview-modern-index-link">EPCS DISCRETE PRODUCT</div>
-            <div className="template-preview-modern-index-link">EPCS DISCRETE SECOND GENERATION, PART LIST</div>
-            <div className="template-preview-modern-index-link">RADIATION RESULTS FOR HEMT DEVICES</div>
-            <div className="template-preview-modern-index-link">EPCS DIE LEVEL RELIABILITY</div>
-          </div>
-        </div>
-      );
-    }
-
     if (templateId === 'just-links' || templateId === 'link-only') {
       return (
         <div className="template-preview-live-wrap">
@@ -292,33 +250,6 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
               <div className="template-preview-dummy-video-item" />
               <div className="template-preview-dummy-video-item" />
             </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (templateId === 'table') {
-      return (
-        <div className="template-preview-live-wrap">
-          <div className="template-preview-meta">Latest style</div>
-          <div className="template-preview-live template-preview-modern template-preview-modern-table">
-            <div className="template-preview-modern-table-title">EPCS DISCRETE PART NUMBERS</div>
-            <table className="template-preview-modern-table-grid">
-              <thead>
-                <tr>
-                  <th>PART</th>
-                  <th>BASE</th>
-                  <th>GEN</th>
-                  <th>PKG</th>
-                  <th>VDS</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td>FBG...</td><td>BG...</td><td>II</td><td>FSMD-A</td><td>40</td></tr>
-                <tr><td>FBG...</td><td>BG...</td><td>II</td><td>FSMD-B</td><td>100</td></tr>
-                <tr><td>EPC...</td><td>EPC...</td><td>III</td><td>FSMD-G</td><td>200</td></tr>
-              </tbody>
-            </table>
           </div>
         </div>
       );
