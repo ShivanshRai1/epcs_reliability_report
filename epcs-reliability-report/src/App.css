@@ -497,7 +497,7 @@ tr.row-pink td {
   font-size: 0.7rem;
 }
 
-.page-4-table-container th, 
+.page-4-table-container th,
 .page-4-table-container td {
   border: 1px solid #d0d8e7;
   padding: 0.35rem 0.4rem;
@@ -517,6 +517,8 @@ tr.row-pink td {
 .page-4-table-container tr:hover td {
   background: #eef3f9;
 }
+
+.page-4-table-container .cell-input {
   font-size: 0.65rem;
   font-family: inherit;
   box-sizing: border-box;
@@ -1425,6 +1427,59 @@ a:hover, .index-link:hover {
   background: #b7dfbf !important;
   border: 1px solid rgba(0, 0, 0, 0.33) !important;
   box-shadow: none !important;
+
+/* Page 4 (live/view mode only): match legacy beige table style */
+.legacy-live-page-4-logo {
+  color: #2f9ed7;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin: 0 0 0.65rem 0;
+}
+
+.legacy-live-page-4-title {
+  margin: 0 0 0.5rem 0;
+  padding: 0.22rem 0.6rem;
+  background: #0f7fc8;
+  color: #eaf6ff;
+  font-size: 1.03rem !important;
+  font-weight: 500;
+  text-align: center;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.legacy-live-page-4-table table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #eadcd3;
+  border: 1px solid #6f8ea6;
+  box-shadow: none;
+}
+
+.legacy-live-page-4-table th {
+  background: #18a8db;
+  color: #0f1a24;
+  border: 1px solid #567389;
+  text-align: center;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 0.2rem 0.18rem;
+}
+
+.legacy-live-page-4-table td {
+  background: #eadcd3;
+  color: #2d2d2d;
+  border: 1px solid rgba(58, 74, 88, 0.42);
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 0.2rem 0.18rem;
+}
+
+.legacy-live-page-4-table tr:nth-child(even) td {
+  background: #eadcd3;
+}
   border-radius: 0 !important;
 }
 

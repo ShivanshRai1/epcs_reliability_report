@@ -674,9 +674,9 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
     // Handle both old (.data) and new (.rows) table structures
     const tableRows = page.table.rows || page.table.data || [];
     const pageNumber = Number(page?.pageNumber);
+    const isLivePage4 = isLiveMode && pageNumber === 4;
     const isLivePage6 = isLiveMode && pageNumber === 6;
     const isLivePage7 = isLiveMode && pageNumber === 7;
-    const isViewPage4 = !isLiveMode && !isEditMode && pageNumber === 4;
     const useLegacyLiveTableChrome = isLivePage6 || isLivePage7;
     const headingStyle = useLegacyLiveTableChrome
       ? undefined
@@ -688,10 +688,12 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
       ? 'legacy-live-page-6-table'
       : isLivePage7
         ? 'legacy-live-page-7-table'
-        : isViewPage4
-          ? 'page-4-table-container'
+        : isLivePage4
+          ? 'legacy-live-page-4-table'
           : '';
-    const headingClassName = isLivePage6
+    const headingClassName = isLivePage4
+      ? 'legacy-live-page-4-title'
+      : isLivePage6
       ? 'legacy-live-page-6-title'
       : isLivePage7
         ? 'legacy-live-page-7-title'
@@ -704,6 +706,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
 
     return (
       <div className={containerClassName}>
+        {isLivePage4 && <div className="legacy-live-page-4-logo">EPC·SPACE</div>}
         {isLivePage6 && <div className="legacy-live-page-6-logo">EPC·SPACE</div>}
         {isLivePage7 && <div className="legacy-live-page-7-logo">EPC·SPACE</div>}
         <h2 className={headingClassName} style={headingStyle}>
