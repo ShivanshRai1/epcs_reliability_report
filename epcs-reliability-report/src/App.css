@@ -83,15 +83,15 @@ h1 {
 }
 
 .index-link {
-  color: #2e7be6;
+  color: var(--index-link-color, #2e7be6);
   text-decoration: underline;
-  font-size: 0.95rem;
+  font-size: var(--index-base-size, 0.95rem);
   cursor: pointer;
 }
 
 .index-item-parent {
   margin-bottom: 0.35rem !important;
-  font-size: 0.95rem !important;
+  font-size: var(--index-base-size, 0.95rem) !important;
 }
 
 .index-item-parent > .index-link {
@@ -107,7 +107,7 @@ h1 {
 
 .index-list li.index-item-child {
   margin-bottom: 0.12rem !important;
-  font-size: 0.88rem !important;
+  font-size: calc(var(--index-base-size, 0.95rem) * 0.926) !important;
   padding-left: 0 !important;
   list-style-type: none !important;
 }
@@ -118,8 +118,8 @@ h1 {
 }
 
 .index-link-child {
-  color: #7ab3ee !important;
-  font-size: 0.88rem !important;
+  color: var(--index-link-color, #7ab3ee) !important;
+  font-size: calc(var(--index-base-size, 0.95rem) * 0.926) !important;
   display: inline-block;
 }
 

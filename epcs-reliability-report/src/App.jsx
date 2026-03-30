@@ -230,9 +230,19 @@ function App() {
           (item) => !staticTargets.has(String(item.target)) && livePagesById.has(item.target)
         );
         
+        // Preserve display settings saved by the user in the editor (not present in static baseline)
+        const displaySettings = {};
+        const DISPLAY_KEYS = ['fontFamily', 'textColor', 'contentTextColor', 'titleFontSize', 'headerFontSize', 'contentFontSize'];
+        if (matchingBackendIndexPage) {
+          DISPLAY_KEYS.forEach(k => {
+            if (matchingBackendIndexPage[k] !== undefined) displaySettings[k] = matchingBackendIndexPage[k];
+          });
+        }
+
         return {
           ...matchingBackendIndexPage,
           ...sp,
+          ...displaySettings,
           pageType: 'index',
           // Preserve backend-edited page title when present.
           title: matchingBackendIndexPage?.title || sp?.title || 'INDEX',

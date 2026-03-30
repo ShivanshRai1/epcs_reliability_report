@@ -605,8 +605,8 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
     }
 
     return (
-      <div>
-        <h2 className="index-title">INDEX</h2>
+      <div style={{ '--index-base-size': `${contentFontSize}rem`, '--index-link-color': contentTextColor }}>
+        <h2 className="index-title" style={page.textColor ? { color: page.textColor } : {}}>INDEX</h2>
         <div className="index-scroll-container">
         <ul className="index-list">
           {groupedItems.map(group => {
