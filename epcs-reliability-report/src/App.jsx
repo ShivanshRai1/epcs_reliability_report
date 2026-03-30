@@ -275,30 +275,53 @@ function App() {
       return data;
     }
 
+    const normalizeText = (value) => String(value || '').trim().toLowerCase();
     const staticOrdered = [...staticPages].sort((a, b) => (a?.pageNumber || 0) - (b?.pageNumber || 0));
-    const staticIdSet = new Set(staticOrdered.map((p) => String(p?.id ?? '')).filter(Boolean));
     const liveById = new Map(data.pages.map((p) => [String(p?.id ?? ''), p]));
+    const usedLiveIds = new Set();
 
-    // Build canonical sequence from static baseline; prefer live content when IDs match.
-    const canonicalPages = staticOrdered.map((staticPage, idx) => {
-      const livePage = liveById.get(String(staticPage?.id ?? ''));
-      const pageNumber = idx + 1;
-      if (livePage) {
-        return {
-          ...livePage,
-          pageNumber
-        };
+    // Build canonical sequence from static baseline, but only using real backend pages.
+    const canonicalPages = [];
+    for (const staticPage of staticOrdered) {
+      const staticId = String(staticPage?.id ?? '');
+      const staticType = String(staticPage?.pageType || '');
+      const staticTitle = normalizeText(staticPage?.title);
+      const staticSubtitle = normalizeText(staticPage?.subtitle);
+
+      let matchedLive = null;
+      const liveByStaticId = liveById.get(staticId);
+      if (liveByStaticId && !usedLiveIds.has(String(liveByStaticId?.id ?? ''))) {
+        matchedLive = liveByStaticId;
       }
 
-      return {
-        ...staticPage,
-        pageNumber
-      };
-    });
+      if (!matchedLive) {
+        const unmatchedCandidates = data.pages.filter((page) => !usedLiveIds.has(String(page?.id ?? '')));
 
-    // Keep additional backend-only pages accessible after canonical pages.
+        matchedLive = unmatchedCandidates.find((page) => {
+          if (String(page?.pageType || '') !== staticType) return false;
+          return normalizeText(page?.title) === staticTitle;
+        }) || null;
+
+        if (!matchedLive && staticType === 'heading' && staticSubtitle) {
+          matchedLive = unmatchedCandidates.find((page) => {
+            if (String(page?.pageType || '') !== 'heading') return false;
+            return normalizeText(page?.title) === staticSubtitle;
+          }) || null;
+        }
+      }
+
+      if (matchedLive) {
+        usedLiveIds.add(String(matchedLive?.id ?? ''));
+        canonicalPages.push({
+          ...matchedLive,
+          pageNumber: canonicalPages.length + 1
+        });
+      }
+    }
+
+    // Keep additional backend-only pages accessible after canonical pages, preserving their relative order.
     const extraPages = data.pages
-      .filter((p) => !staticIdSet.has(String(p?.id ?? '')))
+      .filter((p) => !usedLiveIds.has(String(p?.id ?? '')))
       .sort((a, b) => (a?.pageNumber || 0) - (b?.pageNumber || 0))
       .map((p, idx) => ({
         ...p,
