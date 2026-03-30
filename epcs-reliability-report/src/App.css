@@ -1456,33 +1456,33 @@ a:hover, .index-link:hover {
 .legacy-live-page .legacy-live-page-4-table table {
   width: 100% !important;
   border-collapse: collapse !important;
-  background: #ffffff !important;
-  border: 1px solid #aaaaaa !important;
+  background: #e7d7cc !important;
+  border: 1px solid #8b8b8b !important;
   box-shadow: none !important;
 }
 
 .legacy-live-page .legacy-live-page-4-table th {
-  background: #4472c4 !important;
-  color: #ffffff !important;
-  border: 1px solid #aaaaaa !important;
+  background: #18a8db !important;
+  color: #08131b !important;
+  border: 1px solid #6e7f8d !important;
   text-align: center !important;
   font-size: 0.74rem !important;
-  font-weight: 600 !important;
+  font-weight: 500 !important;
   padding: 0.2rem 0.18rem !important;
 }
 
 .legacy-live-page .legacy-live-page-4-table td {
-  background: #ffffff !important;
-  color: #000000 !important;
-  border: 1px solid #cccccc !important;
+  background: #e7d7cc !important;
+  color: #1f1f1f !important;
+  border: 1px solid rgba(72, 72, 72, 0.45) !important;
   font-size: 0.72rem !important;
-  font-weight: 400 !important;
+  font-weight: 500 !important;
   padding: 0.2rem 0.18rem !important;
 }
 
 .legacy-live-page .legacy-live-page-4-table tr:nth-child(even) td,
 .legacy-live-page .legacy-live-page-4-table tr:nth-child(odd) td {
-  background: #ffffff !important;
+  background: #e7d7cc !important;
 }
 
 

@@ -10,10 +10,8 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
   const [searchParams, setSearchParams] = useSearchParams();
   const isLiveMode = searchParams.get('live') === '1';
 
-  // Filter pages: exclude page 5 from normal mode
-  const visiblePages = isLiveMode 
-    ? reportData.pages 
-    : reportData.pages.filter(p => p.pageNumber !== 5);
+  const visiblePages = reportData.pages;
+  const orderedPages = [...visiblePages].sort((a, b) => (Number(a?.pageNumber) || 0) - (Number(b?.pageNumber) || 0));
 
   const withLiveQuery = (path) => {
     if (!isLiveMode) return path;
@@ -42,20 +40,28 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
 
   // Get page by id or number from visible pages (or all pages if in live mode)
   const getPage = (idOrNum) => {
-    if (!idOrNum) return visiblePages[0];
+    if (!idOrNum) return orderedPages[0];
     if (!isNaN(Number(idOrNum))) {
       const pageNum = Number(idOrNum);
-      // In normal mode, skip page 5
-      if (!isLiveMode && pageNum === 5) {
-        return visiblePages.find(p => p.pageNumber === 6) || visiblePages[0];
+      const exactByNumber = orderedPages.find((p) => Number(p?.pageNumber) === pageNum);
+      if (exactByNumber) return exactByNumber;
+
+      // Fallback: support ordinal route ids when page numbers in DB are non-contiguous.
+      const ordinalIndex = pageNum - 1;
+      if (ordinalIndex >= 0 && ordinalIndex < orderedPages.length) {
+        return orderedPages[ordinalIndex];
       }
-      return reportData.pages.find(p => p.pageNumber === pageNum);
+
+      return null;
     }
-    return reportData.pages.find(p => p.id === idOrNum);
+    return orderedPages.find((p) => String(p?.id) === String(idOrNum));
   };
 
   const page = getPage(pageId);
   if (!page) return <div className="App"><p>Page not found</p></div>;
+
+  const currentPageIndex = orderedPages.findIndex((p) => String(p?.id) === String(page?.id));
+  const currentDisplayPageNumber = currentPageIndex >= 0 ? currentPageIndex + 1 : Number(page?.pageNumber) || 1;
 
   const indexPages = reportData.pages
     .filter(p => p.pageType === 'index')
@@ -74,34 +80,23 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
     } else if (nav === 'index') {
       navigate(withLiveQuery('/page/1'));
     } else if (nav === 'previous') {
-      let prevPageNum = page.pageNumber - 1;
-      // Skip page 5 in normal mode when going backward
-      if (!isLiveMode && prevPageNum === 5) {
-        prevPageNum = 4;
-      }
-      if (prevPageNum >= 1) {
-        navigate(withLiveQuery(`/page/${prevPageNum}`));
+      const prevIndex = currentPageIndex - 1;
+      if (prevIndex >= 0) {
+        navigate(withLiveQuery(`/page/${prevIndex + 1}`));
       } else {
         navigate(withLiveQuery('/'));
       }
     } else if (nav === 'next') {
-      let nextPageNum = page.pageNumber + 1;
-      // Skip page 5 in normal mode when going forward
-      if (!isLiveMode && nextPageNum === 5) {
-        nextPageNum = 6;
-      }
-      if (nextPageNum <= reportData.pages.length) {
-        navigate(withLiveQuery(`/page/${nextPageNum}`));
+      const nextIndex = currentPageIndex + 1;
+      if (nextIndex < orderedPages.length) {
+        navigate(withLiveQuery(`/page/${nextIndex + 1}`));
       } else {
         navigate(withLiveQuery('/'));
       }
     } else if (nav === 'jump' && pageNum) {
-      // Skip page 5 in normal mode
-      let targetPageNum = pageNum;
-      if (!isLiveMode && targetPageNum === 5) {
-        targetPageNum = 6;
+      if (pageNum >= 1 && pageNum <= orderedPages.length) {
+        navigate(withLiveQuery(`/page/${pageNum}`));
       }
-      navigate(withLiveQuery(`/page/${targetPageNum}`));
     }
   };
 
@@ -135,7 +130,7 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
   };
 
   if (isLiveMode) {
-    const isLivePage5 = Number(page?.pageNumber) === 5 || Number(pageId) === 5;
+    const isLivePage5 = Number(page?.pageNumber) === 5;
     const isLiveHeadingPage = page?.pageType === 'heading';
     const liveContentClassName = isLivePage5
       ? 'pdf-viewer-content pdf-viewer-content-page-5'
@@ -148,7 +143,7 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
             <SectionPage page={page} routePageId={pageId} onLinkClick={handleLinkClick} isEditMode={false} isLiveMode={true} indexPageOrdinal={indexPageOrdinal} onCellChange={onCellChange} onHeadingChange={onHeadingChange} onImageChange={onImageChange} onIndexChange={onIndexChange} onImageClick={onImageClick} allIndexItems={allIndexItems} />
           </div>
         </div>
-        <Navigation onNavigate={handleNav} isEditMode={false} isLiveMode={isLiveMode} onEditToggle={onEditToggle} onToggleLive={handleToggleLive} onUndo={() => onUndo(page.id)} onPublish={onPublish} onSave={onSave} onCancel={onCancel} onAddPage={() => onAddPage(page.id)} onDeletePage={() => onDeletePage(page)} onManagePages={onManagePages} currentPageId={page.id} currentPageNumber={page.pageNumber} totalPages={totalPages} isTestMode={isTestMode} isSeedingTestData={isSeedingTestData} isPublishingTestData={isPublishingTestData} onToggleTestMode={onToggleTestMode} onSeedTestData={onSeedTestData} onPublishTestData={onPublishTestData} />
+        <Navigation onNavigate={handleNav} isEditMode={false} isLiveMode={isLiveMode} onEditToggle={onEditToggle} onToggleLive={handleToggleLive} onUndo={() => onUndo(page.id)} onPublish={onPublish} onSave={onSave} onCancel={onCancel} onAddPage={() => onAddPage(page.id)} onDeletePage={() => onDeletePage(page)} onManagePages={onManagePages} currentPageId={page.id} currentPageNumber={currentDisplayPageNumber} totalPages={totalPages} isTestMode={isTestMode} isSeedingTestData={isSeedingTestData} isPublishingTestData={isPublishingTestData} onToggleTestMode={onToggleTestMode} onSeedTestData={onSeedTestData} onPublishTestData={onPublishTestData} />
       </div>
     );
   }
@@ -163,7 +158,7 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
         >
           <h1>EPCS Reliability Report</h1>
         </button>
-        <Navigation onNavigate={handleNav} isEditMode={effectiveEditMode} isLiveMode={isLiveMode} onEditToggle={onEditToggle} onToggleLive={handleToggleLive} onUndo={() => onUndo(page.id)} onPublish={onPublish} onSave={onSave} onCancel={onCancel} onAddPage={() => onAddPage(page.id)} onDeletePage={() => onDeletePage(page)} onManagePages={onManagePages} currentPageId={page.id} currentPageNumber={page.pageNumber} totalPages={totalPages} isTestMode={isTestMode} isSeedingTestData={isSeedingTestData} isPublishingTestData={isPublishingTestData} onToggleTestMode={onToggleTestMode} onSeedTestData={onSeedTestData} onPublishTestData={onPublishTestData} />
+        <Navigation onNavigate={handleNav} isEditMode={effectiveEditMode} isLiveMode={isLiveMode} onEditToggle={onEditToggle} onToggleLive={handleToggleLive} onUndo={() => onUndo(page.id)} onPublish={onPublish} onSave={onSave} onCancel={onCancel} onAddPage={() => onAddPage(page.id)} onDeletePage={() => onDeletePage(page)} onManagePages={onManagePages} currentPageId={page.id} currentPageNumber={currentDisplayPageNumber} totalPages={totalPages} isTestMode={isTestMode} isSeedingTestData={isSeedingTestData} isPublishingTestData={isPublishingTestData} onToggleTestMode={onToggleTestMode} onSeedTestData={onSeedTestData} onPublishTestData={onPublishTestData} />
         <div className="section-card report-content">
           <SectionPage page={page} routePageId={pageId} onLinkClick={handleLinkClick} isEditMode={effectiveEditMode} isLiveMode={false} indexPageOrdinal={indexPageOrdinal} onCellChange={onCellChange} onHeadingChange={onHeadingChange} onImageChange={onImageChange} onIndexChange={onIndexChange} onImageClick={onImageClick} allIndexItems={allIndexItems} />
         </div>
