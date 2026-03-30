@@ -43,16 +43,7 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
     if (!idOrNum) return orderedPages[0];
     if (!isNaN(Number(idOrNum))) {
       const pageNum = Number(idOrNum);
-      const exactByNumber = orderedPages.find((p) => Number(p?.pageNumber) === pageNum);
-      if (exactByNumber) return exactByNumber;
-
-      // Fallback: support ordinal route ids when page numbers in DB are non-contiguous.
-      const ordinalIndex = pageNum - 1;
-      if (ordinalIndex >= 0 && ordinalIndex < orderedPages.length) {
-        return orderedPages[ordinalIndex];
-      }
-
-      return null;
+      return orderedPages.find((p) => Number(p?.pageNumber) === pageNum) || null;
     }
     return orderedPages.find((p) => String(p?.id) === String(idOrNum));
   };
@@ -61,7 +52,7 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
   if (!page) return <div className="App"><p>Page not found</p></div>;
 
   const currentPageIndex = orderedPages.findIndex((p) => String(p?.id) === String(page?.id));
-  const currentDisplayPageNumber = currentPageIndex >= 0 ? currentPageIndex + 1 : Number(page?.pageNumber) || 1;
+  const currentDisplayPageNumber = Number(page?.pageNumber) || (currentPageIndex >= 0 ? currentPageIndex + 1 : 1);
 
   const indexPages = reportData.pages
     .filter(p => p.pageType === 'index')
@@ -82,14 +73,24 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
     } else if (nav === 'previous') {
       const prevIndex = currentPageIndex - 1;
       if (prevIndex >= 0) {
-        navigate(withLiveQuery(`/page/${prevIndex + 1}`));
+        const prevPageNumber = Number(orderedPages[prevIndex]?.pageNumber);
+        if (!Number.isNaN(prevPageNumber)) {
+          navigate(withLiveQuery(`/page/${prevPageNumber}`));
+          return;
+        }
+        navigate(withLiveQuery('/'));
       } else {
         navigate(withLiveQuery('/'));
       }
     } else if (nav === 'next') {
       const nextIndex = currentPageIndex + 1;
       if (nextIndex < orderedPages.length) {
-        navigate(withLiveQuery(`/page/${nextIndex + 1}`));
+        const nextPageNumber = Number(orderedPages[nextIndex]?.pageNumber);
+        if (!Number.isNaN(nextPageNumber)) {
+          navigate(withLiveQuery(`/page/${nextPageNumber}`));
+          return;
+        }
+        navigate(withLiveQuery('/'));
       } else {
         navigate(withLiveQuery('/'));
       }
