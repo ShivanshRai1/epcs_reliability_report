@@ -437,7 +437,7 @@ function App() {
         if (pageIndex !== -1) {
           updated.pages[pageIndex] = previousState;
         }
-        return syncIndexPageContent(updated);
+        return syncIndexPageContent(updated, staticIndexPagesRef.current);
       });
     }
   };
@@ -471,7 +471,7 @@ function App() {
       // Generic page update from editors like Links/Text/Image/etc.
       if (typeof rowIdxOrPage === 'object' && rowIdxOrPage !== null && colName === undefined) {
         Object.assign(page, rowIdxOrPage);
-        return syncIndexPageContent(updated);
+        return syncIndexPageContent(updated, staticIndexPagesRef.current);
       }
 
       // Table cell update
@@ -481,7 +481,7 @@ function App() {
         tableRows[rowIdx][colName] = newValue;
       }
 
-      return syncIndexPageContent(updated);
+      return syncIndexPageContent(updated, staticIndexPagesRef.current);
     });
 
     setChangedPages(prev => {
@@ -523,7 +523,7 @@ function App() {
           Object.assign(page, newValue);
         }
       }
-      return syncIndexPageContent(updated);
+      return syncIndexPageContent(updated, staticIndexPagesRef.current);
     });
     setChangedPages(prev => new Set(prev).add(pageId));
   };
@@ -583,7 +583,7 @@ function App() {
           page.imageUrl = data;
         }
       }
-      return syncIndexPageContent(updated);
+      return syncIndexPageContent(updated, staticIndexPagesRef.current);
     });
     setChangedPages(prev => new Set(prev).add(pageId));
   };
@@ -616,7 +616,7 @@ function App() {
         page.title = updatedPageData.title;
         page.content = updatedPageData.content;
       }
-      return syncIndexPageContent(updated);
+      return syncIndexPageContent(updated, staticIndexPagesRef.current);
     });
     setChangedPages(prev => new Set(prev).add(pageId));
   };
