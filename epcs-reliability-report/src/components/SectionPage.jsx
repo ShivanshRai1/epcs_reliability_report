@@ -381,13 +381,15 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
     if (isEditMode) {
       return wrapEditContent(<ImagesOnlyEditor page={page} onChange={(updatedPage) => onCellChange(page.id, updatedPage)} />);
     }
+
+    const isMixedContentPage = Boolean(page.mixedContentMode) || String(page.pageTemplate || '').toLowerCase() === 'mixed-content';
     
     return (
       <div style={{ textAlign: 'center', ...pageTextStyle }}>
         {page.title && (
           <div style={{
             background: page.titleColor || 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)',
-            color: 'white',
+            color: isMixedContentPage ? pageTextColor : 'white',
             padding: '14px 24px',
             fontSize: `${titleFontSize}rem`,
             fontWeight: 600,
@@ -426,7 +428,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
               if (block.type === 'link') {
                 return (
                   <div key={block.id || bIdx} style={{ marginBottom: '0.6rem', textAlign: 'left' }}>
-                    <a href="#" style={{ color: '#2e7be6', textDecoration: 'none', fontSize: '0.95rem' }}
+                    <a href="#" style={{ color: isMixedContentPage ? contentTextColor : '#2e7be6', textDecoration: isMixedContentPage ? 'underline' : 'none', fontSize: isMixedContentPage ? `${contentFontSize}rem` : '0.95rem' }}
                       onClick={e => { e.preventDefault(); if (onLinkClick) onLinkClick(block.target); }}>
                       {block.title}
                     </a>
@@ -435,7 +437,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
               }
               if (block.type === 'text') {
                 return (
-                  <p key={block.id || bIdx} style={{ fontSize: '0.95rem', color: contentTextColor, lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: '0.8rem', textAlign: 'left' }}>
+                  <p key={block.id || bIdx} style={{ fontSize: isMixedContentPage ? `${contentFontSize}rem` : '0.95rem', color: contentTextColor, lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: '0.8rem', textAlign: 'left' }}>
                     {block.text}
                   </p>
                 );
@@ -462,12 +464,12 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
             {Array.isArray(page.imageContentBlocks) && page.imageContentBlocks.map((block, bIdx) => (
               block.type === 'link'
                 ? <div key={block.id || bIdx} style={{ marginBottom: '0.6rem', textAlign: 'left' }}>
-                    <a href="#" style={{ color: '#2e7be6', textDecoration: 'none', fontSize: '0.95rem' }}
+                    <a href="#" style={{ color: isMixedContentPage ? contentTextColor : '#2e7be6', textDecoration: isMixedContentPage ? 'underline' : 'none', fontSize: isMixedContentPage ? `${contentFontSize}rem` : '0.95rem' }}
                       onClick={e => { e.preventDefault(); if (onLinkClick) onLinkClick(block.target); }}>
                       {block.title}
                     </a>
                   </div>
-                : <p key={block.id || bIdx} style={{ fontSize: '0.95rem', color: contentTextColor, lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: '0.8rem', textAlign: 'left' }}>
+                : <p key={block.id || bIdx} style={{ fontSize: isMixedContentPage ? `${contentFontSize}rem` : '0.95rem', color: contentTextColor, lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: '0.8rem', textAlign: 'left' }}>
                     {block.text}
                   </p>
             ))}
