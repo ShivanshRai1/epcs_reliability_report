@@ -272,24 +272,57 @@ function App() {
 
   useEffect(() => {
     const fetchData = async () => {
+      let staticData = null;
+      let staticIndexPages = [];
+
+      try {
+        const staticRes = await fetch('/structured_report_data.json');
+        if (staticRes.ok) {
+          staticData = await staticRes.json();
+          staticIndexPages = (staticData.pages || []).filter(p => p.pageType === 'index');
+          staticIndexPagesRef.current = staticIndexPages;
+        }
+      } catch (e) {
+        console.warn('Could not load static report baseline', e);
+      }
+
       try {
         // Fetch all pages from backend API
-        const pagesFromApi = await apiService.getPages();
+        let pagesFromApi = await apiService.getPages();
         
         // Transform data structure for the app
-        const transformedData = transformPagesFromApi(pagesFromApi);
+        let transformedData = transformPagesFromApi(pagesFromApi);
 
-        // Also load static JSON to get the curated index content (levels, targets)
-        let staticIndexPages = [];
-        try {
-          const staticRes = await fetch('/structured_report_data.json');
-          if (staticRes.ok) {
-            const staticData = await staticRes.json();
-            staticIndexPages = (staticData.pages || []).filter(p => p.pageType === 'index');
-            staticIndexPagesRef.current = staticIndexPages;
+        const staticPageCount = Array.isArray(staticData?.pages) ? staticData.pages.length : 0;
+        const isSuspiciouslyLow = staticPageCount > 0 && transformedData.pages.length < staticPageCount;
+
+        // Retry once when API returns fewer pages than the known static baseline.
+        if (isSuspiciouslyLow) {
+          try {
+            const retryPages = await apiService.getPages();
+            const retriedData = transformPagesFromApi(retryPages);
+            if (retriedData.pages.length >= staticPageCount) {
+              transformedData = retriedData;
+            }
+          } catch {
+            // Ignore retry failure and continue to baseline fallback below.
           }
-        } catch (e) {
-          console.warn('Could not load static index data', e);
+        }
+
+        const finalSuspicious = staticPageCount > 0 && transformedData.pages.length < staticPageCount;
+        if (finalSuspicious && staticPageCount > 0) {
+          const staticPages = (staticData.pages || []).map((page, idx) => ({
+            ...page,
+            pageNumber: page.pageNumber || idx + 1
+          }));
+
+          const staticPayload = { pages: staticPages };
+          const syncedStaticData = syncIndexPageContent(staticPayload, staticIndexPages);
+          setReportData(syncedStaticData);
+          setOriginalData(JSON.parse(JSON.stringify(syncedStaticData)));
+          saveReportCache(syncedStaticData);
+          setError(null);
+          return;
         }
 
         const syncedData = syncIndexPageContent(transformedData, staticIndexPages);
@@ -299,51 +332,32 @@ function App() {
       } catch (err) {
         console.error('Error loading report:', err);
 
-        // OFFLINE FALLBACK 1: Load last known report from browser cache.
+        // OFFLINE FALLBACK 1: Prefer bundled static report JSON over cache.
+        // This avoids persisting or reusing transient partial API datasets.
+        if (staticData?.pages && Array.isArray(staticData.pages) && staticData.pages.length > 0) {
+          const staticPages = (staticData.pages || []).map((page, idx) => ({
+            ...page,
+            pageNumber: page.pageNumber || idx + 1
+          }));
+
+          const staticPayload = { pages: staticPages };
+          const syncedStaticData = syncIndexPageContent(staticPayload, staticIndexPages);
+
+          setReportData(syncedStaticData);
+          setOriginalData(JSON.parse(JSON.stringify(syncedStaticData)));
+          saveReportCache(syncedStaticData);
+          setError(null);
+          return;
+        }
+
+        // OFFLINE FALLBACK 2: Load last known report from browser cache.
         const cachedData = loadReportCache();
         if (cachedData) {
-          let staticIndexPages = [];
-          try {
-            const staticRes = await fetch('/structured_report_data.json');
-            if (staticRes.ok) {
-              const staticData = await staticRes.json();
-              staticIndexPages = (staticData.pages || []).filter(p => p.pageType === 'index');
-              staticIndexPagesRef.current = staticIndexPages;
-            }
-          } catch {
-            // Ignore static index fetch failure in offline mode.
-          }
-
           const syncedCachedData = syncIndexPageContent(cachedData, staticIndexPages);
           setReportData(syncedCachedData);
           setOriginalData(JSON.parse(JSON.stringify(syncedCachedData)));
           setError(null);
           return;
-        }
-
-        // OFFLINE FALLBACK 2: Load bundled static report JSON.
-        try {
-          const staticRes = await fetch('/structured_report_data.json');
-          if (staticRes.ok) {
-            const staticData = await staticRes.json();
-            const staticPages = (staticData.pages || []).map((page, idx) => ({
-              ...page,
-              pageNumber: page.pageNumber || idx + 1
-            }));
-
-            const staticPayload = { pages: staticPages };
-            const staticIndexPages = staticPages.filter(p => p.pageType === 'index');
-            staticIndexPagesRef.current = staticIndexPages;
-            const syncedStaticData = syncIndexPageContent(staticPayload, staticIndexPages);
-
-            setReportData(syncedStaticData);
-            setOriginalData(JSON.parse(JSON.stringify(syncedStaticData)));
-            saveReportCache(syncedStaticData);
-            setError(null);
-            return;
-          }
-        } catch (staticErr) {
-          console.error('Error loading static report fallback:', staticErr);
         }
 
         setError(err.message || 'Failed to load report data');

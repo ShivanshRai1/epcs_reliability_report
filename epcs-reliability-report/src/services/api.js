@@ -128,7 +128,15 @@ const fetchPagesViaFallback = async () => {
       );
 
       const hydrated = detailResults.filter(Boolean);
-      if (hydrated.length > 0) return hydrated;
+      if (sorted.length === 0) continue;
+
+      // Guard against partial datasets (e.g. intermittent network failures on detail requests).
+      // Returning partial pages causes unstable page counts in the UI.
+      if (hydrated.length === sorted.length) return hydrated;
+
+      lastError = new Error(
+        `Partial fallback page hydration: expected ${sorted.length}, got ${hydrated.length}`
+      );
     } catch {
       // Try next candidate base URL.
     }
