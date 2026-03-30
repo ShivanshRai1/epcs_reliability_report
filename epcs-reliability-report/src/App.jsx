@@ -270,6 +270,35 @@ function App() {
     return { ...data, pages: resultPages };
   };
 
+  const alignPageNumbersWithStatic = (data, staticPages = []) => {
+    if (!data?.pages || !Array.isArray(data.pages) || !Array.isArray(staticPages) || staticPages.length === 0) {
+      return data;
+    }
+
+    const staticPageNumberById = new Map(
+      staticPages
+        .map((page) => [String(page?.id ?? ''), Number(page?.pageNumber)])
+        .filter(([id, pageNumber]) => id && Number.isFinite(pageNumber) && pageNumber > 0)
+    );
+
+    const normalizedPages = data.pages.map((page) => {
+      const staticPageNumber = staticPageNumberById.get(String(page?.id ?? ''));
+      if (Number.isFinite(staticPageNumber) && staticPageNumber > 0) {
+        return {
+          ...page,
+          pageNumber: staticPageNumber
+        };
+      }
+
+      return page;
+    });
+
+    return {
+      ...data,
+      pages: normalizedPages.sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0))
+    };
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       let staticData = null;
@@ -292,6 +321,7 @@ function App() {
         
         // Transform data structure for the app
         let transformedData = transformPagesFromApi(pagesFromApi);
+        transformedData = alignPageNumbersWithStatic(transformedData, staticData?.pages || []);
 
         const staticPageCount = Array.isArray(staticData?.pages) ? staticData.pages.length : 0;
         const isSuspiciouslyLow = staticPageCount > 0 && transformedData.pages.length < staticPageCount;
@@ -301,8 +331,9 @@ function App() {
           try {
             const retryPages = await apiService.getPages();
             const retriedData = transformPagesFromApi(retryPages);
-            if (retriedData.pages.length >= staticPageCount) {
-              transformedData = retriedData;
+            const alignedRetriedData = alignPageNumbersWithStatic(retriedData, staticData?.pages || []);
+            if (alignedRetriedData.pages.length >= staticPageCount) {
+              transformedData = alignedRetriedData;
             }
           } catch {
             // Ignore retry failure and continue to baseline fallback below.
