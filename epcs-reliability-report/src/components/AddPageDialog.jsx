@@ -206,6 +206,50 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
   };
 
   const renderTemplatePreview = (templateId) => {
+    if (templateId === 'text-only') {
+      return (
+        <div className="template-preview-live-wrap">
+          <div className="template-preview-meta">Latest style</div>
+          <div className="template-preview-live template-preview-modern template-preview-modern-text">
+            <div className="template-preview-modern-titlebar">TEXT ONLY PAGE</div>
+            <div className="template-preview-modern-text-body">
+              <div className="template-preview-modern-text-line" />
+              <div className="template-preview-modern-text-line" />
+              <div className="template-preview-modern-text-line short" />
+              <div className="template-preview-modern-text-line" />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (templateId === 'heading') {
+      return (
+        <div className="template-preview-live-wrap">
+          <div className="template-preview-meta">Latest style</div>
+          <div className="template-preview-live template-preview-modern template-preview-modern-heading">
+            <div className="template-preview-modern-heading-title">PART LISTS</div>
+            <div className="template-preview-modern-heading-subtitle">EPCS DISCRETE PART NUMBERS</div>
+          </div>
+        </div>
+      );
+    }
+
+    if (templateId === 'index') {
+      return (
+        <div className="template-preview-live-wrap">
+          <div className="template-preview-meta">Latest style</div>
+          <div className="template-preview-live template-preview-modern template-preview-modern-index">
+            <div className="template-preview-modern-index-title">INDEX</div>
+            <div className="template-preview-modern-index-link">EPCS DISCRETE PRODUCT</div>
+            <div className="template-preview-modern-index-link">EPCS DISCRETE SECOND GENERATION, PART LIST</div>
+            <div className="template-preview-modern-index-link">RADIATION RESULTS FOR HEMT DEVICES</div>
+            <div className="template-preview-modern-index-link">EPCS DIE LEVEL RELIABILITY</div>
+          </div>
+        </div>
+      );
+    }
+
     if (templateId === 'just-links' || templateId === 'link-only') {
       return (
         <div className="template-preview-live-wrap">
@@ -253,47 +297,38 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       );
     }
 
+    if (templateId === 'table') {
+      return (
+        <div className="template-preview-live-wrap">
+          <div className="template-preview-meta">Latest style</div>
+          <div className="template-preview-live template-preview-modern template-preview-modern-table">
+            <div className="template-preview-modern-table-title">EPCS DISCRETE PART NUMBERS</div>
+            <table className="template-preview-modern-table-grid">
+              <thead>
+                <tr>
+                  <th>PART</th>
+                  <th>BASE</th>
+                  <th>GEN</th>
+                  <th>PKG</th>
+                  <th>VDS</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>FBG...</td><td>BG...</td><td>II</td><td>FSMD-A</td><td>40</td></tr>
+                <tr><td>FBG...</td><td>BG...</td><td>II</td><td>FSMD-B</td><td>100</td></tr>
+                <tr><td>EPC...</td><td>EPC...</td><td>III</td><td>FSMD-G</td><td>200</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    }
+
     const sample = getSamplePageForTemplate(templateId);
 
     if (!sample) {
       return (
         <div className="template-preview-empty">No sample page available yet</div>
-      );
-    }
-
-    if (templateId === 'table') {
-      const columns = Array.isArray(sample.table?.columns) ? sample.table.columns : [];
-      const rows = Array.isArray(sample.table?.rows)
-        ? sample.table.rows
-        : (Array.isArray(sample.table?.data) ? sample.table.data : []);
-
-      return (
-        <div className="template-preview-live-wrap">
-          <div className="template-preview-meta">Slide {sample.pageNumber}</div>
-          <div className="template-preview-live template-preview-table-live">
-            <div className="template-preview-table-shell">
-              <div className="template-preview-table-title">{sample.title || 'TABLE PAGE'}</div>
-              <table className="template-preview-table-mini">
-                <thead>
-                  <tr>
-                    {columns.slice(0, 8).map((col) => (
-                      <th key={col}>{col}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.slice(0, 8).map((row, idx) => (
-                    <tr key={idx}>
-                      {columns.slice(0, 8).map((col) => (
-                        <td key={`${idx}-${col}`}>{row?.[col] ?? ''}</td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
       );
     }
 

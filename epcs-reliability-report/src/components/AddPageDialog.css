@@ -292,6 +292,129 @@
   text-overflow: ellipsis;
 }
 
+.template-preview-modern {
+  background: #f4f7fb;
+  border-color: #cdd8ea;
+  color: #12233c;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.template-preview-modern-titlebar {
+  background: linear-gradient(135deg, #0052a3 0%, #0b73d9 100%);
+  color: #ffffff;
+  font-size: 0.58rem;
+  font-weight: 700;
+  padding: 4px 6px;
+  border-radius: 3px;
+  margin-bottom: 7px;
+  text-align: center;
+}
+
+.template-preview-modern-text-body {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.template-preview-modern-text-line {
+  height: 5px;
+  background: #6d7f99;
+  border-radius: 4px;
+}
+
+.template-preview-modern-text-line.short {
+  width: 72%;
+}
+
+.template-preview-modern-heading {
+  background-image: radial-gradient(circle at 30% 35%, rgba(115, 174, 255, 0.28), transparent 35%), linear-gradient(180deg, rgba(2, 25, 63, 0.78), rgba(5, 34, 77, 0.9));
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+}
+
+.template-preview-modern-heading-title {
+  color: #f4f8ff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.template-preview-modern-heading-subtitle {
+  color: #d9e7ff;
+  font-size: 0.58rem;
+  font-weight: 500;
+}
+
+.template-preview-modern-index {
+  background: #ffffff;
+  border-color: #d3deed;
+}
+
+.template-preview-modern-index-title {
+  background: #0f7bc4;
+  color: #ffffff;
+  text-align: center;
+  font-size: 0.64rem;
+  font-weight: 700;
+  padding: 4px 6px;
+  border-radius: 3px;
+  margin-bottom: 6px;
+}
+
+.template-preview-modern-index-link {
+  color: #0d63b9;
+  text-decoration: underline;
+  font-size: 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+
+.template-preview-modern-table {
+  background: #ffffff;
+  border-color: #d3deed;
+}
+
+.template-preview-modern-table-title {
+  background: #0f7bc4;
+  color: #ffffff;
+  text-align: center;
+  font-size: 0.56rem;
+  font-weight: 700;
+  padding: 4px;
+  border-radius: 3px;
+  margin-bottom: 5px;
+}
+
+.template-preview-modern-table-grid {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 0.44rem;
+}
+
+.template-preview-modern-table-grid th {
+  background: #19a6da;
+  color: #082033;
+  border: 1px solid #7791a8;
+  padding: 2px;
+  text-align: left;
+}
+
+.template-preview-modern-table-grid td {
+  background: #eadcd3;
+  color: #1f252c;
+  border: 1px solid rgba(88, 102, 116, 0.45);
+  padding: 2px;
+}
+
 .template-card:hover {
   border-color: #0d6efd;
   background: #f0f6ff;
