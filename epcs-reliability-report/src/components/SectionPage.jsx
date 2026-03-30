@@ -676,6 +676,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
     const pageNumber = Number(page?.pageNumber);
     const isLivePage6 = isLiveMode && pageNumber === 6;
     const isLivePage7 = isLiveMode && pageNumber === 7;
+    const isViewPage4 = !isLiveMode && !isEditMode && pageNumber === 4;
     const useLegacyLiveTableChrome = isLivePage6 || isLivePage7;
     const headingStyle = useLegacyLiveTableChrome
       ? undefined
@@ -687,7 +688,9 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
       ? 'legacy-live-page-6-table'
       : isLivePage7
         ? 'legacy-live-page-7-table'
-        : '';
+        : isViewPage4
+          ? 'page-4-table-container'
+          : '';
     const headingClassName = isLivePage6
       ? 'legacy-live-page-6-title'
       : isLivePage7
