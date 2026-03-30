@@ -43,7 +43,11 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
     if (!idOrNum) return orderedPages[0];
     if (!isNaN(Number(idOrNum))) {
       const pageNum = Number(idOrNum);
-      return orderedPages.find((p) => Number(p?.pageNumber) === pageNum) || null;
+      const idx = pageNum - 1;
+      if (idx >= 0 && idx < orderedPages.length) {
+        return orderedPages[idx];
+      }
+      return null;
     }
     return orderedPages.find((p) => String(p?.id) === String(idOrNum));
   };
@@ -52,7 +56,7 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
   if (!page) return <div className="App"><p>Page not found</p></div>;
 
   const currentPageIndex = orderedPages.findIndex((p) => String(p?.id) === String(page?.id));
-  const currentDisplayPageNumber = Number(page?.pageNumber) || (currentPageIndex >= 0 ? currentPageIndex + 1 : 1);
+  const currentDisplayPageNumber = currentPageIndex >= 0 ? currentPageIndex + 1 : 1;
 
   const indexPages = reportData.pages
     .filter(p => p.pageType === 'index')
@@ -73,24 +77,14 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
     } else if (nav === 'previous') {
       const prevIndex = currentPageIndex - 1;
       if (prevIndex >= 0) {
-        const prevPageNumber = Number(orderedPages[prevIndex]?.pageNumber);
-        if (!Number.isNaN(prevPageNumber)) {
-          navigate(withLiveQuery(`/page/${prevPageNumber}`));
-          return;
-        }
-        navigate(withLiveQuery('/'));
+        navigate(withLiveQuery(`/page/${prevIndex + 1}`));
       } else {
         navigate(withLiveQuery('/'));
       }
     } else if (nav === 'next') {
       const nextIndex = currentPageIndex + 1;
       if (nextIndex < orderedPages.length) {
-        const nextPageNumber = Number(orderedPages[nextIndex]?.pageNumber);
-        if (!Number.isNaN(nextPageNumber)) {
-          navigate(withLiveQuery(`/page/${nextPageNumber}`));
-          return;
-        }
-        navigate(withLiveQuery('/'));
+        navigate(withLiveQuery(`/page/${nextIndex + 1}`));
       } else {
         navigate(withLiveQuery('/'));
       }
@@ -109,16 +103,18 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
 
     const numericTarget = Number(normalizedTarget);
     if (!Number.isNaN(numericTarget)) {
-      const targetPageByNumber = reportData.pages.find(p => p.pageNumber === numericTarget);
-      if (targetPageByNumber) {
-        navigate(withLiveQuery(`/page/${targetPageByNumber.pageNumber}`));
+      if (numericTarget >= 1 && numericTarget <= orderedPages.length) {
+        navigate(withLiveQuery(`/page/${numericTarget}`));
         return;
       }
     }
 
     const targetPage = getPage(normalizedTarget);
     if (targetPage) {
-      navigate(withLiveQuery(`/page/${targetPage.pageNumber}`));
+      const targetIndex = orderedPages.findIndex((p) => String(p?.id) === String(targetPage?.id));
+      if (targetIndex >= 0) {
+        navigate(withLiveQuery(`/page/${targetIndex + 1}`));
+      }
       return;
     }
 
@@ -131,7 +127,7 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
   };
 
   if (isLiveMode) {
-    const isLivePage5 = Number(page?.pageNumber) === 5;
+    const isLivePage5 = currentDisplayPageNumber === 5;
     const isLiveHeadingPage = page?.pageType === 'heading';
     const liveContentClassName = isLivePage5
       ? 'pdf-viewer-content pdf-viewer-content-page-5'

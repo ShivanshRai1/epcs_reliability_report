@@ -275,27 +275,39 @@ function App() {
       return data;
     }
 
-    const staticPageNumberById = new Map(
-      staticPages
-        .map((page) => [String(page?.id ?? ''), Number(page?.pageNumber)])
-        .filter(([id, pageNumber]) => id && Number.isFinite(pageNumber) && pageNumber > 0)
-    );
+    const staticOrdered = [...staticPages].sort((a, b) => (a?.pageNumber || 0) - (b?.pageNumber || 0));
+    const staticIdSet = new Set(staticOrdered.map((p) => String(p?.id ?? '')).filter(Boolean));
+    const liveById = new Map(data.pages.map((p) => [String(p?.id ?? ''), p]));
 
-    const normalizedPages = data.pages.map((page) => {
-      const staticPageNumber = staticPageNumberById.get(String(page?.id ?? ''));
-      if (Number.isFinite(staticPageNumber) && staticPageNumber > 0) {
+    // Build canonical sequence from static baseline; prefer live content when IDs match.
+    const canonicalPages = staticOrdered.map((staticPage, idx) => {
+      const livePage = liveById.get(String(staticPage?.id ?? ''));
+      const pageNumber = idx + 1;
+      if (livePage) {
         return {
-          ...page,
-          pageNumber: staticPageNumber
+          ...livePage,
+          pageNumber
         };
       }
 
-      return page;
+      return {
+        ...staticPage,
+        pageNumber
+      };
     });
+
+    // Keep additional backend-only pages accessible after canonical pages.
+    const extraPages = data.pages
+      .filter((p) => !staticIdSet.has(String(p?.id ?? '')))
+      .sort((a, b) => (a?.pageNumber || 0) - (b?.pageNumber || 0))
+      .map((p, idx) => ({
+        ...p,
+        pageNumber: canonicalPages.length + idx + 1
+      }));
 
     return {
       ...data,
-      pages: normalizedPages.sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0))
+      pages: [...canonicalPages, ...extraPages]
     };
   };
 
