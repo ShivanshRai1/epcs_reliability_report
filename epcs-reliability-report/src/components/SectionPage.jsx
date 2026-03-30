@@ -16,7 +16,7 @@ import SplitContentRenderer from './SplitContentRenderer';
 import ContentSection from './ContentSection';
 import IndexEditor from './IndexEditor';
 
-const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexPageOrdinal = null, onCellChange, onHeadingChange, onImageChange, onIndexChange, onImageClick, allIndexItems }) => {
+const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLiveMode = false, indexPageOrdinal = null, onCellChange, onHeadingChange, onImageChange, onIndexChange, onImageClick, allIndexItems }) => {
   if (!page) return <div style={{ padding: '1.5rem 0' }}>No page data available.</div>;
 
   const toPositiveNumber = (value, fallback) => {
@@ -674,7 +674,9 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
     // Handle both old (.data) and new (.rows) table structures
     const tableRows = page.table.rows || page.table.data || [];
     const pageNumber = Number(page?.pageNumber);
-    const isLivePage4 = isLiveMode && pageNumber === 4;
+    const isRoutePage4 = String(routePageId ?? '') === '4';
+    const hasPartNumberTitle = String(page?.title || '').toUpperCase().includes('SECOND GENERATION, PART NUMBERS');
+    const isLivePage4 = isLiveMode && (isRoutePage4 || pageNumber === 4 || hasPartNumberTitle);
     const isLivePage6 = isLiveMode && pageNumber === 6;
     const isLivePage7 = isLiveMode && pageNumber === 7;
     const useLegacyLiveTableChrome = isLivePage6 || isLivePage7;
@@ -698,11 +700,13 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
       : isLivePage7
         ? 'legacy-live-page-7-title'
         : '';
-    const captionClassName = isLivePage6
-      ? 'legacy-live-page-6-caption'
-      : isLivePage7
-        ? 'legacy-live-page-7-caption'
-        : '';
+    const captionClassName = isLivePage4
+      ? 'legacy-live-page-4-caption'
+      : isLivePage6
+        ? 'legacy-live-page-6-caption'
+        : isLivePage7
+          ? 'legacy-live-page-7-caption'
+          : '';
 
     return (
       <div className={containerClassName}>

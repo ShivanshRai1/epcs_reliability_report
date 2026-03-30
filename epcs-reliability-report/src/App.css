@@ -1429,56 +1429,59 @@ a:hover, .index-link:hover {
   box-shadow: none !important;
 
 /* Page 4 (live/view mode only): match legacy beige table style */
-.legacy-live-page-4-logo {
-  color: #2f9ed7;
-  font-size: 0.95rem;
-  font-weight: 700;
+/* Page 4 strict legacy overrides (live/view mode only) */
+.legacy-live-page .legacy-live-page-4-logo,
+.legacy-live-page .legacy-live-page-4-caption {
+  color: #2f9ed7 !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
   letter-spacing: 0.04em;
   margin: 0 0 0.65rem 0;
 }
 
-.legacy-live-page-4-title {
-  margin: 0 0 0.5rem 0;
-  padding: 0.22rem 0.6rem;
-  background: #0f7fc8;
-  color: #eaf6ff;
+.legacy-live-page .legacy-live-page-4-title {
+  margin: 0 0 0.5rem 0 !important;
+  padding: 0.22rem 0.6rem !important;
+  background: #0f7fc8 !important;
+  color: #eaf6ff !important;
   font-size: 1.03rem !important;
-  font-weight: 500;
-  text-align: center;
-  text-transform: uppercase;
-  text-decoration: underline;
+  font-weight: 500 !important;
+  text-align: center !important;
+  text-transform: uppercase !important;
+  text-decoration: underline !important;
   text-underline-offset: 2px;
 }
 
-.legacy-live-page-4-table table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #eadcd3;
-  border: 1px solid #6f8ea6;
-  box-shadow: none;
+.legacy-live-page .legacy-live-page-4-table table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  background: #eadcd3 !important;
+  border: 1px solid #6f8ea6 !important;
+  box-shadow: none !important;
 }
 
-.legacy-live-page-4-table th {
-  background: #18a8db;
-  color: #0f1a24;
-  border: 1px solid #567389;
-  text-align: center;
-  font-size: 0.74rem;
-  font-weight: 600;
-  padding: 0.2rem 0.18rem;
+.legacy-live-page .legacy-live-page-4-table th {
+  background: #18a8db !important;
+  color: #0f1a24 !important;
+  border: 1px solid #567389 !important;
+  text-align: center !important;
+  font-size: 0.74rem !important;
+  font-weight: 600 !important;
+  padding: 0.2rem 0.18rem !important;
 }
 
-.legacy-live-page-4-table td {
-  background: #eadcd3;
-  color: #2d2d2d;
-  border: 1px solid rgba(58, 74, 88, 0.42);
-  font-size: 0.72rem;
-  font-weight: 500;
-  padding: 0.2rem 0.18rem;
+.legacy-live-page .legacy-live-page-4-table td {
+  background: #eadcd3 !important;
+  color: #2d2d2d !important;
+  border: 1px solid rgba(58, 74, 88, 0.42) !important;
+  font-size: 0.72rem !important;
+  font-weight: 500 !important;
+  padding: 0.2rem 0.18rem !important;
 }
 
-.legacy-live-page-4-table tr:nth-child(even) td {
-  background: #eadcd3;
+.legacy-live-page .legacy-live-page-4-table tr:nth-child(even) td,
+.legacy-live-page .legacy-live-page-4-table tr:nth-child(odd) td {
+  background: #eadcd3 !important;
 }
   border-radius: 0 !important;
 }
