@@ -824,6 +824,22 @@ a, .index-link {
 
 a:hover, .index-link:hover {
   color: #0052a3 !important;
+
+  /* Index view: allow contentTextColor and contentFontSize to override the global !important link rules */
+  .index-view-wrap a.index-link {
+    color: var(--index-link-color, #0066cc) !important;
+    font-size: var(--index-base-size, 0.95rem) !important;
+  }
+  .index-view-wrap a.index-link.index-link-child {
+    color: var(--index-link-color, #0066cc) !important;
+    font-size: calc(var(--index-base-size, 0.95rem) * 0.926) !important;
+  }
+  .index-view-wrap .index-item-parent {
+    font-size: var(--index-base-size, 0.95rem) !important;
+  }
+  .index-view-wrap li.index-item-child {
+    font-size: calc(var(--index-base-size, 0.95rem) * 0.926) !important;
+  }
   text-decoration: underline;
 }
 
