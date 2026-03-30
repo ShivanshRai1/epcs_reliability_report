@@ -267,6 +267,7 @@ export default function SplitContentImageSection({
     cursor: 'pointer'
   };
   const rightImageHasCustomSize = Boolean(rightImageWidthData || rightImageHeightData);
+  const shouldFitLiveRightImage = isLiveSplitPage && !rightImageHasCustomSize;
   const hasLeftImageControl = splitImageLinksMode || splitImageImageMode;
   const hasRightImageControl = splitTextImageMode || splitLinksImageMode || splitImageImageMode || (!splitTextImageMode && !splitLinksImageMode && !splitImageLinksMode && !splitImageImageMode);
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
@@ -580,7 +581,7 @@ export default function SplitContentImageSection({
   );
 
   return (
-    <div className={`split-section-wrapper${isLiveSplitPage ? ' legacy-live-split-page' : ''}${isLivePage13 ? ' legacy-live-page-13-split' : ''}${isLivePage15 ? ' legacy-live-page-15-split' : ''}`} style={{ color: textColorData }}>
+    <div className={`split-section-wrapper${isLiveSplitPage ? ' legacy-live-split-page' : ''}${shouldFitLiveRightImage ? ' legacy-live-split-fit-right-image' : ''}${isLivePage13 ? ' legacy-live-page-13-split' : ''}${isLivePage15 ? ' legacy-live-page-15-split' : ''}`} style={{ color: textColorData }}>
       {isLiveSplitPage && <div className="legacy-live-split-logo">EPC·SPACE</div>}
       {isEditing && (
         <div style={{ display: 'grid', gap: '8px', padding: '10px 12px', background: '#f4f6fb', borderBottom: '1px solid #d8dee9' }}>
@@ -774,11 +775,11 @@ export default function SplitContentImageSection({
       </div>
 
       {/* CONTENT ROW */}
-      <div style={{ display: 'flex', minHeight: '300px', backgroundColor: 'white' }}>
+      <div className="split-live-content-row" style={{ display: 'flex', minHeight: '300px', backgroundColor: 'white' }}>
         {contentLayout === 'reversed' ? (
           <>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRight: '1px solid #ddd', overflow: rightImageHasCustomSize ? 'visible' : 'hidden' }}>
-              <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '16px', overflow: rightImageHasCustomSize ? 'visible' : 'hidden' }}>{imageEditorBlock}</div>
+              <div className="split-live-image-frame" style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '16px', overflow: rightImageHasCustomSize ? 'visible' : 'hidden' }}>{imageEditorBlock}</div>
             </div>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'visible' }}>
               <div style={{ flex: 1, padding: '16px' }}>{renderContent()}</div>
@@ -789,8 +790,8 @@ export default function SplitContentImageSection({
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRight: '1px solid #ddd', overflow: 'visible' }}>
               <div style={{ flex: 1, padding: '16px' }}>{renderContent()}</div>
             </div>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: rightImageHasCustomSize ? 'visible' : 'hidden' }}>
-              <div style={{
+            <div className="split-live-image-column" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: rightImageHasCustomSize ? 'visible' : 'hidden' }}>
+              <div className="split-live-image-frame" style={{
                 flex: 1,
                 display: 'flex',
                 justifyContent: isLiveSplitPage ? 'flex-start' : 'center',
