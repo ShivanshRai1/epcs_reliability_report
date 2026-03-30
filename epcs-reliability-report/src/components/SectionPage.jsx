@@ -29,6 +29,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
   const headerFontSize = toPositiveNumber(page.headerFontSize, 0.95);
   const contentFontSize = toPositiveNumber(page.contentFontSize, 0.95);
   const pageTextColor = page.textColor || '#e0e6f0';
+  const contentTextColor = page.contentTextColor || '#e0e6f0';
   const headingTitleFontSize = toPositiveNumber(page.headingTitleFontSize, 3.25);
   const headingSubtitleFontSize = toPositiveNumber(page.headingSubtitleFontSize, 1.5);
   const imageWidth = toPositiveNumber(page.imageWidth, 0);
@@ -64,6 +65,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
   const renderDisplaySettingsPanel = () => {
     if (!isEditMode || isLiveMode) return null;
     const isHeadingPage = page.pageType === 'heading';
+    const isContentPage = page.pageType === 'content';
 
     const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
     const formatValue = (value, unit, allowAuto = false) => {
@@ -117,6 +119,18 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
               title="Page text color"
             />
           </label>
+          {isContentPage && (
+            <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
+              Content text color
+              <input
+                type="color"
+                value={page.contentTextColor || '#e0e6f0'}
+                onChange={(e) => updatePageDisplaySettings('contentTextColor', e.target.value)}
+                style={{ width: '100%', height: '32px', padding: '2px', border: '1px solid #c8d3e7', borderRadius: '6px', cursor: 'pointer' }}
+                title="Content/body text color"
+              />
+            </label>
+          )}
           {renderStepper({
             label: 'Title size',
             value: isHeadingPage ? headingTitleFontSize : titleFontSize,
@@ -893,6 +907,9 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
           <ContentSection
             content={page.content}
             isEditing={true}
+            fontFamily={fontFamily}
+            contentFontSize={contentFontSize}
+            contentTextColor={contentTextColor}
             onChange={(newContent) => onCellChange(page.id, { content: newContent })}
           />
         </div>
@@ -906,7 +923,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
             background: page.titleColor || 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)',
             color: 'white',
             padding: '14px 24px',
-            fontSize: '1.2rem',
+            fontSize: `${titleFontSize}rem`,
             fontWeight: 600,
             textAlign: 'center',
             letterSpacing: '0.5px',
@@ -919,6 +936,9 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
           content={page.content}
           isEditing={false}
           isLiveMode={isLiveMode}
+          fontFamily={fontFamily}
+          contentFontSize={contentFontSize}
+          contentTextColor={contentTextColor}
           onChange={(newContent) => onHeadingChange(page.id, newContent)}
         />
       </div>

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import './ContentSection.css';
 
-const ContentSection = ({ content, isEditing, onChange, isLiveMode = false }) => {
+const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, fontFamily = 'inherit', contentFontSize = 0.95, contentTextColor = '#e0e6f0' }) => {
   const effectiveLiveMode = isLiveMode || new URLSearchParams(window.location.search).get('live') === '1';
   const [text, setText] = useState(content || '');
+  const resolvedContentFontSize = Number.isFinite(Number(contentFontSize)) && Number(contentFontSize) > 0 ? Number(contentFontSize) : 0.95;
 
   useEffect(() => {
     setText(content || '');
@@ -81,8 +82,18 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false }) =>
       // Add styled element
       const [, style, innerText] = match;
       const className = `content-${style.toLowerCase()}`;
+      const inlineStyle = {
+        fontFamily,
+        fontSize: `${resolvedContentFontSize}rem`
+      };
+      if (style === 'GROUP') {
+        inlineStyle.fontSize = `${Math.max(0.8, resolvedContentFontSize + 0.1)}rem`;
+      }
+      if (style === 'BLUE' || style === 'ORANGE' || style === 'INDENT-1' || style === 'INDENT-2') {
+        inlineStyle.fontSize = `${resolvedContentFontSize}rem`;
+      }
       elements.push(
-        <p key={`styled-${match.index}`} className={className}>
+        <p key={`styled-${match.index}`} className={className} style={inlineStyle}>
           {innerText}
         </p>
       );
@@ -112,6 +123,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false }) =>
           value={text}
           onChange={handleChange}
           className="content-textarea"
+          style={{ fontFamily, fontSize: `${resolvedContentFontSize}rem`, color: contentTextColor }}
           placeholder="Enter content with markup: [GROUP]text[/GROUP], [BLUE]text[/BLUE], [ORANGE]text[/ORANGE], [INDENT-1]text[/INDENT-1], [INDENT-2]text[/INDENT-2]"
         />
       </div>
@@ -141,7 +153,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false }) =>
 
   return (
     <div className="content-section">
-      <div className="content-text">
+      <div className="content-text" style={{ fontFamily, fontSize: `${resolvedContentFontSize}rem`, color: contentTextColor }}>
         {parseStyledText(text)}
       </div>
     </div>
