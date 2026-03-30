@@ -207,14 +207,36 @@ function App() {
         const matchingBackendIndexPage = indexPages.find(ip => 
           String(ip.id) === String(sp.id) || ip.pageNumber === sp.pageNumber
         );
+
+        const staticContent = (sp.content || []).filter((item) => livePagesById.has(item.target));
+        const backendContent = Array.isArray(matchingBackendIndexPage?.content)
+          ? matchingBackendIndexPage.content.filter((item) => item && item.target)
+          : [];
+
+        // Keep static ordering but overlay backend edits (title/level) by target.
+        const backendByTarget = new Map(
+          backendContent.map((item) => [String(item.target), item])
+        );
+        const mergedContent = staticContent.map((item) => {
+          const backendItem = backendByTarget.get(String(item.target));
+          return backendItem
+            ? { ...item, ...backendItem, target: item.target }
+            : item;
+        });
+
+        // Keep backend-only links visible too (e.g., newly added manual index items).
+        const staticTargets = new Set(staticContent.map((item) => String(item.target)));
+        const backendExtras = backendContent.filter(
+          (item) => !staticTargets.has(String(item.target)) && livePagesById.has(item.target)
+        );
         
         return {
           ...matchingBackendIndexPage,
           ...sp,
           pageType: 'index',
-          title: sp?.title || matchingBackendIndexPage?.title || 'INDEX',
-          // Filter index content to only include pages that actually exist
-          content: (sp.content || []).filter((item) => livePagesById.has(item.target))
+          // Preserve backend-edited page title when present.
+          title: matchingBackendIndexPage?.title || sp?.title || 'INDEX',
+          content: [...mergedContent, ...backendExtras]
         };
       });
 
