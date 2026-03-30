@@ -29,7 +29,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
   const headerFontSize = toPositiveNumber(page.headerFontSize, 0.95);
   const contentFontSize = toPositiveNumber(page.contentFontSize, 0.95);
   const pageTextColor = page.textColor || '#e0e6f0';
-  const contentTextColor = page.contentTextColor || '#e0e6f0';
+  const contentTextColor = page.contentTextColor || pageTextColor;
   const headingTitleFontSize = toPositiveNumber(page.headingTitleFontSize, 3.25);
   const headingSubtitleFontSize = toPositiveNumber(page.headingSubtitleFontSize, 1.5);
   const imageWidth = toPositiveNumber(page.imageWidth, 0);
@@ -65,7 +65,6 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
   const renderDisplaySettingsPanel = () => {
     if (!isEditMode || isLiveMode) return null;
     const isHeadingPage = page.pageType === 'heading';
-    const isContentPage = page.pageType === 'content';
 
     const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
     const formatValue = (value, unit, allowAuto = false) => {
@@ -116,21 +115,19 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
               value={page.textColor || '#e0e6f0'}
               onChange={(e) => updatePageDisplaySettings('textColor', e.target.value)}
               style={{ width: '100%', height: '32px', padding: '2px', border: '1px solid #c8d3e7', borderRadius: '6px', cursor: 'pointer' }}
-              title="Page text color"
+              title="Title/header text color"
             />
           </label>
-          {isContentPage && (
-            <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
-              Content text color
-              <input
-                type="color"
-                value={page.contentTextColor || '#e0e6f0'}
-                onChange={(e) => updatePageDisplaySettings('contentTextColor', e.target.value)}
-                style={{ width: '100%', height: '32px', padding: '2px', border: '1px solid #c8d3e7', borderRadius: '6px', cursor: 'pointer' }}
-                title="Content/body text color"
-              />
-            </label>
-          )}
+          <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
+            Content text color
+            <input
+              type="color"
+              value={contentTextColor}
+              onChange={(e) => updatePageDisplaySettings('contentTextColor', e.target.value)}
+              style={{ width: '100%', height: '32px', padding: '2px', border: '1px solid #c8d3e7', borderRadius: '6px', cursor: 'pointer' }}
+              title="Body/content text color"
+            />
+          </label>
           {renderStepper({
             label: 'Title size',
             value: isHeadingPage ? headingTitleFontSize : titleFontSize,
@@ -348,7 +345,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
           {mixedBlocks.map((block, idx) => {
             if (block.type === 'text') {
               return (
-                <p key={block.id || `text-${idx}`} style={{ color: pageTextColor, lineHeight: 1.6, margin: '0 0 0.8rem 0', whiteSpace: 'pre-wrap' }}>
+                <p key={block.id || `text-${idx}`} style={{ color: contentTextColor, lineHeight: 1.6, margin: '0 0 0.8rem 0', whiteSpace: 'pre-wrap' }}>
                   {block.text}
                 </p>
               );
@@ -402,7 +399,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
           </div>
         )}
         {page.intro && (
-          <p style={{ fontSize: `${contentFontSize}rem`, color: pageTextColor, marginTop: '1rem', marginBottom: '1.5rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+          <p style={{ fontSize: `${contentFontSize}rem`, color: contentTextColor, marginTop: '1rem', marginBottom: '1.5rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
             {page.intro}
           </p>
         )}
@@ -438,7 +435,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
               }
               if (block.type === 'text') {
                 return (
-                  <p key={block.id || bIdx} style={{ fontSize: '0.95rem', color: pageTextColor, lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: '0.8rem', textAlign: 'left' }}>
+                  <p key={block.id || bIdx} style={{ fontSize: '0.95rem', color: contentTextColor, lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: '0.8rem', textAlign: 'left' }}>
                     {block.text}
                   </p>
                 );
@@ -470,7 +467,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
                       {block.title}
                     </a>
                   </div>
-                : <p key={block.id || bIdx} style={{ fontSize: '0.95rem', color: pageTextColor, lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: '0.8rem', textAlign: 'left' }}>
+                : <p key={block.id || bIdx} style={{ fontSize: '0.95rem', color: contentTextColor, lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: '0.8rem', textAlign: 'left' }}>
                     {block.text}
                   </p>
             ))}
@@ -478,7 +475,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
         )}
 
         {page.bottomText && (
-          <p style={{ fontSize: `${contentFontSize}rem`, color: pageTextColor, marginTop: '1.5rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+          <p style={{ fontSize: `${contentFontSize}rem`, color: contentTextColor, marginTop: '1.5rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
             {page.bottomText}
           </p>
         )}
@@ -501,7 +498,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
           </div>
         )}
         
-        <div style={{ color: pageTextColor, fontSize: '0.95rem', lineHeight: 1.6 }}>
+        <div style={{ color: contentTextColor, fontSize: '0.95rem', lineHeight: 1.6 }}>
           <p>{page.content}</p>
           {page.link && <a href="#" style={{ color: '#2e7be6', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); onLinkClick(page.link); }}>Continue →</a>}
         </div>
@@ -740,7 +737,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
                 );
               }
               return (
-                <p key={block.id || bIdx} style={{ fontSize: '0.95rem', color: pageTextColor, lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: '0.8rem' }}>
+                <p key={block.id || bIdx} style={{ fontSize: '0.95rem', color: contentTextColor, lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: '0.8rem' }}>
                   {block.text}
                 </p>
               );
@@ -785,7 +782,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
           onImageClick={page.imageUrl ? () => onImageClick(page.imageUrl, page.title) : undefined}
         />
         {page.description && (
-          <p style={{ fontSize: `${contentFontSize}rem`, color: pageTextColor, marginTop: '1rem' }}>{page.description}</p>
+          <p style={{ fontSize: `${contentFontSize}rem`, color: contentTextColor, marginTop: '1rem' }}>{page.description}</p>
         )}
       </div>
     );
@@ -820,6 +817,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
         leftHeaderColor={page.leftHeaderColor}
         rightHeaderColor={page.rightHeaderColor}
         textColor={pageTextColor}
+        contentTextColor={contentTextColor}
         fontFamily={fontFamily}
         titleFontSize={titleFontSize}
         headerFontSize={headerFontSize}
@@ -857,6 +855,7 @@ const SectionPage = ({ page, onLinkClick, isEditMode, isLiveMode = false, indexP
         leftHeaderColor={page.leftHeaderColor}
         rightHeaderColor={page.rightHeaderColor}
         textColor={pageTextColor}
+        contentTextColor={contentTextColor}
         fontFamily={fontFamily}
         titleFontSize={titleFontSize}
         headerFontSize={headerFontSize}

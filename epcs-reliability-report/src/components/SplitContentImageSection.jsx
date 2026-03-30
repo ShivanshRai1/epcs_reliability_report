@@ -26,6 +26,7 @@ export default function SplitContentImageSection({
   leftHeaderColor,
   rightHeaderColor,
   textColor,
+  contentTextColor,
   fontFamily,
   titleFontSize,
   headerFontSize,
@@ -46,6 +47,7 @@ export default function SplitContentImageSection({
   const [leftHeaderColorData, setLeftHeaderColorData] = useState(leftHeaderColor || '#5fc574');
   const [rightHeaderColorData, setRightHeaderColorData] = useState(rightHeaderColor || '#e8a87c');
   const [textColorData, setTextColorData] = useState(textColor || '#e0e6f0');
+  const [contentTextColorData, setContentTextColorData] = useState(contentTextColor || textColor || '#e0e6f0');
   const [fontFamilyData, setFontFamilyData] = useState(fontFamily || 'inherit');
   const [titleFontSizeData, setTitleFontSizeData] = useState(Number(titleFontSize) > 0 ? Number(titleFontSize) : 1.2);
   const [headerFontSizeData, setHeaderFontSizeData] = useState(Number(headerFontSize) > 0 ? Number(headerFontSize) : 0.95);
@@ -74,6 +76,7 @@ export default function SplitContentImageSection({
       leftHeaderColor: leftHeaderColorData,
       rightHeaderColor: rightHeaderColorData,
       textColor: textColorData,
+      contentTextColor: contentTextColorData,
       fontFamily: fontFamilyData,
       titleFontSize: titleFontSizeData,
       headerFontSize: headerFontSizeData,
@@ -139,6 +142,7 @@ export default function SplitContentImageSection({
     if (isEditing) return;
     setFontFamilyData(fontFamily || 'inherit');
     setTextColorData(textColor || '#e0e6f0');
+    setContentTextColorData(contentTextColor || textColor || '#e0e6f0');
     setTitleFontSizeData(Number(titleFontSize) > 0 ? Number(titleFontSize) : 1.2);
     setHeaderFontSizeData(Number(headerFontSize) > 0 ? Number(headerFontSize) : 0.95);
     setContentFontSizeData(Number(contentFontSize) > 0 ? Number(contentFontSize) : 0.95);
@@ -146,7 +150,7 @@ export default function SplitContentImageSection({
     setLeftImageHeightData(Number(leftImageHeight || imageHeight) > 0 ? Number(leftImageHeight || imageHeight) : null);
     setRightImageWidthData(Number(rightImageWidth || imageWidth) > 0 ? Number(rightImageWidth || imageWidth) : null);
     setRightImageHeightData(Number(rightImageHeight || imageHeight) > 0 ? Number(rightImageHeight || imageHeight) : null);
-  }, [fontFamily, textColor, titleFontSize, headerFontSize, contentFontSize, imageWidth, imageHeight, leftImageWidth, leftImageHeight, rightImageWidth, rightImageHeight, isEditing]);
+  }, [fontFamily, textColor, contentTextColor, titleFontSize, headerFontSize, contentFontSize, imageWidth, imageHeight, leftImageWidth, leftImageHeight, rightImageWidth, rightImageHeight, isEditing]);
 
   // Debounced auto-save when content or image changes (prevents flickering on rapid edits)
   useEffect(() => {
@@ -165,6 +169,7 @@ export default function SplitContentImageSection({
         leftHeaderColor: leftHeaderColorData,
         rightHeaderColor: rightHeaderColorData,
         textColor: textColorData,
+        contentTextColor: contentTextColorData,
         fontFamily: fontFamilyData,
         titleFontSize: titleFontSizeData,
         headerFontSize: headerFontSizeData,
@@ -178,7 +183,7 @@ export default function SplitContentImageSection({
     
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [titleData, leftHeaderData, rightHeaderData, links, imageUrlData, leftContentData, leftImageUrlData, titleColorData, leftHeaderColorData, rightHeaderColorData, textColorData, fontFamilyData, titleFontSizeData, headerFontSizeData, contentFontSizeData, leftImageWidthData, leftImageHeightData, rightImageWidthData, rightImageHeightData, isEditing]);
+  }, [titleData, leftHeaderData, rightHeaderData, links, imageUrlData, leftContentData, leftImageUrlData, titleColorData, leftHeaderColorData, rightHeaderColorData, textColorData, contentTextColorData, fontFamilyData, titleFontSizeData, headerFontSizeData, contentFontSizeData, leftImageWidthData, leftImageHeightData, rightImageWidthData, rightImageHeightData, isEditing]);
 
   const handleLinkChange = (idx, field, value) => {
     const updatedLinks = [...links];
@@ -364,7 +369,7 @@ export default function SplitContentImageSection({
       }
 
       return (
-        <div className="split-left-content-text" style={{ fontFamily: fontFamilyData, fontSize: `${contentFontSizeData}rem`, color: textColorData }}>
+        <div className="split-left-content-text" style={{ fontFamily: fontFamilyData, fontSize: `${contentFontSizeData}rem`, color: contentTextColorData }}>
           {(leftContentData || '').split('\n').map((line, idx) => (
             <React.Fragment key={idx}>
               {line}
@@ -382,7 +387,7 @@ export default function SplitContentImageSection({
           <div className="split-links-editor">
             <div className="links-list">
               {links.length === 0 && (
-                <div className="no-links-placeholder" style={{ color: textColorData }}>No links added yet</div>
+                <div className="no-links-placeholder" style={{ color: contentTextColorData }}>No links added yet</div>
               )}
               {links.map((link, idx) => (
                 <div key={`link-${idx}`} className="link-edit-row">
@@ -419,7 +424,7 @@ export default function SplitContentImageSection({
       }
 
       return (
-        <div className="split-content-display" style={{ fontFamily: fontFamilyData, fontSize: `${contentFontSizeData}rem`, color: textColorData }}>
+        <div className="split-content-display" style={{ fontFamily: fontFamilyData, fontSize: `${contentFontSizeData}rem`, color: contentTextColorData }}>
           {(() => {
             const hasHierarchy = links.some((item) => String(item?.style || '').toLowerCase() === 'highlight');
             return links.map((link, idx) => {
@@ -438,7 +443,7 @@ export default function SplitContentImageSection({
                   target="_blank"
                   rel="noopener noreferrer"
                   className={linkClassName}
-                  style={{ color: textColorData }}
+                  style={{ color: contentTextColorData }}
                 >
                   {link.text}
                 </a>
@@ -462,7 +467,7 @@ export default function SplitContentImageSection({
         );
       }
       return (
-        <div className="split-left-content-text" style={{ fontFamily: fontFamilyData, fontSize: `${contentFontSizeData}rem`, color: textColorData }}>
+        <div className="split-left-content-text" style={{ fontFamily: fontFamilyData, fontSize: `${contentFontSizeData}rem`, color: contentTextColorData }}>
           {leftContentData.split('\n').map((line, idx) => (
             <React.Fragment key={idx}>
               {line}
@@ -478,7 +483,7 @@ export default function SplitContentImageSection({
         <div className="split-links-editor">
           <div className="links-list">
             {links.length === 0 && (
-              <div className="no-links-placeholder" style={{ color: textColorData }}>No links added yet</div>
+              <div className="no-links-placeholder" style={{ color: contentTextColorData }}>No links added yet</div>
             )}
             {links.map((link, idx) => (
               <div key={`link-${idx}`} className="link-edit-row">
@@ -514,7 +519,7 @@ export default function SplitContentImageSection({
       );
     }
     return (
-      <div className="split-content-display" style={{ fontFamily: fontFamilyData, fontSize: `${contentFontSizeData}rem`, color: textColorData }}>
+      <div className="split-content-display" style={{ fontFamily: fontFamilyData, fontSize: `${contentFontSizeData}rem`, color: contentTextColorData }}>
         {(() => {
           const hasHierarchy = links.some((item) => String(item?.style || '').toLowerCase() === 'highlight');
           return links.map((link, idx) => {
@@ -533,7 +538,7 @@ export default function SplitContentImageSection({
                 target="_blank"
                 rel="noopener noreferrer"
                 className={linkClassName}
-                style={{ color: textColorData }}
+                style={{ color: contentTextColorData }}
               >
                 {link.text}
               </a>
@@ -663,7 +668,17 @@ export default function SplitContentImageSection({
                 value={textColorData}
                 onChange={(e) => { setTextColorData(e.target.value); emitImmediateChange({ textColor: e.target.value }); }}
                 style={{ width: '100%', height: '32px', padding: '2px', border: '1px solid #c8d3e7', borderRadius: '6px', cursor: 'pointer' }}
-                title="Page text color"
+                title="Title/header text color"
+              />
+            </label>
+            <label style={{ display: 'grid', gap: '4px', fontSize: '0.8rem', color: '#334155' }}>
+              Content text color
+              <input
+                type="color"
+                value={contentTextColorData}
+                onChange={(e) => { setContentTextColorData(e.target.value); emitImmediateChange({ contentTextColor: e.target.value }); }}
+                style={{ width: '100%', height: '32px', padding: '2px', border: '1px solid #c8d3e7', borderRadius: '6px', cursor: 'pointer' }}
+                title="Body/content text color"
               />
             </label>
             {renderStepper({
