@@ -1427,8 +1427,9 @@ a:hover, .index-link:hover {
   background: #b7dfbf !important;
   border: 1px solid rgba(0, 0, 0, 0.33) !important;
   box-shadow: none !important;
+}
 
-/* Page 4 (live/view mode only): match legacy beige table style */
+/* Page 4 (live/view mode only): match legacy table style */
 /* Page 4 strict legacy overrides (live/view mode only) */
 .legacy-live-page .legacy-live-page-4-logo,
 .legacy-live-page .legacy-live-page-4-caption {
@@ -1455,15 +1456,15 @@ a:hover, .index-link:hover {
 .legacy-live-page .legacy-live-page-4-table table {
   width: 100% !important;
   border-collapse: collapse !important;
-  background: #eadcd3 !important;
-  border: 1px solid #6f8ea6 !important;
+  background: #ffffff !important;
+  border: 1px solid #aaaaaa !important;
   box-shadow: none !important;
 }
 
 .legacy-live-page .legacy-live-page-4-table th {
-  background: #18a8db !important;
-  color: #0f1a24 !important;
-  border: 1px solid #567389 !important;
+  background: #4472c4 !important;
+  color: #ffffff !important;
+  border: 1px solid #aaaaaa !important;
   text-align: center !important;
   font-size: 0.74rem !important;
   font-weight: 600 !important;
@@ -1471,20 +1472,19 @@ a:hover, .index-link:hover {
 }
 
 .legacy-live-page .legacy-live-page-4-table td {
-  background: #eadcd3 !important;
-  color: #2d2d2d !important;
-  border: 1px solid rgba(58, 74, 88, 0.42) !important;
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #cccccc !important;
   font-size: 0.72rem !important;
-  font-weight: 500 !important;
+  font-weight: 400 !important;
   padding: 0.2rem 0.18rem !important;
 }
 
 .legacy-live-page .legacy-live-page-4-table tr:nth-child(even) td,
 .legacy-live-page .legacy-live-page-4-table tr:nth-child(odd) td {
-  background: #eadcd3 !important;
+  background: #ffffff !important;
 }
-  border-radius: 0 !important;
-}
+
 
 .pdf-viewer-content .legacy-live-page-6-table th,
 .pdf-viewer-content .legacy-live-page-6-table td {
