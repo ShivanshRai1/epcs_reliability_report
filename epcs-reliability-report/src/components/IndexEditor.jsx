@@ -6,7 +6,6 @@ const IndexEditor = ({ page, onChange, availablePages = [] }) => {
   const [title, setTitle] = useState(page.title);
   const [content, setContent] = useState(page.content || []);
   const [isAddingNew, setIsAddingNew] = useState(false);
-  const [newItemTitle, setNewItemTitle] = useState('');
   const [newItemTarget, setNewItemTarget] = useState('');
   const [selectedIdx, setSelectedIdx] = useState(null);
   const containerRef = useRef(null);
@@ -20,9 +19,7 @@ const IndexEditor = ({ page, onChange, availablePages = [] }) => {
     setTitle(page.title || '');
     setContent(page.content || []);
     setIsAddingNew(false);
-    setNewItemTitle('');
     setNewItemTarget('');
-    setSelectedIdx(null);
     itemRefs.current = {};
   }, [page.id]);
 
@@ -64,16 +61,10 @@ const IndexEditor = ({ page, onChange, availablePages = [] }) => {
     onChange({ ...page, title: newTitle });
   };
 
-  const handleItemTitleChange = (idx, newTitle) => {
+  const handleItemPageSelect = (idx, pageId) => {
+    const selectedPage = selectablePages.find((p) => String(p.id) === String(pageId));
     const updated = [...content];
-    updated[idx].title = newTitle;
-    setContent(updated);
-    onChange({ ...page, content: updated });
-  };
-
-  const handleItemTargetChange = (idx, newTarget) => {
-    const updated = [...content];
-    updated[idx].target = newTarget;
+    updated[idx] = { ...updated[idx], target: pageId, title: selectedPage ? (selectedPage.title || pageId) : updated[idx].title };
     setContent(updated);
     onChange({ ...page, content: updated });
   };
@@ -104,11 +95,12 @@ const IndexEditor = ({ page, onChange, availablePages = [] }) => {
   };
 
   const handleAddItem = () => {
-    if (newItemTitle.trim() && newItemTarget.trim()) {
-      const updated = [...content, { title: newItemTitle.trim(), target: newItemTarget.trim() }];
+    if (newItemTarget.trim()) {
+      const selectedPage = selectablePages.find((p) => String(p.id) === String(newItemTarget));
+      const itemTitle = selectedPage ? (selectedPage.title || newItemTarget) : newItemTarget;
+      const updated = [...content, { title: itemTitle, target: newItemTarget.trim() }];
       setContent(updated);
       onChange({ ...page, content: updated });
-      setNewItemTitle('');
       setNewItemTarget('');
       setIsAddingNew(false);
     }
@@ -148,16 +140,9 @@ const IndexEditor = ({ page, onChange, availablePages = [] }) => {
             >
               <div className="index-item-number">{idx + 1}</div>
               <div className="index-item-fields">
-                <input
-                  type="text"
-                  value={item.title}
-                  onChange={(e) => handleItemTitleChange(idx, e.target.value)}
-                  placeholder="Item title"
-                  className="item-title-input"
-                />
                 <select
                   value={item.target || ''}
-                  onChange={(e) => handleItemTargetChange(idx, e.target.value)}
+                  onChange={(e) => handleItemPageSelect(idx, e.target.value)}
                   className="item-target-input"
                   style={{ width: '100%' }}
                 >
@@ -168,7 +153,7 @@ const IndexEditor = ({ page, onChange, availablePages = [] }) => {
                     </option>
                   ))}
                   {item.target && !selectablePages.some((p) => String(p.id) === String(item.target)) && (
-                    <option value={item.target}>{`Custom destination: ${item.target}`}</option>
+                    <option value={item.target}>{item.title || item.target}</option>
                   )}
                 </select>
               </div>
@@ -197,19 +182,12 @@ const IndexEditor = ({ page, onChange, availablePages = [] }) => {
           </button>
         ) : (
           <div className="new-item-form">
-            <input
-              type="text"
-              value={newItemTitle}
-              onChange={(e) => setNewItemTitle(e.target.value)}
-              placeholder="New item title"
-              className="item-title-input"
-              autoFocus
-            />
             <select
               value={newItemTarget}
               onChange={(e) => setNewItemTarget(e.target.value)}
               className="item-target-input"
               style={{ width: '100%' }}
+              autoFocus
             >
               <option value="">Select destination page</option>
               {selectablePages.map((p) => (
@@ -223,7 +201,6 @@ const IndexEditor = ({ page, onChange, availablePages = [] }) => {
               <button 
                 onClick={() => {
                   setIsAddingNew(false);
-                  setNewItemTitle('');
                   setNewItemTarget('');
                 }}
                 className="cancel-btn"
