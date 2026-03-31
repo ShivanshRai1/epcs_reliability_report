@@ -359,6 +359,17 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     const cloneSourcePageId = cloneSource?.id || null;
     const cloneSourcePageData = cloneSource ? JSON.parse(JSON.stringify(cloneSource)) : null;
 
+    console.log('🔍 Sample page found:', { 
+      templateId, 
+      cloneSourcePageId,
+      cloneSourcePageExists: !!cloneSource,
+      cloneSourceHasContent: !!cloneSourcePageData,
+      cloneSourceTitle: cloneSource?.title,
+      cloneSourcePageType: cloneSource?.pageType,
+      cloneSourceDataKeys: cloneSourcePageData ? Object.keys(cloneSourcePageData) : [],
+      cloneSourcePreview: cloneSourcePageData ? JSON.stringify(cloneSourcePageData).substring(0, 200) : 'NULL'
+    });
+
     setLoading(true);
     setError('');
 

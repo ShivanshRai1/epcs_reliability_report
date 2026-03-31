@@ -793,6 +793,13 @@ function App() {
 
       const cloneSourcePageId = options?.cloneSourcePageId || null;
       const cloneSourcePageData = options?.cloneSourcePageData || null;
+      console.log('🔍 Clone data received in handlePageCreate:', {
+        cloneSourcePageId,
+        cloneSourcePageDataExists: !!cloneSourcePageData,
+        cloneSourcePageDataKeys: cloneSourcePageData ? Object.keys(cloneSourcePageData) : [],
+        cloneSourcePageDataPreview: cloneSourcePageData ? JSON.stringify(cloneSourcePageData).substring(0, 300) : 'NULL'
+      });
+      
       const CLONE_SKIP_KEYS = new Set(['id', 'page_id', 'pageId', 'pageNumber', 'page_number', 'createdAt', 'updatedAt']);
       const buildClonePayload = (sourcePage) => {
         if (!sourcePage || typeof sourcePage !== 'object') return null;
@@ -800,6 +807,11 @@ function App() {
         const clonePayload = {};
         Object.keys(sourceCopy).forEach((key) => {
           if (!CLONE_SKIP_KEYS.has(key)) clonePayload[key] = sourceCopy[key];
+        });
+        console.log('🔨 Clone payload built:', {
+          sourcePageId: sourceCopy?.id,
+          payloadKeys: Object.keys(clonePayload),
+          payloadPreview: JSON.stringify(clonePayload).substring(0, 300)
         });
         return clonePayload;
       };
@@ -907,17 +919,32 @@ function App() {
         const effectiveCloneSourcePage = sourcePageFromCurrentData || cloneSourcePageData;
         const clonePayload = buildClonePayload(effectiveCloneSourcePage);
 
+        console.log('🔄 Applying clone to created page:', {
+          createdPageId,
+          effectiveCloneSourcePageId: effectiveCloneSourcePage?.id,
+          clonePayloadExists: !!clonePayload,
+          clonePayloadKeys: clonePayload ? Object.keys(clonePayload) : []
+        });
+
         if (clonePayload) {
           transformedData = {
             ...transformedData,
             pages: transformedData.pages.map((page) => {
               if (!idMatches(page.id, createdPageId)) return page;
-              return {
+              const updatedPage = {
                 ...page,
                 ...clonePayload,
                 id: page.id,
                 pageNumber: page.pageNumber,
               };
+              console.log('✅ Page after clone applied:', {
+                id: updatedPage.id,
+                title: updatedPage.title,
+                pageType: updatedPage.pageType,
+                dataKeys: Object.keys(updatedPage),
+                dataPreview: JSON.stringify(updatedPage).substring(0, 300)
+              });
+              return updatedPage;
             })
           };
 
@@ -930,7 +957,11 @@ function App() {
               console.warn('⚠️ Clone sync failed, keeping local clone state:', cloneSyncErr.message);
             }
           }
+        } else {
+          console.warn('⚠️ Clone payload is empty or null, skipping clone');
         }
+      } else {
+        console.log('ℹ️ No clone data provided (cloneSourcePageId:', cloneSourcePageId, ', cloneSourcePageData:', !!cloneSourcePageData, ')');
       }
 
       // Apply behavior flags immediately in local state so UI mode is correct
