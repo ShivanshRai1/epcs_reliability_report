@@ -383,12 +383,12 @@ function App() {
       }
 
       try {
-        // Fetch all pages from backend API with cache-bust for fresh data
+        // Fetch all pages from backend API with cache-bust for fresh data.
+        // Trust backend ordering on successful loads so inserted pages keep their real positions.
         let pagesFromApi = await apiService.getPages(true); // forceFresh = true to bypass browser cache
         
         // Transform data structure for the app
         let transformedData = transformPagesFromApi(pagesFromApi);
-        transformedData = alignPageNumbersWithStatic(transformedData, staticData?.pages || []);
 
         const staticPageCount = Array.isArray(staticData?.pages) ? staticData.pages.length : 0;
         const isSuspiciouslyLow = staticPageCount > 0 && transformedData.pages.length < staticPageCount;
@@ -398,9 +398,8 @@ function App() {
           try {
             const retryPages = await apiService.getPages(true); // forceFresh = true
             const retriedData = transformPagesFromApi(retryPages);
-            const alignedRetriedData = alignPageNumbersWithStatic(retriedData, staticData?.pages || []);
-            if (alignedRetriedData.pages.length >= staticPageCount) {
-              transformedData = alignedRetriedData;
+            if (retriedData.pages.length >= staticPageCount) {
+              transformedData = retriedData;
             }
           } catch {
             // Ignore retry failure and continue to baseline fallback below.
@@ -481,12 +480,9 @@ function App() {
     const handleFocus = async () => {
       console.log('🔄 Live window focused - refreshing data...');
       try {
-        // Get latest pages from backend with cache-bust
+        // Get latest pages from backend with cache-bust and keep backend ordering intact.
         const pagesFromApi = await apiService.getPages(true); // forceFresh = true
-        let transformedData = transformPagesFromApi(pagesFromApi);
-        
-        // Keep page numbering consistent
-        transformedData = alignPageNumbersWithStatic(transformedData, staticIndexPagesRef.current);
+        const transformedData = transformPagesFromApi(pagesFromApi);
         const syncedData = syncIndexPageContent(transformedData, staticIndexPagesRef.current);
         
         setReportData(syncedData);
