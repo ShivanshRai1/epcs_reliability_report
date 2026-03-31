@@ -113,7 +113,7 @@ const Navigation = ({ onNavigate, isEditMode, isLiveMode, onEditToggle, onToggle
         <div className="toolbar-group toolbar-group-actions">
           <button className="section-list-btn edit-toggle" onClick={onEditToggle} title="Edit this page">✏️ Edit Page</button>
           <button className="section-list-btn edit-delete" onClick={onDeletePage} title="Delete this page">🗑 Delete Page</button>
-          <button className="section-list-btn edit-view-placeholder" onClick={onToggleLive} title="Open read-only live view in a new tab">👁 Open Live View</button>
+          <button className="section-list-btn edit-view-placeholder" onClick={onToggleLive} title="Open read-only preview in a new tab">👁 Live Preview</button>
         </div>
       )}
 
