@@ -852,7 +852,6 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
     return (
       <SplitContentImageSection
         title={page.title}
-        pageNumber={page.pageNumber}
         leftHeader={page.leftHeader}
         rightHeader={page.rightHeader}
         content={page.content}

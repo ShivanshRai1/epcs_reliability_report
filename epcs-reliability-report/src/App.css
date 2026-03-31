@@ -1446,213 +1446,6 @@ a:hover, .index-link:hover {
   color: #000000 !important;
 }
 
-/* Page 6 live-mode should match the legacy green table theme. */
-.legacy-live-page-6-table {
-  padding-top: 2px;
-}
-
-.legacy-live-page-6-logo {
-  color: #2b8fd2 !important;
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  margin: 0 0 8px 2px;
-  line-height: 1;
-}
-
-.legacy-live-page-6-title {
-  margin: 0 0 8px 0 !important;
-  padding: 5px 12px !important;
-  text-align: center !important;
-  background: #0f87c9 !important;
-  font-size: 22px !important;
-  font-weight: 500 !important;
-  line-height: 1.1 !important;
-  text-transform: uppercase;
-}
-
-.pdf-viewer-content .legacy-live-page-6-table .legacy-live-page-6-title {
-  color: #ffffff !important;
-}
-
-.legacy-live-page-6-caption {
-  color: #1d2d38 !important;
-}
-
-.legacy-live-page-6-table table {
-  background: #b7dfbf !important;
-  border: 1px solid rgba(0, 0, 0, 0.33) !important;
-  box-shadow: none !important;
-}
-
-/* Page 4 (live/view mode only): match legacy table style */
-/* Page 4 strict legacy overrides (live/view mode only) */
-.legacy-live-page .legacy-live-page-4-logo,
-.legacy-live-page .legacy-live-page-4-caption {
-  color: #2f9ed7 !important;
-  font-size: 0.95rem !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.04em;
-  margin: 0 0 0.65rem 0;
-}
-
-.legacy-live-page .legacy-live-page-4-title {
-  margin: 0 0 0.5rem 0 !important;
-  padding: 0.22rem 0.6rem !important;
-  background: #0f7fc8 !important;
-  color: #eaf6ff !important;
-  font-size: 1.03rem !important;
-  font-weight: 500 !important;
-  text-align: center !important;
-  text-transform: uppercase !important;
-  text-decoration: underline !important;
-  text-underline-offset: 2px;
-}
-
-.legacy-live-page .legacy-live-page-4-table table {
-  width: 100% !important;
-  border-collapse: collapse !important;
-  background: #e7d7cc !important;
-  border: 1px solid #8b8b8b !important;
-  box-shadow: none !important;
-}
-
-.legacy-live-page .legacy-live-page-4-table th {
-  background: #18a8db !important;
-  color: #08131b !important;
-  border: 1px solid #6e7f8d !important;
-  text-align: center !important;
-  font-size: 0.74rem !important;
-  font-weight: 500 !important;
-  padding: 0.2rem 0.18rem !important;
-}
-
-.legacy-live-page .legacy-live-page-4-table td {
-  background: #e7d7cc !important;
-  color: #1f1f1f !important;
-  border: 1px solid rgba(72, 72, 72, 0.45) !important;
-  font-size: 0.72rem !important;
-  font-weight: 500 !important;
-  padding: 0.2rem 0.18rem !important;
-}
-
-.legacy-live-page .legacy-live-page-4-table tr:nth-child(even) td,
-.legacy-live-page .legacy-live-page-4-table tr:nth-child(odd) td {
-  background: #e7d7cc !important;
-   color: #000000 !important;
-}
-
-
-.pdf-viewer-content .legacy-live-page-6-table th,
-.pdf-viewer-content .legacy-live-page-6-table td {
-  border: 1px solid rgba(0, 0, 0, 0.25) !important;
-  color: #000000 !important;
-  font-size: 11.5px !important;
-  line-height: 1.2 !important;
-}
-
-.pdf-viewer-content .legacy-live-page-6-table th {
-  background: #18a9dc !important;
-  color: #000000 !important;
-  text-align: center !important;
-  font-weight: 500 !important;
-}
-
-.legacy-live-page-6-table tbody td {
-  background: #b6dfbf !important;
-   color: #000000 !important;
-}
-
-.legacy-live-page-6-table tbody tr:nth-child(even) td {
-  background: #aed9b7 !important;
-   color: #000000 !important;
-}
-
-/* Page 7 live-mode should match the multi-color legacy qualified table theme. */
-.legacy-live-page-7-table {
-  padding-top: 2px;
-}
-
-.legacy-live-page-7-logo {
-  color: #2b8fd2 !important;
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  margin: 0 0 8px 2px;
-  line-height: 1;
-}
-
-.legacy-live-page-7-title {
-  margin: 0 0 8px 0 !important;
-  padding: 5px 12px !important;
-  text-align: center !important;
-  background: #0f76bb !important;
-  color: #ffffff !important;
-  font-size: 22px !important;
-  font-weight: 500 !important;
-  line-height: 1.1 !important;
-  text-transform: uppercase;
-  text-decoration: underline;
-}
-
-.legacy-live-page-7-caption {
-  color: #1d2d38 !important;
-}
-
-.legacy-live-page-7-table table {
-  border: 1px solid rgba(0, 0, 0, 0.35) !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-}
-
-.pdf-viewer-content .legacy-live-page-7-table th,
-.pdf-viewer-content .legacy-live-page-7-table td {
-  border: 1px solid rgba(0, 0, 0, 0.28) !important;
-  color: #000000 !important;
-  font-size: 11.5px !important;
-  line-height: 1.2 !important;
-}
-
-.pdf-viewer-content .legacy-live-page-7-table th {
-  background: #18a9dc !important;
-  color: #000000 !important;
-  text-align: center !important;
-  font-weight: 500 !important;
-}
-
-.legacy-live-page-7-table tbody td {
-  background: #c9dbef !important;
-}
-
-.legacy-live-page-7-table tbody tr.row-pink td {
-  background: #d9bddf !important;
- color: #000000 !important;
-}
-
-.legacy-live-page-7-table tbody tr.row-light-blue td {
-  background: #8bc8e3 !important;
- color: #000000 !important;
-}
-
-.legacy-live-page-7-table tbody tr.row-cyan td {
-  background: #9ec3e2 !important;
- color: #000000 !important;
-}
-
-.legacy-live-page-7-table tbody tr.row-green td {
-  background: #8dd36f !important;
- color: #000000 !important;
-}
-
-.legacy-live-page-7-table tbody tr.row-beige td {
-  background: #e8c09f !important;
- color: #000000 !important;
-}
-
-.pdf-viewer-content .legacy-live-page-7-table .legacy-live-page-7-title {
-  color: #ffffff !important;
-}
-
 /* Shared legacy styling for all split-content live pages. */
 .legacy-live-split-page {
   padding-top: 2px;
@@ -1743,12 +1536,12 @@ a:hover, .index-link:hover {
   border: 1px solid #d2d2d2;
 }
 
-/* Page 13 live-mode should match legacy radiation-results split layout. */
-.legacy-live-page-13-split {
+/* Links+Image split variant (mode-based, no page-number dependency). */
+.legacy-live-split-links-image {
   padding-top: 2px;
 }
 
-.legacy-live-page-13-logo {
+.legacy-live-split-links-image .legacy-live-split-logo {
   color: #2b8fd2 !important;
   font-size: 16px;
   font-weight: 600;
@@ -1757,11 +1550,11 @@ a:hover, .index-link:hover {
   line-height: 1;
 }
 
-.legacy-live-page-13-split .split-main-title {
+.legacy-live-split-links-image .split-main-title {
   padding: 8px 14px !important;
 }
 
-.legacy-live-page-13-split .split-main-title h1 {
+.legacy-live-split-links-image .split-main-title h1 {
   color: #ffffff !important;
   font-size: 20px !important;
   font-weight: 500 !important;
@@ -1769,15 +1562,15 @@ a:hover, .index-link:hover {
   letter-spacing: 0.01em;
 }
 
-.legacy-live-page-13-split .split-content-display {
+.legacy-live-split-links-image .split-content-display {
   padding-top: 8px;
 }
 
-.legacy-live-page-13-split .split-link,
-.legacy-live-page-13-split .split-link:visited,
-.legacy-live-page-13-split .split-link:hover,
-.legacy-live-page-13-split .split-link:active,
-.legacy-live-page-13-split .split-link:focus {
+.legacy-live-split-links-image .split-link,
+.legacy-live-split-links-image .split-link:visited,
+.legacy-live-split-links-image .split-link:hover,
+.legacy-live-split-links-image .split-link:active,
+.legacy-live-split-links-image .split-link:focus {
   display: inline;
   margin: 0;
   padding: 0 !important;
@@ -1793,18 +1586,18 @@ a:hover, .index-link:hover {
   line-height: 1.2;
 }
 
-.legacy-live-page-13-split .split-image {
+.legacy-live-split-links-image .split-image {
   width: 100% !important;
   max-width: 100% !important;
   border: 1px solid #d9d9d9;
 }
 
-/* Page 15 live-mode should mirror legacy split-report styling. */
-.legacy-live-page-15-split {
+/* Image+Links split variant (mode-based, no page-number dependency). */
+.legacy-live-split-image-links {
   padding-top: 2px;
 }
 
-.legacy-live-page-15-logo {
+.legacy-live-split-image-links .legacy-live-split-logo {
   color: #2b8fd2 !important;
   font-size: 16px;
   font-weight: 600;
@@ -1813,11 +1606,11 @@ a:hover, .index-link:hover {
   line-height: 1;
 }
 
-.legacy-live-page-15-split .split-main-title {
+.legacy-live-split-image-links .split-main-title {
   padding: 8px 14px !important;
 }
 
-.legacy-live-page-15-split .split-main-title h1 {
+.legacy-live-split-image-links .split-main-title h1 {
   color: #ffffff !important;
   font-size: 22px !important;
   font-weight: 500 !important;
@@ -1825,7 +1618,7 @@ a:hover, .index-link:hover {
   margin: 0;
 }
 
-.legacy-live-page-15-split .split-link {
+.legacy-live-split-image-links .split-link {
   display: block;
   margin: 0 0 12px 0;
   padding: 0 !important;
@@ -1840,27 +1633,27 @@ a:hover, .index-link:hover {
   line-height: 1.3;
 }
 
-.legacy-live-page-15-split .split-content-display {
+.legacy-live-split-image-links .split-content-display {
   padding-left: 8px;
 }
 
-.legacy-live-page-15-split .split-link,
-.legacy-live-page-15-split .split-link:visited,
-.legacy-live-page-15-split .split-link:hover,
-.legacy-live-page-15-split .split-link:active,
-.legacy-live-page-15-split .split-link:focus {
+.legacy-live-split-image-links .split-link,
+.legacy-live-split-image-links .split-link:visited,
+.legacy-live-split-image-links .split-link:hover,
+.legacy-live-split-image-links .split-link:active,
+.legacy-live-split-image-links .split-link:focus {
   color: #3f7f93 !important;
   -webkit-text-fill-color: #3f7f93;
 }
 
-.legacy-live-page-15-split .split-link.split-link-highlight {
+.legacy-live-split-image-links .split-link.split-link-highlight {
   font-size: 18px;
   line-height: 1.2;
   margin: 0 0 8px 0;
   font-weight: 400;
 }
 
-.legacy-live-page-15-split .split-link.split-link-subitem {
+.legacy-live-split-image-links .split-link.split-link-subitem {
   margin-left: 88px;
   font-size: 16px;
   line-height: 1.2;
@@ -1869,12 +1662,12 @@ a:hover, .index-link:hover {
   -webkit-text-fill-color: #0e74bb;
 }
 
-.legacy-live-page-15-split .split-link:hover {
+.legacy-live-split-image-links .split-link:hover {
   background: transparent !important;
   color: #0a4e8d !important;
 }
 
-.legacy-live-page-15-split .split-image {
+.legacy-live-split-image-links .split-image {
   width: 100% !important;
   max-width: 100% !important;
   border: 1px solid #d2d2d2;

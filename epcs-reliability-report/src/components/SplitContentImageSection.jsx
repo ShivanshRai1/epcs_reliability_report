@@ -6,7 +6,6 @@ import LinkTargetInput from './LinkTargetInput';
 
 export default function SplitContentImageSection({
   title,
-  pageNumber,
   leftHeader,
   rightHeader,
   content,
@@ -248,8 +247,8 @@ export default function SplitContentImageSection({
   const hasRightHeader = Boolean(String(displayRightHeader || '').trim());
   const contentLayout = splitImageLinksMode ? 'reversed' : layout;
   const isLiveSplitPage = isLiveMode && !isEditing;
-  const isLivePage13 = isLiveMode && Number(pageNumber) === 13;
-  const isLivePage15 = isLiveMode && Number(pageNumber) === 15;
+  const isLiveLinksImageVariant = isLiveSplitPage && splitLinksImageMode;
+  const isLiveImageLinksVariant = isLiveSplitPage && splitImageLinksMode;
   const leftImageStyle = {
     width: leftImageWidthData ? `${leftImageWidthData}px` : undefined,
     height: leftImageHeightData ? `${leftImageHeightData}px` : undefined,
@@ -581,7 +580,7 @@ export default function SplitContentImageSection({
   );
 
   return (
-    <div className={`split-section-wrapper${isLiveSplitPage ? ' legacy-live-split-page' : ''}${shouldFitLiveRightImage ? ' legacy-live-split-fit-right-image' : ''}${isLivePage13 ? ' legacy-live-page-13-split' : ''}${isLivePage15 ? ' legacy-live-page-15-split' : ''}`} style={{ color: textColorData }}>
+    <div className={`split-section-wrapper${isLiveSplitPage ? ' legacy-live-split-page' : ''}${shouldFitLiveRightImage ? ' legacy-live-split-fit-right-image' : ''}${isLiveLinksImageVariant ? ' legacy-live-split-links-image' : ''}${isLiveImageLinksVariant ? ' legacy-live-split-image-links' : ''}`} style={{ color: textColorData }}>
       {isLiveSplitPage && <div className="legacy-live-split-logo">EPC·SPACE</div>}
       {isEditing && (
         <div style={{ display: 'grid', gap: '8px', padding: '10px 12px', background: '#f4f6fb', borderBottom: '1px solid #d8dee9' }}>
