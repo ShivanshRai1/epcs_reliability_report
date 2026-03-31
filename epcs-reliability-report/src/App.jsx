@@ -230,9 +230,15 @@ function App() {
           backendByTargetQueues.get(key).push(item);
         });
 
-        // When the backend page has explicit content saved, fully defer to it —
-        // skip the static baseline merge so deletions/reorders are always respected.
-        if (backendContent.length > 0) {
+        // Defer fully to backend only when its saved content is close to the static baseline
+        // in size, meaning the user genuinely edited this index page (e.g. deleted a duplicate).
+        // If backend has significantly fewer items than static it is likely stale partial data —
+        // in that case fall through to the normal static+merge path so nothing is lost.
+        const staticContentCount = staticContent.length;
+        const backendLooksEdited = backendContent.length > 0 &&
+          (staticContentCount === 0 || backendContent.length >= staticContentCount * 0.7);
+
+        if (backendLooksEdited) {
           return {
             ...matchingBackendIndexPage,
             ...displaySettings,
