@@ -879,7 +879,7 @@ a:hover, .index-link:hover {
   height: 100%;
   min-height: 0;
   padding: 16px 20px;
-  overflow: hidden;
+  overflow: auto;
   color: #222222;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 14px;
@@ -1029,7 +1029,7 @@ a:hover, .index-link:hover {
 .legacy-live-page .content-live-col {
   flex: 1;
   min-width: 0;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .legacy-live-page .content-group {
