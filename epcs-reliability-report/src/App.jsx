@@ -232,6 +232,23 @@ function App() {
           backendByTargetQueues.get(key).push(item);
         });
 
+        const staticLevelByTarget = new Map();
+        rawStaticContent.forEach((item) => {
+          const key = String(item?.target || '');
+          if (!key) return;
+          if (!staticLevelByTarget.has(key)) {
+            staticLevelByTarget.set(key, Number(item?.level) || 0);
+          }
+        });
+
+        const pickUsableTarget = (staticTarget, backendTarget) => {
+          const backendKey = String(backendTarget || '');
+          const staticKey = String(staticTarget || '');
+          if (backendKey && livePagesById.has(backendKey)) return backendKey;
+          if (staticKey && livePagesById.has(staticKey)) return staticKey;
+          return backendKey || staticKey;
+        };
+
         // Defer fully to backend ONLY when it has >= 70% of the raw unfiltered static item count.
         // This means the user genuinely edited this index (e.g. deleted a duplicate).
         // When backend has far fewer items (stale/partial), fall through to the static merge path.
@@ -240,12 +257,23 @@ function App() {
           (rawStaticCount === 0 || backendContent.length >= rawStaticCount * 0.7);
 
         if (backendLooksEdited) {
+          const normalizedBackendContent = backendContent.map((item) => {
+            const targetKey = String(item?.target || '');
+            return {
+              ...item,
+              target: pickUsableTarget(targetKey, targetKey),
+              level: staticLevelByTarget.has(targetKey)
+                ? staticLevelByTarget.get(targetKey)
+                : (Number(item?.level) || 0)
+            };
+          });
+
           return {
             ...matchingBackendIndexPage,
             ...displaySettings,
             pageType: 'index',
-            title: matchingBackendIndexPage?.title || sp?.title || 'INDEX',
-            content: backendContent
+            title: sp?.title || matchingBackendIndexPage?.title || 'INDEX',
+            content: normalizedBackendContent
           };
         }
 
@@ -255,7 +283,12 @@ function App() {
           const queue = backendByTargetQueues.get(key) || [];
           const backendItem = queue.length > 0 ? queue.shift() : null;
           return backendItem
-            ? { ...item, ...backendItem, target: item.target, level: item.level }
+            ? {
+                ...item,
+                ...backendItem,
+                target: pickUsableTarget(item.target, backendItem.target),
+                level: item.level
+              }
             : item;
         });
 

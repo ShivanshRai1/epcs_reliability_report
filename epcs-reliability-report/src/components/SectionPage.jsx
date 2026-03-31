@@ -614,7 +614,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
                     className={`legacy-live-index-link ${topIsChild ? 'legacy-live-index-child-link' : 'legacy-live-index-parent-link'}`}
                     onClick={e => {
                       e.preventDefault();
-                      if (onLinkClick && group.item.target) onLinkClick(group.item.target);
+                      if (onLinkClick && group.item.target) onLinkClick(group.item.target, group.item.title);
                     }}
                   >
                     {group.item.title}
@@ -629,7 +629,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
                           className="legacy-live-index-link legacy-live-index-child-link"
                           onClick={e => {
                             e.preventDefault();
-                            if (onLinkClick && child.item.target) onLinkClick(child.item.target);
+                            if (onLinkClick && child.item.target) onLinkClick(child.item.target, child.item.title);
                           }}
                         >
                           {child.item.title}
@@ -662,7 +662,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
                   onClick={e => {
                     e.preventDefault();
                     if (onLinkClick && group.item.target) {
-                      onLinkClick(group.item.target);
+                      onLinkClick(group.item.target, group.item.title);
                     }
                   }}
                 >
@@ -679,7 +679,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
                           onClick={e => {
                             e.preventDefault();
                             if (onLinkClick && child.item.target) {
-                              onLinkClick(child.item.target);
+                              onLinkClick(child.item.target, child.item.title);
                             }
                           }}
                         >
