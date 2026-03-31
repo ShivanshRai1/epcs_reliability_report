@@ -61,7 +61,7 @@ router.post('/:pageId', async (req, res) => {
 
     // Get existing page from database
     const [existing] = await connection.query(
-      `SELECT page_id, page_number, page_type, title, page_data FROM ${pagesTable} WHERE page_id = ?`,
+      `SELECT page_id, page_number, page_type, page_template, title, page_data FROM ${pagesTable} WHERE page_id = ?`,
       [req.params.pageId]
     );
 
@@ -89,13 +89,17 @@ router.post('/:pageId', async (req, res) => {
     }
 
     const nextTitle = pageUpdateData?.page_data?.title ?? currentPage.title;
+    const nextPageType = pageUpdateData?.page_data?.pageType ?? currentPage.page_type;
+    const nextPageTemplate = pageUpdateData?.page_data?.pageTemplate ?? currentPage.page_template;
 
     // Update page
     await connection.query(
-      `UPDATE ${pagesTable} SET page_data = ?, title = ?, updated_by = ?, updated_at = CURRENT_TIMESTAMP 
+      `UPDATE ${pagesTable} SET page_data = ?, page_type = ?, page_template = ?, title = ?, updated_by = ?, updated_at = CURRENT_TIMESTAMP 
        WHERE page_id = ?`,
       [
         JSON.stringify(mergedPageData),
+        nextPageType,
+        nextPageTemplate,
         nextTitle,
         updatedBy,
         req.params.pageId
