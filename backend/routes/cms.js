@@ -241,6 +241,7 @@ router.post('/create', async (req, res) => {
 
     // Template aliases map to existing stable page types to avoid frontend regressions.
     const templateToPageType = {
+      'text-only': 'content',
       'link-only': 'just-links',
       'mixed-content': 'just-images',
       'split-text-image': 'split-content-image',

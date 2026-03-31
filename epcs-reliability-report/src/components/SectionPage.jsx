@@ -294,6 +294,35 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
     if (isEditMode) {
       return wrapEditContent(<TextOnlyEditor page={page} onChange={(updatedPage) => onCellChange(page.id, updatedPage)} />);
     }
+
+    if (isLiveMode) {
+      return (
+        <div>
+          {page.title && (
+            <div style={{
+              background: page.titleColor || 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)',
+              color: 'white',
+              padding: '14px 24px',
+              fontSize: `${titleFontSize}rem`,
+              fontWeight: 600,
+              textAlign: 'center',
+              letterSpacing: '0.5px',
+              marginBottom: '1.2rem',
+            }}>
+              {page.title}
+            </div>
+          )}
+          <ContentSection
+            content={page.content}
+            isEditing={false}
+            isLiveMode={true}
+            fontFamily={fontFamily}
+            contentFontSize={contentFontSize}
+            contentTextColor={contentTextColor}
+          />
+        </div>
+      );
+    }
     
     return (
       <div style={{ lineHeight: 1.6, fontFamily }}>
