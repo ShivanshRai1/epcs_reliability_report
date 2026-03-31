@@ -25,10 +25,11 @@
 .heading-subtitle-input {
   width: 100%;
   padding: 0.75rem;
-  background-color: rgba(30, 41, 59, 0.8);
+  background-color: #1e293b;
   border: 1px solid rgba(100, 165, 255, 0.3);
   border-radius: 4px;
   color: #e0e6f0;
+  -webkit-text-fill-color: #e0e6f0;
   font-size: 1rem;
   font-family: inherit;
   font-weight: 500;
@@ -39,10 +40,11 @@
 .heading-bg-file {
   width: 100%;
   padding: 0.75rem;
-  background-color: rgba(30, 41, 59, 0.8);
+  background-color: #1e293b;
   border: 1px solid rgba(100, 165, 255, 0.3);
   border-radius: 4px;
   color: #e0e6f0;
+  -webkit-text-fill-color: #e0e6f0;
   font-size: 0.95rem;
   font-family: inherit;
 }

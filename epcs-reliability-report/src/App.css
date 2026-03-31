@@ -211,7 +211,7 @@ h1 {
   margin-top: 0.9rem;
   font-size: 1.2rem;
   font-weight: 400;
-  color: #e0e6f0;
+  color: var(--heading-subtitle-color, #e0e6f0);
 }
 
 .heading-derating {
@@ -992,7 +992,7 @@ a:hover, .index-link:hover {
 
 .legacy-live-heading-title {
   margin: 0;
-  color: #ffffff !important;
+  color: var(--heading-title-color, #ffffff) !important;
   font-size: var(--legacy-heading-title-size, 52px) !important;
   font-weight: 600;
   line-height: 1.1;
@@ -1008,7 +1008,7 @@ a:hover, .index-link:hover {
 
 .legacy-live-heading-subtitle {
   margin: 0;
-  color: #e8f2ff !important;
+  color: var(--heading-subtitle-color, #e8f2ff) !important;
   font-size: var(--legacy-heading-subtitle-size, 24px) !important;
   font-weight: 400;
   line-height: 1.2;
@@ -1847,12 +1847,12 @@ h1, h2, h3, h4, h5, h6 {
   color: #ffffff !important;
 }
 
-/* Heading pages (starfield background) – always white */
+/* Heading pages (starfield background) – user-controllable color */
 .page-heading-title {
-  color: #f6fbff !important;
+  color: var(--heading-title-color, #f6fbff) !important;
 }
 .page-heading-subtitle {
-  color: #e0e6f0 !important;
+  color: var(--heading-subtitle-color, #e0e6f0) !important;
 }
 
 /* Normal nav buttons – keep light text */

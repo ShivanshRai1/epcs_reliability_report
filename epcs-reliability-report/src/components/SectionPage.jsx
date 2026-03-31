@@ -241,11 +241,13 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
     const headingSubtitleStyle = {
       fontFamily: headingFontFamily,
       fontSize: `${headingSubtitleFontSize}rem`,
-      color: pageTextColor
+      color: contentTextColor
     };
     const legacyHeadingVars = {
       '--legacy-heading-title-size': `${headingTitleFontSize}rem`,
-      '--legacy-heading-subtitle-size': `${headingSubtitleFontSize}rem`
+      '--legacy-heading-subtitle-size': `${headingSubtitleFontSize}rem`,
+      '--heading-title-color': pageTextColor,
+      '--heading-subtitle-color': contentTextColor,
     };
 
     if (isLiveMode && !isEditMode) {
@@ -271,7 +273,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
     }
     
     return (
-      <div className={`page-heading ${headingClass}`} style={{ ...headingContentStyle, ...headingBackgroundStyle }}>
+      <div className={`page-heading ${headingClass}`} style={{ ...headingContentStyle, ...headingBackgroundStyle, ...legacyHeadingVars }}>
         <div className="page-heading-content" style={headingContentStyle}>
           <HeadingSection
             heading={page.title}
