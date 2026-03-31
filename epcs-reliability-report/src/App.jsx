@@ -383,8 +383,8 @@ function App() {
       }
 
       try {
-        // Fetch all pages from backend API
-        let pagesFromApi = await apiService.getPages();
+        // Fetch all pages from backend API with cache-bust for fresh data
+        let pagesFromApi = await apiService.getPages(true); // forceFresh = true to bypass browser cache
         
         // Transform data structure for the app
         let transformedData = transformPagesFromApi(pagesFromApi);
@@ -396,7 +396,7 @@ function App() {
         // Retry once when API returns fewer pages than the known static baseline.
         if (isSuspiciouslyLow) {
           try {
-            const retryPages = await apiService.getPages();
+            const retryPages = await apiService.getPages(true); // forceFresh = true
             const retriedData = transformPagesFromApi(retryPages);
             const alignedRetriedData = alignPageNumbersWithStatic(retriedData, staticData?.pages || []);
             if (alignedRetriedData.pages.length >= staticPageCount) {
@@ -408,7 +408,12 @@ function App() {
         }
 
         const finalSuspicious = staticPageCount > 0 && transformedData.pages.length < staticPageCount;
-        if (finalSuspicious && staticPageCount > 0) {
+        // Only fall back to static if we're SIGNIFICANTLY below (more than 10% fewer pages)
+        // This prevents discarding newly created custom pages while still catching real corruption
+        const significantlyLow = staticPageCount > 0 && (transformedData.pages.length < staticPageCount * 0.9);
+        
+        if (significantlyLow && staticPageCount > 0) {
+          console.warn(`⚠️ Backend returned significantly fewer pages (${transformedData.pages.length} vs ${staticPageCount} baseline), falling back to static data`);
           const staticPages = (staticData.pages || []).map((page, idx) => ({
             ...page,
             pageNumber: page.pageNumber || idx + 1
@@ -421,6 +426,8 @@ function App() {
           saveReportCache(syncedStaticData);
           setError(null);
           return;
+        } else if (finalSuspicious) {
+          console.log(`ℹ️ Backend has fewer pages than baseline (${transformedData.pages.length} vs ${staticPageCount}), but within tolerance. Using backend data.`);
         }
 
         const syncedData = syncIndexPageContent(transformedData, staticIndexPages);
