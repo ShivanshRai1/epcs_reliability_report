@@ -213,22 +213,28 @@ function App() {
           ? matchingBackendIndexPage.content.filter((item) => item && item.target)
           : [];
 
-        // Keep static ordering but overlay backend edits (title/level) by target.
-        const backendByTarget = new Map(
-          backendContent.map((item) => [String(item.target), item])
-        );
+        // Keep static ordering but overlay backend edits by target occurrence.
+        // This prevents duplicate targets (e.g., two rows pointing to same page) from mirroring each other.
+        const backendByTargetQueues = new Map();
+        backendContent.forEach((item) => {
+          const key = String(item.target);
+          if (!backendByTargetQueues.has(key)) backendByTargetQueues.set(key, []);
+          backendByTargetQueues.get(key).push(item);
+        });
+
         const mergedContent = staticContent.map((item) => {
-          const backendItem = backendByTarget.get(String(item.target));
+          const key = String(item.target);
+          const queue = backendByTargetQueues.get(key) || [];
+          const backendItem = queue.length > 0 ? queue.shift() : null;
           return backendItem
             ? { ...item, ...backendItem, target: item.target }
             : item;
         });
 
         // Keep backend-only links visible too (e.g., newly added manual index items).
-        const staticTargets = new Set(staticContent.map((item) => String(item.target)));
-        const backendExtras = backendContent.filter(
-          (item) => !staticTargets.has(String(item.target)) && livePagesById.has(item.target)
-        );
+        const backendExtras = Array.from(backendByTargetQueues.values())
+          .flat()
+          .filter((item) => item && item.target && livePagesById.has(item.target));
         
         // Preserve display settings saved by the user in the editor (not present in static baseline)
         const displaySettings = {};
