@@ -30,6 +30,8 @@
   font-family: inherit;
   background: #ffffff;
   color: var(--ate-cell-text-color, #1b1f2a) !important;
+  -webkit-text-fill-color: var(--ate-cell-text-color, #1b1f2a);
+  caret-color: var(--ate-cell-text-color, #1b1f2a);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
@@ -202,6 +204,7 @@
   background: #ffffff;
   min-height: 40px;
   color: var(--ate-cell-text-color, #1b1f2a) !important;
+  -webkit-text-fill-color: var(--ate-cell-text-color, #1b1f2a);
   caret-color: var(--ate-cell-text-color, #1b1f2a);
 }
 

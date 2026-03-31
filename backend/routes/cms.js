@@ -46,7 +46,6 @@ router.get('/templates', async (req, res) => {
         { id: 'just-links', name: 'Just Links', description: 'Page with only links/list' },
         { id: 'link-only', name: 'Link Only', description: 'Link-focused page variant' },
         { id: 'just-images', name: 'Just Images', description: 'Page with images and optional captions' },
-        { id: 'mixed-content', name: 'Mixed Content', description: 'Text, links, and images in any order' },
         { id: 'heading', name: 'Heading', description: 'Title and subtitle heading page' },
         { id: 'index', name: 'Index', description: 'List of linked items' },
         { id: 'image-text', name: 'Image + Text', description: 'Flexible image and text positioning' },

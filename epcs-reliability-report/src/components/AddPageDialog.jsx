@@ -18,7 +18,6 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     { id: 'heading', name: 'Heading', description: 'Title and heading-focused page' },
     { id: 'table', name: 'Table', description: 'Structured table page' },
     { id: 'just-images', name: 'Images', description: 'Image-focused page' },
-    { id: 'mixed-content', name: 'Mixed Content', description: 'Text, links, and images in any order with reorder' },
     { id: 'split-text-image', name: 'Split Text + Image', description: 'Text on left and image on right with optional headers' },
     { id: 'split-links-image', name: 'Split Links + Image', description: 'Links on left and image on right with optional headers' },
     { id: 'split-image-links', name: 'Split Image + Links', description: 'Image on left and links on right with optional headers' },
@@ -54,6 +53,8 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         const id = String(template.id || '').toLowerCase();
         const name = String(template.name || '').toLowerCase();
         return (
+          id !== 'mixed-content' &&
+          name !== 'mixed content' &&
           id !== 'just-links' &&
           id !== 'link-only' &&
           !name.includes('links + text') &&
@@ -73,7 +74,6 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       const templateMap = new Map(filteredTemplates.map((t) => [t.id, t]));
 
       const ensuredTemplates = [
-        { id: 'mixed-content', name: 'Mixed Content', description: 'Text, links, and images in any order with reorder' },
         { id: 'split-text-image', name: 'Split Text + Image', description: 'Text on left and image on right with optional headers' },
         { id: 'split-links-image', name: 'Split Links + Image', description: 'Links on left and image on right with optional headers' },
         { id: 'split-image-links', name: 'Split Image + Links', description: 'Image on left and links on right with optional headers' },

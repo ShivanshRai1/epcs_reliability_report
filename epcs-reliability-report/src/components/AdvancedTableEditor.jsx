@@ -182,10 +182,37 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
     onChange({ ...page, title: newTitle });
   };
 
+  const getReadableEditorTextColor = (color) => {
+    if (!color || typeof color !== 'string') return '#1b1f2a';
+
+    const normalized = color.trim().toLowerCase();
+    let r;
+    let g;
+    let b;
+
+    if (/^#([0-9a-f]{3})$/.test(normalized)) {
+      r = parseInt(normalized[1] + normalized[1], 16);
+      g = parseInt(normalized[2] + normalized[2], 16);
+      b = parseInt(normalized[3] + normalized[3], 16);
+    } else if (/^#([0-9a-f]{6})$/.test(normalized)) {
+      r = parseInt(normalized.slice(1, 3), 16);
+      g = parseInt(normalized.slice(3, 5), 16);
+      b = parseInt(normalized.slice(5, 7), 16);
+    } else {
+      return '#1b1f2a';
+    }
+
+    // Keep table editor text dark enough for white and light row backgrounds.
+    const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+    return luminance > 0.55 ? '#1b1f2a' : color;
+  };
+
+  const editorTextColor = getReadableEditorTextColor(contentTextColor);
+
   const editorStyle = {
-    '--ate-label-color': textColor,
+    '--ate-label-color': '#1b1f2a',
     '--ate-header-text-color': textColor,
-    '--ate-cell-text-color': contentTextColor,
+    '--ate-cell-text-color': editorTextColor,
   };
 
   return (
