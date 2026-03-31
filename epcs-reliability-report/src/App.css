@@ -1085,15 +1085,9 @@ a:hover, .index-link:hover {
   color: inherit;
 }
 
-/* Table cells keep white text since table background is dark navy */
+/* Live table cells default to black text; themed variants override as needed. */
 .pdf-viewer-content td,
 .pdf-viewer-content th {
-  color: #ffffff !important;
-}
-
-/* Special case: page 5 live-mode table text should be black */
-.pdf-viewer-content-page-5 td,
-.pdf-viewer-content-page-5 th {
   color: #000000 !important;
 }
 
@@ -1361,51 +1355,6 @@ a:hover, .index-link:hover {
 .legacy-live-page th {
   background: #2f74c0 !important;
   color: #000000 !important;
-}
-
-/* Page 5 live-mode should match the legacy beige table theme. */
-.pdf-viewer-content.pdf-viewer-content-page-5 .legacy-live-page > div > h2 {
-  margin: 0 0 8px 0 !important;
-  padding: 4px 10px !important;
-  text-align: center !important;
-  background: #0f87c9 !important;
-  color: #ffffff !important;
-  font-size: 28px !important;
-  font-weight: 500 !important;
-  line-height: 1.1 !important;
-  text-transform: uppercase;
-}
-
-.pdf-viewer-content.pdf-viewer-content-page-5 .legacy-live-page table {
-  background: #e6d5c8 !important;
-  border: 1px solid rgba(0, 0, 0, 0.35) !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-}
-
-.pdf-viewer-content.pdf-viewer-content-page-5 .legacy-live-page th,
-.pdf-viewer-content.pdf-viewer-content-page-5 .legacy-live-page td {
-  border: 1px solid rgba(0, 0, 0, 0.28) !important;
-  color: #101010 !important;
-  font-size: 12.5px !important;
-  line-height: 1.25 !important;
-}
-
-.pdf-viewer-content.pdf-viewer-content-page-5 .legacy-live-page th {
-  background: #16a7dc !important;
-  color: #041723 !important;
-  text-align: center !important;
-  font-weight: 500 !important;
-}
-
-.pdf-viewer-content.pdf-viewer-content-page-5 .legacy-live-page tbody td {
-  background: #e7d7cc !important;
-   color: #000000 !important;
-}
-
-.pdf-viewer-content.pdf-viewer-content-page-5 .legacy-live-page tbody tr:nth-child(even) td {
-  background: #e2d1c5 !important;
-   color: #000000 !important;
 }
 
 /* Page 6 live-mode should match the legacy green table theme. */
@@ -1918,14 +1867,6 @@ h1, h2, h3, h4, h5, h6 {
 .pdf-viewer-content .heading-derating h1,
 .pdf-viewer-content .heading-derating h2 {
   color: #ffffff !important;
-}
-
-/* Final override: page 5 live-mode table text must be black */
-.pdf-viewer-content.pdf-viewer-content-page-5 table td,
-.pdf-viewer-content.pdf-viewer-content-page-5 table th,
-.pdf-viewer-content-page-5 tr td,
-.pdf-viewer-content-page-5 tr th {
-  color: #000000 !important;
 }
 
 /* Link contrast defaults */

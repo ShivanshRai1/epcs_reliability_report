@@ -718,12 +718,17 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
 
     // Handle both old (.data) and new (.rows) table structures
     const tableRows = page.table.rows || page.table.data || [];
-    const pageNumber = Number(page?.pageNumber);
-    const isRoutePage4 = String(routePageId ?? '') === '4';
-    const hasPartNumberTitle = String(page?.title || '').toUpperCase().includes('SECOND GENERATION, PART NUMBERS');
-    const isLivePage4 = isLiveMode && (isRoutePage4 || pageNumber === 4 || hasPartNumberTitle);
-    const isLivePage6 = isLiveMode && pageNumber === 6;
-    const isLivePage7 = isLiveMode && pageNumber === 7;
+    const normalizedTitle = String(page?.title || '').toUpperCase();
+    const hasPartNumberTitle = normalizedTitle.includes('SECOND GENERATION, PART NUMBERS');
+    const hasThirdGenerationTitle = normalizedTitle.includes('THIRD GENERATION, PART LISTS');
+    const hasQualifiedTitle = normalizedTitle.includes('DLA QUALIFIED PART LIST');
+    const hasQualifiedRowPalette = tableRows.some((row) => {
+      const rowClass = String(row?.rowClass || '').toLowerCase();
+      return rowClass === 'row-pink' || rowClass === 'row-light-blue' || rowClass === 'row-cyan' || rowClass === 'row-green' || rowClass === 'row-beige';
+    });
+    const isLivePage4 = isLiveMode && hasPartNumberTitle;
+    const isLivePage6 = isLiveMode && hasThirdGenerationTitle;
+    const isLivePage7 = isLiveMode && (hasQualifiedTitle || hasQualifiedRowPalette);
     const useLegacyLiveTableChrome = isLivePage6 || isLivePage7;
     const headingStyle = useLegacyLiveTableChrome
       ? undefined

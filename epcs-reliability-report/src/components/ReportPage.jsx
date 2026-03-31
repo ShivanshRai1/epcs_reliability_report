@@ -127,11 +127,8 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
   };
 
   if (isLiveMode) {
-    const isLivePage5 = currentDisplayPageNumber === 5;
     const isLiveHeadingPage = page?.pageType === 'heading';
-    const liveContentClassName = isLivePage5
-      ? 'pdf-viewer-content pdf-viewer-content-page-5'
-      : 'pdf-viewer-content';
+    const liveContentClassName = 'pdf-viewer-content';
 
     return (
       <div className="pdf-viewer-shell container-fluid legacy-live-shell">
