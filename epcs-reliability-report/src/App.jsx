@@ -222,14 +222,23 @@ function App() {
           backendByTargetQueues.get(key).push(item);
         });
 
-        // When the backend page has explicit content saved, respect deletions:
-        // only include static items whose targets still appear in the backend list.
-        // This prevents deleted items from being re-added from the static baseline.
-        const backendTargetSet = new Set(backendContent.map((item) => String(item.target)));
-        const hasExplicitBackendContent = backendContent.length > 0;
-        const authorizedStaticContent = hasExplicitBackendContent
-          ? staticContent.filter((item) => backendTargetSet.has(String(item.target)))
-          : staticContent;
+        // When the backend page has explicit content saved, fully defer to it —
+        // use it directly and skip the static baseline merge entirely.
+        // This ensures user edits (deletes, reorders, renames) are always respected.
+        if (backendContent.length > 0) {
+          const backendExtrasAfterBypass = Array.from(backendByTargetQueues.values())
+            .flat()
+            .filter((item) => item && item.target && livePagesById.has(item.target));
+          return {
+            ...matchingBackendIndexPage,
+            ...displaySettings,
+            pageType: 'index',
+            title: matchingBackendIndexPage?.title || sp?.title || 'INDEX',
+            content: backendContent.filter((item) => livePagesById.has(item.target))
+          };
+        }
+
+        const authorizedStaticContent = staticContent;
 
         const mergedContent = authorizedStaticContent.map((item) => {
           const key = String(item.target);

@@ -8,7 +8,6 @@
       "content": [
         { "title": "EPCS DISCRETE PRODUCT", "target": "heading_part_lists", "level": 0 },
         { "title": "EPCS DISCRETE FIRST GENERATION, PART NUMBERS", "target": "part_lists_gen1", "level": 1 },
-        { "title": "EPCS DISCRETE SECOND GENERATION, PART LIST", "target": "part_lists_gen1", "level": 1 },
         { "title": "EPCS DISCRETE THIRD GENERATION, PART LIST", "target": "part_lists_gen3", "level": 1 },
         { "title": "EPCS DLA QUALIFIED PART LIST (IN QUALIFICATION)", "target": "dla_qualified", "level": 1 },
         { "title": "EPCS HEMT DERATING RECOMMENDATIONS", "target": "hemt_derating", "level": 0 },
