@@ -1446,6 +1446,48 @@ a:hover, .index-link:hover {
   color: #000000 !important;
 }
 
+/* Second generation (beige) table theme by content type, not page number. */
+.legacy-live-table.legacy-live-table-second-gen table {
+  background: #e6d5c8 !important;
+  border: 1px solid rgba(0, 0, 0, 0.35) !important;
+}
+
+.legacy-live-table.legacy-live-table-second-gen th {
+  background: #16a7dc !important;
+  color: #041723 !important;
+}
+
+.legacy-live-table.legacy-live-table-second-gen tbody td {
+  background: #e7d7cc !important;
+  color: #101010 !important;
+}
+
+.legacy-live-table.legacy-live-table-second-gen tbody tr:nth-child(even) td {
+  background: #e2d1c5 !important;
+  color: #101010 !important;
+}
+
+/* Third generation (green) table theme by content type, not page number. */
+.legacy-live-table.legacy-live-table-third-gen table {
+  background: #b7dfbf !important;
+  border: 1px solid rgba(0, 0, 0, 0.33) !important;
+}
+
+.legacy-live-table.legacy-live-table-third-gen th {
+  background: #18a9dc !important;
+  color: #000000 !important;
+}
+
+.legacy-live-table.legacy-live-table-third-gen tbody td {
+  background: #b6dfbf !important;
+  color: #000000 !important;
+}
+
+.legacy-live-table.legacy-live-table-third-gen tbody tr:nth-child(even) td {
+  background: #aed9b7 !important;
+  color: #000000 !important;
+}
+
 /* Shared legacy styling for all split-content live pages. */
 .legacy-live-split-page {
   padding-top: 2px;
@@ -1723,10 +1765,10 @@ h1, h2, h3, h4, h5, h6 {
   color: #333333;
 }
 
-/* Table cells: white text on dark navy table background */
+/* Table cells default to dark text in live mode; themed sections override explicitly. */
 .pdf-viewer-content td,
 .pdf-viewer-content th {
-  color: #ffffff !important;
+  color: #111111 !important;
 }
 
 /* But heading pages inside live mode have dark background → white text */

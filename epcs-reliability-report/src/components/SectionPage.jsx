@@ -726,6 +726,8 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
       const rowClass = String(row?.rowClass || '').toLowerCase();
       return rowClass === 'row-pink' || rowClass === 'row-light-blue' || rowClass === 'row-cyan' || rowClass === 'row-green' || rowClass === 'row-beige';
     });
+    const isSecondGenerationVariant = isLiveMode && hasPartNumberTitle;
+    const isThirdGenerationVariant = isLiveMode && hasThirdGenerationTitle;
     const isQualifiedVariant = isLiveMode && (hasQualifiedTitle || hasQualifiedRowPalette);
     const showTableLogo = isLiveMode && (hasPartNumberTitle || hasThirdGenerationTitle);
     const headingStyle = isLiveMode
@@ -735,7 +737,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
       ? undefined
       : { fontSize: '0.95rem', color: '#ddd' };
     const containerClassName = isLiveMode
-      ? `legacy-live-table${isQualifiedVariant ? ' legacy-live-table-qualified' : ''}`
+      ? `legacy-live-table${isSecondGenerationVariant ? ' legacy-live-table-second-gen' : ''}${isThirdGenerationVariant ? ' legacy-live-table-third-gen' : ''}${isQualifiedVariant ? ' legacy-live-table-qualified' : ''}`
       : '';
     const headingClassName = isLiveMode ? 'legacy-live-table-title' : '';
     const captionClassName = isLiveMode ? 'legacy-live-table-caption' : '';
