@@ -208,7 +208,9 @@ function App() {
           String(ip.id) === String(sp.id) || ip.pageNumber === sp.pageNumber
         );
 
-        const staticContent = (sp.content || []).filter((item) => livePagesById.has(item.target));
+        // Use ALL static content items (unfiltered) so legacy index entries always display.
+        // Only filter the dynamic "page_X" extras by livePagesById to avoid dead links.
+        const rawStaticContent = sp.content || [];
         const backendContent = Array.isArray(matchingBackendIndexPage?.content)
           ? matchingBackendIndexPage.content.filter((item) => item && item.target)
           : [];
@@ -222,7 +224,7 @@ function App() {
           });
         }
 
-        // Keep static ordering but overlay backend edits by target occurrence.
+        // Build backend queues for overlay/merge.
         const backendByTargetQueues = new Map();
         backendContent.forEach((item) => {
           const key = String(item.target);
@@ -230,13 +232,12 @@ function App() {
           backendByTargetQueues.get(key).push(item);
         });
 
-        // Defer fully to backend only when its saved content is close to the static baseline
-        // in size, meaning the user genuinely edited this index page (e.g. deleted a duplicate).
-        // If backend has significantly fewer items than static it is likely stale partial data —
-        // in that case fall through to the normal static+merge path so nothing is lost.
-        const staticContentCount = staticContent.length;
+        // Defer fully to backend ONLY when it has >= 70% of the raw unfiltered static item count.
+        // This means the user genuinely edited this index (e.g. deleted a duplicate).
+        // When backend has far fewer items (stale/partial), fall through to the static merge path.
+        const rawStaticCount = rawStaticContent.length;
         const backendLooksEdited = backendContent.length > 0 &&
-          (staticContentCount === 0 || backendContent.length >= staticContentCount * 0.7);
+          (rawStaticCount === 0 || backendContent.length >= rawStaticCount * 0.7);
 
         if (backendLooksEdited) {
           return {
@@ -244,11 +245,12 @@ function App() {
             ...displaySettings,
             pageType: 'index',
             title: matchingBackendIndexPage?.title || sp?.title || 'INDEX',
-            content: backendContent.filter((item) => livePagesById.has(item.target))
+            content: backendContent
           };
         }
 
-        const mergedContent = staticContent.map((item) => {
+        // Static merge path: overlay backend edits onto the full static list.
+        const mergedContent = rawStaticContent.map((item) => {
           const key = String(item.target);
           const queue = backendByTargetQueues.get(key) || [];
           const backendItem = queue.length > 0 ? queue.shift() : null;
@@ -257,7 +259,7 @@ function App() {
             : item;
         });
 
-        // Keep backend-only links visible too (e.g., newly added manual index items).
+        // Append backend-only items (e.g. newly added dynamic pages) not in the static list.
         const backendExtras = Array.from(backendByTargetQueues.values())
           .flat()
           .filter((item) => item && item.target && livePagesById.has(item.target));
@@ -267,7 +269,6 @@ function App() {
           ...sp,
           ...displaySettings,
           pageType: 'index',
-          // Preserve backend-edited page title when present.
           title: matchingBackendIndexPage?.title || sp?.title || 'INDEX',
           content: [...mergedContent, ...backendExtras]
         };
