@@ -264,6 +264,34 @@ nav button, .section-list-btn {
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
+
+.editor-toolbar {
+  display: flex;
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.toolbar-group-counter {
+  min-width: 84px;
+  justify-content: center;
+}
+
+@media (max-width: 1100px) {
+  .editor-toolbar {
+    justify-content: flex-start;
+  }
+}
+
 nav button:hover, .section-list-btn:hover {
   background: #2e7be6;
   color: #fff;

@@ -41,56 +41,59 @@ const Navigation = ({ onNavigate, isEditMode, isLiveMode, onEditToggle, onToggle
   }
 
   return (
-    <nav style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center' }}>
-      <button className="section-list-btn" onClick={() => onNavigate('home')}>🏠 Home</button>
-      <button className="section-list-btn" onClick={() => onNavigate('index')}>📑 Index</button>
-      <button className="section-list-btn" onClick={() => onNavigate('previous')}>⬅ Previous</button>
-      <button className="section-list-btn" onClick={() => onNavigate('next')}>{isLastPage ? 'Start Again ➡' : 'Next ➡'}</button>
-      
-      {/* Page counter - editable for jump to page (hidden in live mode) */}
+    <nav className="editor-toolbar">
+      <div className="toolbar-group toolbar-group-nav">
+        <button className="section-list-btn" onClick={() => onNavigate('home')} title="Go to the cover page">🏠 Home</button>
+        <button className="section-list-btn" onClick={() => onNavigate('index')} title="Go to the index page">📑 Index</button>
+        <button className="section-list-btn" onClick={() => onNavigate('previous')} title="Go to previous page">⬅ Previous</button>
+        <button className="section-list-btn" onClick={() => onNavigate('next')} title={isLastPage ? 'Go back to the first page' : 'Go to next page'}>{isLastPage ? 'Start Again ➡' : 'Next ➡'}</button>
+      </div>
+
       {!isLiveMode && currentPageNumber && totalPages && (
-        isJumpMode ? (
-          <input
-            type="number"
-            value={jumpPageNumber}
-            onChange={handleJumpPageChange}
-            onKeyDown={handleJumpPageKeyDown}
-            onBlur={handleJumpPageBlur}
-            className="page-counter-input"
-            placeholder="Enter page number"
-            autoFocus
-            min="1"
-            max={totalPages}
-          />
-        ) : (
-          <span 
-            className="page-counter"
-            onClick={() => setIsJumpMode(true)}
-            title="Click to jump to a page number"
-            style={{ cursor: 'pointer' }}
-          >
-            {currentPageNumber}/{totalPages}
-          </span>
-        )
+        <div className="toolbar-group toolbar-group-counter">
+          {isJumpMode ? (
+            <input
+              type="number"
+              value={jumpPageNumber}
+              onChange={handleJumpPageChange}
+              onKeyDown={handleJumpPageKeyDown}
+              onBlur={handleJumpPageBlur}
+              className="page-counter-input"
+              placeholder="Enter page number"
+              autoFocus
+              min="1"
+              max={totalPages}
+            />
+          ) : (
+            <span
+              className="page-counter"
+              onClick={() => setIsJumpMode(true)}
+              title="Click to jump to a page number"
+              style={{ cursor: 'pointer' }}
+            >
+              {currentPageNumber}/{totalPages}
+            </span>
+          )}
+        </div>
       )}
 
       {!isLiveMode && (
-        <>
+        <div className="toolbar-group toolbar-group-test">
           <button
             className={`section-list-btn ${isTestMode ? 'test-mode-active' : 'test-mode-inactive'}`}
             onClick={onToggleTestMode}
-            title={isTestMode ? 'Switch to production mode' : 'Switch to persistent test mode'}
+            title={isTestMode ? 'You are editing test data only. Click to return to production mode.' : 'Switch to safe test mode where production data is not changed.'}
           >
-            🧪 {isTestMode ? 'Test On' : 'Test Off'}
+            🧪 {isTestMode ? 'Test Mode ON' : 'Test Mode OFF'}
           </button>
           {isTestMode && (
             <button
               className="section-list-btn test-mode-seed"
               onClick={onSeedTestData}
               disabled={isSeedingTestData}
-              title="Re-seed persistent test tables from production"
+              title="Reset test data by re-copying current production data"
             >
-              {isSeedingTestData ? 'Resetting...' : 'Reset Test Data'}
+              {isSeedingTestData ? 'Resetting Test Data...' : 'Reset Test Data'}
             </button>
           )}
           {isTestMode && (
@@ -98,35 +101,30 @@ const Navigation = ({ onNavigate, isEditMode, isLiveMode, onEditToggle, onToggle
               className="section-list-btn test-mode-publish"
               onClick={onPublishTestData}
               disabled={isPublishingTestData}
-              title="Publish all test changes to production"
+              title="Copy all test mode changes into production"
             >
-              {isPublishingTestData ? 'Publishing...' : '📤 Publish from Test'}
+              {isPublishingTestData ? 'Publishing to Production...' : '📤 Publish Test Changes'}
             </button>
           )}
-        </>
+        </div>
       )}
 
-      {isLiveMode ? null : (
-        <>
-          {!isEditMode ? (
-            <>
-              <button className="section-list-btn edit-toggle" onClick={onEditToggle} title="Enter edit mode">✏️ Edit</button>
-              <button className="section-list-btn edit-delete" onClick={onDeletePage} title="Delete current page">🗑 Delete</button>
-              <button className="section-list-btn edit-view-placeholder" onClick={onToggleLive} title="Open live preview mode">👁 View Live</button>
-            </>
-          ) : null}
-        </>
+      {!isLiveMode && !isEditMode && (
+        <div className="toolbar-group toolbar-group-actions">
+          <button className="section-list-btn edit-toggle" onClick={onEditToggle} title="Edit this page">✏️ Edit Page</button>
+          <button className="section-list-btn edit-delete" onClick={onDeletePage} title="Delete this page">🗑 Delete Page</button>
+          <button className="section-list-btn edit-view-placeholder" onClick={onToggleLive} title="Open read-only live view in a new tab">👁 Open Live View</button>
+        </div>
       )}
 
-      {/* Edit toolbar - only visible in edit mode (hidden in live mode) */}
       {isEditMode && !isLiveMode && (
-        <>
-          <button className="section-list-btn edit-manage" onClick={onManagePages} title="Manage pages (add/delete/reorder)">📄 Manage</button>
-          <button className="section-list-btn edit-add" onClick={onAddPage} title="Add new page after current page">➕ Add</button>
-          <button className="section-list-btn edit-delete" onClick={onDeletePage} title="Delete current page">🗑 Delete</button>
-          <button className="section-list-btn edit-publish" onClick={onPublish}>🚀 Publish</button>
-          <button className="section-list-btn edit-cancel" onClick={onCancel}>❌ Cancel</button>
-        </>
+        <div className="toolbar-group toolbar-group-edit">
+          <button className="section-list-btn edit-manage" onClick={onManagePages} title="Manage page order and structure">📄 Manage Pages</button>
+          <button className="section-list-btn edit-add" onClick={onAddPage} title="Add a page after the current page">➕ Add Page</button>
+          <button className="section-list-btn edit-delete" onClick={onDeletePage} title="Delete this page">🗑 Delete Page</button>
+          <button className="section-list-btn edit-publish" onClick={onPublish} title="Save and publish current edits">🚀 Publish Changes</button>
+          <button className="section-list-btn edit-cancel" onClick={onCancel} title="Discard unsaved edits">❌ Cancel Editing</button>
+        </div>
       )}
     </nav>
   );
