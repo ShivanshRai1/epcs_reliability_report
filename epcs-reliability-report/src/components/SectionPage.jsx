@@ -726,43 +726,25 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
       const rowClass = String(row?.rowClass || '').toLowerCase();
       return rowClass === 'row-pink' || rowClass === 'row-light-blue' || rowClass === 'row-cyan' || rowClass === 'row-green' || rowClass === 'row-beige';
     });
-    const isLivePage4 = isLiveMode && hasPartNumberTitle;
-    const isLivePage6 = isLiveMode && hasThirdGenerationTitle;
-    const isLivePage7 = isLiveMode && (hasQualifiedTitle || hasQualifiedRowPalette);
-    const useLegacyLiveTableChrome = isLivePage6 || isLivePage7;
-    const headingStyle = useLegacyLiveTableChrome
+    const isQualifiedVariant = isLiveMode && (hasQualifiedTitle || hasQualifiedRowPalette);
+    const showTableLogo = isLiveMode && (hasPartNumberTitle || hasThirdGenerationTitle);
+    const headingStyle = isLiveMode
       ? undefined
       : { fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: pageTextColor };
-    const captionStyle = useLegacyLiveTableChrome
+    const captionStyle = isLiveMode
       ? undefined
       : { fontSize: '0.95rem', color: '#ddd' };
-    const containerClassName = isLivePage6
-      ? 'legacy-live-page-6-table'
-      : isLivePage7
-        ? 'legacy-live-page-7-table'
-        : isLivePage4
-          ? 'legacy-live-page-4-table'
-          : '';
-    const headingClassName = isLivePage4
-      ? 'legacy-live-page-4-title'
-      : isLivePage6
-      ? 'legacy-live-page-6-title'
-      : isLivePage7
-        ? 'legacy-live-page-7-title'
-        : '';
-    const captionClassName = isLivePage4
-      ? 'legacy-live-page-4-caption'
-      : isLivePage6
-        ? 'legacy-live-page-6-caption'
-        : isLivePage7
-          ? 'legacy-live-page-7-caption'
-          : '';
+    const containerClassName = isLiveMode
+      ? `legacy-live-table${isQualifiedVariant ? ' legacy-live-table-qualified' : ''}`
+      : '';
+    const headingClassName = isLiveMode ? 'legacy-live-table-title' : '';
+    const captionClassName = isLiveMode ? 'legacy-live-table-caption' : '';
+    const liveHeaderTextColor = isLiveMode ? '#000000' : pageTextColor;
+    const liveContentTextColor = isLiveMode ? '#000000' : contentTextColor;
 
     return (
       <div className={containerClassName}>
-        {isLivePage4 && <div className="legacy-live-page-4-logo">EPC·SPACE</div>}
-        {isLivePage6 && <div className="legacy-live-page-6-logo">EPC·SPACE</div>}
-        {isLivePage7 && <div className="legacy-live-page-7-logo">EPC·SPACE</div>}
+        {showTableLogo && <div className="legacy-live-table-logo">EPC·SPACE</div>}
         <h2 className={headingClassName} style={headingStyle}>
           {page.title}
         </h2>
@@ -777,8 +759,8 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
           isEditMode={false}
           pageId={page.id}
           onCellChange={onCellChange}
-          textColor={pageTextColor}
-          contentTextColor={contentTextColor}
+          textColor={liveHeaderTextColor}
+          contentTextColor={liveContentTextColor}
           headerFontSize={headerFontSize}
           contentFontSize={contentFontSize}
         />

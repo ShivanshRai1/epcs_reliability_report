@@ -1357,6 +1357,95 @@ a:hover, .index-link:hover {
   color: #000000 !important;
 }
 
+/* Generic live table styling (no page-number based selectors). */
+.legacy-live-table {
+  padding-top: 2px;
+}
+
+.legacy-live-table-logo {
+  color: #2b8fd2 !important;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin: 0 0 8px 2px;
+  line-height: 1;
+}
+
+.legacy-live-table-title {
+  margin: 0 0 8px 0 !important;
+  padding: 5px 12px !important;
+  text-align: center !important;
+  background: #0f87c9 !important;
+  color: #ffffff !important;
+  font-size: 2rem !important;
+  font-weight: 500 !important;
+  line-height: 1.1 !important;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.pdf-viewer-content .legacy-live-table-title {
+  color: #ffffff !important;
+}
+
+.legacy-live-table-caption {
+  color: #1d2d38 !important;
+}
+
+.legacy-live-table table {
+  border: 1px solid rgba(0, 0, 0, 0.3) !important;
+  box-shadow: none !important;
+}
+
+.legacy-live-table th,
+.legacy-live-table td,
+.legacy-live-table tbody td,
+.legacy-live-table tr td,
+.legacy-live-table tr th {
+  color: #000000 !important;
+}
+
+/* Qualified multi-color variant keeps title plain and row palette colors. */
+.legacy-live-table.legacy-live-table-qualified .legacy-live-table-title {
+  background: transparent !important;
+  color: #253041 !important;
+  padding: 0 !important;
+  text-align: left !important;
+  text-decoration: none;
+  font-size: 2.65rem !important;
+  margin: 0 0 12px 0 !important;
+}
+
+.pdf-viewer-content .legacy-live-table.legacy-live-table-qualified .legacy-live-table-title {
+  color: #253041 !important;
+}
+
+.legacy-live-table.legacy-live-table-qualified tbody tr.row-pink td {
+  background: #d9bddf !important;
+  color: #000000 !important;
+}
+
+.legacy-live-table.legacy-live-table-qualified tbody tr.row-light-blue td {
+  background: #8bc8e3 !important;
+  color: #000000 !important;
+}
+
+.legacy-live-table.legacy-live-table-qualified tbody tr.row-cyan td {
+  background: #9ec3e2 !important;
+  color: #000000 !important;
+}
+
+.legacy-live-table.legacy-live-table-qualified tbody tr.row-green td {
+  background: #8dd36f !important;
+  color: #000000 !important;
+}
+
+.legacy-live-table.legacy-live-table-qualified tbody tr.row-beige td {
+  background: #e8c09f !important;
+  color: #000000 !important;
+}
+
 /* Page 6 live-mode should match the legacy green table theme. */
 .legacy-live-page-6-table {
   padding-top: 2px;
