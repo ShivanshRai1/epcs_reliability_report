@@ -16,7 +16,7 @@ import SplitContentRenderer from './SplitContentRenderer';
 import ContentSection from './ContentSection';
 import IndexEditor from './IndexEditor';
 
-const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLiveMode = false, indexPageOrdinal = null, onCellChange, onHeadingChange, onImageChange, onIndexChange, onImageClick, allIndexItems }) => {
+const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLiveMode = false, indexPageOrdinal = null, onCellChange, onHeadingChange, onImageChange, onIndexChange, onImageClick, allIndexItems, allPages = [] }) => {
   if (!page) return <div style={{ padding: '1.5rem 0' }}>No page data available.</div>;
 
   const toPositiveNumber = (value, fallback) => {
@@ -524,6 +524,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
         <div>
           <IndexEditor 
             page={page} 
+            availablePages={allPages}
             onChange={(updatedPage) => onIndexChange(page.id, updatedPage)}
           />
         </div>
@@ -536,10 +537,18 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
       ? page.content
       : (isLiveMode ? [] : (Array.isArray(allIndexItems) ? allIndexItems : []));
 
+    const seenIndexSignatures = new Set();
+    const dedupedItemsToRender = (itemsToRender || []).filter((item) => {
+      const signature = `${String(item?.title || '').trim().toLowerCase()}|${String(item?.target || '').trim().toLowerCase()}|${Number(item?.level) || 0}`;
+      if (seenIndexSignatures.has(signature)) return false;
+      seenIndexSignatures.add(signature);
+      return true;
+    });
+
     const groupedItems = [];
     let currentParent = null;
 
-    itemsToRender.forEach((item, idx) => {
+    dedupedItemsToRender.forEach((item, idx) => {
       const isChild = Number(item?.level) === 1;
       if (!isChild) {
         currentParent = { item, idx, children: [] };

@@ -3,15 +3,20 @@ import './IndexEditor.css';
 import LinkTargetInput from './LinkTargetInput';
 import { getTemplateBadge } from '../utils/templateInfo.jsx';
 
-const IndexEditor = ({ page, onChange }) => {
+const IndexEditor = ({ page, onChange, availablePages = [] }) => {
   const [title, setTitle] = useState(page.title);
   const [content, setContent] = useState(page.content || []);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [newItemTitle, setNewItemTitle] = useState('');
   const [newItemTarget, setNewItemTarget] = useState('');
   const [selectedIdx, setSelectedIdx] = useState(null);
+  const [showAdvancedTargets, setShowAdvancedTargets] = useState(false);
   const containerRef = useRef(null);
   const itemRefs = useRef({});
+
+  const selectablePages = (Array.isArray(availablePages) ? availablePages : [])
+    .filter((p) => p && p.id && p.pageType !== 'index' && p.pageType !== 'home')
+    .sort((a, b) => (Number(a?.pageNumber) || 0) - (Number(b?.pageNumber) || 0));
 
   useEffect(() => {
     setTitle(page.title || '');
@@ -20,6 +25,7 @@ const IndexEditor = ({ page, onChange }) => {
     setNewItemTitle('');
     setNewItemTarget('');
     setSelectedIdx(null);
+    setShowAdvancedTargets(false);
     itemRefs.current = {};
   }, [page.id]);
 
@@ -111,6 +117,24 @@ const IndexEditor = ({ page, onChange }) => {
     }
   };
 
+  const removeExactDuplicates = () => {
+    const seen = new Set();
+    const deduped = [];
+
+    content.forEach((item) => {
+      const signature = `${String(item?.title || '').trim().toLowerCase()}|${String(item?.target || '').trim().toLowerCase()}|${Number(item?.level) || 0}`;
+      if (seen.has(signature)) return;
+      seen.add(signature);
+      deduped.push(item);
+    });
+
+    if (deduped.length !== content.length) {
+      setContent(deduped);
+      onChange({ ...page, content: deduped });
+      setSelectedIdx(null);
+    }
+  };
+
   return (
     <div className="index-editor" ref={containerRef}>
       <div style={{ marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid #e5e7eb' }}>
@@ -131,6 +155,14 @@ const IndexEditor = ({ page, onChange }) => {
       <div className="index-editor-section">
         <h3>Content Items</h3>
         <p className="help-text">Click to select an item, then use ⬆️ ⬇️ arrow keys to reorder</p>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+          <button type="button" onClick={removeExactDuplicates} className="add-item-btn" style={{ padding: '6px 10px' }}>
+            Remove Exact Duplicates
+          </button>
+          <button type="button" onClick={() => setShowAdvancedTargets((v) => !v)} className="add-item-btn" style={{ padding: '6px 10px' }}>
+            {showAdvancedTargets ? 'Hide Technical Target IDs' : 'Show Technical Target IDs'}
+          </button>
+        </div>
         <div className="index-items-list">
           {content.map((item, idx) => (
             <div 
@@ -152,13 +184,31 @@ const IndexEditor = ({ page, onChange }) => {
                   placeholder="Item title"
                   className="item-title-input"
                 />
-                <LinkTargetInput
-                  value={item.target}
-                  onValueChange={(value) => handleItemTargetChange(idx, value)}
-                  placeholder="Target: page ID/number or URL"
-                  inputClassName="item-target-input"
-                  showFileButton={false}
-                />
+                <select
+                  value={item.target || ''}
+                  onChange={(e) => handleItemTargetChange(idx, e.target.value)}
+                  className="item-target-input"
+                  style={{ width: '100%' }}
+                >
+                  <option value="">Select destination page</option>
+                  {selectablePages.map((p) => (
+                    <option key={String(p.id)} value={String(p.id)}>
+                      {`Page ${p.pageNumber}: ${p.title || p.id}`}
+                    </option>
+                  ))}
+                  {item.target && !selectablePages.some((p) => String(p.id) === String(item.target)) && (
+                    <option value={item.target}>{`Custom destination: ${item.target}`}</option>
+                  )}
+                </select>
+                {showAdvancedTargets && (
+                  <LinkTargetInput
+                    value={item.target}
+                    onValueChange={(value) => handleItemTargetChange(idx, value)}
+                    placeholder="Target: page ID/number or URL"
+                    inputClassName="item-target-input"
+                    showFileButton={false}
+                  />
+                )}
               </div>
               <button 
                 onClick={(e) => {
@@ -193,13 +243,28 @@ const IndexEditor = ({ page, onChange }) => {
               className="item-title-input"
               autoFocus
             />
-            <LinkTargetInput
+            <select
               value={newItemTarget}
-              onValueChange={setNewItemTarget}
-              placeholder="New target: page ID/number or URL"
-              inputClassName="item-target-input"
-              showFileButton={false}
-            />
+              onChange={(e) => setNewItemTarget(e.target.value)}
+              className="item-target-input"
+              style={{ width: '100%' }}
+            >
+              <option value="">Select destination page</option>
+              {selectablePages.map((p) => (
+                <option key={String(p.id)} value={String(p.id)}>
+                  {`Page ${p.pageNumber}: ${p.title || p.id}`}
+                </option>
+              ))}
+            </select>
+            {showAdvancedTargets && (
+              <LinkTargetInput
+                value={newItemTarget}
+                onValueChange={setNewItemTarget}
+                placeholder="New target: page ID/number or URL"
+                inputClassName="item-target-input"
+                showFileButton={false}
+              />
+            )}
             <div className="new-item-buttons">
                 <button onClick={handleAddItem} className="add-btn">➕ Add</button>
               <button 
