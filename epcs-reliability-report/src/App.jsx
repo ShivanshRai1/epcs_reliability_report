@@ -319,6 +319,28 @@ function App() {
       curatedStaticIndexPages.flatMap((p) => (p.content || []).map((item) => item.target))
     );
 
+    // Helper to get a readable title for new pages based on template or page type
+    const getPageDisplayName = (page) => {
+      if (page.title && String(page.title).trim()) {
+        return String(page.title).trim();
+      }
+      const templateMap = {
+        'text-only': 'Text',
+        'heading': 'Heading',
+        'table': 'Table',
+        'image': 'Image',
+        'just-images': 'Images',
+        'split-text-image': 'Split Text + Image',
+        'split-links-image': 'Split Links + Image',
+        'split-image-links': 'Split Image + Links',
+        'split-image-image': 'Split Image + Image',
+        'split-content': 'Split Content',
+        'content': 'Content'
+      };
+      const template = String(page.pageTemplate || page.page_template || page.pageType || '').toLowerCase();
+      return templateMap[template] || 'New Page';
+    };
+
     // Only append dynamic pages with auto-generated IDs (page_<number>).
     // Also block known legacy-like noise titles that should never appear in the appended section.
     const blockedDynamicTitles = new Set(['epcs discrete part numbers']);
@@ -331,7 +353,7 @@ function App() {
       return !staticTargets.has(pageId);
     });
     const newContent = newPages.map((p) => ({
-      title: p.title || p.id,
+      title: getPageDisplayName(p),
       target: p.id,
       level: 0
     }));
