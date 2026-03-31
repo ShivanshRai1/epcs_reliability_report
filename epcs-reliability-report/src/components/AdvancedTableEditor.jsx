@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './AdvancedTableEditor.css';
 import { getTemplateBadge } from '../utils/templateInfo.jsx';
 
-const AdvancedTableEditor = ({ page, onChange }) => {
+const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTextColor = '#1b1f2a' }) => {
   // Handle both old (.data) and new (.rows) table structures for backward compatibility
   const getInitialTableData = () => {
     if (!page.table) return { rows: [], columns: [] };
@@ -182,8 +182,14 @@ const AdvancedTableEditor = ({ page, onChange }) => {
     onChange({ ...page, title: newTitle });
   };
 
+  const editorStyle = {
+    '--ate-label-color': textColor,
+    '--ate-header-text-color': textColor,
+    '--ate-cell-text-color': contentTextColor,
+  };
+
   return (
-    <div className="advanced-table-editor">
+    <div className="advanced-table-editor" style={editorStyle}>
       <div style={{ marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid #e5e7eb' }}>
         {getTemplateBadge(page, true)}
       </div>

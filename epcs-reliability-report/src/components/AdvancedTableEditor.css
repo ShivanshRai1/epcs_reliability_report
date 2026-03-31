@@ -18,7 +18,7 @@
 
 .caption-section label {
   font-weight: 600;
-  color: #212529;
+  color: var(--ate-label-color, #212529);
   font-size: 0.95rem;
 }
 
@@ -29,7 +29,7 @@
   font-size: 0.95rem;
   font-family: inherit;
   background: #ffffff;
-  color: #1b1f2a;
+  color: var(--ate-cell-text-color, #1b1f2a) !important;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
@@ -126,10 +126,10 @@
   font-weight: 600;
   font-family: inherit;
   background: #243146 !important;
-  color: #f3f7ff !important;
+  color: var(--ate-header-text-color, #f3f7ff) !important;
   border-color: #3b4d67;
-  caret-color: #f3f7ff;
-  -webkit-text-fill-color: #f3f7ff;
+  caret-color: var(--ate-header-text-color, #f3f7ff);
+  -webkit-text-fill-color: var(--ate-header-text-color, #f3f7ff);
 }
 
 .header-input:focus {
@@ -201,8 +201,8 @@
   font-family: inherit;
   background: #ffffff;
   min-height: 40px;
-  color: #1b1f2a !important;
-  caret-color: #1b1f2a;
+  color: var(--ate-cell-text-color, #1b1f2a) !important;
+  caret-color: var(--ate-cell-text-color, #1b1f2a);
 }
 
 .cell-input::placeholder,
@@ -213,7 +213,12 @@
 
 .advanced-table-editor .editable-table td,
 .advanced-table-editor .editable-table th {
-  color: #1b1f2a !important;
+  color: var(--ate-cell-text-color, #1b1f2a) !important;
+}
+
+.advanced-table-editor .editable-table th,
+.advanced-table-editor .row-action-header {
+  color: var(--ate-header-text-color, #f3f7ff) !important;
 }
 
 .cell-input:focus {

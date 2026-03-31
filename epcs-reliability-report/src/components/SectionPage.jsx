@@ -30,6 +30,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
   const contentFontSize = toPositiveNumber(page.contentFontSize, 0.95);
   const pageTextColor = page.textColor || '#e0e6f0';
   const contentTextColor = page.contentTextColor || pageTextColor;
+  const contentPickerColor = page.contentTextColor || '#e0e6f0';
   const headingTitleFontSize = toPositiveNumber(page.headingTitleFontSize, 3.25);
   const headingSubtitleFontSize = toPositiveNumber(page.headingSubtitleFontSize, 1.5);
   const imageWidth = toPositiveNumber(page.imageWidth, 0);
@@ -122,7 +123,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
             Content text color
             <input
               type="color"
-              value={contentTextColor}
+              value={contentPickerColor}
               onChange={(e) => updatePageDisplaySettings('contentTextColor', e.target.value)}
               style={{ width: '100%', height: '32px', padding: '2px', border: '1px solid #c8d3e7', borderRadius: '6px', cursor: 'pointer' }}
               title="Body/content text color"
@@ -667,6 +668,8 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
           </h2>
           <AdvancedTableEditor 
             page={page}
+            textColor={pageTextColor}
+            contentTextColor={contentPickerColor}
             onChange={(updatedPage) => onCellChange(page.id, updatedPage)}
           />
         </div>
