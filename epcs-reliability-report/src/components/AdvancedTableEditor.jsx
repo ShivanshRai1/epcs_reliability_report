@@ -222,14 +222,14 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
       </div>
       {/* Page Title */}
       <div className="caption-section">
-        <label htmlFor="page-title">Page Heading:</label>
+        <label htmlFor="page-title">Main Title:</label>
         <input
           id="page-title"
           type="text"
           value={title}
           onChange={handleTitleChange}
-          placeholder="Enter page heading"
-          className="caption-input"
+          placeholder="Rename main title"
+          className="table-editor-input"
         />
       </div>
 
@@ -242,7 +242,7 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
           value={captionTop}
           onChange={(e) => handleCaptionChange('top', e.target.value)}
           placeholder="Optional text or title above table"
-          className="caption-input"
+          className="table-editor-input"
         />
       </div>
 
@@ -332,7 +332,7 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
           value={captionBottom}
           onChange={(e) => handleCaptionChange('bottom', e.target.value)}
           placeholder="Optional text or notes below table"
-          className="caption-input"
+          className="table-editor-input"
         />
       </div>
 

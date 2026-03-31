@@ -22,7 +22,7 @@
   font-size: 0.95rem;
 }
 
-.caption-input {
+.advanced-table-editor .table-editor-input {
   padding: 10px 12px;
   border: 1px solid #dee2e6;
   border-radius: 4px;
@@ -35,12 +35,12 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.caption-input::placeholder {
+.advanced-table-editor .table-editor-input::placeholder {
   color: #5b6577;
   opacity: 1;
 }
 
-.caption-input:focus {
+.advanced-table-editor .table-editor-input:focus {
   outline: none;
   border-color: #0d6efd;
   box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
@@ -271,13 +271,13 @@
     color: #213547;
   }
 
-  .caption-input {
+  .advanced-table-editor .table-editor-input {
     border: 1px solid #d0d0d0;
     color: #213547;
     background: #ffffff;
   }
 
-  .caption-input:focus {
+  .advanced-table-editor .table-editor-input:focus {
     border-color: #0d6efd;
     box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
   }
