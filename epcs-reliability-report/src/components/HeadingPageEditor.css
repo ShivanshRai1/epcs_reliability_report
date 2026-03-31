@@ -1,6 +1,6 @@
 .heading-page-editor {
   padding: 2rem;
-  background-color: rgba(15, 23, 42, 0.6);
+  background-color: rgba(15, 23, 42, 0.78);
   border-radius: 8px;
   margin: 2rem 0;
 }
@@ -17,7 +17,7 @@
   display: block;
   font-size: 0.95rem;
   font-weight: 600;
-  color: #e0e6f0;
+  color: var(--hpe-title-color, #e0e6f0);
   margin-bottom: 0.5rem;
 }
 
@@ -28,12 +28,17 @@
   background-color: #1e293b;
   border: 1px solid rgba(100, 165, 255, 0.3);
   border-radius: 4px;
-  color: #e0e6f0;
-  -webkit-text-fill-color: #e0e6f0;
+  color: var(--hpe-title-color, #e0e6f0);
+  -webkit-text-fill-color: var(--hpe-title-color, #e0e6f0);
   font-size: 1rem;
   font-family: inherit;
   font-weight: 500;
   transition: all 0.2s;
+}
+
+.heading-subtitle-input {
+  color: var(--hpe-subtitle-color, #e0e6f0);
+  -webkit-text-fill-color: var(--hpe-subtitle-color, #e0e6f0);
 }
 
 .heading-bg-select,
@@ -43,8 +48,8 @@
   background-color: #1e293b;
   border: 1px solid rgba(100, 165, 255, 0.3);
   border-radius: 4px;
-  color: #e0e6f0;
-  -webkit-text-fill-color: #e0e6f0;
+  color: var(--hpe-subtitle-color, #e0e6f0);
+  -webkit-text-fill-color: var(--hpe-subtitle-color, #e0e6f0);
   font-size: 0.95rem;
   font-family: inherit;
 }
@@ -94,7 +99,7 @@
 
 .heading-title-input::placeholder,
 .heading-subtitle-input::placeholder {
-  color: rgba(224, 230, 240, 0.5);
+  color: color-mix(in srgb, var(--hpe-subtitle-color, #e0e6f0) 50%, transparent);
 }
 
 .heading-title-input {
@@ -106,32 +111,18 @@
 }
 /* Light mode support */
 @media (prefers-color-scheme: light) {
-  .heading-page-editor {
-    background-color: rgba(240, 240, 240, 0.5);
-  }
-
-  .heading-editor-section label {
-    color: #213547;
-  }
-
   .heading-title-input,
   .heading-subtitle-input,
   .heading-bg-select,
   .heading-bg-file {
-    background-color: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    color: #213547;
+    background-color: #1e293b;
+    border: 1px solid rgba(100, 165, 255, 0.3);
   }
 
   .heading-title-input:focus,
   .heading-subtitle-input:focus {
-    border-color: rgba(0, 0, 0, 0.3);
-    box-shadow: 0 0 8px rgba(0, 102, 204, 0.15);
-  }
-
-  .heading-title-input::placeholder,
-  .heading-subtitle-input::placeholder {
-    color: rgba(33, 53, 71, 0.5);
+    border-color: rgba(100, 165, 255, 0.7);
+    box-shadow: 0 0 8px rgba(100, 165, 255, 0.2);
   }
 
   .heading-bg-reset-btn {

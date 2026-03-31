@@ -99,8 +99,15 @@ const HeadingPageEditor = ({ page, onChange }) => {
     onChange({ ...page, headingFontFamily: family });
   };
 
+  const titleColor = page.textColor || '#e0e6f0';
+  const subtitleColor = page.contentTextColor || page.textColor || '#e0e6f0';
+  const editorStyle = {
+    '--hpe-title-color': titleColor,
+    '--hpe-subtitle-color': subtitleColor,
+  };
+
   return (
-    <div className="heading-page-editor">
+    <div className="heading-page-editor" style={editorStyle}>
       <div style={{ marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid #e5e7eb' }}>
         {getTemplateBadge(page, true)}
       </div>

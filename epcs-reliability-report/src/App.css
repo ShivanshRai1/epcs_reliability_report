@@ -1003,7 +1003,7 @@ a:hover, .index-link:hover {
 }
 
 .pdf-viewer-content .legacy-live-heading-title {
-  color: #ffffff !important;
+  color: var(--heading-title-color, #ffffff) !important;
 }
 
 .legacy-live-heading-subtitle {
@@ -1890,10 +1890,10 @@ h1, h2, h3, h4, h5, h6 {
 
 /* But heading pages inside live mode have dark background → white text */
 .pdf-viewer-content .page-heading-title {
-  color: #f6fbff !important;
+  color: var(--heading-title-color, #f6fbff) !important;
 }
 .pdf-viewer-content .page-heading-subtitle {
-  color: #e0e6f0 !important;
+  color: var(--heading-subtitle-color, #e0e6f0) !important;
 }
 .pdf-viewer-content h1,
 .pdf-viewer-content h2,
