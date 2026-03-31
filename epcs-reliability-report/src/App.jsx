@@ -791,6 +791,19 @@ function App() {
     try {
       console.log('Page created:', newPage);
 
+      const cloneSourcePageId = options?.cloneSourcePageId || null;
+      const cloneSourcePageData = options?.cloneSourcePageData || null;
+      const CLONE_SKIP_KEYS = new Set(['id', 'page_id', 'pageId', 'pageNumber', 'page_number', 'createdAt', 'updatedAt']);
+      const buildClonePayload = (sourcePage) => {
+        if (!sourcePage || typeof sourcePage !== 'object') return null;
+        const sourceCopy = JSON.parse(JSON.stringify(sourcePage));
+        const clonePayload = {};
+        Object.keys(sourceCopy).forEach((key) => {
+          if (!CLONE_SKIP_KEYS.has(key)) clonePayload[key] = sourceCopy[key];
+        });
+        return clonePayload;
+      };
+
       // OFFLINE fallback: create and insert page locally when backend create fails.
       if (options?.localOnly) {
         const localPageId = newPage?.id || newPage?.page_id || newPage?.pageId || `page_${Date.now()}`;
@@ -800,6 +813,13 @@ function App() {
           title: newPage?.title || 'New Page',
           pageType: newPage?.pageType || newPage?.page_type || 'content'
         };
+
+        const localClonePayload = buildClonePayload(cloneSourcePageData);
+        if (localClonePayload) {
+          Object.assign(localPage, localClonePayload);
+          localPage.id = localPageId;
+          localPage.pageType = localPage.pageType || newPage?.pageType || newPage?.page_type || 'content';
+        }
 
         const updatedPages = [...(reportData?.pages || [])];
         const refPageId = options?.positionParams?.pageId;
@@ -879,6 +899,39 @@ function App() {
 
       const templateId = options?.templateId;
       const behaviorFlags = templateBehaviorFlags[templateId];
+
+      if (createdPageId && (cloneSourcePageId || cloneSourcePageData)) {
+        const sourcePageFromCurrentData = cloneSourcePageId
+          ? transformedData.pages.find((page) => idMatches(page.id, cloneSourcePageId))
+          : null;
+        const effectiveCloneSourcePage = sourcePageFromCurrentData || cloneSourcePageData;
+        const clonePayload = buildClonePayload(effectiveCloneSourcePage);
+
+        if (clonePayload) {
+          transformedData = {
+            ...transformedData,
+            pages: transformedData.pages.map((page) => {
+              if (!idMatches(page.id, createdPageId)) return page;
+              return {
+                ...page,
+                ...clonePayload,
+                id: page.id,
+                pageNumber: page.pageNumber,
+              };
+            })
+          };
+
+          const clonedPage = transformedData.pages.find((page) => idMatches(page.id, createdPageId));
+          if (clonedPage) {
+            try {
+              await apiService.savePage(clonedPage.id, { page_data: clonedPage }, 'system');
+              console.log('✅ New page cloned from selected template sample');
+            } catch (cloneSyncErr) {
+              console.warn('⚠️ Clone sync failed, keeping local clone state:', cloneSyncErr.message);
+            }
+          }
+        }
+      }
 
       // Apply behavior flags immediately in local state so UI mode is correct
       // right after redirect (before background save/refresh completes).

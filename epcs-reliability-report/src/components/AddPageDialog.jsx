@@ -355,6 +355,10 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       return;
     }
 
+    const cloneSource = getSamplePageForTemplate(templateId);
+    const cloneSourcePageId = cloneSource?.id || null;
+    const cloneSourcePageData = cloneSource ? JSON.parse(JSON.stringify(cloneSource)) : null;
+
     setLoading(true);
     setError('');
 
@@ -384,8 +388,12 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         console.log('🎉 Page created successfully:', response.page);
         
         // Refresh data and let parent navigate to the resolved, valid page
-        await onPageCreate(response.page, { templateId });
-        
+        await onPageCreate(response.page, {
+          templateId,
+          cloneSourcePageId,
+          cloneSourcePageData
+        });
+
         onClose();
       } else {
         setError(response.message || 'Failed to create page');
@@ -397,6 +405,8 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         const localPage = buildLocalPageFallback(templateId, title.trim());
         await onPageCreate(localPage, {
           templateId,
+          cloneSourcePageId,
+          cloneSourcePageData,
           localOnly: true,
           positionParams,
           insertPosition
