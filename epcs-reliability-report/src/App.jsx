@@ -358,26 +358,51 @@ function App() {
       level: 0
     }));
 
+    // Insert new page entries at the correct position based on page order, not just appended to end.
+    const insertNewContentItems = (idxPages, items) => {
+      if (items.length === 0) return idxPages;
+      const pageOrderMap = new Map(targetPages.map((p, i) => [String(p.id), i]));
+      let result = idxPages.map(p => ({ ...p, content: [...(p.content || [])] }));
+      for (const newItem of items) {
+        const newItemOrder = pageOrderMap.get(String(newItem.target));
+        if (newItemOrder === undefined) {
+          // Can't determine order — fall back to appending to last page
+          const lastIdx = result.length - 1;
+          result[lastIdx] = { ...result[lastIdx], content: [...result[lastIdx].content, newItem] };
+          continue;
+        }
+        let bestIndexPageIdx = result.length - 1;
+        let bestInsertPos = result[result.length - 1].content.length; // default: append to end of last page
+        let bestTargetPageOrder = -1;
+        for (let ipIdx = 0; ipIdx < result.length; ipIdx++) {
+          const content = result[ipIdx].content;
+          for (let cIdx = 0; cIdx < content.length; cIdx++) {
+            const itemOrder = pageOrderMap.get(String(content[cIdx]?.target ?? ''));
+            if (itemOrder !== undefined && itemOrder < newItemOrder && itemOrder > bestTargetPageOrder) {
+              bestTargetPageOrder = itemOrder;
+              bestIndexPageIdx = ipIdx;
+              bestInsertPos = cIdx + 1;
+            }
+          }
+        }
+        const updated = { ...result[bestIndexPageIdx], content: [...result[bestIndexPageIdx].content] };
+        updated.content.splice(bestInsertPos, 0, newItem);
+        result = [...result.slice(0, bestIndexPageIdx), updated, ...result.slice(bestIndexPageIdx + 1)];
+      }
+      return result;
+    };
+
     let effectiveIndexPages = [];
     if (curatedStaticIndexPages.length > 0) {
-      effectiveIndexPages = curatedStaticIndexPages;
-      if (newContent.length > 0) {
-        const lastIdx = effectiveIndexPages.length - 1;
-        const lastIndexPage = effectiveIndexPages[lastIdx] || { title: 'INDEX cntd.', content: [] };
-        effectiveIndexPages[lastIdx] = {
-          ...lastIndexPage,
-          content: [...(lastIndexPage.content || []), ...newContent]
-        };
-      }
+      effectiveIndexPages = insertNewContentItems(curatedStaticIndexPages, newContent);
     } else {
       const mergedContent = indexPages.flatMap((p) => (p.content || []));
-      effectiveIndexPages = [
-        {
-          ...indexPages[0],
-          title: indexPages[0]?.title || 'INDEX',
-          content: [...mergedContent, ...newContent]
-        }
-      ];
+      const baseIndexPage = {
+        ...indexPages[0],
+        title: indexPages[0]?.title || 'INDEX',
+        content: mergedContent
+      };
+      effectiveIndexPages = insertNewContentItems([baseIndexPage], newContent);
     }
 
     // Combine index and non-index pages, preserving original backend pageNumbers
