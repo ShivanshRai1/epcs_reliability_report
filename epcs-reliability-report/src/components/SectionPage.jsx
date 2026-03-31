@@ -726,7 +726,17 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
             {page.captionTop}
           </div>
         )}
-        <Table columns={page.table.columns} data={tableRows} isEditMode={false} pageId={page.id} onCellChange={onCellChange} />
+        <Table
+          columns={page.table.columns}
+          data={tableRows}
+          isEditMode={false}
+          pageId={page.id}
+          onCellChange={onCellChange}
+          textColor={pageTextColor}
+          contentTextColor={contentTextColor}
+          headerFontSize={headerFontSize}
+          contentFontSize={contentFontSize}
+        />
         {page.captionBottom && (
           <div className={captionClassName} style={{ marginTop: '1rem', ...(captionStyle || {}) }}>
             {page.captionBottom}

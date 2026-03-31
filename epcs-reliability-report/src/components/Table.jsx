@@ -1,7 +1,22 @@
 import React from 'react';
 
-const Table = ({ columns, data, isEditMode, pageId, onCellChange }) => {
+const Table = ({
+  columns,
+  data,
+  isEditMode,
+  pageId,
+  onCellChange,
+  textColor,
+  contentTextColor,
+  headerFontSize,
+  contentFontSize,
+}) => {
   if (!data || data.length === 0) return <div>No data available.</div>;
+
+  const resolvedHeaderTextColor = textColor || '#ffffff';
+  const resolvedContentTextColor = contentTextColor || '#1b1f2a';
+  const resolvedHeaderFontSize = Number.isFinite(Number(headerFontSize)) ? `${headerFontSize}rem` : undefined;
+  const resolvedContentFontSize = Number.isFinite(Number(contentFontSize)) ? `${contentFontSize}rem` : undefined;
   
   // Build a map of spanned cells based on rowspan metadata
   const spannedCells = {};
@@ -26,7 +41,9 @@ const Table = ({ columns, data, isEditMode, pageId, onCellChange }) => {
       <thead>
         <tr>
           {columns.map((col) => (
-            <th key={col}>{col}</th>
+            <th key={col} style={{ color: resolvedHeaderTextColor, fontSize: resolvedHeaderFontSize }}>
+              {col}
+            </th>
           ))}
         </tr>
       </thead>
@@ -44,13 +61,19 @@ const Table = ({ columns, data, isEditMode, pageId, onCellChange }) => {
               const rowspanAttr = row[rowspanKey] && row[rowspanKey] > 1 ? row[rowspanKey] : undefined;
 
               return (
-                <td key={col} {...(rowspanAttr && { rowSpan: rowspanAttr })} className={isEditMode ? 'editable-cell' : ''}>
+                <td
+                  key={col}
+                  {...(rowspanAttr && { rowSpan: rowspanAttr })}
+                  className={isEditMode ? 'editable-cell' : ''}
+                  style={{ color: resolvedContentTextColor, fontSize: resolvedContentFontSize }}
+                >
                   {isEditMode ? (
                     <input
                       type="text"
                       value={row[col] ?? ''}
                       onChange={(e) => onCellChange(pageId, idx, col, e.target.value)}
                       className="cell-input"
+                      style={{ color: resolvedContentTextColor, fontSize: resolvedContentFontSize }}
                     />
                   ) : (
                     row[col] ?? ''
