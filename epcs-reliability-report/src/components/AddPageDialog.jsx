@@ -182,7 +182,21 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
 
   const getSamplePageForTemplate = (templateId) => {
     const pageType = getPageTypeForTemplate(templateId);
-    if (!pageType || !Array.isArray(existingPages)) return null;
+    if (!pageType || !Array.isArray(existingPages)) {
+      console.log('❌ getSamplePageForTemplate early return:', { templateId, pageType, hasExistingPages: Array.isArray(existingPages), pageCount: existingPages?.length });
+      return null;
+    }
+
+    console.log('🔍 Looking for sample page for templateId:', templateId);
+    console.log('📊 Available pages:', existingPages.map(p => ({
+      id: p.id,
+      title: p.title,
+      pageType: p.pageType,
+      pageTemplate: p.pageTemplate,
+      pageNumber: p.pageNumber,
+      contentLength: p.content ? String(p.content).length : 0,
+      hasData: !!p.content || !!p.blocks || !!p.links || !!p.images
+    })));
 
     const normalizeTemplateId = (page) => String(page?.pageTemplate || page?.page_template || page?.templateId || '').toLowerCase();
     const hasLinks = (page) => Array.isArray(page?.content) && page.content.some((item) => item && item.type === 'link');
@@ -198,57 +212,65 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     const matchesTemplate = (page) => {
       const normalizedTemplate = normalizeTemplateId(page);
       const normalizedPageType = String(page?.pageType || '').toLowerCase();
-
-      switch (templateId) {
-        case 'heading':
-          return normalizedPageType === 'heading';
-        case 'index':
-          return normalizedPageType === 'index';
-        case 'table':
-          return normalizedPageType === 'table';
-        case 'text-only':
-          return normalizedPageType === 'content' && !page?.mixedContentMode;
-        case 'just-images':
-          return normalizedPageType === 'image' && !page?.mixedContentMode && normalizedTemplate !== 'mixed-content';
-        case 'mixed-content':
-          return Boolean(page?.mixedContentMode) || normalizedTemplate === 'mixed-content';
-        case 'split-text-image':
-          return (
-            Boolean(page?.splitTextImageMode) ||
-            normalizedTemplate === 'split-text-image' ||
-            (normalizedPageType === 'split-content-image' && hasLeftText(page) && hasRightImage(page) && !hasLinks(page))
-          );
-        case 'split-links-image':
-          return (
-            Boolean(page?.splitLinksImageMode) ||
-            normalizedTemplate === 'split-links-image' ||
-            (normalizedPageType === 'split-content-image' && hasLinks(page) && hasRightImage(page) && !isReversed(page))
-          );
-        case 'split-image-links':
-          return (
-            Boolean(page?.splitImageLinksMode) ||
-            normalizedTemplate === 'split-image-links' ||
-            (normalizedPageType === 'split-content-image' && hasLinks(page) && (isReversed(page) || hasLeftImage(page)))
-          );
-        case 'split-image-image':
-          return (
-            Boolean(page?.splitImageImageMode) ||
-            normalizedTemplate === 'split-image-image' ||
-            (normalizedPageType === 'split-content-image' && hasLeftImage(page) && hasRightImage(page))
-          );
-        case 'split-content':
-          return (
-            normalizedPageType === 'split-content-image' &&
-            !hasSpecificSplitMode(page) &&
-            normalizedTemplate !== 'split-text-image' &&
-            normalizedTemplate !== 'split-links-image' &&
-            normalizedTemplate !== 'split-image-links' &&
-            normalizedTemplate !== 'split-image-image' &&
-            !isReversed(page)
-          );
-        default:
-          return false;
+      
+      const isMatch = (() => {
+        switch (templateId) {
+          case 'heading':
+            return normalizedPageType === 'heading';
+          case 'index':
+            return normalizedPageType === 'index';
+          case 'table':
+            return normalizedPageType === 'table';
+          case 'text-only':
+            return normalizedPageType === 'content' && !page?.mixedContentMode;
+          case 'just-images':
+            return normalizedPageType === 'image' && !page?.mixedContentMode && normalizedTemplate !== 'mixed-content';
+          case 'mixed-content':
+            return Boolean(page?.mixedContentMode) || normalizedTemplate === 'mixed-content';
+          case 'split-text-image':
+            return (
+              Boolean(page?.splitTextImageMode) ||
+              normalizedTemplate === 'split-text-image' ||
+              (normalizedPageType === 'split-content-image' && hasLeftText(page) && hasRightImage(page) && !hasLinks(page))
+            );
+          case 'split-links-image':
+            return (
+              Boolean(page?.splitLinksImageMode) ||
+              normalizedTemplate === 'split-links-image' ||
+              (normalizedPageType === 'split-content-image' && hasLinks(page) && hasRightImage(page) && !isReversed(page))
+            );
+          case 'split-image-links':
+            return (
+              Boolean(page?.splitImageLinksMode) ||
+              normalizedTemplate === 'split-image-links' ||
+              (normalizedPageType === 'split-content-image' && hasLinks(page) && (isReversed(page) || hasLeftImage(page)))
+            );
+          case 'split-image-image':
+            return (
+              Boolean(page?.splitImageImageMode) ||
+              normalizedTemplate === 'split-image-image' ||
+              (normalizedPageType === 'split-content-image' && hasLeftImage(page) && hasRightImage(page))
+            );
+          case 'split-content':
+            return (
+              normalizedPageType === 'split-content-image' &&
+              !hasSpecificSplitMode(page) &&
+              normalizedTemplate !== 'split-text-image' &&
+              normalizedTemplate !== 'split-links-image' &&
+              normalizedTemplate !== 'split-image-links' &&
+              normalizedTemplate !== 'split-image-image' &&
+              !isReversed(page)
+            );
+          default:
+            return false;
+        }
+      })();
+      
+      if (isMatch) {
+        console.log('✅ Match found:', { pageId: page.id, title: page.title, pageNumber: page.pageNumber });
       }
+      
+      return isMatch;
     };
 
     const bestMatch = [...existingPages]
@@ -263,9 +285,26 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         return (Number(a?.pageNumber) || 0) - (Number(b?.pageNumber) || 0);
       })[0] || null;
 
-    if (bestMatch) return bestMatch;
+    if (bestMatch) {
+      console.log('✅ Sample page selected:', { 
+        id: bestMatch.id, 
+        title: bestMatch.title, 
+        pageNumber: bestMatch.pageNumber,
+        pageType: bestMatch.pageType,
+        dataKeys: Object.keys(bestMatch),
+        contentPreview: String(bestMatch.content || bestMatch.blocks || bestMatch.links || '').substring(0, 100)
+      });
+      return bestMatch;
+    }
 
-    return existingPages.find((page) => String(page?.pageType || '').toLowerCase() === String(pageType || '').toLowerCase()) || null;
+    const fallback = existingPages.find((page) => String(page?.pageType || '').toLowerCase() === String(pageType || '').toLowerCase());
+    console.log('⚠️ Using fallback page:', { 
+      found: !!fallback,
+      fallbackId: fallback?.id,
+      fallbackTitle: fallback?.title,
+      fallbackPageType: fallback?.pageType
+    });
+    return fallback || null;
   };
 
   const renderTemplatePreview = (templateId) => {
