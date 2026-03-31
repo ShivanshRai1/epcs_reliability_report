@@ -466,6 +466,34 @@ function App() {
     fetchData();
   }, []);
 
+  // Refetch data when live mode window gets focus (shows newly added pages)
+  useEffect(() => {
+    const isLiveMode = new URLSearchParams(window.location.search).get('live') === '1';
+    if (!isLiveMode) return;
+
+    const handleFocus = async () => {
+      console.log('🔄 Live window focused - refreshing data...');
+      try {
+        // Get latest pages from backend
+        const pagesFromApi = await apiService.getPages();
+        let transformedData = transformPagesFromApi(pagesFromApi);
+        
+        // Keep page numbering consistent
+        transformedData = alignPageNumbersWithStatic(transformedData, staticIndexPagesRef.current);
+        const syncedData = syncIndexPageContent(transformedData, staticIndexPagesRef.current);
+        
+        setReportData(syncedData);
+        saveReportCache(syncedData);
+        console.log('✅ Data refreshed');
+      } catch (err) {
+        console.warn('Could not refresh data:', err);
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, []);
+
   const handleEditToggle = () => {
     setIsEditMode(true);
   };
@@ -801,8 +829,31 @@ function App() {
       console.log('Pages from API after creation:', pagesFromApi);
       
       let transformedData = transformPagesFromApi(pagesFromApi);
-
       const createdPageId = newPage?.page_id || newPage?.id;
+
+      // Verify the newly created page exists in the backend response
+      const pageExistsInApi = transformedData.pages.some(p => idMatches(p.id, createdPageId));
+      
+      if (!pageExistsInApi && createdPageId) {
+        console.warn(`⚠️ Created page ${createdPageId} not found in first fetch, retrying...`);
+        try {
+          // Retry once more to ensure page is persisted
+          const retryPagesFromApi = await apiService.getPages();
+          const retryTransformedData = transformPagesFromApi(retryPagesFromApi);
+          const pageExistsOnRetry = retryTransformedData.pages.some(p => idMatches(p.id, createdPageId));
+          
+          if (pageExistsOnRetry) {
+            console.log('✅ Page found on retry');
+            transformedData = retryTransformedData;
+          } else {
+            console.warn('⚠️ Page still not found after retry, continuing anyway (may be API lag)');
+          }
+        } catch (retryErr) {
+          console.warn('⚠️ Retry fetch failed:', retryErr.message);
+        }
+      } else if (pageExistsInApi) {
+        console.log('✅ Created page confirmed in backend:', createdPageId);
+      }
 
       // Template to behavior flags mapping
       const templateBehaviorFlags = {
