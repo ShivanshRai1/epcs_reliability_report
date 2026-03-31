@@ -182,21 +182,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
 
   const getSamplePageForTemplate = (templateId) => {
     const pageType = getPageTypeForTemplate(templateId);
-    if (!pageType || !Array.isArray(existingPages)) {
-      console.log('❌ getSamplePageForTemplate early return:', { templateId, pageType, hasExistingPages: Array.isArray(existingPages), pageCount: existingPages?.length });
-      return null;
-    }
-
-    console.log('🔍 Looking for sample page for templateId:', templateId);
-    console.log('📊 Available pages:', existingPages.map(p => ({
-      id: p.id,
-      title: p.title,
-      pageType: p.pageType,
-      pageTemplate: p.pageTemplate,
-      pageNumber: p.pageNumber,
-      contentLength: p.content ? String(p.content).length : 0,
-      hasData: !!p.content || !!p.blocks || !!p.links || !!p.images
-    })));
+    if (!pageType || !Array.isArray(existingPages)) return null;
 
     const normalizeTemplateId = (page) => String(page?.pageTemplate || page?.page_template || page?.templateId || '').toLowerCase();
     const hasLinks = (page) => Array.isArray(page?.content) && page.content.some((item) => item && item.type === 'link');
@@ -266,10 +252,6 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         }
       })();
       
-      if (isMatch) {
-        console.log('✅ Match found:', { pageId: page.id, title: page.title, pageNumber: page.pageNumber });
-      }
-      
       return isMatch;
     };
 
@@ -285,26 +267,9 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         return (Number(a?.pageNumber) || 0) - (Number(b?.pageNumber) || 0);
       })[0] || null;
 
-    if (bestMatch) {
-      console.log('✅ Sample page selected:', { 
-        id: bestMatch.id, 
-        title: bestMatch.title, 
-        pageNumber: bestMatch.pageNumber,
-        pageType: bestMatch.pageType,
-        dataKeys: Object.keys(bestMatch),
-        contentPreview: String(bestMatch.content || bestMatch.blocks || bestMatch.links || '').substring(0, 100)
-      });
-      return bestMatch;
-    }
+    if (bestMatch) return bestMatch;
 
-    const fallback = existingPages.find((page) => String(page?.pageType || '').toLowerCase() === String(pageType || '').toLowerCase());
-    console.log('⚠️ Using fallback page:', { 
-      found: !!fallback,
-      fallbackId: fallback?.id,
-      fallbackTitle: fallback?.title,
-      fallbackPageType: fallback?.pageType
-    });
-    return fallback || null;
+    return existingPages.find((page) => String(page?.pageType || '').toLowerCase() === String(pageType || '').toLowerCase()) || null;
   };
 
   const renderTemplatePreview = (templateId) => {
@@ -398,17 +363,6 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     const cloneSourcePageId = cloneSource?.id || null;
     const cloneSourcePageData = cloneSource ? JSON.parse(JSON.stringify(cloneSource)) : null;
 
-    console.log('🔍 Sample page found:', { 
-      templateId, 
-      cloneSourcePageId,
-      cloneSourcePageExists: !!cloneSource,
-      cloneSourceHasContent: !!cloneSourcePageData,
-      cloneSourceTitle: cloneSource?.title,
-      cloneSourcePageType: cloneSource?.pageType,
-      cloneSourceDataKeys: cloneSourcePageData ? Object.keys(cloneSourcePageData) : [],
-      cloneSourcePreview: cloneSourcePageData ? JSON.stringify(cloneSourcePageData).substring(0, 200) : 'NULL'
-    });
-
     setLoading(true);
     setError('');
 
@@ -422,7 +376,6 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       }
       
       const createTemplateId = resolveTemplateForCreate(templateId);
-      console.log('📝 Creating page with params:', { templateId, createTemplateId, title, insertPosition });
       
       // Call API with correct parameters
       const response = await apiService.createPage(
