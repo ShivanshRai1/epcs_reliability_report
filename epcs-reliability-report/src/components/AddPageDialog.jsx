@@ -185,6 +185,12 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     if (!pageType || !Array.isArray(existingPages)) return null;
 
     const normalizeTemplateId = (page) => String(page?.pageTemplate || page?.page_template || page?.templateId || '').toLowerCase();
+    const hasLinks = (page) => Array.isArray(page?.content) && page.content.some((item) => item && item.type === 'link');
+    const linkCount = (page) => Array.isArray(page?.content) ? page.content.filter((item) => item && item.type === 'link').length : 0;
+    const hasLeftText = (page) => Boolean(String(page?.leftContent || '').trim());
+    const hasRightImage = (page) => Boolean(String(page?.imageUrl || '').trim());
+    const hasLeftImage = (page) => Boolean(String(page?.leftImageUrl || '').trim());
+    const isReversed = (page) => String(page?.layout || '').toLowerCase() === 'reversed';
     const hasSpecificSplitMode = (page) => Boolean(
       page?.splitTextImageMode || page?.splitLinksImageMode || page?.splitImageLinksMode || page?.splitImageImageMode
     );
@@ -207,13 +213,29 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         case 'mixed-content':
           return Boolean(page?.mixedContentMode) || normalizedTemplate === 'mixed-content';
         case 'split-text-image':
-          return Boolean(page?.splitTextImageMode) || normalizedTemplate === 'split-text-image';
+          return (
+            Boolean(page?.splitTextImageMode) ||
+            normalizedTemplate === 'split-text-image' ||
+            (normalizedPageType === 'split-content-image' && hasLeftText(page) && hasRightImage(page) && !hasLinks(page))
+          );
         case 'split-links-image':
-          return Boolean(page?.splitLinksImageMode) || normalizedTemplate === 'split-links-image';
+          return (
+            Boolean(page?.splitLinksImageMode) ||
+            normalizedTemplate === 'split-links-image' ||
+            (normalizedPageType === 'split-content-image' && hasLinks(page) && hasRightImage(page) && !isReversed(page))
+          );
         case 'split-image-links':
-          return Boolean(page?.splitImageLinksMode) || normalizedTemplate === 'split-image-links';
+          return (
+            Boolean(page?.splitImageLinksMode) ||
+            normalizedTemplate === 'split-image-links' ||
+            (normalizedPageType === 'split-content-image' && hasLinks(page) && (isReversed(page) || hasLeftImage(page)))
+          );
         case 'split-image-image':
-          return Boolean(page?.splitImageImageMode) || normalizedTemplate === 'split-image-image';
+          return (
+            Boolean(page?.splitImageImageMode) ||
+            normalizedTemplate === 'split-image-image' ||
+            (normalizedPageType === 'split-content-image' && hasLeftImage(page) && hasRightImage(page))
+          );
         case 'split-content':
           return (
             normalizedPageType === 'split-content-image' &&
@@ -221,14 +243,26 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
             normalizedTemplate !== 'split-text-image' &&
             normalizedTemplate !== 'split-links-image' &&
             normalizedTemplate !== 'split-image-links' &&
-            normalizedTemplate !== 'split-image-image'
+            normalizedTemplate !== 'split-image-image' &&
+            !isReversed(page)
           );
         default:
           return false;
       }
     };
 
-    const bestMatch = existingPages.find(matchesTemplate);
+    const bestMatch = [...existingPages]
+      .filter(matchesTemplate)
+      .sort((a, b) => {
+        if (templateId === 'split-links-image') {
+          return linkCount(b) - linkCount(a);
+        }
+        if (templateId === 'split-content') {
+          return linkCount(a) - linkCount(b);
+        }
+        return (Number(a?.pageNumber) || 0) - (Number(b?.pageNumber) || 0);
+      })[0] || null;
+
     if (bestMatch) return bestMatch;
 
     return existingPages.find((page) => String(page?.pageType || '').toLowerCase() === String(pageType || '').toLowerCase()) || null;
