@@ -95,14 +95,7 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
     }
   };
 
-  const normalizeForLookup = (value) => String(value || '')
-    .toLowerCase()
-    .replace(/&/g, ' and ')
-    .replace(/\(.*?\)/g, ' ')
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim();
-
-  const handleLinkClick = (targetId, fallbackTitle = '') => {
+  const handleLinkClick = (targetId) => {
     if (!targetId) return;
 
     const normalizedTarget = typeof targetId === 'string' ? targetId.trim() : String(targetId).trim();
@@ -123,37 +116,6 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
         navigate(withLiveQuery(`/page/${targetIndex + 1}`));
       }
       return;
-    }
-
-    const normalizedTargetLookup = normalizeForLookup(normalizedTarget);
-    const normalizedTitleLookup = normalizeForLookup(fallbackTitle);
-
-    const looseMatchPage = orderedPages.find((p) => {
-      const idLookup = normalizeForLookup(p?.id);
-      const titleLookup = normalizeForLookup(p?.title);
-
-      const targetMatches = normalizedTargetLookup && (
-        idLookup === normalizedTargetLookup ||
-        titleLookup === normalizedTargetLookup ||
-        titleLookup.includes(normalizedTargetLookup) ||
-        normalizedTargetLookup.includes(titleLookup)
-      );
-
-      const titleMatches = normalizedTitleLookup && (
-        titleLookup === normalizedTitleLookup ||
-        titleLookup.includes(normalizedTitleLookup) ||
-        normalizedTitleLookup.includes(titleLookup)
-      );
-
-      return targetMatches || titleMatches;
-    });
-
-    if (looseMatchPage) {
-      const looseMatchIndex = orderedPages.findIndex((p) => String(p?.id) === String(looseMatchPage?.id));
-      if (looseMatchIndex >= 0) {
-        navigate(withLiveQuery(`/page/${looseMatchIndex + 1}`));
-        return;
-      }
     }
 
     if (isLikelyLinkTarget(normalizedTarget)) {
