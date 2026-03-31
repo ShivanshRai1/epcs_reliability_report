@@ -255,7 +255,7 @@ function App() {
           const queue = backendByTargetQueues.get(key) || [];
           const backendItem = queue.length > 0 ? queue.shift() : null;
           return backendItem
-            ? { ...item, ...backendItem, target: item.target }
+            ? { ...item, ...backendItem, target: item.target, level: item.level }
             : item;
         });
 
@@ -269,7 +269,7 @@ function App() {
           ...sp,
           ...displaySettings,
           pageType: 'index',
-          title: matchingBackendIndexPage?.title || sp?.title || 'INDEX',
+          title: sp?.title || matchingBackendIndexPage?.title || 'INDEX',
           content: [...mergedContent, ...backendExtras]
         };
       });
