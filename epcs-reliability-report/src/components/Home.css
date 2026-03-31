@@ -7,12 +7,85 @@
 }
 
 .home-content {
+  position: relative;
   background: rgba(10, 20, 40, 0.85);
   padding: 3rem 2rem;
   border-radius: 1rem;
   text-align: center;
   color: #fff;
   box-shadow: 0 4px 32px rgba(0,0,0,0.4);
+}
+
+.home-edit-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 0.45rem;
+  background: rgba(11, 24, 49, 0.82);
+  color: #f8fbff;
+  cursor: pointer;
+}
+
+.home-edit-btn:hover {
+  background: rgba(21, 40, 74, 0.92);
+}
+
+.home-title-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.home-title-editor label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #d6e4fb;
+}
+
+.home-title-editor input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid #4d6e9e;
+  background: #ffffff;
+  color: #101d36;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.home-title-editor input:focus {
+  outline: none;
+  border-color: #2e7be6;
+  box-shadow: 0 0 0 3px rgba(46, 123, 230, 0.2);
+}
+
+.home-title-editor-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.home-title-editor-actions button {
+  border: none;
+  border-radius: 0.45rem;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  background: #2e7be6;
+  cursor: pointer;
+}
+
+.home-title-editor-actions button.secondary {
+  background: #5b6472;
+}
+
+.home-title-editor-actions button:hover {
+  filter: brightness(1.05);
 }
 
 .epc-title {
