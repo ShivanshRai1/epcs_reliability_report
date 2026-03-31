@@ -2,11 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import './IndexEditor.css';
 import { getTemplateBadge } from '../utils/templateInfo.jsx';
 
-const IndexEditor = ({ page, onChange }) => {
+const IndexEditor = ({ page, onChange, availablePages = [] }) => {
   const [title, setTitle] = useState(page.title);
   const [content, setContent] = useState(page.content || []);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [newItemTitle, setNewItemTitle] = useState('');
+  const [newItemTarget, setNewItemTarget] = useState('');
   const [selectedIdx, setSelectedIdx] = useState(null);
   const containerRef = useRef(null);
   const itemRefs = useRef({});
@@ -16,6 +17,7 @@ const IndexEditor = ({ page, onChange }) => {
     setContent(page.content || []);
     setIsAddingNew(false);
     setNewItemTitle('');
+    setNewItemTarget('');
     itemRefs.current = {};
   }, [page.id]);
 
@@ -51,6 +53,10 @@ const IndexEditor = ({ page, onChange }) => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [selectedIdx, content]);
 
+  const selectablePages = (Array.isArray(availablePages) ? availablePages : [])
+    .filter((p) => p && p.id && p.pageType !== 'index' && p.pageType !== 'home')
+    .sort((a, b) => (Number(a?.pageNumber) || 0) - (Number(b?.pageNumber) || 0));
+
   const handleTitleChange = (e) => {
     const newTitle = e.target.value;
     setTitle(newTitle);
@@ -60,6 +66,13 @@ const IndexEditor = ({ page, onChange }) => {
   const handleItemTitleChange = (idx, newTitle) => {
     const updated = [...content];
     updated[idx] = { ...updated[idx], title: newTitle };
+    setContent(updated);
+    onChange({ ...page, content: updated });
+  };
+
+  const handleItemTargetChange = (idx, newTarget) => {
+    const updated = [...content];
+    updated[idx] = { ...updated[idx], target: newTarget };
     setContent(updated);
     onChange({ ...page, content: updated });
   };
@@ -91,10 +104,11 @@ const IndexEditor = ({ page, onChange }) => {
 
   const handleAddItem = () => {
     if (newItemTitle.trim()) {
-      const updated = [...content, { title: newItemTitle.trim(), target: '' }];
+      const updated = [...content, { title: newItemTitle.trim(), target: newItemTarget.trim() }];
       setContent(updated);
       onChange({ ...page, content: updated });
       setNewItemTitle('');
+      setNewItemTarget('');
       setIsAddingNew(false);
     }
   };
@@ -140,6 +154,22 @@ const IndexEditor = ({ page, onChange }) => {
                   placeholder="Item title"
                   className="item-title-input"
                 />
+                <select
+                  value={item.target || ''}
+                  onChange={(e) => handleItemTargetChange(idx, e.target.value)}
+                  className="item-target-input"
+                  style={{ width: '100%' }}
+                >
+                  <option value="">Select destination page</option>
+                  {selectablePages.map((p) => (
+                    <option key={String(p.id)} value={String(p.id)}>
+                      {p.title || p.id}
+                    </option>
+                  ))}
+                  {item.target && !selectablePages.some((p) => String(p.id) === String(item.target)) && (
+                    <option value={item.target}>{item.title || item.target}</option>
+                  )}
+                </select>
               </div>
               <button 
                 onClick={(e) => {
@@ -174,6 +204,19 @@ const IndexEditor = ({ page, onChange }) => {
               className="item-title-input"
               autoFocus
             />
+            <select
+              value={newItemTarget}
+              onChange={(e) => setNewItemTarget(e.target.value)}
+              className="item-target-input"
+              style={{ width: '100%' }}
+            >
+              <option value="">Select destination page</option>
+              {selectablePages.map((p) => (
+                <option key={String(p.id)} value={String(p.id)}>
+                  {p.title || p.id}
+                </option>
+              ))}
+            </select>
             <div className="new-item-buttons">
                 <button onClick={handleAddItem} className="add-btn">➕ Add</button>
               <button 
