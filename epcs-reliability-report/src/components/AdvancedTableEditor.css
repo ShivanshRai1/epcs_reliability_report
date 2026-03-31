@@ -125,14 +125,17 @@
   font-size: 0.9rem;
   font-weight: 600;
   font-family: inherit;
-  background: #ffffff;
-  color: #1b1f2a;
+  background: #243146 !important;
+  color: #f3f7ff !important;
+  border-color: #3b4d67;
+  caret-color: #f3f7ff;
+  -webkit-text-fill-color: #f3f7ff;
 }
 
 .header-input:focus {
   outline: none;
   border-color: #0d6efd;
-  background: #f0f6ff;
+  background: #1d283a !important;
 }
 
 .delete-col-btn,
@@ -204,13 +207,12 @@
 
 .cell-input::placeholder,
 .header-input::placeholder {
-  color: #5b6577;
+  color: #b7c4d8;
   opacity: 1;
 }
 
 .advanced-table-editor .editable-table td,
-.advanced-table-editor .editable-table th,
-.advanced-table-editor .header-input {
+.advanced-table-editor .editable-table th {
   color: #1b1f2a !important;
 }
 
