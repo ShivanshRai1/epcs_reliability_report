@@ -222,7 +222,16 @@ function App() {
           backendByTargetQueues.get(key).push(item);
         });
 
-        const mergedContent = staticContent.map((item) => {
+        // When the backend page has explicit content saved, respect deletions:
+        // only include static items whose targets still appear in the backend list.
+        // This prevents deleted items from being re-added from the static baseline.
+        const backendTargetSet = new Set(backendContent.map((item) => String(item.target)));
+        const hasExplicitBackendContent = backendContent.length > 0;
+        const authorizedStaticContent = hasExplicitBackendContent
+          ? staticContent.filter((item) => backendTargetSet.has(String(item.target)))
+          : staticContent;
+
+        const mergedContent = authorizedStaticContent.map((item) => {
           const key = String(item.target);
           const queue = backendByTargetQueues.get(key) || [];
           const backendItem = queue.length > 0 ? queue.shift() : null;
