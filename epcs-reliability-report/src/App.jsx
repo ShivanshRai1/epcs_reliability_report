@@ -250,11 +250,19 @@ function App() {
         };
 
         // Defer fully to backend ONLY when it has >= 70% of the raw unfiltered static item count.
-        // This means the user genuinely edited this index (e.g. deleted a duplicate).
-        // When backend has far fewer items (stale/partial), fall through to the static merge path.
+        // Defer fully to backend ONLY when it has >= 70% of the raw unfiltered static item count
+        // AND the majority of its items point to real pages (valid targets in livePagesById).
+        // This guards against corrupted/abbreviated targets (e.g. 'qci' instead of
+        // 'quality_conformance_inspection') that cause dead links and broken hierarchy.
         const rawStaticCount = rawStaticContent.length;
+        const validBackendTargetCount = backendContent.filter(
+          (item) => item?.target && livePagesById.has(String(item.target))
+        ).length;
+        const backendHasValidTargets = backendContent.length === 0 ||
+          validBackendTargetCount >= backendContent.length * 0.5;
         const backendLooksEdited = backendContent.length > 0 &&
-          (rawStaticCount === 0 || backendContent.length >= rawStaticCount * 0.7);
+          (rawStaticCount === 0 || backendContent.length >= rawStaticCount * 0.7) &&
+          backendHasValidTargets;
 
         if (backendLooksEdited) {
           const normalizedBackendContent = backendContent.map((item) => {
