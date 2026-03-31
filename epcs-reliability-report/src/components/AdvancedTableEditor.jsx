@@ -335,6 +335,7 @@ const AdvancedTableEditor = ({ page, onChange }) => {
                   </div>
                 </th>
               ))}
+              <th className="row-action-header">Actions</th>
             </tr>
           </thead>
           <tbody>
