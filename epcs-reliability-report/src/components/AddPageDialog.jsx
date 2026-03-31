@@ -184,27 +184,54 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     const pageType = getPageTypeForTemplate(templateId);
     if (!pageType || !Array.isArray(existingPages)) return null;
 
-    const preferredPreviewPageByTemplate = {
-      'text-only': 28,
-      'heading': 4,
-      'index': 1,
-      'table': 5,
-      'just-images': 9,
-      'split-text-image': 41,
-      'split-links-image': 16,
-      'split-image-links': 49,
-      'split-image-image': 47,
-      'split-content': 30,
-      'mixed-content': 44
+    const normalizeTemplateId = (page) => String(page?.pageTemplate || page?.page_template || page?.templateId || '').toLowerCase();
+    const hasSpecificSplitMode = (page) => Boolean(
+      page?.splitTextImageMode || page?.splitLinksImageMode || page?.splitImageLinksMode || page?.splitImageImageMode
+    );
+
+    const matchesTemplate = (page) => {
+      const normalizedTemplate = normalizeTemplateId(page);
+      const normalizedPageType = String(page?.pageType || '').toLowerCase();
+
+      switch (templateId) {
+        case 'heading':
+          return normalizedPageType === 'heading';
+        case 'index':
+          return normalizedPageType === 'index';
+        case 'table':
+          return normalizedPageType === 'table';
+        case 'text-only':
+          return normalizedPageType === 'content' && !page?.mixedContentMode;
+        case 'just-images':
+          return normalizedPageType === 'image' && !page?.mixedContentMode && normalizedTemplate !== 'mixed-content';
+        case 'mixed-content':
+          return Boolean(page?.mixedContentMode) || normalizedTemplate === 'mixed-content';
+        case 'split-text-image':
+          return Boolean(page?.splitTextImageMode) || normalizedTemplate === 'split-text-image';
+        case 'split-links-image':
+          return Boolean(page?.splitLinksImageMode) || normalizedTemplate === 'split-links-image';
+        case 'split-image-links':
+          return Boolean(page?.splitImageLinksMode) || normalizedTemplate === 'split-image-links';
+        case 'split-image-image':
+          return Boolean(page?.splitImageImageMode) || normalizedTemplate === 'split-image-image';
+        case 'split-content':
+          return (
+            normalizedPageType === 'split-content-image' &&
+            !hasSpecificSplitMode(page) &&
+            normalizedTemplate !== 'split-text-image' &&
+            normalizedTemplate !== 'split-links-image' &&
+            normalizedTemplate !== 'split-image-links' &&
+            normalizedTemplate !== 'split-image-image'
+          );
+        default:
+          return false;
+      }
     };
 
-    const preferredPageNumber = preferredPreviewPageByTemplate[templateId];
-    if (preferredPageNumber) {
-      const preferredSample = existingPages.find((page) => Number(page.pageNumber) === preferredPageNumber);
-      if (preferredSample) return preferredSample;
-    }
+    const bestMatch = existingPages.find(matchesTemplate);
+    if (bestMatch) return bestMatch;
 
-    return existingPages.find((page) => page.pageType === pageType) || null;
+    return existingPages.find((page) => String(page?.pageType || '').toLowerCase() === String(pageType || '').toLowerCase()) || null;
   };
 
   const renderTemplatePreview = (templateId) => {
@@ -265,7 +292,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
 
     return (
       <div className="template-preview-live-wrap">
-        <div className="template-preview-meta">Slide {sample.pageNumber}</div>
+        <div className="template-preview-meta">Sample: {sample.title || sample.id || 'Untitled page'}</div>
         <div className="template-preview-live template-preview-live-page">
           <div className={`template-preview-scale ${templateId === 'heading' ? 'template-preview-scale-heading' : ''}`}>
             <SectionPage
