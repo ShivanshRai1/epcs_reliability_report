@@ -474,8 +474,8 @@ function App() {
     const handleFocus = async () => {
       console.log('🔄 Live window focused - refreshing data...');
       try {
-        // Get latest pages from backend
-        const pagesFromApi = await apiService.getPages();
+        // Get latest pages from backend with cache-bust
+        const pagesFromApi = await apiService.getPages(true); // forceFresh = true
         let transformedData = transformPagesFromApi(pagesFromApi);
         
         // Keep page numbering consistent
@@ -824,8 +824,8 @@ function App() {
         return null;
       }
       
-      // Refresh pages list from backend (this has fallback logic)
-      const pagesFromApi = await apiService.getPages();
+      // Refresh pages list from backend with cache-bust to ensure new page is fetched
+      const pagesFromApi = await apiService.getPages(true); // forceFresh = true
       console.log('Pages from API after creation:', pagesFromApi);
       
       let transformedData = transformPagesFromApi(pagesFromApi);
@@ -837,8 +837,8 @@ function App() {
       if (!pageExistsInApi && createdPageId) {
         console.warn(`⚠️ Created page ${createdPageId} not found in first fetch, retrying...`);
         try {
-          // Retry once more to ensure page is persisted
-          const retryPagesFromApi = await apiService.getPages();
+          // Retry once more to ensure page is persisted, also with cache-bust
+          const retryPagesFromApi = await apiService.getPages(true); // forceFresh = true
           const retryTransformedData = transformPagesFromApi(retryPagesFromApi);
           const pageExistsOnRetry = retryTransformedData.pages.some(p => idMatches(p.id, createdPageId));
           

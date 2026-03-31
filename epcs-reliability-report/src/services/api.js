@@ -147,13 +147,14 @@ const fetchPagesViaFallback = async () => {
 
 export const apiService = {
   // Get all pages
-  getPages: async () => {
+  getPages: async (forceFresh = false) => {
     try {
       const candidates = buildApiCandidates();
+      const cacheBust = forceFresh ? `?cache_bust=${Date.now()}` : '';
 
       for (const baseUrl of candidates) {
         try {
-          const res = await fetch(`${baseUrl}/pages`, withModeRequest());
+          const res = await fetch(`${baseUrl}/pages${cacheBust}`, withModeRequest());
           if (!res.ok) continue;
           return await res.json();
         } catch {
