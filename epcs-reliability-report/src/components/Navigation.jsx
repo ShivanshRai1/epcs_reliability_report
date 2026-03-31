@@ -93,7 +93,7 @@ const Navigation = ({ onNavigate, isEditMode, isLiveMode, onEditToggle, onToggle
               disabled={isSeedingTestData}
               title="Reset test data by re-copying current production data"
             >
-              {isSeedingTestData ? 'Resetting Test Data...' : 'Reset Test Data'}
+              {isSeedingTestData ? 'Copying Production to Test...' : 'Copy Production Data to Test Data'}
             </button>
           )}
           {isTestMode && (
@@ -103,7 +103,7 @@ const Navigation = ({ onNavigate, isEditMode, isLiveMode, onEditToggle, onToggle
               disabled={isPublishingTestData}
               title="Copy all test mode changes into production"
             >
-              {isPublishingTestData ? 'Publishing to Production...' : '📤 Publish Test Changes'}
+              {isPublishingTestData ? 'Copying Test to Production...' : '📤 Copy Test Data to Production Data'}
             </button>
           )}
         </div>
