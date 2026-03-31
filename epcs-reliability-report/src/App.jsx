@@ -213,8 +213,16 @@ function App() {
           ? matchingBackendIndexPage.content.filter((item) => item && item.target)
           : [];
 
+        // Preserve display settings saved by the user in the editor (not present in static baseline)
+        const displaySettings = {};
+        const DISPLAY_KEYS = ['fontFamily', 'textColor', 'contentTextColor', 'titleFontSize', 'headerFontSize', 'contentFontSize'];
+        if (matchingBackendIndexPage) {
+          DISPLAY_KEYS.forEach(k => {
+            if (matchingBackendIndexPage[k] !== undefined) displaySettings[k] = matchingBackendIndexPage[k];
+          });
+        }
+
         // Keep static ordering but overlay backend edits by target occurrence.
-        // This prevents duplicate targets (e.g., two rows pointing to same page) from mirroring each other.
         const backendByTargetQueues = new Map();
         backendContent.forEach((item) => {
           const key = String(item.target);
@@ -223,12 +231,8 @@ function App() {
         });
 
         // When the backend page has explicit content saved, fully defer to it —
-        // use it directly and skip the static baseline merge entirely.
-        // This ensures user edits (deletes, reorders, renames) are always respected.
+        // skip the static baseline merge so deletions/reorders are always respected.
         if (backendContent.length > 0) {
-          const backendExtrasAfterBypass = Array.from(backendByTargetQueues.values())
-            .flat()
-            .filter((item) => item && item.target && livePagesById.has(item.target));
           return {
             ...matchingBackendIndexPage,
             ...displaySettings,
@@ -238,9 +242,7 @@ function App() {
           };
         }
 
-        const authorizedStaticContent = staticContent;
-
-        const mergedContent = authorizedStaticContent.map((item) => {
+        const mergedContent = staticContent.map((item) => {
           const key = String(item.target);
           const queue = backendByTargetQueues.get(key) || [];
           const backendItem = queue.length > 0 ? queue.shift() : null;
@@ -253,15 +255,6 @@ function App() {
         const backendExtras = Array.from(backendByTargetQueues.values())
           .flat()
           .filter((item) => item && item.target && livePagesById.has(item.target));
-        
-        // Preserve display settings saved by the user in the editor (not present in static baseline)
-        const displaySettings = {};
-        const DISPLAY_KEYS = ['fontFamily', 'textColor', 'contentTextColor', 'titleFontSize', 'headerFontSize', 'contentFontSize'];
-        if (matchingBackendIndexPage) {
-          DISPLAY_KEYS.forEach(k => {
-            if (matchingBackendIndexPage[k] !== undefined) displaySettings[k] = matchingBackendIndexPage[k];
-          });
-        }
 
         return {
           ...matchingBackendIndexPage,
