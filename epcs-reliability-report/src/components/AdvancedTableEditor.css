@@ -28,7 +28,14 @@
   border-radius: 4px;
   font-size: 0.95rem;
   font-family: inherit;
+  background: #ffffff;
+  color: #1b1f2a;
   transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.caption-input::placeholder {
+  color: #5b6577;
+  opacity: 1;
 }
 
 .caption-input:focus {
@@ -118,6 +125,8 @@
   font-size: 0.9rem;
   font-weight: 600;
   font-family: inherit;
+  background: #ffffff;
+  color: #1b1f2a;
 }
 
 .header-input:focus {
@@ -187,10 +196,16 @@
   border: none;
   font-size: 0.9rem;
   font-family: inherit;
-  background: transparent;
+  background: #ffffff;
   min-height: 40px;
   color: #1b1f2a !important;
   caret-color: #1b1f2a;
+}
+
+.cell-input::placeholder,
+.header-input::placeholder {
+  color: #5b6577;
+  opacity: 1;
 }
 
 .advanced-table-editor .editable-table td,
