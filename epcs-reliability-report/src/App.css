@@ -891,6 +891,11 @@ a:hover, .index-link:hover {
   padding: 0;
 }
 
+.legacy-live-page.legacy-live-page-table {
+  overflow: hidden;
+  padding: 8px 12px;
+}
+
 .legacy-live-home-page {
   padding: 0;
 }
@@ -1360,6 +1365,9 @@ a:hover, .index-link:hover {
 /* Generic live table styling (no page-number based selectors). */
 .legacy-live-table {
   padding-top: 2px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .legacy-live-table-logo {
@@ -1372,12 +1380,12 @@ a:hover, .index-link:hover {
 }
 
 .legacy-live-table-title {
-  margin: 0 0 8px 0 !important;
-  padding: 5px 12px !important;
+  margin: 0 0 6px 0 !important;
+  padding: 4px 10px !important;
   text-align: center !important;
   background: #0f87c9 !important;
   color: #ffffff !important;
-  font-size: 2rem !important;
+  font-size: 1.85rem !important;
   font-weight: 500 !important;
   line-height: 1.1 !important;
   text-transform: uppercase;
@@ -1396,6 +1404,7 @@ a:hover, .index-link:hover {
 .legacy-live-table table {
   border: 1px solid rgba(0, 0, 0, 0.3) !important;
   box-shadow: none !important;
+  margin: 0;
 }
 
 .legacy-live-table th,
@@ -1404,6 +1413,9 @@ a:hover, .index-link:hover {
 .legacy-live-table tr td,
 .legacy-live-table tr th {
   color: #000000 !important;
+  font-size: 11px !important;
+  line-height: 1.12 !important;
+  padding: 1px 4px !important;
 }
 
 /* Qualified multi-color variant keeps title plain and row palette colors. */

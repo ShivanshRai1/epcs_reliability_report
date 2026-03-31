@@ -128,12 +128,13 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
 
   if (isLiveMode) {
     const isLiveHeadingPage = page?.pageType === 'heading';
+    const isLiveTablePage = page?.pageType === 'table';
     const liveContentClassName = 'pdf-viewer-content';
 
     return (
       <div className="pdf-viewer-shell container-fluid legacy-live-shell">
         <div className={`${liveContentClassName} legacy-live-canvas mx-auto`}>
-          <div className={`legacy-live-page${isLiveHeadingPage ? ' legacy-live-page-heading' : ''}`} style={{ color: page.textColor || '#222222' }}>
+          <div className={`legacy-live-page${isLiveHeadingPage ? ' legacy-live-page-heading' : ''}${isLiveTablePage ? ' legacy-live-page-table' : ''}`} style={{ color: page.textColor || '#222222' }}>
             <SectionPage page={page} routePageId={pageId} onLinkClick={handleLinkClick} isEditMode={false} isLiveMode={true} indexPageOrdinal={indexPageOrdinal} onCellChange={onCellChange} onHeadingChange={onHeadingChange} onImageChange={onImageChange} onIndexChange={onIndexChange} onImageClick={onImageClick} allIndexItems={allIndexItems} allPages={orderedPages} />
           </div>
         </div>
