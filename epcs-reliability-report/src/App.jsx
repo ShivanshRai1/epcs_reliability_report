@@ -572,6 +572,49 @@ function App() {
     };
   };
 
+  const mergeStaticBaselineWithLiveData = (staticPages = [], liveData = null) => {
+    const normalizedStaticPages = (staticPages || []).map((page, idx) => ({
+      ...page,
+      pageNumber: page.pageNumber || idx + 1
+    }));
+
+    if (!liveData?.pages || !Array.isArray(liveData.pages) || liveData.pages.length === 0) {
+      return { pages: normalizedStaticPages };
+    }
+
+    const matchedLiveIds = new Set();
+    const mergedStaticPages = normalizedStaticPages.map((staticPage) => {
+      const matchedLivePage = liveData.pages.find((livePage) =>
+        idMatches(livePage?.id, staticPage?.id)
+      );
+
+      if (!matchedLivePage) {
+        return staticPage;
+      }
+
+      matchedLiveIds.add(String(matchedLivePage?.id ?? ''));
+
+      return {
+        ...staticPage,
+        ...matchedLivePage,
+        id: matchedLivePage.id || staticPage.id,
+        pageNumber: matchedLivePage.pageNumber || staticPage.pageNumber,
+        pageType: matchedLivePage.pageType || staticPage.pageType,
+        pageTemplate: matchedLivePage.pageTemplate || staticPage.pageTemplate,
+        title: matchedLivePage.title ?? staticPage.title
+      };
+    });
+
+    const liveExtraPages = liveData.pages
+      .filter((livePage) => !matchedLiveIds.has(String(livePage?.id ?? '')))
+      .sort((a, b) => (a?.pageNumber || 0) - (b?.pageNumber || 0));
+
+    return {
+      ...liveData,
+      pages: [...mergedStaticPages, ...liveExtraPages]
+    };
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       let staticData = null;
@@ -619,13 +662,8 @@ function App() {
         
         if (significantlyLow && staticPageCount > 0) {
           console.warn(`⚠️ Backend returned significantly fewer pages (${transformedData.pages.length} vs ${staticPageCount} baseline), falling back to static data`);
-          const staticPages = (staticData.pages || []).map((page, idx) => ({
-            ...page,
-            pageNumber: page.pageNumber || idx + 1
-          }));
-
-          const staticPayload = { pages: staticPages };
-          const syncedStaticData = syncIndexPageContent(staticPayload, staticIndexPages);
+          const mergedFallbackData = mergeStaticBaselineWithLiveData(staticData.pages || [], transformedData);
+          const syncedStaticData = syncIndexPageContent(mergedFallbackData, staticIndexPages);
           setReportData(syncedStaticData);
           setOriginalData(JSON.parse(JSON.stringify(syncedStaticData)));
           saveReportCache(syncedStaticData);
