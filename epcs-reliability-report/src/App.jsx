@@ -374,6 +374,9 @@ function App() {
         let bestIndexPageIdx = result.length - 1;
         let bestInsertPos = result[result.length - 1].content.length; // default: append to end of last page
         let bestTargetPageOrder = -1;
+        let nextIndexPageIdx = -1;
+        let nextInsertPos = -1;
+        let nextTargetPageOrder = Number.POSITIVE_INFINITY;
         for (let ipIdx = 0; ipIdx < result.length; ipIdx++) {
           const content = result[ipIdx].content;
           for (let cIdx = 0; cIdx < content.length; cIdx++) {
@@ -383,7 +386,16 @@ function App() {
               bestIndexPageIdx = ipIdx;
               bestInsertPos = cIdx + 1;
             }
+            if (itemOrder !== undefined && itemOrder > newItemOrder && itemOrder < nextTargetPageOrder) {
+              nextTargetPageOrder = itemOrder;
+              nextIndexPageIdx = ipIdx;
+              nextInsertPos = cIdx;
+            }
           }
+        }
+        if (bestTargetPageOrder < 0 && nextIndexPageIdx >= 0 && nextInsertPos >= 0) {
+          bestIndexPageIdx = nextIndexPageIdx;
+          bestInsertPos = nextInsertPos;
         }
         const updated = { ...result[bestIndexPageIdx], content: [...result[bestIndexPageIdx].content] };
         updated.content.splice(bestInsertPos, 0, newItem);
