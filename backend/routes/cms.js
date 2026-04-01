@@ -274,7 +274,19 @@ router.post('/create', async (req, res) => {
       'video-gallery': { videos: [], videoGalleryMode: true }
     };
 
-    const pageData = pageDataTemplates[template] || {};
+    const defaultDisplaySettings = {
+      textColor: '#1f2937',
+      contentTextColor: '#1f2937',
+      fontFamily: 'inherit',
+      titleFontSize: 1.2,
+      headerFontSize: 0.95,
+      contentFontSize: 0.95
+    };
+
+    const pageData = {
+      ...defaultDisplaySettings,
+      ...(pageDataTemplates[template] || {})
+    };
 
     // Insert new page
     await connection.query(
