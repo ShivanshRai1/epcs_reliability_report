@@ -115,13 +115,7 @@ const Navigation = ({ onNavigate, isEditMode, isLiveMode, onEditToggle, onToggle
 
       {!isLiveMode && !isEditMode && (
         <div className="toolbar-group toolbar-group-actions">
-          <details className="edit-menu" style={{ position: 'relative' }}>
-            <summary className="section-list-btn edit-toggle" title="Open edit menu" style={{ listStyle: 'none' }}>✏️ Edit Menu</summary>
-            <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, background: '#1f2f4a', border: '1px solid #3a4f74', borderRadius: '8px', padding: '6px', zIndex: 30, minWidth: '180px', display: 'grid', gap: '6px' }}>
-              <button className="section-list-btn edit-toggle" onClick={onEditToggle} title="Edit this page" style={{ width: '100%' }}>✏️ Edit Page</button>
-              <button className="section-list-btn edit-delete" onClick={onDeletePage} title="Delete this page" style={{ width: '100%' }}>🗑 Delete Page</button>
-            </div>
-          </details>
+          <button className="section-list-btn edit-toggle" onClick={onEditToggle} title="Edit this page">✏️ Edit Page</button>
           <button className="section-list-btn edit-view-placeholder" onClick={onToggleLive} title="Open read-only preview in a new tab">👁 Live Preview</button>
         </div>
       )}
