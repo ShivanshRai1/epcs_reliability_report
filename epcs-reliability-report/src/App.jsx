@@ -1241,12 +1241,19 @@ function App() {
 
       transformedData.pages = reorderedPages;
 
-      // Update staticIndexPagesRef with reordered pages so syncIndexPageContent uses current positions
-      const reorderedIndexPages = transformedData.pages.filter(p => p.pageType === 'index')
-        .sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
-      staticIndexPagesRef.current = reorderedIndexPages;
+      // Reorder index content items based on new page order (preserves structure)
+      const pageOrderMap = new Map(reorderedPages.map((p, i) => [String(p.id), i]));
+      transformedData.pages = transformedData.pages.map(page => {
+        if (page.pageType !== 'index' || !Array.isArray(page.content)) return page;
+        const sortedContent = [...page.content].sort((a, b) => {
+          const aOrder = pageOrderMap.get(String(a?.target)) ?? Number.MAX_SAFE_INTEGER;
+          const bOrder = pageOrderMap.get(String(b?.target)) ?? Number.MAX_SAFE_INTEGER;
+          return aOrder - bOrder;
+        });
+        return { ...page, content: sortedContent };
+      });
 
-      // Sync index page with new page numbers using updated ref
+      // Sync index with existing static baseline (no structural changes)
       transformedData = syncIndexPageContent(transformedData, staticIndexPagesRef.current);
 
       setReportData(transformedData);
