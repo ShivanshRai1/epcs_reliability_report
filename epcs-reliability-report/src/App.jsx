@@ -1262,9 +1262,23 @@ function App() {
       
       console.log('✅ Pages reordered locally');
 
+      // Extract index pages to sync after backend reorder succeeds
+      const indexPagesToSync = transformedData.pages.filter(p => p.pageType === 'index');
+
       // BACKGROUND SYNC: Update backend without blocking UI (fire-and-forget)
       apiService.reorderPages(pageOrder)
-        .then(() => console.log('✅ Backend reorder sync completed'))
+        .then(async () => {
+          console.log('✅ Backend reorder sync completed');
+          // Save updated index pages to backend so live preview shows correct order
+          for (const indexPage of indexPagesToSync) {
+            try {
+              await apiService.savePage(indexPage.id, { page_data: indexPage }, 'system');
+            } catch (err) {
+              console.warn(`⚠️ Failed to sync index page ${indexPage.id}:`, err.message);
+            }
+          }
+          console.log('✅ Index pages synced to backend');
+        })
         .catch(err => console.warn('⚠️ Backend reorder sync failed (offline mode OK):', err.message));
       
       return true;
