@@ -1123,17 +1123,15 @@ function App() {
 
         const fallbackPageType = newPage?.page_type || newPage?.pageType || newPage?.template || options?.templateId || 'content';
         const fallbackPageTemplate = newPage?.page_template || newPage?.pageTemplate || newPage?.template || options?.templateId || fallbackPageType;
-        const fallbackPageNumber = Number(newPage?.page_number ?? newPage?.pageNumber ?? (currentPageCount + 1));
 
         const createdFallbackPage = {
           id: createdPageId,
           title: newPage?.title || 'New Page',
           pageType: fallbackPageType,
-          pageTemplate: fallbackPageTemplate,
-          pageNumber: Number.isFinite(fallbackPageNumber) ? fallbackPageNumber : currentPageCount + 1
+          pageTemplate: fallbackPageTemplate
         };
 
-        const preservedPages = [...reportData.pages];
+        const preservedPages = [...reportData.pages].sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
         const existingIdx = preservedPages.findIndex((page) => idMatches(page.id, createdPageId));
 
         if (existingIdx >= 0) {
@@ -1142,7 +1140,23 @@ function App() {
             ...createdFallbackPage
           };
         } else {
-          preservedPages.push(createdFallbackPage);
+          const refPageId = options?.positionParams?.pageId;
+          const insertBefore = Boolean(options?.positionParams?.insertBefore);
+          let insertIndex = preservedPages.length;
+
+          if (refPageId) {
+            const refIndex = preservedPages.findIndex((page) => idMatches(page.id, refPageId));
+            if (refIndex >= 0) {
+              insertIndex = insertBefore ? refIndex : refIndex + 1;
+            }
+          }
+
+          const prevPN = insertIndex > 0 ? Number(preservedPages[insertIndex - 1]?.pageNumber || 0) : 0;
+          const nextPNRaw = preservedPages[insertIndex]?.pageNumber;
+          const nextPN = Number.isFinite(Number(nextPNRaw)) ? Number(nextPNRaw) : null;
+          createdFallbackPage.pageNumber = nextPN != null ? (prevPN + nextPN) / 2 : prevPN + 1;
+
+          preservedPages.splice(insertIndex, 0, createdFallbackPage);
         }
 
         transformedData = {

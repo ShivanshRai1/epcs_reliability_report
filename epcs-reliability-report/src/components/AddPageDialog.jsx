@@ -394,7 +394,9 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         await onPageCreate(response.page, {
           templateId,
           cloneSourcePageId,
-          cloneSourcePageData
+          cloneSourcePageData,
+          positionParams,
+          insertPosition
         });
 
         onClose();
