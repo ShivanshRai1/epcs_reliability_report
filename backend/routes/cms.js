@@ -488,4 +488,113 @@ router.post('/repair/rebuild-positions', async (req, res) => {
   }
 });
 
+// POST - Restore original data from static JSON
+router.post('/restore-original', async (req, res) => {
+  let connection;
+  try {
+    const { pagesTable, historyTable } = getTableNames(req);
+    const { pages } = req.body;
+
+    if (!Array.isArray(pages) || pages.length === 0) {
+      return res.status(400).json({ error: 'pages array is required and must not be empty' });
+    }
+
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    console.log(`🔄 Restoring original data: ${pages.length} pages...`);
+
+    // Track which page_ids are in the restore set
+    const restorePageIds = new Set(pages.map(p => String(p.page_id)));
+
+    // Upsert each page from the restore data
+    for (const page of pages) {
+      const {
+        page_id,
+        page_number,
+        position,
+        page_type,
+        page_template,
+        title,
+        page_data
+      } = page;
+
+      if (!page_id || !page_type || !title) {
+        throw new Error(`Invalid page data: missing required fields for page_id ${page_id}`);
+      }
+
+      // Upsert: insert or update existing page
+      await connection.query(
+        `INSERT INTO ${pagesTable} 
+         (page_id, page_number, position, page_type, page_template, title, page_data, updated_by, is_deleted, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, FALSE, CURRENT_TIMESTAMP)
+         ON DUPLICATE KEY UPDATE
+           page_number = VALUES(page_number),
+           position = VALUES(position),
+           page_type = VALUES(page_type),
+           page_template = VALUES(page_template),
+           title = VALUES(title),
+           page_data = VALUES(page_data),
+           updated_by = VALUES(updated_by),
+           is_deleted = FALSE,
+           updated_at = CURRENT_TIMESTAMP`,
+        [
+          page_id,
+          page_number || position || 1,
+          position || page_number || 1,
+          page_type,
+          page_template || page_type,
+          title,
+          JSON.stringify(page_data),
+          'system'
+        ]
+      );
+
+      console.log(`  📄 Restored page: ${page_id} (${title})`);
+    }
+
+    // Soft-delete any pages not in the restore set (user-created pages)
+    const [deleteResult] = await connection.query(
+      `UPDATE ${pagesTable} SET is_deleted = TRUE, updated_at = CURRENT_TIMESTAMP 
+       WHERE page_id NOT IN (${Array(restorePageIds.size).fill('?').join(',')}) AND is_deleted = FALSE`,
+      Array.from(restorePageIds)
+    );
+
+    console.log(`  🗑️ Soft-deleted ${deleteResult.affectedRows} extra pages not in original data`);
+
+    // Record the restore in history
+    if (process.env.TRACK_HISTORY === 'true') {
+      await connection.query(
+        `INSERT INTO ${historyTable} (page_id, page_number, change_description, changed_by, old_data, new_data)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        ['bulk_restore', 0, 'Restored original data', 'system', '{}', JSON.stringify({ pages_restored: pages.length })]
+      );
+    }
+
+    await connection.commit();
+    connection.release();
+
+    console.log(`✅ Original data restored: ${pages.length} pages, ${deleteResult.affectedRows} extra pages removed`);
+
+    res.json({
+      success: true,
+      message: 'Original data restored successfully',
+      pages_restored: pages.length,
+      extra_pages_removed: deleteResult.affectedRows
+    });
+
+  } catch (error) {
+    if (connection) {
+      try {
+        await connection.rollback();
+      } catch (rollbackError) {
+        console.error('Error rolling back restore transaction:', rollbackError);
+      }
+      connection.release();
+    }
+    console.error('❌ Error restoring original data:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;
