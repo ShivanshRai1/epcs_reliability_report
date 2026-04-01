@@ -13,7 +13,8 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0,
   enableKeepAlive: true,
-  keepAliveInitialDelayMs: 0
+  // note: keepAliveInitialDelayMs may not be supported in all mysql2 versions
+  // and may generate a harmless warning in logs. Remove or adjust if needed.
 });
 
 // Auto-migrate CMS columns on startup

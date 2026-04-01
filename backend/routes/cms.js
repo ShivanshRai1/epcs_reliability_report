@@ -390,10 +390,11 @@ router.patch('/reorder', async (req, res) => {
 
     // Record reorder in history
     if (process.env.TRACK_HISTORY === 'true') {
+      const historyPageId = pageOrder[0];
       await connection.query(
         `INSERT INTO ${historyTable} (page_id, page_number, change_description, changed_by, old_data, new_data)
          VALUES (?, ?, ?, ?, ?, ?)`,
-        ['bulk_reorder', 0, 'Pages reordered', 'system', '{}', JSON.stringify({ pageOrder })]
+        [historyPageId, 0, 'Pages reordered', 'system', '{}', JSON.stringify({ pageOrder })]
       );
     }
 
@@ -504,26 +505,30 @@ router.post('/restore-original', async (req, res) => {
 
     console.log(`🔄 Restoring original data: ${pages.length} pages...`);
 
-    // Track which page_ids are in the restore set
-    const restorePageIds = new Set(pages.map(p => String(p.page_id)));
+    // Track which page_ids are in the restore set (normalized while iterating)
+    const restorePageIds = new Set();
 
     // Upsert each page from the restore data
-    for (const page of pages) {
-      const {
-        page_id,
-        page_number,
-        position,
-        page_type,
-        page_template,
-        title,
-        page_data
-      } = page;
+    for (let i = 0; i < pages.length; i++) {
+      const page = pages[i];
+      const pageId = page.page_id || page.id;
+      const pageType = page.page_type || page.pageType || page.page_template || page.pageTemplate;
+      const pageNumber = page.page_number ?? page.pageNumber ?? page.position ?? (i + 1);
+      const pagePosition = page.position ?? page.pageNumber ?? page.page_number ?? pageNumber;
+      const pageTemplate = page.page_template || page.pageTemplate || pageType;
+      const title = page.title || page.text || '';
+      const pageData = page.page_data || page.pageData || page;
 
-      if (!page_id || !page_type || !title) {
-        throw new Error(`Invalid page data: missing required fields for page_id ${page_id}`);
+      if (!pageId || !pageType) {
+        const missing = [];
+        if (!pageId) missing.push('page_id / id');
+        if (!pageType) missing.push('page_type / pageType');
+        throw new Error(`Invalid page data: missing required fields (${missing.join(', ')}) for page index ${i} (${JSON.stringify(page).slice(0, 120)})`);
       }
 
-      // Upsert: insert or update existing page
+      const normalizedTitle = title;
+      const normalizedPageData = pageData;
+
       await connection.query(
         `INSERT INTO ${pagesTable} 
          (page_id, page_number, position, page_type, page_template, title, page_data, updated_by, is_deleted, updated_at)
@@ -539,18 +544,19 @@ router.post('/restore-original', async (req, res) => {
            is_deleted = FALSE,
            updated_at = CURRENT_TIMESTAMP`,
         [
-          page_id,
-          page_number || position || 1,
-          position || page_number || 1,
-          page_type,
-          page_template || page_type,
-          title,
-          JSON.stringify(page_data),
+          pageId,
+          pageNumber || 1,
+          pagePosition || pageNumber || 1,
+          pageType,
+          pageTemplate || pageType,
+          normalizedTitle,
+          JSON.stringify(normalizedPageData),
           'system'
         ]
       );
 
-      console.log(`  📄 Restored page: ${page_id} (${title})`);
+      console.log(`  📄 Restored page: ${pageId} (${normalizedTitle})`);
+      restorePageIds.add(String(pageId));
     }
 
     // Soft-delete any pages not in the restore set (user-created pages)
@@ -564,10 +570,11 @@ router.post('/restore-original', async (req, res) => {
 
     // Record the restore in history
     if (process.env.TRACK_HISTORY === 'true') {
+      const historyPageId = Array.from(restorePageIds)[0];
       await connection.query(
         `INSERT INTO ${historyTable} (page_id, page_number, change_description, changed_by, old_data, new_data)
          VALUES (?, ?, ?, ?, ?, ?)`,
-        ['bulk_restore', 0, 'Restored original data', 'system', '{}', JSON.stringify({ pages_restored: pages.length })]
+        [historyPageId, 0, 'Restored original data', 'system', '{}', JSON.stringify({ pages_restored: pages.length })]
       );
     }
 
