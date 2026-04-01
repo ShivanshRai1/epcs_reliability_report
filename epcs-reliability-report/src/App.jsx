@@ -1269,15 +1269,48 @@ function App() {
       apiService.reorderPages(pageOrder)
         .then(async () => {
           console.log('✅ Backend reorder sync completed');
-          // Save updated index pages to backend so live preview shows correct order
-          for (const indexPage of indexPagesToSync) {
-            try {
-              await apiService.savePage(indexPage.id, { page_data: indexPage }, 'system');
-            } catch (err) {
-              console.warn(`⚠️ Failed to sync index page ${indexPage.id}:`, err.message);
+          // Save updated index content to backend so live preview shows the same order.
+          // Only sync index pages that exist in backend to avoid 404s from static-only pages.
+          let syncedCount = 0;
+          try {
+            const backendPages = await apiService.getPages(true);
+            const backendIndexIds = new Set(
+              (Array.isArray(backendPages) ? backendPages : [])
+                .filter((p) => p?.page_type === 'index')
+                .map((p) => String(p.page_id))
+            );
+
+            for (const indexPage of indexPagesToSync) {
+              const indexPageId = String(indexPage?.id || '');
+              if (!indexPageId || !backendIndexIds.has(indexPageId)) {
+                continue;
+              }
+
+              try {
+                await apiService.savePage(
+                  indexPageId,
+                  {
+                    page_data: {
+                      title: indexPage.title,
+                      content: Array.isArray(indexPage.content) ? indexPage.content : []
+                    }
+                  },
+                  'system'
+                );
+                syncedCount += 1;
+              } catch (err) {
+                console.warn(`⚠️ Failed to sync index page ${indexPageId}:`, err.message);
+              }
             }
+          } catch (err) {
+            console.warn('⚠️ Could not load backend pages for index sync:', err.message);
           }
-          console.log('✅ Index pages synced to backend');
+
+          if (syncedCount > 0) {
+            console.log(`✅ Index pages synced to backend (${syncedCount})`);
+          } else {
+            console.warn('⚠️ No index pages were synced to backend');
+          }
         })
         .catch(err => console.warn('⚠️ Backend reorder sync failed (offline mode OK):', err.message));
       
