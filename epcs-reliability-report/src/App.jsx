@@ -939,6 +939,11 @@ function App() {
           }
         }
 
+        // Assign a provisional pageNumber so the page sorts to the correct position.
+        const prevPN = insertIndex > 0 ? (updatedPages[insertIndex - 1]?.pageNumber || 0) : 0;
+        const nextPN = updatedPages[insertIndex]?.pageNumber;
+        localPage.pageNumber = nextPN != null ? (prevPN + nextPN) / 2 : prevPN + 1;
+
         updatedPages.splice(insertIndex, 0, localPage);
 
         let transformedData = { ...reportData, pages: updatedPages };
@@ -950,10 +955,12 @@ function App() {
         setChangedPages(new Set());
         saveReportCache(transformedData);
 
-        const insertedPage = transformedData.pages.find(page => idMatches(page.id, localPageId));
-        if (insertedPage?.pageNumber) {
-          navigate(`/page/${insertedPage.pageNumber}`);
-          return insertedPage.pageNumber;
+        // Navigate by sorted positional index (robust regardless of pageNumber gaps)
+        const sortedForNavLocal = [...transformedData.pages].sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
+        const newPageIdxLocal = sortedForNavLocal.findIndex(p => idMatches(p.id, localPageId));
+        if (newPageIdxLocal >= 0) {
+          navigate(`/page/${newPageIdxLocal + 1}`);
+          return newPageIdxLocal + 1;
         }
 
         return null;
@@ -1093,31 +1100,26 @@ function App() {
       setIsEditMode(false);
       setChangedPages(new Set());
 
-      let redirectPageNumber = null;
+      // Navigate by sorted positional index so we always land on the right page
+      // regardless of whether pageNumbers are contiguous or have gaps.
+      const sortedForNav = [...transformedData.pages].sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
+      let redirectIdx = createdPageId
+        ? sortedForNav.findIndex(p => idMatches(p.id, createdPageId))
+        : -1;
 
-      if (createdPageId) {
-        const createdPage = transformedData.pages.find(page => idMatches(page.id, createdPageId));
-        if (createdPage?.pageNumber) {
-          redirectPageNumber = createdPage.pageNumber;
+      if (redirectIdx < 0 && newPage?.page_number) {
+        const apiPN = Number(newPage.page_number);
+        if (Number.isFinite(apiPN)) {
+          redirectIdx = sortedForNav.findIndex(p => p.pageNumber === apiPN);
         }
       }
 
-      if (!redirectPageNumber && newPage?.page_number) {
-        const apiPageNumber = Number(newPage.page_number);
-        if (Number.isFinite(apiPageNumber)) {
-          const matchingPage = transformedData.pages.find(page => page.pageNumber === apiPageNumber);
-          if (matchingPage?.pageNumber) {
-            redirectPageNumber = matchingPage.pageNumber;
-          }
-        }
+      if (redirectIdx < 0 && sortedForNav.length > 0) {
+        redirectIdx = sortedForNav.length - 1; // fallback: last page
       }
 
-      if (!redirectPageNumber && transformedData.pages.length > 0) {
-        redirectPageNumber = Math.max(...transformedData.pages.map(page => page.pageNumber || 0));
-      }
-
-      if (redirectPageNumber) {
-        navigate(`/page/${redirectPageNumber}`);
+      if (redirectIdx >= 0) {
+        navigate(`/page/${redirectIdx + 1}`);
       }
       
       console.log('✅ Page created successfully:', newPage);
@@ -1164,38 +1166,13 @@ function App() {
       setIsDeleteDialogOpen(false);
       setPageToDelete(null);
       
-      // Determine where to redirect after deletion
-      const remainingPages = transformedData.pages.filter(p => p.pageType !== 'home');
-      const totalRemainingPages = remainingPages.length;
-      let redirectPageNumber = null;
-      
-      if (pageNumberDeleted) {
-        // Try to find the next page after the deleted one
-        const nextPage = remainingPages.find(p => p.pageNumber > pageNumberDeleted);
-        if (nextPage && nextPage.pageNumber <= totalRemainingPages) {
-          redirectPageNumber = nextPage.pageNumber;
-          console.log(`🔄 Redirecting to next page: ${redirectPageNumber} (total: ${totalRemainingPages})`);
-        } else {
-          // If no next page, find the previous page
-          const prevPage = remainingPages.reverse().find(p => p.pageNumber < pageNumberDeleted);
-          if (prevPage && prevPage.pageNumber <= totalRemainingPages) {
-            redirectPageNumber = prevPage.pageNumber;
-            console.log(`🔄 Redirecting to previous page: ${redirectPageNumber} (total: ${totalRemainingPages})`);
-          } else {
-            // If no other pages, go to Index (page 1)
-            redirectPageNumber = 1;
-            console.log(`🔄 Redirecting to Index (page 1) - no other pages available`);
-          }
-        }
-        
-        if (redirectPageNumber && redirectPageNumber <= totalRemainingPages) {
-          console.log(`✅ Safe redirect: page ${redirectPageNumber} exists (total: ${totalRemainingPages})`);
-          navigate(`/page/${redirectPageNumber}`);
-        } else {
-          console.warn(`⚠️ Redirect page ${redirectPageNumber} exceeds total ${totalRemainingPages}, going to Index`);
-          navigate('/page/1');
-        }
-      }
+      // Redirect to the page immediately before the deleted one (by sorted position).
+      // Use positional index so gaps in pageNumber values don't cause off-by-one errors.
+      const sortedBefore = [...reportData.pages].sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
+      const deletedPosIdx = sortedBefore.findIndex(p => idMatches((p.id || p.page_id || p.pageId), resolvedPageId));
+      // One position back in the sorted list; clamp to 0 so first-page deletion goes to index
+      const targetPosIdx = Math.max(0, deletedPosIdx - 1);
+      navigate(`/page/${targetPosIdx + 1}`);
       
       // BACKGROUND SYNC: Delete from backend without blocking UI (fire-and-forget)
       // User sees delete immediately; backend sync is async and silent
