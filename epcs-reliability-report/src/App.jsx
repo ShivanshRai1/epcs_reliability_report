@@ -1217,7 +1217,7 @@ function App() {
       }
       
       console.log('✅ Page created successfully:', newPage);
-      return redirectPageNumber;
+      return redirectIdx >= 0 ? redirectIdx + 1 : null;
     } catch (err) {
       console.error('Error creating page:', err);
       return null;
