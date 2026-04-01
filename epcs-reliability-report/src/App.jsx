@@ -200,6 +200,9 @@ function App() {
     const livePagesById = new Map(targetPages.map((p) => [p.id, p]));
 
     // Update index pages with curated static content
+    const matchedIndexPageKeys = new Set();
+    const getIndexPageKey = (page) => `${String(page?.id ?? '')}::${String(page?.pageNumber ?? '')}`;
+
     const curatedStaticIndexPages = [...(staticIndexPages || [])]
       .sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0))
       .map((sp) => {
@@ -207,6 +210,10 @@ function App() {
         const matchingBackendIndexPage = indexPages.find(ip => 
           String(ip.id) === String(sp.id) || ip.pageNumber === sp.pageNumber
         );
+
+        if (matchingBackendIndexPage) {
+          matchedIndexPageKeys.add(getIndexPageKey(matchingBackendIndexPage));
+        }
 
         // Use ALL static content items (unfiltered) so legacy index entries always display.
         // Only filter the dynamic "page_X" extras by livePagesById to avoid dead links.
@@ -315,6 +322,10 @@ function App() {
         };
       });
 
+    const extraBackendIndexPages = indexPages
+      .filter((page) => !matchedIndexPageKeys.has(getIndexPageKey(page)))
+      .sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
+
     const staticTargets = new Set(
       curatedStaticIndexPages.flatMap((p) => (p.content || []).map((item) => item.target))
     );
@@ -406,7 +417,10 @@ function App() {
 
     let effectiveIndexPages = [];
     if (curatedStaticIndexPages.length > 0) {
-      effectiveIndexPages = insertNewContentItems(curatedStaticIndexPages, newContent);
+      effectiveIndexPages = insertNewContentItems(
+        [...curatedStaticIndexPages, ...extraBackendIndexPages],
+        newContent
+      );
     } else {
       const mergedContent = indexPages.flatMap((p) => (p.content || []));
       const baseIndexPage = {
