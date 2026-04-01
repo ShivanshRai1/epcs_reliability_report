@@ -662,7 +662,13 @@ function App() {
         
         if (significantlyLow && staticPageCount > 0) {
           console.warn(`⚠️ Backend returned significantly fewer pages (${transformedData.pages.length} vs ${staticPageCount} baseline), falling back to static data`);
-          const mergedFallbackData = mergeStaticBaselineWithLiveData(staticData.pages || [], transformedData);
+          const cachedData = loadReportCache();
+          const preferredLiveSource =
+            cachedData?.pages?.length > transformedData.pages.length
+              ? cachedData
+              : transformedData;
+
+          const mergedFallbackData = mergeStaticBaselineWithLiveData(staticData.pages || [], preferredLiveSource);
           const syncedStaticData = syncIndexPageContent(mergedFallbackData, staticIndexPages);
           setReportData(syncedStaticData);
           setOriginalData(JSON.parse(JSON.stringify(syncedStaticData)));
@@ -955,6 +961,7 @@ function App() {
   const handleSave = async () => {
     try {
       // OFFLINE-FIRST: Update local state IMMEDIATELY
+      saveReportCache(reportData);
       setOriginalData(JSON.parse(JSON.stringify(reportData)));
       setChangedPages(new Set()); // Clear changed pages
       setIsEditMode(false);
