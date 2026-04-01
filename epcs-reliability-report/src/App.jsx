@@ -1117,10 +1117,6 @@ function App() {
       
       // Sync index page with new page numbers
       transformedData = syncIndexPageContent(transformedData, staticIndexPagesRef.current);
-
-      const reorderedIndexPages = transformedData.pages.filter(
-        (page) => page.pageType === 'index' && Array.isArray(page.content)
-      );
       
       setReportData(transformedData);
       setOriginalData(JSON.parse(JSON.stringify(transformedData)));
@@ -1268,15 +1264,7 @@ function App() {
 
       // BACKGROUND SYNC: Update backend without blocking UI (fire-and-forget)
       apiService.reorderPages(pageOrder)
-        .then(async () => {
-          console.log('✅ Backend reorder sync completed');
-          await Promise.all(
-            reorderedIndexPages.map((page) =>
-              apiService.savePage(page.id, { page_data: page }, 'system')
-            )
-          );
-          console.log('✅ Index page content sync completed');
-        })
+        .then(() => console.log('✅ Backend reorder sync completed'))
         .catch(err => console.warn('⚠️ Backend reorder sync failed (offline mode OK):', err.message));
       
       return true;
