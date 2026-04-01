@@ -320,6 +320,16 @@ nav button:hover, .section-list-btn:hover {
   background: #60739a !important;
 }
 
+.restore-original-btn {
+  background: #8b0000 !important;
+  border: 2px solid #ff4444 !important;
+}
+
+.restore-original-btn:hover {
+  background: #ff4444 !important;
+  color: #ffffff !important;
+}
+
 .edit-disabled {
   background: #6c757d !important;
   color: #c7cedb !important;

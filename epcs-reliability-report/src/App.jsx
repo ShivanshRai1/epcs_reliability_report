@@ -39,6 +39,7 @@ function App() {
   const [isTestMode, setIsTestMode] = useState(() => apiService.getTestModeState().enabled);
   const [isSeedingTestData, setIsSeedingTestData] = useState(false);
   const [isPublishingTestData, setIsPublishingTestData] = useState(false);
+  const [isRestoringOriginal, setIsRestoringOriginal] = useState(false);
   // Cache of static index pages loaded from public JSON (preserves curated content/levels)
   const staticIndexPagesRef = useRef([]);
 
@@ -113,6 +114,73 @@ function App() {
       window.alert(`Failed to publish test data: ${err.message}`);
     } finally {
       setIsPublishingTestData(false);
+    }
+  };
+
+  const handleRestoreOriginalData = async () => {
+    try {
+      setIsRestoringOriginal(true);
+
+      // First confirmation
+      const confirmed1 = window.confirm(
+        '⚠️ WARNING: This will permanently delete ALL current production data and restore the original 51 pages.\n\n' +
+        'This action cannot be undone. Are you sure you want to continue?'
+      );
+      if (!confirmed1) return;
+
+      // Second confirmation
+      const confirmed2 = window.confirm(
+        '🔴 FINAL WARNING: This will erase all pages, edits, and changes made to production data.\n\n' +
+        'Only the original 51 pages will remain. Are you absolutely sure?'
+      );
+      if (!confirmed2) return;
+
+      // Load the original data from static JSON
+      console.log('📥 Loading original data from static JSON...');
+      const staticRes = await fetch('/structured_report_data.json');
+      if (!staticRes.ok) {
+        throw new Error('Failed to load original data file');
+      }
+      const originalData = await staticRes.json();
+
+      if (!originalData.pages || !Array.isArray(originalData.pages)) {
+        throw new Error('Invalid original data format');
+      }
+
+      // Transform frontend format to backend format
+      const backendPages = originalData.pages.map(page => ({
+        page_id: page.id,
+        page_number: page.pageNumber,
+        position: page.pageNumber,
+        page_type: page.pageType,
+        page_template: page.pageTemplate || page.pageType,
+        title: page.title,
+        page_data: page
+      }));
+
+      console.log(`🔄 Restoring ${backendPages.length} original pages...`);
+
+      // Call the restore API
+      const result = await apiService.restoreOriginalData(backendPages);
+
+      // Clear local cache
+      localStorage.removeItem(OFFLINE_CACHE_KEY);
+
+      window.alert(
+        `✅ Original data restored successfully!\n\n` +
+        `Pages restored: ${result.pages_restored}\n` +
+        `Extra pages removed: ${result.extra_pages_removed}\n\n` +
+        `The app will now reload.`
+      );
+
+      // Reload the app
+      window.location.reload();
+
+    } catch (err) {
+      console.error('Error restoring original data:', err);
+      window.alert(`❌ Failed to restore original data: ${err.message}`);
+    } finally {
+      setIsRestoringOriginal(false);
     }
   };
 
@@ -1374,7 +1442,7 @@ function App() {
       />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} hasUnsavedChanges={changedPages.size > 0} onEditToggle={handleEditToggle} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} isTestMode={isTestMode} isSeedingTestData={isSeedingTestData} isPublishingTestData={isPublishingTestData} onToggleTestMode={handleToggleTestMode} onSeedTestData={handleSeedTestData} onPublishTestData={handlePublishTestData} />} />
+        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} hasUnsavedChanges={changedPages.size > 0} onEditToggle={handleEditToggle} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} isTestMode={isTestMode} isSeedingTestData={isSeedingTestData} isPublishingTestData={isPublishingTestData} onToggleTestMode={handleToggleTestMode} onSeedTestData={handleSeedTestData} onPublishTestData={handlePublishTestData} onRestoreOriginal={handleRestoreOriginalData} isRestoringOriginal={isRestoringOriginal} />} />
         <Route path="*" element={<div className="App"><p>Page not found</p></div>} />
       </Routes>
     </>

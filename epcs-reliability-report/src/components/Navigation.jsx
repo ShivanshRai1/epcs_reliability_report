@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const Navigation = ({ onNavigate, isEditMode, isLiveMode, onEditToggle, onToggleLive, onUndo, onPublish, onSave, onCancel, onAddPage, onDeletePage, onManagePages, currentPageId, currentPageNumber, totalPages, isTestMode, isSeedingTestData, isPublishingTestData, onToggleTestMode, onSeedTestData, onPublishTestData }) => {
+const Navigation = ({ onNavigate, isEditMode, isLiveMode, onEditToggle, onToggleLive, onUndo, onPublish, onSave, onCancel, onAddPage, onDeletePage, onManagePages, currentPageId, currentPageNumber, totalPages, isTestMode, isSeedingTestData, isPublishingTestData, onToggleTestMode, onSeedTestData, onPublishTestData, onRestoreOriginal, isRestoringOriginal }) => {
   const showTestSyncButtons = false;
   const [isJumpMode, setIsJumpMode] = useState(false);
   const [jumpPageNumber, setJumpPageNumber] = useState(currentPageNumber?.toString() || '');
@@ -105,6 +105,16 @@ const Navigation = ({ onNavigate, isEditMode, isLiveMode, onEditToggle, onToggle
               title="Copy all test mode changes into production"
             >
               {isPublishingTestData ? 'Copying Test to Production...' : '📤 Copy Test Data to Production Data'}
+            </button>
+          )}
+          {!isTestMode && (
+            <button
+              className="section-list-btn restore-original-btn"
+              onClick={onRestoreOriginal}
+              disabled={isRestoringOriginal}
+              title="Permanently revert all production data to the original 51 pages"
+            >
+              {isRestoringOriginal ? 'Restoring...' : '🔄 Restore Original Data'}
             </button>
           )}
         </div>

@@ -376,6 +376,35 @@ export const apiService = {
     }
   },
 
+  // Restore original data from static JSON
+  restoreOriginalData: async (pages) => {
+    const candidates = buildApiCandidates();
+    let lastError = null;
+
+    for (const baseUrl of candidates) {
+      try {
+        const res = await fetch(`${baseUrl}/cms/restore-original`, withModeRequest({
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ pages })
+        }));
+
+        if (!res.ok) {
+          lastError = new Error(`HTTP ${res.status} when restoring original data`);
+          continue;
+        }
+        return res.json();
+      } catch (error) {
+        lastError = error;
+      }
+    }
+
+    console.error('Error restoring original data:', lastError);
+    throw lastError || new Error('Failed to restore original data');
+  },
+
   getTestModeState: () => getTestModeState(),
 
   setTestMode: (enabled, token = null) => {
