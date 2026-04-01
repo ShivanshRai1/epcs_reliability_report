@@ -23,8 +23,8 @@ const PageManagerModal = ({
 
   React.useEffect(() => {
     if (!isOpen) return;
-    // No scroll lock — the overlay is itself scrollable so the browser scrollbar works
-    return () => {};
+    lockBodyScroll();
+    return () => unlockBodyScroll();
   }, [isOpen]);
 
   const resetFromProps = () => {
