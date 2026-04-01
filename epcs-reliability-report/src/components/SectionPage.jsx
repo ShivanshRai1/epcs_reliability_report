@@ -28,9 +28,9 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
   const titleFontSize = toPositiveNumber(page.titleFontSize, 1.2);
   const headerFontSize = toPositiveNumber(page.headerFontSize, 0.95);
   const contentFontSize = toPositiveNumber(page.contentFontSize, 0.95);
-  const pageTextColor = page.textColor || '#e0e6f0';
+  const pageTextColor = page.textColor || '#1f2937';
   const contentTextColor = page.contentTextColor || pageTextColor;
-  const contentPickerColor = page.contentTextColor || '#e0e6f0';
+  const contentPickerColor = page.contentTextColor || '#1f2937';
   const headingTitleFontSize = toPositiveNumber(page.headingTitleFontSize, 3.25);
   const headingSubtitleFontSize = toPositiveNumber(page.headingSubtitleFontSize, 1.5);
   const imageWidth = toPositiveNumber(page.imageWidth, 0);
