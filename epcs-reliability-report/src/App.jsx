@@ -1066,6 +1066,45 @@ function App() {
       
       let transformedData = transformPagesFromApi(pagesFromApi);
       const createdPageId = newPage?.page_id || newPage?.id;
+      const currentPageCount = Array.isArray(reportData?.pages) ? reportData.pages.length : 0;
+
+      const isSuspiciouslyLowAfterCreate =
+        currentPageCount > 0 && transformedData.pages.length < Math.max(1, Math.floor(currentPageCount * 0.9));
+
+      if (isSuspiciouslyLowAfterCreate && reportData?.pages?.length) {
+        console.warn(
+          `⚠️ Post-create refresh returned too few pages (${transformedData.pages.length} vs ${currentPageCount}). Preserving in-memory pages and inserting the new page locally.`
+        );
+
+        const fallbackPageType = newPage?.page_type || newPage?.pageType || newPage?.template || options?.templateId || 'content';
+        const fallbackPageTemplate = newPage?.page_template || newPage?.pageTemplate || newPage?.template || options?.templateId || fallbackPageType;
+        const fallbackPageNumber = Number(newPage?.page_number ?? newPage?.pageNumber ?? (currentPageCount + 1));
+
+        const createdFallbackPage = {
+          id: createdPageId,
+          title: newPage?.title || 'New Page',
+          pageType: fallbackPageType,
+          pageTemplate: fallbackPageTemplate,
+          pageNumber: Number.isFinite(fallbackPageNumber) ? fallbackPageNumber : currentPageCount + 1
+        };
+
+        const preservedPages = [...reportData.pages];
+        const existingIdx = preservedPages.findIndex((page) => idMatches(page.id, createdPageId));
+
+        if (existingIdx >= 0) {
+          preservedPages[existingIdx] = {
+            ...preservedPages[existingIdx],
+            ...createdFallbackPage
+          };
+        } else {
+          preservedPages.push(createdFallbackPage);
+        }
+
+        transformedData = {
+          ...reportData,
+          pages: preservedPages.sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0))
+        };
+      }
 
       // Verify the newly created page exists in the backend response
       const pageExistsInApi = transformedData.pages.some(p => idMatches(p.id, createdPageId));
