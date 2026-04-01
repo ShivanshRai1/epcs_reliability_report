@@ -1241,7 +1241,12 @@ function App() {
 
       transformedData.pages = reorderedPages;
 
-      // Sync index page with new page numbers
+      // Update staticIndexPagesRef with reordered pages so syncIndexPageContent uses current positions
+      const reorderedIndexPages = transformedData.pages.filter(p => p.pageType === 'index')
+        .sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
+      staticIndexPagesRef.current = reorderedIndexPages;
+
+      // Sync index page with new page numbers using updated ref
       transformedData = syncIndexPageContent(transformedData, staticIndexPagesRef.current);
 
       setReportData(transformedData);
