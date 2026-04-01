@@ -1246,6 +1246,7 @@ function App() {
 
       setReportData(transformedData);
       setOriginalData(JSON.parse(JSON.stringify(transformedData)));
+      saveReportCache(transformedData);
       
       console.log('✅ Pages reordered locally');
 
