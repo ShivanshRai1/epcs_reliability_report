@@ -324,6 +324,15 @@ function App() {
           return backendKey || staticKey;
         };
 
+        // Keep valid internal page targets and allow true external link targets.
+        // This removes stale/orphan index entries after page deletions.
+        const isExternalTarget = (target) => /^(https?:\/\/|www\.|mailto:|tel:|#)/i.test(String(target || '').trim());
+        const isActiveTarget = (target) => {
+          const key = String(target || '').trim();
+          if (!key) return false;
+          return livePagesById.has(key) || isExternalTarget(key);
+        };
+
         // Defer fully to backend ONLY when it has >= 70% of the raw unfiltered static item count.
         // Defer fully to backend ONLY when it has >= 70% of the raw unfiltered static item count
         // AND the majority of its items point to real pages (valid targets in livePagesById).
@@ -349,7 +358,7 @@ function App() {
                 ? staticLevelByTarget.get(targetKey)
                 : (Number(item?.level) || 0)
             };
-          });
+          }).filter((item) => isActiveTarget(item?.target));
 
           return {
             ...matchingBackendIndexPage,
@@ -373,12 +382,12 @@ function App() {
                 level: item.level
               }
             : item;
-        });
+          }).filter((item) => isActiveTarget(item?.target));
 
         // Append backend-only items (e.g. newly added dynamic pages) not in the static list.
         const backendExtras = Array.from(backendByTargetQueues.values())
           .flat()
-          .filter((item) => item && item.target && livePagesById.has(item.target));
+          .filter((item) => item && isActiveTarget(item.target));
 
         return {
           ...matchingBackendIndexPage,
