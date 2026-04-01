@@ -1459,64 +1459,45 @@ function App() {
       // Sync index with existing static baseline (no structural changes)
       transformedData = syncIndexPageContent(transformedData, staticIndexPagesRef.current);
 
+      // Keep the static index baseline in sync with the newly sorted order so that
+      // any subsequent syncIndexPageContent calls (e.g. on live-tab focus-refresh)
+      // don't revert the index back to the original static sequence.
+      staticIndexPagesRef.current = staticIndexPagesRef.current.map(sp => {
+        const sortedLivePage = transformedData.pages.find(p =>
+          p.pageType === 'index' &&
+          (String(p.id) === String(sp.id) || p.pageNumber === sp.pageNumber)
+        );
+        if (!sortedLivePage?.content?.length) return sp;
+        return { ...sp, content: sortedLivePage.content };
+      });
+
       setReportData(transformedData);
       setOriginalData(JSON.parse(JSON.stringify(transformedData)));
       saveReportCache(transformedData);
-      
+
       console.log('✅ Pages reordered locally');
 
-      // Extract index pages to sync after backend reorder succeeds
+      // Extract index pages to sync to the backend
       const indexPagesToSync = transformedData.pages.filter(p => p.pageType === 'index');
 
-      // BACKGROUND SYNC: Update backend without blocking UI (fire-and-forget)
-      apiService.reorderPages(pageOrder)
-        .then(async () => {
-          console.log('✅ Backend reorder sync completed');
-          // Save updated index content to backend so live preview shows the same order.
-          // Only sync index pages that exist in backend to avoid 404s from static-only pages.
-          let syncedCount = 0;
-          try {
-            const backendPages = await apiService.getPages(true);
-            const backendIndexIds = new Set(
-              (Array.isArray(backendPages) ? backendPages : [])
-                .filter((p) => p?.page_type === 'index')
-                .map((p) => String(p.page_id))
-            );
+      // BACKGROUND SYNC: Run page reorder and all index-content saves CONCURRENTLY.
+      // This removes the old sequential dependency (reorder → getPages → savePage) so the
+      // backend is fully up-to-date as fast as possible, closing the race window where a
+      // live-preview tab could load before the index content was saved.
+      const indexSyncPromises = indexPagesToSync
+        .filter(ip => ip?.id)
+        .map(ip =>
+          apiService.savePage(
+            String(ip.id),
+            { page_data: { title: ip.title, content: Array.isArray(ip.content) ? ip.content : [] } },
+            'system'
+          ).catch(err => console.warn(`⚠️ Failed to sync index page ${ip.id}:`, err.message))
+        );
 
-            for (const indexPage of indexPagesToSync) {
-              const indexPageId = String(indexPage?.id || '');
-              if (!indexPageId || !backendIndexIds.has(indexPageId)) {
-                continue;
-              }
-
-              try {
-                await apiService.savePage(
-                  indexPageId,
-                  {
-                    page_data: {
-                      title: indexPage.title,
-                      content: Array.isArray(indexPage.content) ? indexPage.content : []
-                    }
-                  },
-                  'system'
-                );
-                syncedCount += 1;
-              } catch (err) {
-                console.warn(`⚠️ Failed to sync index page ${indexPageId}:`, err.message);
-              }
-            }
-          } catch (err) {
-            console.warn('⚠️ Could not load backend pages for index sync:', err.message);
-          }
-
-          if (syncedCount > 0) {
-            console.log(`✅ Index pages synced to backend (${syncedCount})`);
-          } else {
-            console.warn('⚠️ No index pages were synced to backend');
-          }
-        })
+      Promise.all([apiService.reorderPages(pageOrder), ...indexSyncPromises])
+        .then(() => console.log('✅ Reorder and index pages synced to backend'))
         .catch(err => console.warn('⚠️ Backend reorder sync failed (offline mode OK):', err.message));
-      
+
       return true;
     } catch (err) {
       console.error('❌ Error in reorder flow:', err);

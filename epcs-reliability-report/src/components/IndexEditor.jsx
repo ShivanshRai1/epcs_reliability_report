@@ -12,6 +12,11 @@ const IndexEditor = ({ page, onChange, availablePages = [] }) => {
   const containerRef = useRef(null);
   const itemRefs = useRef({});
 
+  // Key derived from the ORDER of targets in the index — changes when items are externally
+  // reordered (e.g. via Page Manager reorder), allowing the editor to re-sync without
+  // triggering on every title keystroke (title changes don't affect this key).
+  const contentOrderKey = (page.content || []).map(item => String(item?.target || '')).join(',');
+
   useEffect(() => {
     setTitle(page.title || '');
     setContent(page.content || []);
@@ -19,7 +24,8 @@ const IndexEditor = ({ page, onChange, availablePages = [] }) => {
     setNewItemTitle('');
     setNewItemTarget('');
     itemRefs.current = {};
-  }, [page.id]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page.id, contentOrderKey]);
 
   // Auto-scroll to selected item
   useEffect(() => {
