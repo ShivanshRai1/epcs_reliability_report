@@ -1038,6 +1038,18 @@ function App() {
 
       const cloneSourcePageId = options?.cloneSourcePageId || null;
       const cloneSourcePageData = options?.cloneSourcePageData || null;
+      const referencePageId = options?.positionParams?.pageId || null;
+      const DISPLAY_INHERIT_KEYS = ['textColor', 'contentTextColor', 'fontFamily', 'titleFontSize', 'headerFontSize', 'contentFontSize'];
+      const applyDisplayInheritance = (targetPage, sourcePage) => {
+        if (!targetPage || !sourcePage) return targetPage;
+        const nextPage = { ...targetPage };
+        for (const key of DISPLAY_INHERIT_KEYS) {
+          if (sourcePage[key] !== undefined) {
+            nextPage[key] = sourcePage[key];
+          }
+        }
+        return nextPage;
+      };
       const CLONE_SKIP_KEYS = new Set(['id', 'page_id', 'pageId', 'pageNumber', 'page_number', 'createdAt', 'updatedAt']);
       const buildClonePayload = (sourcePage) => {
         if (!sourcePage || typeof sourcePage !== 'object') return null;
@@ -1066,6 +1078,11 @@ function App() {
           localPage.pageType = localPage.pageType || newPage?.pageType || newPage?.page_type || 'content';
         }
 
+        const localReferencePage = referencePageId
+          ? (reportData?.pages || []).find((page) => idMatches(page.id, referencePageId))
+          : null;
+        const styledLocalPage = applyDisplayInheritance(localPage, localReferencePage);
+
         const updatedPages = [...(reportData?.pages || [])];
         const refPageId = options?.positionParams?.pageId;
         const insertBefore = Boolean(options?.positionParams?.insertBefore);
@@ -1083,7 +1100,7 @@ function App() {
         const nextPN = updatedPages[insertIndex]?.pageNumber;
         localPage.pageNumber = nextPN != null ? (prevPN + nextPN) / 2 : prevPN + 1;
 
-        updatedPages.splice(insertIndex, 0, localPage);
+        updatedPages.splice(insertIndex, 0, styledLocalPage);
 
         let transformedData = { ...reportData, pages: updatedPages };
         transformedData = syncIndexPageContent(transformedData, staticIndexPagesRef.current);
@@ -1124,12 +1141,17 @@ function App() {
         const fallbackPageType = newPage?.page_type || newPage?.pageType || newPage?.template || options?.templateId || 'content';
         const fallbackPageTemplate = newPage?.page_template || newPage?.pageTemplate || newPage?.template || options?.templateId || fallbackPageType;
 
-        const createdFallbackPage = {
+        let createdFallbackPage = {
           id: createdPageId,
           title: newPage?.title || 'New Page',
           pageType: fallbackPageType,
           pageTemplate: fallbackPageTemplate
         };
+
+        const fallbackReferencePage = referencePageId
+          ? reportData.pages.find((page) => idMatches(page.id, referencePageId))
+          : null;
+        createdFallbackPage = applyDisplayInheritance(createdFallbackPage, fallbackReferencePage);
 
         const preservedPages = [...reportData.pages].sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
         const existingIdx = preservedPages.findIndex((page) => idMatches(page.id, createdPageId));
@@ -1235,6 +1257,21 @@ function App() {
               console.warn('⚠️ Clone sync failed, keeping local clone state:', cloneSyncErr.message);
             }
           }
+        }
+      }
+
+      // By default, inherit display settings from the insertion reference page
+      // so newly added pages visually match the surrounding section.
+      if (createdPageId && referencePageId) {
+        const referencePage = transformedData.pages.find((page) => idMatches(page.id, referencePageId));
+        if (referencePage) {
+          transformedData = {
+            ...transformedData,
+            pages: transformedData.pages.map((page) => {
+              if (!idMatches(page.id, createdPageId)) return page;
+              return applyDisplayInheritance(page, referencePage);
+            })
+          };
         }
       }
 
