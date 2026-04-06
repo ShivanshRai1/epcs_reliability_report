@@ -138,7 +138,6 @@ const IndexEditor = ({ page, onChange, availablePages = [] }) => {
 
       <div className="index-editor-section">
         <h3>Content Items</h3>
-        <p className="help-text">Click to select an item, then use ⬆️ ⬇️ arrow keys to reorder</p>
         <div className="index-items-list">
           {content.map((item, idx) => (
             <div 
