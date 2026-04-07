@@ -37,27 +37,6 @@ const IndexEditor = ({ page, onChange, availablePages = [] }) => {
     }
   }, [selectedIdx]);
 
-  // Handle arrow key navigation
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (selectedIdx === null) return;
-
-      if (e.key === 'ArrowUp' && selectedIdx > 0) {
-        e.preventDefault();
-        handleMoveUp(selectedIdx);
-        // Use a setTimeout to ensure the state updates before we change selectedIdx
-        setTimeout(() => setSelectedIdx(selectedIdx - 1), 0);
-      } else if (e.key === 'ArrowDown' && selectedIdx < content.length - 1) {
-        e.preventDefault();
-        handleMoveDown(selectedIdx);
-        // Use a setTimeout to ensure the state updates before we change selectedIdx
-        setTimeout(() => setSelectedIdx(selectedIdx + 1), 0);
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [selectedIdx, content]);
 
   const selectablePages = (Array.isArray(availablePages) ? availablePages : [])
     .filter((p) => p && p.id && p.pageType !== 'index' && p.pageType !== 'home')
