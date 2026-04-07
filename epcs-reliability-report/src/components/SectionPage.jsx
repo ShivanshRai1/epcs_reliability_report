@@ -600,7 +600,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
       const showContinued = tone < 3;
 
       return (
-        <div className={`legacy-live-index legacy-live-index-tone-${tone}`}>
+        <div className={`legacy-live-index legacy-live-index-tone-${tone}`} style={{ fontFamily }}>
           <div className="legacy-live-index-logo">EPC-SPACE</div>
           <div className="legacy-live-index-banner">{bannerTitle}</div>
 
@@ -648,7 +648,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
     }
 
     return (
-      <div className="index-view-wrap" style={{ '--index-base-size': `${contentFontSize}rem`, '--index-link-color': contentTextColor }}>
+      <div className="index-view-wrap" style={{ '--index-base-size': `${contentFontSize}rem`, '--index-link-color': contentTextColor, fontFamily }}>
         <h2 className="index-title" style={page.textColor ? { color: page.textColor } : {}}>INDEX</h2>
         <div className="index-scroll-container">
         <ul className="index-list">
