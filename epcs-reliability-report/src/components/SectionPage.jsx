@@ -236,6 +236,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
       color: pageTextColor,
       fontFamily: headingFontFamily
     };
+    const liveHeadingSubtitleColor = isLiveMode && !isEditMode ? '#ffffff' : contentTextColor;
     const headingTitleStyle = {
       fontFamily: headingFontFamily,
       fontSize: `${headingTitleFontSize}rem`,
@@ -244,13 +245,13 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
     const headingSubtitleStyle = {
       fontFamily: headingFontFamily,
       fontSize: `${headingSubtitleFontSize}rem`,
-      color: contentTextColor
+      color: liveHeadingSubtitleColor
     };
     const legacyHeadingVars = {
       '--legacy-heading-title-size': `${headingTitleFontSize}rem`,
       '--legacy-heading-subtitle-size': `${headingSubtitleFontSize}rem`,
       '--heading-title-color': pageTextColor,
-      '--heading-subtitle-color': contentTextColor,
+      '--heading-subtitle-color': liveHeadingSubtitleColor,
     };
 
     if (isLiveMode && !isEditMode) {
