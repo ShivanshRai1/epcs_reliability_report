@@ -862,23 +862,38 @@ a, .index-link {
 
 a:hover, .index-link:hover {
   color: #0052a3 !important;
-
-  /* Index view: allow contentTextColor and contentFontSize to override the global !important link rules */
-  .index-view-wrap a.index-link {
-    color: var(--index-link-color, #0066cc) !important;
-    font-size: var(--index-base-size, 0.95rem) !important;
-  }
-  .index-view-wrap a.index-link.index-link-child {
-    color: var(--index-link-color, #0066cc) !important;
-    font-size: calc(var(--index-base-size, 0.95rem) * 0.926) !important;
-  }
-  .index-view-wrap .index-item-parent {
-    font-size: var(--index-base-size, 0.95rem) !important;
-  }
-  .index-view-wrap li.index-item-child {
-    font-size: calc(var(--index-base-size, 0.95rem) * 0.926) !important;
-  }
   text-decoration: underline;
+}
+
+/* Normal-mode index view only: honor contentTextColor/contentFontSize without touching live preview. */
+.report-shell .index-view-wrap a.index-link {
+  color: var(--index-link-color, #0066cc) !important;
+  font-size: var(--index-base-size, 0.95rem) !important;
+}
+
+.report-shell .index-view-wrap a.index-link:hover {
+  color: var(--index-link-color, #0066cc) !important;
+}
+
+.report-shell .index-view-wrap a.index-link.index-link-child {
+  color: var(--index-link-color, #0066cc) !important;
+  font-size: calc(var(--index-base-size, 0.95rem) * 0.926) !important;
+}
+
+.report-shell .index-view-wrap .index-item-parent {
+  font-size: var(--index-base-size, 0.95rem) !important;
+}
+
+.report-shell .index-view-wrap li.index-item-child {
+  font-size: calc(var(--index-base-size, 0.95rem) * 0.926) !important;
+}
+
+.report-shell .index-view-wrap .index-child-list {
+  border-left-color: var(--index-link-color, rgba(122, 179, 238, 0.35));
+}
+
+.report-shell .index-view-wrap .index-child-list .index-item-child::before {
+  color: var(--index-link-color, #7ab3ee);
 }
 
 /* PDF Viewer Style for Live Mode */
