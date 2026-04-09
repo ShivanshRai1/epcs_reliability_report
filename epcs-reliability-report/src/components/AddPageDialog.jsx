@@ -22,7 +22,8 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     { id: 'split-links-image', name: 'Split Links + Image', description: 'Links on left and image on right with optional headers' },
     { id: 'split-image-links', name: 'Split Image + Links', description: 'Image on left and links on right with optional headers' },
     { id: 'split-image-image', name: 'Split Image + Image', description: 'Image on left and image on right with optional headers' },
-    { id: 'split-content', name: 'Split Content', description: 'Flexible left/right content areas with optional headers' }
+    { id: 'split-content', name: 'Split Content', description: 'Flexible left/right content areas with optional headers' },
+      { id: 'table-qualified', name: 'Qualified Table', description: 'DLA qualified multi-color table page' }
   ];
 
   // Fetch available templates
@@ -78,7 +79,8 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         { id: 'split-links-image', name: 'Split Links + Image', description: 'Links on left and image on right with optional headers' },
         { id: 'split-image-links', name: 'Split Image + Links', description: 'Image on left and links on right with optional headers' },
         { id: 'split-image-image', name: 'Split Image + Image', description: 'Image on left and image on right with optional headers' },
-        { id: 'split-content', name: 'Split Content', description: 'Flexible left/right content areas with optional headers' }
+        { id: 'split-content', name: 'Split Content', description: 'Flexible left/right content areas with optional headers' },
+        { id: 'table-qualified', name: 'Qualified Table', description: 'DLA qualified multi-color table page' }
       ];
       ensuredTemplates.forEach((t) => {
         if (!templateMap.has(t.id)) templateMap.set(t.id, t);
@@ -122,15 +124,14 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       'table': 'table',
       'heading': 'heading',
       'index': 'index',
-      'just-links': 'just-links',
-      'link-only': 'just-links'
+      'table-qualified': 'table'
     };
     return templateToPageType[templateId] || templateId;
   };
 
   const resolveTemplateForCreate = (templateId) => {
     const createTemplateMap = {
-      'link-only': 'just-links',
+      'table-qualified': 'table'
     };
     return createTemplateMap[templateId] || templateId;
   };
@@ -213,6 +214,23 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
             return normalizedPageType === 'index';
           case 'table':
             return normalizedPageType === 'table';
+            case 'table-qualified': {
+  const rows = page?.table?.rows || page?.table?.data || [];
+  const hasQualifiedPalette = Array.isArray(rows) && rows.some((row) => {
+    const raw = String(row?.rowClass || row?.rowColor || '').toLowerCase();
+    const normalized = raw.startsWith('row-') ? raw : `row-${raw}`;
+    return ['row-light-blue', 'row-green', 'row-cyan', 'row-beige', 'row-pink'].includes(normalized);
+  });
+
+  return (
+    normalizedPageType === 'table' &&
+    (
+      normalizedTemplate === 'table-qualified' ||
+      String(page?.title || '').toUpperCase().includes('DLA QUALIFIED PART LIST') ||
+      hasQualifiedPalette
+    )
+  );
+}
           case 'text-only':
             return normalizedPageType === 'content' && !page?.mixedContentMode;
           case 'just-images':
@@ -297,34 +315,6 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       );
     }
 
-    if (templateId === 'images-gallery' || templateId === 'images-carousel') {
-      return (
-        <div className="template-preview-live-wrap">
-          <div className="template-preview-meta">Sample: Dummy preview</div>
-          <div className="template-preview-live template-preview-dummy-live">
-            <div className="template-preview-dummy-image-grid">
-              <div className="template-preview-dummy-image" />
-              <div className="template-preview-dummy-image" />
-              <div className="template-preview-dummy-image" />
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (templateId === 'video-gallery') {
-      return (
-        <div className="template-preview-live-wrap">
-          <div className="template-preview-meta">Sample: Dummy preview</div>
-          <div className="template-preview-live template-preview-dummy-live">
-            <div className="template-preview-dummy-video">
-              <div className="template-preview-dummy-video-item" />
-              <div className="template-preview-dummy-video-item" />
-            </div>
-          </div>
-        </div>
-      );
-    }
 
     const sample = getSamplePageForTemplate(templateId);
 
