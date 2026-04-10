@@ -245,7 +245,11 @@
   background-color: #ffffff;
 }
 .content-text strong,
-.content-line strong,
+.content-line strong {
+  color: inherit;
+  font-weight: 700;
+}
+
 .content-row strong {
   color: #ff6b35;
   font-weight: 700;
@@ -273,6 +277,11 @@
   .content-text,
   .content-line {
     color: #213547;
+  }
+
+  .content-text strong,
+  .content-line strong {
+    color: inherit;
   }
 
   .content-group,
