@@ -1257,6 +1257,16 @@ const clearDraftCache = () => {
           navigate(`/page/${newPageIdx + 1}`);
         }
 
+        // Auto-save draft state
+        const updatedPendingCreates = [...pendingCreates, styledDraftPage];
+        saveDraftCache(
+          transformedData,
+          Array.from(changedPages),
+          updatedPendingCreates,
+          pendingDeletes,
+          pendingReorder
+        );
+
         console.log('✅ Page added locally (will sync on Publish)');
         return;
       }
@@ -1610,6 +1620,16 @@ const clearDraftCache = () => {
            // NEW: Track in pendingDeletes (will sync on Publish)
       setPendingDeletes(prev => [...prev, resolvedPageId]);
       
+      // Auto-save draft state
+      const updatedPendingDeletes = [...pendingDeletes, resolvedPageId];
+      saveDraftCache(
+        transformedData,
+        Array.from(changedPages),
+        pendingCreates,
+        updatedPendingDeletes,
+        pendingReorder
+      );
+      
       console.log('✅ Page marked for deletion (will sync on Publish)');
     } catch (err) {
       console.error('❌ Error in delete flow:', err);
@@ -1687,6 +1707,15 @@ const clearDraftCache = () => {
       // live-preview tab could load before the index content was saved.
             // NEW: Store in pendingReorder (will sync on Publish)
       setPendingReorder(pageOrder);
+      
+      // Auto-save draft state
+      saveDraftCache(
+        transformedData,
+        Array.from(changedPages),
+        pendingCreates,
+        pendingDeletes,
+        pageOrder
+      );
       
       console.log('✅ Page reorder stored locally (will sync on Publish)');
 
