@@ -125,7 +125,8 @@ const Navigation = ({ onNavigate, isEditMode, isLiveMode, onEditToggle, onToggle
           <button className="section-list-btn edit-manage" onClick={onManagePages} title="Manage page order and structure">📄 Manage Pages</button>
           <button className="section-list-btn edit-add" onClick={onAddPage} title="Add a page after the current page">➕ Add Page</button>
           <button className="section-list-btn edit-delete" onClick={onDeletePage} title="Delete this page">🗑 Delete Page</button>
-          <button className="section-list-btn edit-publish" onClick={onPublish} title="Save and publish current edits">🚀 Publish Changes</button>
+          <button className="section-list-btn edit-save" onClick={onSave} title="Save current edits without publishing">💾 Save</button>
+          <button className="section-list-btn edit-publish" onClick={onPublish} title="Publish saved changes to live preview">🚀 Publish Changes</button>
           <button className="section-list-btn edit-cancel" onClick={onCancel} title="Discard unsaved edits">❌ Cancel Editing</button>
         </div>
       )}

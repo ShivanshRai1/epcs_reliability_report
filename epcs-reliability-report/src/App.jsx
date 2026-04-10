@@ -11,6 +11,7 @@ import PublishConfirmDialog from './components/PublishConfirmDialog';
 import { apiService } from './services/api';
 
 const OFFLINE_CACHE_KEY = 'epcs_report_cache_v2';
+const DRAFT_CACHE_KEY = 'epcs_report_draft_v1';
 const LIVE_LEGACY_CSS_FILES = ['/bootstrap.min.css', '/base.min.css', '/fancy.min.css', '/main.css', '/lightbox.css'];
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [changedPages, setChangedPages] = useState(new Set());
+  const [savedDraftPages, setSavedDraftPages] = useState(new Set());
   const [isAddPageDialogOpen, setIsAddPageDialogOpen] = useState(false);
   const [currentPageId, setCurrentPageId] = useState(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -247,6 +249,39 @@ function App() {
     } catch (cacheErr) {
       console.warn('Could not load report cache:', cacheErr);
       return null;
+    }
+  };
+
+    const saveDraftCache = (data, pendingPageIds = []) => {
+    try {
+      if (!data?.pages || !Array.isArray(data.pages)) return;
+      localStorage.setItem(DRAFT_CACHE_KEY, JSON.stringify({
+        data,
+        pendingPageIds
+      }));
+    } catch (draftErr) {
+      console.warn('Could not persist draft cache:', draftErr);
+    }
+  };
+
+  const loadDraftCache = () => {
+    try {
+      const raw = localStorage.getItem(DRAFT_CACHE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed?.data?.pages || !Array.isArray(parsed.data.pages)) return null;
+      return parsed;
+    } catch (draftErr) {
+      console.warn('Could not load draft cache:', draftErr);
+      return null;
+    }
+  };
+
+  const clearDraftCache = () => {
+    try {
+      localStorage.removeItem(DRAFT_CACHE_KEY);
+    } catch (draftErr) {
+      console.warn('Could not clear draft cache:', draftErr);
     }
   };
 
@@ -646,7 +681,18 @@ function App() {
         let pagesFromApi = await apiService.getPages(true); // forceFresh = true to bypass browser cache
         
         // Transform data structure for the app
-        let transformedData = transformPagesFromApi(pagesFromApi);
+                let transformedData = transformPagesFromApi(pagesFromApi);
+
+        const isInitialLiveMode = new URLSearchParams(window.location.search).get('live') === '1';
+        const savedDraft = isInitialLiveMode ? null : loadDraftCache();
+
+        if (savedDraft?.data?.pages?.length) {
+          console.log('📝 Loading saved draft changes for normal mode');
+          transformedData = savedDraft.data;
+          setSavedDraftPages(new Set(savedDraft.pendingPageIds || []));
+        } else {
+          setSavedDraftPages(new Set());
+        }
 
         const staticPageCount = Array.isArray(staticData?.pages) ? staticData.pages.length : 0;
         const isSuspiciouslyLow = staticPageCount > 0 && transformedData.pages.length < staticPageCount;
@@ -967,34 +1013,20 @@ function App() {
   };
 
 
-  const handleSave = async () => {
+    const handleSave = async () => {
     try {
-      // OFFLINE-FIRST: Update local state IMMEDIATELY
-      saveReportCache(reportData);
+      const pagesToStage = new Set([...savedDraftPages, ...changedPages]);
+
+      saveDraftCache(reportData, Array.from(pagesToStage));
       setOriginalData(JSON.parse(JSON.stringify(reportData)));
-      setChangedPages(new Set()); // Clear changed pages
+      setSavedDraftPages(pagesToStage);
+      setChangedPages(new Set());
       setIsEditMode(false);
-      
-      console.log('✅ Local changes committed');
-      
-      // BACKGROUND SYNC: Save to backend without blocking UI (fire-and-forget)
-      // User sees save success immediately; backend sync is async and silent
-      const pagesToSave = Array.from(changedPages);
-      
-      for (const pageId of pagesToSave) {
-        const page = reportData.pages.find(p => idMatches(p.id, pageId));
-        if (page) {
-          const payload = { 
-            page_data: { ...page }
-          };
-          apiService.savePage(page.id, payload)
-            .then(() => console.log(`✅ Backend save sync completed for page ${pageId}`))
-            .catch(err => console.warn(`⚠️ Backend save sync failed for page ${pageId} (offline mode OK):`, err.message));
-        }
-      }
+
+      console.log('✅ Draft saved locally. Live Preview will continue showing published data until Publish.');
     } catch (err) {
-      console.error('Error in save flow:', err);
-      // Don't let errors block the local update
+      console.error('Error saving draft:', err);
+      window.alert(`Failed to save draft: ${err.message}`);
     }
   };
 
@@ -1009,21 +1041,37 @@ function App() {
     setIsPublishDialogOpen(true);
   };
 
-  const confirmPublish = async () => {
-    // Close the dialog first
+    const confirmPublish = async () => {
     setIsPublishDialogOpen(false);
-    
-    // Save all changes
-    await handleSave();
-    
-    // Set published data to lock read-only mode
-    setPublishedData(JSON.parse(JSON.stringify(reportData)));
-    
-    // Exit edit mode
-    setIsEditMode(false);
-    
-    // Clear undo history since changes are now permanent
-    setPageUndoHistory({});
+
+    try {
+      const pageIdsToPublish = Array.from(new Set([...savedDraftPages, ...changedPages]));
+
+      for (const pageId of pageIdsToPublish) {
+        const page = reportData.pages.find((p) => idMatches(p.id, pageId));
+        if (!page) continue;
+
+        await apiService.savePage(
+          page.id,
+          { page_data: { ...page } },
+          'system'
+        );
+      }
+
+      clearDraftCache();
+      saveReportCache(reportData);
+      setOriginalData(JSON.parse(JSON.stringify(reportData)));
+      setPublishedData(JSON.parse(JSON.stringify(reportData)));
+      setSavedDraftPages(new Set());
+      setChangedPages(new Set());
+      setIsEditMode(false);
+      setPageUndoHistory({});
+
+      console.log('✅ Changes published to backend');
+    } catch (err) {
+      console.error('Error publishing changes:', err);
+      window.alert(`Failed to publish changes: ${err.message}`);
+    }
   };
 
   const handleImageClick = (imageSrc, imageAlt) => {
