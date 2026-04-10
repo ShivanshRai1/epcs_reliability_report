@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const Navigation = ({ onNavigate, isEditMode, isLiveMode, onEditToggle, onToggleLive, onUndo, onPublish, onSave, onCancel, onAddPage, onDeletePage, onManagePages, currentPageId, currentPageNumber, totalPages, isTestMode, isSeedingTestData, isPublishingTestData, onToggleTestMode, onSeedTestData, onPublishTestData, onRestoreOriginal, isRestoringOriginal }) => {
+const Navigation = ({ onNavigate, isEditMode, isLiveMode, publishStatusLabel, onEditToggle, onToggleLive, onUndo, onPublish, onSave, onCancel, onAddPage, onDeletePage, onManagePages, currentPageId, currentPageNumber, totalPages, isTestMode, isSeedingTestData, isPublishingTestData, onToggleTestMode, onSeedTestData, onPublishTestData, onRestoreOriginal, isRestoringOriginal }) => {
   const showTestSyncButtons = false;
   const [isJumpMode, setIsJumpMode] = useState(false);
   const [jumpPageNumber, setJumpPageNumber] = useState(currentPageNumber?.toString() || '');
@@ -52,6 +52,11 @@ const Navigation = ({ onNavigate, isEditMode, isLiveMode, onEditToggle, onToggle
 
       {!isLiveMode && currentPageNumber && totalPages && (
         <div className="toolbar-group toolbar-group-counter">
+          {publishStatusLabel && (
+            <span className="page-counter" title="Current publish status" style={{ marginRight: '10px' }}>
+              {publishStatusLabel}
+            </span>
+          )}
           {isJumpMode ? (
             <input
               type="number"

@@ -379,7 +379,8 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         title: title,
         pageType: getPageTypeForTemplate(templateId),
         pageTemplate: createTemplateId,
-        _isDraftNew: true
+        _isDraftNew: true,
+        _draftTemplateId: createTemplateId
       };
 
       console.log('✅ Page added to draft (will sync on Publish):', draftPage);

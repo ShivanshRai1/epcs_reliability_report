@@ -1077,14 +1077,17 @@ const clearDraftCache = () => {
 
         const pagePayload = { ...currentDraftPage };
         const createPositionParams = pagePayload._draftPositionParams || null;
+        const createTemplate = pagePayload._draftTemplateId || pagePayload.pageTemplate || pagePayload.pageType || 'content';
+        const createTitle = pagePayload.title || 'New Page';
         delete pagePayload._isDraftNew;
         delete pagePayload._isDraftDeleted;
         delete pagePayload._draftPositionParams;
+        delete pagePayload._draftTemplateId;
         delete pagePayload.id;
 
         const response = await apiService.createPage(
-          pagePayload.pageTemplate || pagePayload.pageType || 'content',
-          pagePayload.title || 'New Page',
+          createTemplate,
+          createTitle,
           null,
           createPositionParams
         );
@@ -1216,7 +1219,8 @@ const clearDraftCache = () => {
           title: newPage?.title || 'New Page',
           pageType: newPage?.pageType || newPage?.page_type || 'content',
           _isDraftNew: true,
-          _draftPositionParams: options?.positionParams || null
+          _draftPositionParams: options?.positionParams || null,
+          _draftTemplateId: newPage?._draftTemplateId || options?.templateId || newPage?.pageTemplate || 'content'
         };
 
         // Clone template content
@@ -1226,6 +1230,7 @@ const clearDraftCache = () => {
           draftPage.id = draftPageId;
           draftPage.pageType = draftPage.pageType || newPage?.pageType || newPage?.page_type || 'content';
           draftPage._isDraftNew = true;
+          draftPage._draftTemplateId = newPage?._draftTemplateId || options?.templateId || draftPage._draftTemplateId || 'content';
         }
 
         // Apply display inheritance from reference page
@@ -1774,6 +1779,15 @@ const clearDraftCache = () => {
     })
   };
 
+  const hasPendingPublishChanges = Boolean(
+    changedPages.size > 0 ||
+    savedDraftPages.size > 0 ||
+    pendingCreates.length > 0 ||
+    pendingDeletes.length > 0 ||
+    pendingReorder
+  );
+  const publishStatusLabel = hasPendingPublishChanges ? '🟡 Draft pending publish' : '🟢 Published';
+
   return (
     <>
       <Modal isOpen={isModalOpen} imageSrc={selectedImage?.src} imageAlt={selectedImage?.alt} onClose={handleCloseModal} />
@@ -1811,7 +1825,7 @@ const clearDraftCache = () => {
       />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/page/:pageId" element={<ReportPage reportData={displayData} isEditMode={isEditMode} hasUnsavedChanges={changedPages.size > 0} onEditToggle={handleEditToggle} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} isTestMode={isTestMode} isSeedingTestData={isSeedingTestData} isPublishingTestData={isPublishingTestData} onToggleTestMode={handleToggleTestMode} onSeedTestData={handleSeedTestData} onPublishTestData={handlePublishTestData} onRestoreOriginal={handleRestoreOriginalData} isRestoringOriginal={isRestoringOriginal} />} />
+        <Route path="/page/:pageId" element={<ReportPage reportData={displayData} isEditMode={isEditMode} hasUnsavedChanges={changedPages.size > 0} publishStatusLabel={publishStatusLabel} onEditToggle={handleEditToggle} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} isTestMode={isTestMode} isSeedingTestData={isSeedingTestData} isPublishingTestData={isPublishingTestData} onToggleTestMode={handleToggleTestMode} onSeedTestData={handleSeedTestData} onPublishTestData={handlePublishTestData} onRestoreOriginal={handleRestoreOriginalData} isRestoringOriginal={isRestoringOriginal} />} />
         <Route path="*" element={<div className="App"><p>Page not found</p></div>} />
       </Routes>
     </>
