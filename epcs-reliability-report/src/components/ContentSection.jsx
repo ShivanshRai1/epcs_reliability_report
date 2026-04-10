@@ -89,10 +89,19 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
 
   useEffect(() => {
     const rawText = content || '';
-    if (rawText !== text || !editorHtml) {
-      setText(rawText);
-      setEditorHtml(buildEditorHtml(rawText));
+    setText(rawText);
+
+    // Do not rebuild the editable DOM while the user is actively typing in it.
+    // That would reset the caret/selection and make the editor feel broken.
+    if (editorRef.current) {
+      const isFocused = document.activeElement === editorRef.current;
+      const currentSerialized = serializeEditorContent(editorRef.current);
+      if (isFocused && currentSerialized === rawText) {
+        return;
+      }
     }
+
+    setEditorHtml(buildEditorHtml(rawText));
   }, [content]);
 
   const saveSelection = () => {
@@ -119,9 +128,6 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
   };
 
   const handleEditorInput = () => {
-    if (editorRef.current) {
-      setEditorHtml(editorRef.current.innerHTML);
-    }
     const rebuiltText = serializeEditorContent(editorRef.current);
     setText(rebuiltText);
     if (onChange) {
@@ -254,6 +260,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
           contentEditable
           suppressContentEditableWarning
           onInput={handleEditorInput}
+          onFocus={saveSelection}
           onBlur={handleEditorInput}
           onKeyUp={() => { saveSelection(); }}
           onMouseUp={() => { saveSelection(); }}
