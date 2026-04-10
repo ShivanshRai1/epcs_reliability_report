@@ -6,6 +6,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
   const [text, setText] = useState(content || '');
   const [editorHtml, setEditorHtml] = useState('');
   const editorRef = useRef(null);
+  const selectionRef = useRef(null);
   const resolvedContentFontSize = Number.isFinite(Number(contentFontSize)) && Number(contentFontSize) > 0 ? Number(contentFontSize) : 0.95;
 
   const parseEditorLines = (str) => {
@@ -23,7 +24,12 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     if (typeof window === 'undefined') return String(html || '');
 
     const container = document.createElement('div');
-    container.innerHTML = String(html || '');
+    container.innerHTML = String(html || '')
+      .replace(/<span[^>]*font-weight\s*:\s*(bold|bolder|[6-9]00)[^>]*>([\s\S]*?)<\/span>/gi, '<strong>$2</strong>')
+      .replace(/<span[^>]*font-style\s*:\s*italic[^>]*>([\s\S]*?)<\/span>/gi, '<em>$1</em>')
+      .replace(/<(\/?)b>/gi, '<$1strong>')
+      .replace(/<(\/?)i>/gi, '<$1em>');
+
     const allowedTags = new Set(['STRONG', 'EM', 'BR']);
     const walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT);
     const nodesToUnwrap = [];
@@ -45,10 +51,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
       parent.removeChild(node);
     });
 
-    return container.innerHTML
-      .replace(/<(\/?)b>/gi, '<$1strong>')
-      .replace(/<(\/?)i>/gi, '<$1em>')
-      .replace(/&nbsp;/g, ' ');
+    return container.innerHTML.replace(/&nbsp;/g, ' ');
   };
 
   const renderInlineContent = (value) => ({
@@ -91,27 +94,42 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     }
   }, [content]);
 
+  const saveSelection = () => {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0 || !editorRef.current) return;
+    const range = selection.getRangeAt(0);
+    if (editorRef.current.contains(range.commonAncestorContainer)) {
+      selectionRef.current = range.cloneRange();
+    }
+  };
+
+  const restoreSelection = () => {
+    const selection = window.getSelection();
+    if (!selection || !selectionRef.current) return;
+    selection.removeAllRanges();
+    selection.addRange(selectionRef.current);
+  };
+
   const handleEditorInput = () => {
+    if (editorRef.current) {
+      setEditorHtml(editorRef.current.innerHTML);
+    }
     const rebuiltText = serializeEditorContent(editorRef.current);
     setText(rebuiltText);
     if (onChange) {
       onChange(rebuiltText);
     }
+    saveSelection();
   };
 
   const applyInlineFormat = (command) => {
     if (!editorRef.current) return;
 
-    // Keep the current text selection intact and apply inline formatting to it.
+    editorRef.current.focus();
+    restoreSelection();
     document.execCommand(command, false, null);
-
-    // Sync the editable DOM back into stored content after the browser applies the command.
-    setTimeout(() => {
-      if (editorRef.current) {
-        setEditorHtml(editorRef.current.innerHTML);
-      }
-      handleEditorInput();
-    }, 0);
+    handleEditorInput();
+    saveSelection();
   };
 
   const handlePastePlainText = (e) => {
@@ -227,6 +245,8 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
           suppressContentEditableWarning
           onInput={handleEditorInput}
           onBlur={handleEditorInput}
+          onKeyUp={saveSelection}
+          onMouseUp={saveSelection}
           onPaste={handlePastePlainText}
           style={{ fontFamily, fontSize: `${resolvedContentFontSize}rem`, color: contentTextColor }}
           dangerouslySetInnerHTML={{ __html: editorHtml }}

@@ -194,17 +194,17 @@
 }
 
 .content-editor-rich .content-row-group {
-  font-weight: 400 !important;
+  font-weight: 700 !important;
 }
 
 .content-editor-rich strong {
   color: inherit !important;
-  font-weight: 700;
+  font-weight: 700 !important;
 }
 
 .content-editor-rich em {
   color: inherit !important;
-  font-style: italic;
+  font-style: italic !important;
 }
 
 .content-editor-rich:focus {
