@@ -5,6 +5,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
   const effectiveLiveMode = isLiveMode || new URLSearchParams(window.location.search).get('live') === '1';
   const [text, setText] = useState(content || '');
   const [editorHtml, setEditorHtml] = useState('');
+  const [activeFormats, setActiveFormats] = useState({ bold: false, italic: false });
   const editorRef = useRef(null);
   const selectionRef = useRef(null);
   const resolvedContentFontSize = Number.isFinite(Number(contentFontSize)) && Number(contentFontSize) > 0 ? Number(contentFontSize) : 0.95;
@@ -110,6 +111,13 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     selection.addRange(selectionRef.current);
   };
 
+  const updateActiveFormats = () => {
+    setActiveFormats({
+      bold: Boolean(document.queryCommandState && document.queryCommandState('bold')),
+      italic: Boolean(document.queryCommandState && document.queryCommandState('italic')),
+    });
+  };
+
   const handleEditorInput = () => {
     if (editorRef.current) {
       setEditorHtml(editorRef.current.innerHTML);
@@ -120,6 +128,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
       onChange(rebuiltText);
     }
     saveSelection();
+    updateActiveFormats();
   };
 
   const applyInlineFormat = (command) => {
@@ -130,6 +139,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     document.execCommand(command, false, null);
     handleEditorInput();
     saveSelection();
+    updateActiveFormats();
   };
 
   const handlePastePlainText = (e) => {
@@ -234,8 +244,8 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     return (
       <div className="content-section-edit">
         <div className="content-editor-toolbar">
-          <button type="button" className="content-editor-btn" onMouseDown={(e) => { e.preventDefault(); applyInlineFormat('bold'); }} title="Bold selected text"><strong>B</strong></button>
-          <button type="button" className="content-editor-btn" onMouseDown={(e) => { e.preventDefault(); applyInlineFormat('italic'); }} title="Italic selected text"><em>I</em></button>
+          <button type="button" className={`content-editor-btn ${activeFormats.bold ? 'active' : ''}`} onMouseDown={(e) => { e.preventDefault(); applyInlineFormat('bold'); }} title="Bold selected text"><strong>B</strong></button>
+          <button type="button" className={`content-editor-btn ${activeFormats.italic ? 'active' : ''}`} onMouseDown={(e) => { e.preventDefault(); applyInlineFormat('italic'); }} title="Italic selected text"><em>I</em></button>
         </div>
         <div className="content-editor-note">Formatting tags are hidden while editing. Bold and italic are supported for selected text.</div>
         <div
@@ -245,8 +255,8 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
           suppressContentEditableWarning
           onInput={handleEditorInput}
           onBlur={handleEditorInput}
-          onKeyUp={saveSelection}
-          onMouseUp={saveSelection}
+          onKeyUp={() => { saveSelection(); updateActiveFormats(); }}
+          onMouseUp={() => { saveSelection(); updateActiveFormats(); }}
           onPaste={handlePastePlainText}
           style={{ fontFamily, fontSize: `${resolvedContentFontSize}rem`, color: contentTextColor }}
           dangerouslySetInnerHTML={{ __html: editorHtml }}

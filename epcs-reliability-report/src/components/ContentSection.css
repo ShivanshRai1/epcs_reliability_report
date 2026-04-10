@@ -157,6 +157,13 @@
   background: #eef4ff;
 }
 
+.content-editor-btn.active {
+  background: #dbeafe;
+  border-color: #2563eb;
+  color: #0f172a;
+  box-shadow: inset 0 0 0 1px #2563eb;
+}
+
 .content-editor-rich {
   width: 100%;
   min-height: 400px;
@@ -205,6 +212,8 @@
 .content-editor-rich em {
   color: inherit !important;
   font-style: italic !important;
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 
 .content-editor-rich:focus {
@@ -231,10 +240,14 @@
 }
 .content-text strong,
 .content-line strong,
-.content-row strong,
-.content-editor-rich strong {
+.content-row strong {
   color: #ff6b35;
   font-weight: 700;
+}
+
+.content-editor-rich strong {
+  color: inherit !important;
+  font-weight: 700 !important;
 }
 
 .content-text em,
