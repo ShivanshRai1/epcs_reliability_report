@@ -1140,6 +1140,9 @@ const clearDraftCache = () => {
       setIsEditMode(false);
       setPageUndoHistory({});
 
+      // Navigate to index page to avoid "Page not found" after structural changes
+      navigate('/page/1');
+
       console.log('✅ All changes published to backend');
     } catch (err) {
       console.error('Error publishing changes:', err);
