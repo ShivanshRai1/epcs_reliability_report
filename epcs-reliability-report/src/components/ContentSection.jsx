@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './ContentSection.css';
 
 const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, fontFamily = 'inherit', contentFontSize = 0.95, contentTextColor = '#e0e6f0' }) => {
   const effectiveLiveMode = isLiveMode || new URLSearchParams(window.location.search).get('live') === '1';
   const [text, setText] = useState(content || '');
-  const [editorText, setEditorText] = useState('');
-  const [lineStyles, setLineStyles] = useState([]);
+  const [editorHtml, setEditorHtml] = useState('');
+  const editorRef = useRef(null);
   const resolvedContentFontSize = Number.isFinite(Number(contentFontSize)) && Number(contentFontSize) > 0 ? Number(contentFontSize) : 0.95;
 
   const parseEditorLines = (str) => {
-    if (!str) return [];
+    if (!str) return [{ type: 'line', text: '' }];
     return String(str).split(/\r?\n/).map((line) => {
       const tagged = line.match(/^\[(GROUP|BLUE|ORANGE|INDENT-1|INDENT-2)\](.*?)\[\/\1\]$/);
       if (tagged) {
@@ -19,38 +19,97 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     });
   };
 
-  const rebuildStyledText = (plainText, styles) => {
-    const lines = String(plainText || '').split(/\r?\n/);
-    return lines.map((line, index) => {
-      const type = styles[index] || 'line';
-      if (!line) return '';
-      if (type !== 'line') {
-        return `[${type}]${line}[/${type}]`;
+  const sanitizeInlineHtml = (html = '') => {
+    if (typeof window === 'undefined') return String(html || '');
+
+    const container = document.createElement('div');
+    container.innerHTML = String(html || '');
+    const allowedTags = new Set(['STRONG', 'EM', 'BR']);
+    const walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT);
+    const nodesToUnwrap = [];
+    let currentNode = walker.nextNode();
+
+    while (currentNode) {
+      if (!allowedTags.has(currentNode.tagName)) {
+        nodesToUnwrap.push(currentNode);
       }
-      return line;
+      currentNode = walker.nextNode();
+    }
+
+    nodesToUnwrap.forEach((node) => {
+      const parent = node.parentNode;
+      if (!parent) return;
+      while (node.firstChild) {
+        parent.insertBefore(node.firstChild, node);
+      }
+      parent.removeChild(node);
+    });
+
+    return container.innerHTML
+      .replace(/<(\/?)b>/gi, '<$1strong>')
+      .replace(/<(\/?)i>/gi, '<$1em>')
+      .replace(/&nbsp;/g, ' ');
+  };
+
+  const renderInlineContent = (value) => ({
+    __html: sanitizeInlineHtml(value || '')
+  });
+
+  const buildEditorHtml = (rawText = '') => {
+    const lines = parseEditorLines(rawText);
+    const classMap = {
+      GROUP: 'content-row-group',
+      BLUE: 'content-row-blue',
+      ORANGE: 'content-row-orange',
+      'INDENT-1': 'content-row-blue content-row-indent-1',
+      'INDENT-2': 'content-row-blue content-row-indent-2',
+      line: 'content-row-line'
+    };
+
+    return lines.map((line) => {
+      const safeHtml = sanitizeInlineHtml(line.text) || '<br>';
+      return `<div class="content-editor-line ${classMap[line.type] || 'content-row-line'}" data-line-style="${line.type}">${safeHtml}</div>`;
+    }).join('');
+  };
+
+  const serializeEditorContent = (root) => {
+    if (!root) return '';
+
+    return Array.from(root.children).map((node) => {
+      const type = node.getAttribute('data-line-style') || 'line';
+      const innerHtml = sanitizeInlineHtml(node.innerHTML || '').replace(/<br\s*\/?>/gi, '').trim();
+      if (!innerHtml) return '';
+      return type !== 'line' ? `[${type}]${innerHtml}[/${type}]` : innerHtml;
     }).join('\n');
   };
 
   useEffect(() => {
     const rawText = content || '';
-    const parsedLines = parseEditorLines(rawText);
-    setText(rawText);
-    setEditorText(parsedLines.map((line) => line.text).join('\n'));
-    setLineStyles(parsedLines.map((line) => line.type));
+    if (rawText !== text || !editorHtml) {
+      setText(rawText);
+      setEditorHtml(buildEditorHtml(rawText));
+    }
   }, [content]);
 
-  const handleChange = (e) => {
-    const visibleText = e.target.value;
-    const nextLines = String(visibleText).split(/\r?\n/);
-    const nextStyles = nextLines.map((_, index) => lineStyles[index] || 'line');
-    const rebuiltText = rebuildStyledText(visibleText, nextStyles);
-
-    setEditorText(visibleText);
-    setLineStyles(nextStyles);
+  const handleEditorInput = () => {
+    const rebuiltText = serializeEditorContent(editorRef.current);
     setText(rebuiltText);
     if (onChange) {
       onChange(rebuiltText);
     }
+  };
+
+  const applyInlineFormat = (command) => {
+    if (!editorRef.current) return;
+    editorRef.current.focus();
+    document.execCommand(command, false, null);
+    handleEditorInput();
+  };
+
+  const handlePastePlainText = (e) => {
+    e.preventDefault();
+    const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+    document.execCommand('insertText', false, pastedText);
   };
 
   const parseToSegments = (str) => {
@@ -88,7 +147,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
       'INDENT-2': 'content-row-blue content-row-indent-2',
       'line': 'content-row-line',
     };
-    return <div key={idx} className={`content-row ${typeToClass[seg.type] || 'content-row-line'}`}>{seg.text}</div>;
+    return <div key={idx} className={`content-row ${typeToClass[seg.type] || 'content-row-line'}`} dangerouslySetInnerHTML={renderInlineContent(seg.text)} />;
   };
 
   // Parse styled text with markup: [GROUP]text[/GROUP], [BLUE]text[/BLUE], [ORANGE]text[/ORANGE]
@@ -107,9 +166,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
         const textBefore = str.substring(lastIndex, match.index);
         if (textBefore.trim()) {
           elements.push(
-            <p key={`text-${lastIndex}`} className="content-line">
-              {textBefore}
-            </p>
+            <p key={`text-${lastIndex}`} className="content-line" dangerouslySetInnerHTML={renderInlineContent(textBefore)} />
           );
         }
       }
@@ -128,9 +185,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
         inlineStyle.fontSize = `${resolvedContentFontSize}rem`;
       }
       elements.push(
-        <p key={`styled-${match.index}`} className={className} style={inlineStyle}>
-          {innerText}
-        </p>
+        <p key={`styled-${match.index}`} className={className} style={inlineStyle} dangerouslySetInnerHTML={renderInlineContent(innerText)} />
       );
 
       lastIndex = match.index + match[0].length;
@@ -141,9 +196,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
       const remaining = str.substring(lastIndex);
       if (remaining.trim()) {
         elements.push(
-          <p key={`text-${lastIndex}`} className="content-line">
-            {remaining}
-          </p>
+          <p key={`text-${lastIndex}`} className="content-line" dangerouslySetInnerHTML={renderInlineContent(remaining)} />
         );
       }
     }
@@ -154,13 +207,21 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
   if (isEditing) {
     return (
       <div className="content-section-edit">
-        <div className="content-editor-note">Formatting tags are hidden while editing.</div>
-        <textarea
-          value={editorText}
-          onChange={handleChange}
-          className="content-textarea"
+        <div className="content-editor-toolbar">
+          <button type="button" className="content-editor-btn" onMouseDown={(e) => { e.preventDefault(); applyInlineFormat('bold'); }} title="Bold selected text"><strong>B</strong></button>
+          <button type="button" className="content-editor-btn" onMouseDown={(e) => { e.preventDefault(); applyInlineFormat('italic'); }} title="Italic selected text"><em>I</em></button>
+        </div>
+        <div className="content-editor-note">Formatting tags are hidden while editing. Bold and italic are supported for selected text.</div>
+        <div
+          ref={editorRef}
+          className="content-editor-rich"
+          contentEditable
+          suppressContentEditableWarning
+          onInput={handleEditorInput}
+          onBlur={handleEditorInput}
+          onPaste={handlePastePlainText}
           style={{ fontFamily, fontSize: `${resolvedContentFontSize}rem`, color: contentTextColor }}
-          placeholder="Enter content here..."
+          dangerouslySetInnerHTML={{ __html: editorHtml }}
         />
       </div>
     );
