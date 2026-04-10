@@ -4,17 +4,52 @@ import './ContentSection.css';
 const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, fontFamily = 'inherit', contentFontSize = 0.95, contentTextColor = '#e0e6f0' }) => {
   const effectiveLiveMode = isLiveMode || new URLSearchParams(window.location.search).get('live') === '1';
   const [text, setText] = useState(content || '');
+  const [editorText, setEditorText] = useState('');
+  const [lineStyles, setLineStyles] = useState([]);
   const resolvedContentFontSize = Number.isFinite(Number(contentFontSize)) && Number(contentFontSize) > 0 ? Number(contentFontSize) : 0.95;
 
+  const parseEditorLines = (str) => {
+    if (!str) return [];
+    return String(str).split(/\r?\n/).map((line) => {
+      const tagged = line.match(/^\[(GROUP|BLUE|ORANGE|INDENT-1|INDENT-2)\](.*?)\[\/\1\]$/);
+      if (tagged) {
+        return { type: tagged[1], text: tagged[2] };
+      }
+      return { type: 'line', text: line };
+    });
+  };
+
+  const rebuildStyledText = (plainText, styles) => {
+    const lines = String(plainText || '').split(/\r?\n/);
+    return lines.map((line, index) => {
+      const type = styles[index] || 'line';
+      if (!line) return '';
+      if (type !== 'line') {
+        return `[${type}]${line}[/${type}]`;
+      }
+      return line;
+    }).join('\n');
+  };
+
   useEffect(() => {
-    setText(content || '');
+    const rawText = content || '';
+    const parsedLines = parseEditorLines(rawText);
+    setText(rawText);
+    setEditorText(parsedLines.map((line) => line.text).join('\n'));
+    setLineStyles(parsedLines.map((line) => line.type));
   }, [content]);
 
   const handleChange = (e) => {
-    const newText = e.target.value;
-    setText(newText);
+    const visibleText = e.target.value;
+    const nextLines = String(visibleText).split(/\r?\n/);
+    const nextStyles = nextLines.map((_, index) => lineStyles[index] || 'line');
+    const rebuiltText = rebuildStyledText(visibleText, nextStyles);
+
+    setEditorText(visibleText);
+    setLineStyles(nextStyles);
+    setText(rebuiltText);
     if (onChange) {
-      onChange(newText);
+      onChange(rebuiltText);
     }
   };
 
@@ -119,12 +154,13 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
   if (isEditing) {
     return (
       <div className="content-section-edit">
+        <div className="content-editor-note">Formatting tags are hidden while editing.</div>
         <textarea
-          value={text}
+          value={editorText}
           onChange={handleChange}
           className="content-textarea"
           style={{ fontFamily, fontSize: `${resolvedContentFontSize}rem`, color: contentTextColor }}
-          placeholder="Enter content with markup: [GROUP]text[/GROUP], [BLUE]text[/BLUE], [ORANGE]text[/ORANGE], [INDENT-1]text[/INDENT-1], [INDENT-2]text[/INDENT-2]"
+          placeholder="Enter content here..."
         />
       </div>
     );
