@@ -371,35 +371,29 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         positionParams = { pageId: currentPageId, insertBefore: false };
       }
       
-      const createTemplateId = resolveTemplateForCreate(templateId);
+            const createTemplateId = resolveTemplateForCreate(templateId);
       
-      // Call API with correct parameters
-      const response = await apiService.createPage(
-        createTemplateId,
-        title,
-        null,
-        positionParams
-      );
+      // NEW: Create draft page locally (skip backend)
+      const draftPage = {
+        id: `page_${Date.now()}`,
+        title: title,
+        pageType: getPageTypeForTemplate(templateId),
+        pageTemplate: createTemplateId,
+        _isDraftNew: true
+      };
 
-      console.log('✅ API Response:', response);
+      console.log('✅ Page added to draft (will sync on Publish):', draftPage);
 
-      if (response.success) {
-        console.log('🎉 Page created successfully:', response.page);
-        
-        // Refresh data and let parent navigate to the resolved, valid page
-        await onPageCreate(response.page, {
-          templateId,
-          cloneSourcePageId,
-          cloneSourcePageData,
-          positionParams,
-          insertPosition
-        });
-
-        onClose();
-      } else {
-        setError(response.message || 'Failed to create page');
-        console.error('❌ Creation failed:', response);
-      }
+      // Pass draft page to parent
+      await onPageCreate(draftPage, {
+        templateId,
+        cloneSourcePageId,
+        cloneSourcePageData,
+        positionParams,
+        insertPosition,
+        isDraftOnly: true
+      })
+      onClose();
     } catch (err) {
       console.warn('⚠️ Backend create failed, falling back to local create:', err?.message || err);
       try {

@@ -26,6 +26,9 @@ function App() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [changedPages, setChangedPages] = useState(new Set());
   const [savedDraftPages, setSavedDraftPages] = useState(new Set());
+  const [pendingCreates, setPendingCreates] = useState([]);
+  const [pendingDeletes, setPendingDeletes] = useState([]);
+  const [pendingReorder, setPendingReorder] = useState(null);
   const [isAddPageDialogOpen, setIsAddPageDialogOpen] = useState(false);
   const [currentPageId, setCurrentPageId] = useState(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -252,38 +255,47 @@ function App() {
     }
   };
 
-    const saveDraftCache = (data, pendingPageIds = []) => {
-    try {
-      if (!data?.pages || !Array.isArray(data.pages)) return;
-      localStorage.setItem(DRAFT_CACHE_KEY, JSON.stringify({
-        data,
-        pendingPageIds
-      }));
-    } catch (draftErr) {
-      console.warn('Could not persist draft cache:', draftErr);
-    }
-  };
+    const saveDraftCache = (
+  data,
+  pendingPageIds = [],
+  creates = [],
+  deletes = [],
+  reorder = null
+) => {
+  try {
+    if (!data?.pages || !Array.isArray(data.pages)) return;
+    localStorage.setItem(DRAFT_CACHE_KEY, JSON.stringify({
+      data,
+      pendingPageIds,
+      pendingCreates: creates,
+      pendingDeletes: deletes,
+      pendingReorder: reorder
+    }));
+  } catch (draftErr) {
+    console.warn('Could not persist draft cache:', draftErr);
+  }
+};
 
-  const loadDraftCache = () => {
-    try {
-      const raw = localStorage.getItem(DRAFT_CACHE_KEY);
-      if (!raw) return null;
-      const parsed = JSON.parse(raw);
-      if (!parsed?.data?.pages || !Array.isArray(parsed.data.pages)) return null;
-      return parsed;
-    } catch (draftErr) {
-      console.warn('Could not load draft cache:', draftErr);
-      return null;
-    }
-  };
+const loadDraftCache = () => {
+  try {
+    const raw = localStorage.getItem(DRAFT_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed?.data?.pages || !Array.isArray(parsed.data.pages)) return null;
+    return parsed;
+  } catch (draftErr) {
+    console.warn('Could not load draft cache:', draftErr);
+    return null;
+  }
+};
 
-  const clearDraftCache = () => {
-    try {
-      localStorage.removeItem(DRAFT_CACHE_KEY);
-    } catch (draftErr) {
-      console.warn('Could not clear draft cache:', draftErr);
-    }
-  };
+const clearDraftCache = () => {
+  try {
+    localStorage.removeItem(DRAFT_CACHE_KEY);
+  } catch (draftErr) {
+    console.warn('Could not clear draft cache:', draftErr);
+  }
+};
 
   const syncIndexPageContent = (data, staticIndexPages = []) => {
     if (!data?.pages || !Array.isArray(data.pages)) {
@@ -1030,9 +1042,13 @@ function App() {
     }
   };
 
-  const handleCancel = () => {
+    const handleCancel = () => {
     setReportData(JSON.parse(JSON.stringify(originalData)));
-    setChangedPages(new Set()); // Clear changed pages on cancel
+    setChangedPages(new Set());
+    setPendingCreates([]);
+    setPendingDeletes([]);
+    setPendingReorder(null);
+    clearDraftCache();
     setIsEditMode(false);
   };
 
@@ -1041,15 +1057,37 @@ function App() {
     setIsPublishDialogOpen(true);
   };
 
-    const confirmPublish = async () => {
+      const confirmPublish = async () => {
     setIsPublishDialogOpen(false);
 
     try {
-      const pageIdsToPublish = Array.from(new Set([...savedDraftPages, ...changedPages]));
+      // STEP 1: Create new pages
+      for (const draftPage of pendingCreates) {
+        const pagePayload = { ...draftPage };
+        delete pagePayload._isDraftNew;
+        delete pagePayload.id;
+        
+        const response = await apiService.createPage(
+          pagePayload.pageTemplate,
+          pagePayload.title
+        );
+        if (!response?.success) {
+          throw new Error(`Failed to create page: ${pagePayload.title}`);
+        }
+      }
+      console.log('✅ Pending creates published');
 
+      // STEP 2: Reorder pages
+      if (pendingReorder && pendingReorder.length > 0) {
+        await apiService.reorderPages(pendingReorder);
+        console.log('✅ Page reorder published');
+      }
+
+      // STEP 3: Save edited pages
+      const pageIdsToPublish = Array.from(new Set([...savedDraftPages, ...changedPages]));
       for (const pageId of pageIdsToPublish) {
         const page = reportData.pages.find((p) => idMatches(p.id, pageId));
-        if (!page) continue;
+        if (!page || page._isDraftNew) continue;
 
         await apiService.savePage(
           page.id,
@@ -1057,17 +1095,28 @@ function App() {
           'system'
         );
       }
+      console.log('✅ Page edits published');
 
+      // STEP 4: Delete pages
+      for (const pageId of pendingDeletes) {
+        await apiService.deletePage(pageId);
+      }
+      console.log('✅ Pending deletes published');
+
+      // STEP 5: Clear all draft state
       clearDraftCache();
       saveReportCache(reportData);
       setOriginalData(JSON.parse(JSON.stringify(reportData)));
       setPublishedData(JSON.parse(JSON.stringify(reportData)));
       setSavedDraftPages(new Set());
       setChangedPages(new Set());
+      setPendingCreates([]);
+      setPendingDeletes([]);
+      setPendingReorder(null);
       setIsEditMode(false);
       setPageUndoHistory({});
 
-      console.log('✅ Changes published to backend');
+      console.log('✅ All changes published to backend');
     } catch (err) {
       console.error('Error publishing changes:', err);
       window.alert(`Failed to publish changes: ${err.message}`);
@@ -1092,6 +1141,27 @@ function App() {
   const handlePageCreate = async (newPage, options = {}) => {
     try {
       console.log('Page created:', newPage);
+      
+      // NEW: If draft-only, add to pending creates and update UI locally
+      if (options?.isDraftOnly) {
+        setPendingCreates(prev => [...prev, { ...newPage, _isDraftNew: true }]);
+        
+        const updatedPages = [...(reportData?.pages || []), newPage];
+        let transformedData = { ...reportData, pages: updatedPages };
+        transformedData = syncIndexPageContent(transformedData, staticIndexPagesRef.current);
+        
+        setReportData(transformedData);
+        setChangedPages(prev => new Set(prev).add(newPage.id));
+        
+        const sortedForNav = [...transformedData.pages].sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
+        const newPageIdx = sortedForNav.findIndex(p => idMatches(p.id, newPage.id));
+        if (newPageIdx >= 0) {
+          navigate(`/page/${newPageIdx + 1}`);
+        }
+        
+        console.log('✅ Page added locally (will sync on Publish)');
+        return;
+      }
 
       const cloneSourcePageId = options?.cloneSourcePageId || null;
       const cloneSourcePageData = options?.cloneSourcePageData || null;
@@ -1460,13 +1530,10 @@ function App() {
       const targetPosIdx = Math.max(0, deletedPosIdx - 1);
       navigate(`/page/${targetPosIdx + 1}`);
       
-      // BACKGROUND SYNC: Delete from backend without blocking UI (fire-and-forget)
-      // User sees delete immediately; backend sync is async and silent
-      apiService.deletePage(resolvedPageId)
-        .then(() => console.log('✅ Backend delete sync completed'))
-        .catch(err => console.warn('⚠️ Backend delete sync failed (offline mode OK):', err.message));
+           // NEW: Track in pendingDeletes (will sync on Publish)
+      setPendingDeletes(prev => [...prev, resolvedPageId]);
       
-      console.log('✅ Page deleted locally, backend sync in progress');
+      console.log('✅ Page marked for deletion (will sync on Publish)');
     } catch (err) {
       console.error('❌ Error in delete flow:', err);
     } finally {
@@ -1541,19 +1608,10 @@ function App() {
       // This removes the old sequential dependency (reorder → getPages → savePage) so the
       // backend is fully up-to-date as fast as possible, closing the race window where a
       // live-preview tab could load before the index content was saved.
-      const indexSyncPromises = indexPagesToSync
-        .filter(ip => ip?.id)
-        .map(ip =>
-          apiService.savePage(
-            String(ip.id),
-            { page_data: { title: ip.title, content: Array.isArray(ip.content) ? ip.content : [] } },
-            'system'
-          ).catch(err => console.warn(`⚠️ Failed to sync index page ${ip.id}:`, err.message))
-        );
-
-      Promise.all([apiService.reorderPages(pageOrder), ...indexSyncPromises])
-        .then(() => console.log('✅ Reorder and index pages synced to backend'))
-        .catch(err => console.warn('⚠️ Backend reorder sync failed (offline mode OK):', err.message));
+            // NEW: Store in pendingReorder (will sync on Publish)
+      setPendingReorder(pageOrder);
+      
+      console.log('✅ Page reorder stored locally (will sync on Publish)');
 
       return true;
     } catch (err) {
