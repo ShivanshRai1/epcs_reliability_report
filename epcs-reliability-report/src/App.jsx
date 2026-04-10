@@ -702,8 +702,14 @@ const clearDraftCache = () => {
           console.log('📝 Loading saved draft changes for normal mode');
           transformedData = savedDraft.data;
           setSavedDraftPages(new Set(savedDraft.pendingPageIds || []));
+          setPendingCreates(savedDraft.pendingCreates || []);
+          setPendingDeletes(savedDraft.pendingDeletes || []);
+          setPendingReorder(savedDraft.pendingReorder || null);
         } else {
           setSavedDraftPages(new Set());
+          setPendingCreates([]);
+          setPendingDeletes([]);
+          setPendingReorder(null);
         }
 
         const staticPageCount = Array.isArray(staticData?.pages) ? staticData.pages.length : 0;
@@ -1029,7 +1035,13 @@ const clearDraftCache = () => {
     try {
       const pagesToStage = new Set([...savedDraftPages, ...changedPages]);
 
-      saveDraftCache(reportData, Array.from(pagesToStage));
+      saveDraftCache(
+        reportData,
+        Array.from(pagesToStage),
+        pendingCreates,
+        pendingDeletes,
+        pendingReorder
+      );
       setOriginalData(JSON.parse(JSON.stringify(reportData)));
       setSavedDraftPages(pagesToStage);
       setChangedPages(new Set());
@@ -1043,12 +1055,9 @@ const clearDraftCache = () => {
   };
 
     const handleCancel = () => {
+    // Revert only unsaved in-session edits, but keep the last saved/auto-saved draft state.
     setReportData(JSON.parse(JSON.stringify(originalData)));
     setChangedPages(new Set());
-    setPendingCreates([]);
-    setPendingDeletes([]);
-    setPendingReorder(null);
-    clearDraftCache();
     setIsEditMode(false);
   };
 
@@ -1250,7 +1259,9 @@ const clearDraftCache = () => {
         
         setPendingCreates(updatedPendingCreates);
         setReportData(transformedData);
+        setOriginalData(JSON.parse(JSON.stringify(transformedData)));
         setChangedPages(updatedChangedPages);
+        setIsEditMode(false);
 
         // Auto-save draft state with fresh values BEFORE navigation
         saveDraftCache(
