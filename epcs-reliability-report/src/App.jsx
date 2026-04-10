@@ -1097,17 +1097,35 @@ const clearDraftCache = () => {
       }
       console.log('✅ Page edits published');
 
-      // STEP 4: Delete pages
-      for (const pageId of pendingDeletes) {
+      // STEP 4: Delete pages (both from pendingDeletes array and _isDraftDeleted flag)
+      const deletedPageIds = reportData.pages
+        .filter(p => p._isDraftDeleted)
+        .map(p => p.id);
+      const allDeleteIds = [...new Set([...pendingDeletes, ...deletedPageIds])];
+      
+      for (const pageId of allDeleteIds) {
         await apiService.deletePage(pageId);
       }
       console.log('✅ Pending deletes published');
 
-      // STEP 5: Clear all draft state
+      // STEP 5: Clean up reportData - remove draft flags and deleted pages
+      const cleanedPages = reportData.pages
+        .filter(p => !p._isDraftDeleted && !p._isDraftNew)
+        .map(p => {
+          const cleaned = { ...p };
+          delete cleaned._isDraftNew;
+          delete cleaned._isDraftDeleted;
+          return cleaned;
+        });
+      
+      const cleanedData = { ...reportData, pages: cleanedPages };
+
+      // STEP 6: Clear all draft state
       clearDraftCache();
-      saveReportCache(reportData);
-      setOriginalData(JSON.parse(JSON.stringify(reportData)));
-      setPublishedData(JSON.parse(JSON.stringify(reportData)));
+      saveReportCache(cleanedData);
+      setReportData(cleanedData);
+      setOriginalData(JSON.parse(JSON.stringify(cleanedData)));
+      setPublishedData(JSON.parse(JSON.stringify(cleanedData)));
       setSavedDraftPages(new Set());
       setChangedPages(new Set());
       setPendingCreates([]);
@@ -1556,8 +1574,12 @@ const clearDraftCache = () => {
       const pageNumberDeleted = pageBeingDeleted?.pageNumber;
       console.log('📄 Page being deleted - number:', pageNumberDeleted);
 
-      // OFFLINE-FIRST: Update local state IMMEDIATELY before any API calls
-      const updatedPages = reportData.pages.filter(p => !idMatches((p.id || p.page_id || p.pageId), resolvedPageId));
+      // Mark page as deleted instead of removing it (so live preview can still show it)
+      const updatedPages = reportData.pages.map(p => 
+        idMatches((p.id || p.page_id || p.pageId), resolvedPageId)
+          ? { ...p, _isDraftDeleted: true }
+          : p
+      );
       let transformedData = { ...reportData, pages: updatedPages };
       
       // Sync index page with new page numbers
@@ -1682,6 +1704,23 @@ const clearDraftCache = () => {
   if (error) return <div className="App"><p>Error loading report: {error}</p></div>;
   if (!reportData) return <div className="App"><p>No report data available</p></div>;
 
+  // Filter pages based on mode:
+  // - Normal mode: hide deleted pages, show draft pages
+  // - Live mode: show deleted pages, hide draft pages
+  const isCurrentlyLiveMode = new URLSearchParams(location.search).get('live') === '1';
+  const displayData = {
+    ...reportData,
+    pages: reportData.pages.filter(p => {
+      if (isCurrentlyLiveMode) {
+        // Live mode: hide draft-new pages, show everything else (including draft-deleted)
+        return !p._isDraftNew;
+      } else {
+        // Normal mode: hide draft-deleted pages, show everything else (including draft-new)
+        return !p._isDraftDeleted;
+      }
+    })
+  };
+
   return (
     <>
       <Modal isOpen={isModalOpen} imageSrc={selectedImage?.src} imageAlt={selectedImage?.alt} onClose={handleCloseModal} />
@@ -1719,7 +1758,7 @@ const clearDraftCache = () => {
       />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/page/:pageId" element={<ReportPage reportData={reportData} isEditMode={isEditMode} hasUnsavedChanges={changedPages.size > 0} onEditToggle={handleEditToggle} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} isTestMode={isTestMode} isSeedingTestData={isSeedingTestData} isPublishingTestData={isPublishingTestData} onToggleTestMode={handleToggleTestMode} onSeedTestData={handleSeedTestData} onPublishTestData={handlePublishTestData} onRestoreOriginal={handleRestoreOriginalData} isRestoringOriginal={isRestoringOriginal} />} />
+        <Route path="/page/:pageId" element={<ReportPage reportData={displayData} isEditMode={isEditMode} hasUnsavedChanges={changedPages.size > 0} onEditToggle={handleEditToggle} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} isTestMode={isTestMode} isSeedingTestData={isSeedingTestData} isPublishingTestData={isPublishingTestData} onToggleTestMode={handleToggleTestMode} onSeedTestData={handleSeedTestData} onPublishTestData={handlePublishTestData} onRestoreOriginal={handleRestoreOriginalData} isRestoringOriginal={isRestoringOriginal} />} />
         <Route path="*" element={<div className="App"><p>Page not found</p></div>} />
       </Routes>
     </>
