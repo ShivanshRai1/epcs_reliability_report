@@ -9,11 +9,47 @@
   font-size: 1rem;
   line-height: 1.8;
   color: #e0e6f0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .content-line {
   margin-bottom: 0.5rem;
   color: #e0e6f0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.content-row {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.content-live-col {
+  min-width: 0;
+}
+
+.content-section-live,
+.content-section-live-single {
+  overflow-x: hidden;
+}
+
+.content-group,
+.content-blue,
+.content-orange,
+.content-indent-1,
+.content-indent-2 {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.content-section,
+.content-text {
+  max-width: 100%;
 }
 
 .content-line:last-child {
