@@ -1074,28 +1074,32 @@ const clearDraftCache = () => {
       for (const draftPage of pendingCreates) {
         // Find the current version of this page in reportData (may have been edited)
         const currentDraftPage = reportData.pages.find(p => idMatches(p.id, draftPage.id)) || draftPage;
-        
+
         const pagePayload = { ...currentDraftPage };
+        const createPositionParams = pagePayload._draftPositionParams || null;
         delete pagePayload._isDraftNew;
+        delete pagePayload._isDraftDeleted;
+        delete pagePayload._draftPositionParams;
         delete pagePayload.id;
-        
+
         const response = await apiService.createPage(
           pagePayload.pageTemplate || pagePayload.pageType || 'content',
-          pagePayload.title || 'New Page'
+          pagePayload.title || 'New Page',
+          null,
+          createPositionParams
         );
-        
-        if (!response?.success || !response?.page?.id) {
-          throw new Error(`Failed to create page: ${pagePayload.title}`);
+
+        const createdBackendId = response?.page?.id || response?.page?.page_id || response?.id || null;
+        if (response?.success === false || !createdBackendId) {
+          throw new Error(`Failed to create page: ${pagePayload.title || 'New Page'}`);
         }
-        
+
         // If the draft page had content/edits, save them to the newly created page
-        if (response.page.id) {
-          await apiService.savePage(
-            response.page.id,
-            { page_data: pagePayload },
-            'system'
-          );
-        }
+        await apiService.savePage(
+          createdBackendId,
+          { page_data: pagePayload },
+          'system'
+        );
       }
       console.log('✅ Pending creates published');
 
@@ -1211,7 +1215,8 @@ const clearDraftCache = () => {
           id: draftPageId,
           title: newPage?.title || 'New Page',
           pageType: newPage?.pageType || newPage?.page_type || 'content',
-          _isDraftNew: true
+          _isDraftNew: true,
+          _draftPositionParams: options?.positionParams || null
         };
 
         // Clone template content
@@ -1255,18 +1260,16 @@ const clearDraftCache = () => {
 
         // Add to pending creates queue and prepare fresh values for auto-save
         const updatedPendingCreates = [...pendingCreates, styledDraftPage];
-        const updatedChangedPages = new Set(changedPages).add(draftPageId);
-        
+
         setPendingCreates(updatedPendingCreates);
         setReportData(transformedData);
         setOriginalData(JSON.parse(JSON.stringify(transformedData)));
-        setChangedPages(updatedChangedPages);
         setIsEditMode(false);
 
-        // Auto-save draft state with fresh values BEFORE navigation
+        // Auto-save structural draft state without flagging it as an unsaved field edit.
         saveDraftCache(
           transformedData,
-          Array.from(updatedChangedPages),
+          Array.from(savedDraftPages),
           updatedPendingCreates,
           pendingDeletes,
           pendingReorder

@@ -19,7 +19,7 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
   };
 
   const handleToggleLive = () => {
-    if (!isLiveMode && hasUnsavedChanges) {
+    if (!isLiveMode && isEditMode && hasUnsavedChanges) {
       window.alert('Please Publish or Cancel your unsaved changes before entering View Live.');
       return;
     }
