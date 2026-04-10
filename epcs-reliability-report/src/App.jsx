@@ -1061,18 +1061,31 @@ const clearDraftCache = () => {
     setIsPublishDialogOpen(false);
 
     try {
-      // STEP 1: Create new pages
+      // STEP 1: Create new pages (with full content including edits)
       for (const draftPage of pendingCreates) {
-        const pagePayload = { ...draftPage };
+        // Find the current version of this page in reportData (may have been edited)
+        const currentDraftPage = reportData.pages.find(p => idMatches(p.id, draftPage.id)) || draftPage;
+        
+        const pagePayload = { ...currentDraftPage };
         delete pagePayload._isDraftNew;
         delete pagePayload.id;
         
         const response = await apiService.createPage(
-          pagePayload.pageTemplate,
-          pagePayload.title
+          pagePayload.pageTemplate || pagePayload.pageType || 'content',
+          pagePayload.title || 'New Page'
         );
-        if (!response?.success) {
+        
+        if (!response?.success || !response?.page?.id) {
           throw new Error(`Failed to create page: ${pagePayload.title}`);
+        }
+        
+        // If the draft page had content/edits, save them to the newly created page
+        if (response.page.id) {
+          await apiService.savePage(
+            response.page.id,
+            { page_data: pagePayload },
+            'system'
+          );
         }
       }
       console.log('✅ Pending creates published');
@@ -1108,24 +1121,17 @@ const clearDraftCache = () => {
       }
       console.log('✅ Pending deletes published');
 
-      // STEP 5: Clean up reportData - remove draft flags and deleted pages
-      const cleanedPages = reportData.pages
-        .filter(p => !p._isDraftDeleted && !p._isDraftNew)
-        .map(p => {
-          const cleaned = { ...p };
-          delete cleaned._isDraftNew;
-          delete cleaned._isDraftDeleted;
-          return cleaned;
-        });
-      
-      const cleanedData = { ...reportData, pages: cleanedPages };
+      // STEP 5: Reload fresh data from backend (with real IDs)
+      const freshPages = await apiService.getPages(true); // forceFresh = true
+      const freshData = transformPagesFromApi(freshPages);
+      const syncedFreshData = syncIndexPageContent(freshData, staticIndexPagesRef.current);
 
-      // STEP 6: Clear all draft state
+      // STEP 6: Clear all draft state and update with fresh backend data
       clearDraftCache();
-      saveReportCache(cleanedData);
-      setReportData(cleanedData);
-      setOriginalData(JSON.parse(JSON.stringify(cleanedData)));
-      setPublishedData(JSON.parse(JSON.stringify(cleanedData)));
+      saveReportCache(syncedFreshData);
+      setReportData(syncedFreshData);
+      setOriginalData(JSON.parse(JSON.stringify(syncedFreshData)));
+      setPublishedData(JSON.parse(JSON.stringify(syncedFreshData)));
       setSavedDraftPages(new Set());
       setChangedPages(new Set());
       setPendingCreates([]);
