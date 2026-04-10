@@ -244,8 +244,8 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     return (
       <div className="content-section-edit">
         <div className="content-editor-toolbar">
-          <button type="button" className={`content-editor-btn ${activeFormats.bold ? 'active' : ''}`} onClick={() => applyInlineFormat('bold')} title="Bold selected text"><strong>B</strong></button>
-          <button type="button" className={`content-editor-btn ${activeFormats.italic ? 'active' : ''}`} onClick={() => applyInlineFormat('italic')} title="Italic selected text"><em>I</em></button>
+          <button type="button" className={`content-editor-btn ${activeFormats.bold ? 'active' : ''}`} onMouseDown={(e) => { e.preventDefault(); applyInlineFormat('bold'); }} title="Bold selected text"><strong>B</strong></button>
+          <button type="button" className={`content-editor-btn ${activeFormats.italic ? 'active' : ''}`} onMouseDown={(e) => { e.preventDefault(); applyInlineFormat('italic'); }} title="Italic selected text"><em>I</em></button>
         </div>
         <div className="content-editor-note">Formatting tags are hidden while editing. Bold and italic are supported for selected text.</div>
         <div
@@ -255,8 +255,8 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
           suppressContentEditableWarning
           onInput={handleEditorInput}
           onBlur={handleEditorInput}
-          onKeyUp={() => { saveSelection(); updateActiveFormats(); }}
-          onMouseUp={() => { saveSelection(); updateActiveFormats(); }}
+          onKeyUp={() => { saveSelection(); }}
+          onMouseUp={() => { saveSelection(); }}
           onPaste={handlePastePlainText}
           style={{ fontFamily, fontSize: `${resolvedContentFontSize}rem`, color: contentTextColor }}
           dangerouslySetInnerHTML={{ __html: editorHtml }}
