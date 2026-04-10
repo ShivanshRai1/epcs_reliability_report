@@ -177,6 +177,9 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   word-break: break-word;
+  cursor: text;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .content-editor-line {
@@ -186,6 +189,9 @@
   margin: 0 0 0.35rem 0 !important;
   font-size: inherit !important;
   font-weight: 400;
+  cursor: text;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .content-editor-rich .content-row-group,
