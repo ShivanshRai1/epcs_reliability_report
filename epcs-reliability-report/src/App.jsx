@@ -1244,28 +1244,29 @@ const clearDraftCache = () => {
         let transformedData = { ...reportData, pages: updatedPages };
         transformedData = syncIndexPageContent(transformedData, staticIndexPagesRef.current);
 
-        // Add to pending creates queue
-        setPendingCreates(prev => [...prev, styledDraftPage]);
-
+        // Add to pending creates queue and prepare fresh values for auto-save
+        const updatedPendingCreates = [...pendingCreates, styledDraftPage];
+        const updatedChangedPages = new Set(changedPages).add(draftPageId);
+        
+        setPendingCreates(updatedPendingCreates);
         setReportData(transformedData);
-        setChangedPages(prev => new Set(prev).add(draftPageId));
+        setChangedPages(updatedChangedPages);
 
-        // Navigate to the new page
+        // Auto-save draft state with fresh values BEFORE navigation
+        saveDraftCache(
+          transformedData,
+          Array.from(updatedChangedPages),
+          updatedPendingCreates,
+          pendingDeletes,
+          pendingReorder
+        );
+
+        // Navigate to the new page AFTER auto-save completes
         const sortedForNav = [...transformedData.pages].sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
         const newPageIdx = sortedForNav.findIndex(p => idMatches(p.id, draftPageId));
         if (newPageIdx >= 0) {
           navigate(`/page/${newPageIdx + 1}`);
         }
-
-        // Auto-save draft state
-        const updatedPendingCreates = [...pendingCreates, styledDraftPage];
-        saveDraftCache(
-          transformedData,
-          Array.from(changedPages),
-          updatedPendingCreates,
-          pendingDeletes,
-          pendingReorder
-        );
 
         console.log('✅ Page added locally (will sync on Publish)');
         return;
