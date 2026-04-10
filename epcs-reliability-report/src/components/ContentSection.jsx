@@ -101,9 +101,17 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
 
   const applyInlineFormat = (command) => {
     if (!editorRef.current) return;
-    editorRef.current.focus();
+
+    // Keep the current text selection intact and apply inline formatting to it.
     document.execCommand(command, false, null);
-    handleEditorInput();
+
+    // Sync the editable DOM back into stored content after the browser applies the command.
+    setTimeout(() => {
+      if (editorRef.current) {
+        setEditorHtml(editorRef.current.innerHTML);
+      }
+      handleEditorInput();
+    }, 0);
   };
 
   const handlePastePlainText = (e) => {

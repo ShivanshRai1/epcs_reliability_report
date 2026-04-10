@@ -174,6 +174,37 @@
 
 .content-editor-line {
   min-height: 1.4em;
+  color: inherit !important;
+  padding-left: 0 !important;
+  margin: 0 0 0.35rem 0 !important;
+  font-size: inherit !important;
+  font-weight: 400;
+}
+
+.content-editor-rich .content-row-group,
+.content-editor-rich .content-row-blue,
+.content-editor-rich .content-row-orange,
+.content-editor-rich .content-row-indent-1,
+.content-editor-rich .content-row-indent-2,
+.content-editor-rich .content-row-line {
+  color: inherit !important;
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+  font-size: inherit !important;
+}
+
+.content-editor-rich .content-row-group {
+  font-weight: 400 !important;
+}
+
+.content-editor-rich strong {
+  color: inherit !important;
+  font-weight: 700;
+}
+
+.content-editor-rich em {
+  color: inherit !important;
+  font-style: italic;
 }
 
 .content-editor-rich:focus {
