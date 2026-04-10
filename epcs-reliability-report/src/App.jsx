@@ -1141,27 +1141,6 @@ const clearDraftCache = () => {
   const handlePageCreate = async (newPage, options = {}) => {
     try {
       console.log('Page created:', newPage);
-      
-      // NEW: If draft-only, add to pending creates and update UI locally
-      if (options?.isDraftOnly) {
-        setPendingCreates(prev => [...prev, { ...newPage, _isDraftNew: true }]);
-        
-        const updatedPages = [...(reportData?.pages || []), newPage];
-        let transformedData = { ...reportData, pages: updatedPages };
-        transformedData = syncIndexPageContent(transformedData, staticIndexPagesRef.current);
-        
-        setReportData(transformedData);
-        setChangedPages(prev => new Set(prev).add(newPage.id));
-        
-        const sortedForNav = [...transformedData.pages].sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
-        const newPageIdx = sortedForNav.findIndex(p => idMatches(p.id, newPage.id));
-        if (newPageIdx >= 0) {
-          navigate(`/page/${newPageIdx + 1}`);
-        }
-        
-        console.log('✅ Page added locally (will sync on Publish)');
-        return;
-      }
 
       const cloneSourcePageId = options?.cloneSourcePageId || null;
       const cloneSourcePageData = options?.cloneSourcePageData || null;
@@ -1187,6 +1166,73 @@ const clearDraftCache = () => {
         });
         return clonePayload;
       };
+
+      // NEW: Draft-only path - create page locally with full positioning and template cloning
+      if (options?.isDraftOnly) {
+        const draftPageId = newPage?.id || newPage?.page_id || newPage?.pageId || `page_${Date.now()}`;
+        const draftPage = {
+          ...newPage,
+          id: draftPageId,
+          title: newPage?.title || 'New Page',
+          pageType: newPage?.pageType || newPage?.page_type || 'content',
+          _isDraftNew: true
+        };
+
+        // Clone template content
+        const draftClonePayload = buildClonePayload(cloneSourcePageData);
+        if (draftClonePayload) {
+          Object.assign(draftPage, draftClonePayload);
+          draftPage.id = draftPageId;
+          draftPage.pageType = draftPage.pageType || newPage?.pageType || newPage?.page_type || 'content';
+          draftPage._isDraftNew = true;
+        }
+
+        // Apply display inheritance from reference page
+        const draftReferencePage = referencePageId
+          ? (reportData?.pages || []).find((page) => idMatches(page.id, referencePageId))
+          : null;
+        const styledDraftPage = applyDisplayInheritance(draftPage, draftReferencePage);
+
+        // Calculate insertion position
+        const updatedPages = [...(reportData?.pages || [])];
+        const refPageId = options?.positionParams?.pageId;
+        const insertBefore = Boolean(options?.positionParams?.insertBefore);
+        let insertIndex = updatedPages.length;
+
+        if (refPageId) {
+          const refIndex = updatedPages.findIndex(p => idMatches(p.id, refPageId));
+          if (refIndex >= 0) {
+            insertIndex = insertBefore ? refIndex : refIndex + 1;
+          }
+        }
+
+        // Calculate pageNumber based on surrounding pages
+        const prevPN = insertIndex > 0 ? (updatedPages[insertIndex - 1]?.pageNumber || 0) : 0;
+        const nextPN = updatedPages[insertIndex]?.pageNumber;
+        styledDraftPage.pageNumber = nextPN != null ? (prevPN + nextPN) / 2 : prevPN + 1;
+
+        // Insert page at correct position
+        updatedPages.splice(insertIndex, 0, styledDraftPage);
+
+        let transformedData = { ...reportData, pages: updatedPages };
+        transformedData = syncIndexPageContent(transformedData, staticIndexPagesRef.current);
+
+        // Add to pending creates queue
+        setPendingCreates(prev => [...prev, styledDraftPage]);
+
+        setReportData(transformedData);
+        setChangedPages(prev => new Set(prev).add(draftPageId));
+
+        // Navigate to the new page
+        const sortedForNav = [...transformedData.pages].sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
+        const newPageIdx = sortedForNav.findIndex(p => idMatches(p.id, draftPageId));
+        if (newPageIdx >= 0) {
+          navigate(`/page/${newPageIdx + 1}`);
+        }
+
+        console.log('✅ Page added locally (will sync on Publish)');
+        return;
+      }
 
       // OFFLINE fallback: create and insert page locally when backend create fails.
       if (options?.localOnly) {
