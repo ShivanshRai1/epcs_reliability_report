@@ -248,9 +248,8 @@
 }
 .content-text strong,
 .content-line strong {
-  color: inherit;
   font-weight: 800;
-  filter: brightness(1.25);
+  color: #111111;
 }
 
 .content-row strong {
@@ -287,7 +286,8 @@
 
   .content-text strong,
   .content-line strong {
-    color: inherit;
+    color: #000000;
+    font-weight: 800;
   }
 
   .content-group,

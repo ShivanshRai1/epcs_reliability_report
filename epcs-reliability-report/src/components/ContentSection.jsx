@@ -178,20 +178,26 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     const isCurrentlyActive = tagName && document.queryCommandState && document.queryCommandState(command);
 
     if (tagName && isCurrentlyActive) {
-      // REMOVE formatting: directly unwrap all matching tags in every selected editor line
+      // Selection is currently bold/italic — remove it.
+      // Walk every node inside the editor, find <strong>/<em> tags that
+      // overlap with the current selection, and unwrap them.
       const range = sel.getRangeAt(0);
-      const lineDivs = Array.from(editorRef.current.querySelectorAll('[data-line-style]'));
-      lineDivs.forEach((div) => {
-        if (!range.intersectsNode(div)) return;
-        Array.from(div.querySelectorAll(tagName)).forEach((tag) => {
-          const parent = tag.parentNode;
-          if (!parent) return;
-          while (tag.firstChild) parent.insertBefore(tag.firstChild, tag);
-          parent.removeChild(tag);
-        });
+      // Collect all matching tags in editor
+      const allTags = Array.from(editorRef.current.querySelectorAll(tagName));
+      allTags.forEach((tag) => {
+        // Check if this tag overlaps the selection range
+        const tagRange = document.createRange();
+        tagRange.selectNodeContents(tag);
+        const overlap = !(range.compareBoundaryPoints(Range.END_TO_START, tagRange) >= 0 ||
+                          range.compareBoundaryPoints(Range.START_TO_END, tagRange) <= 0);
+        if (!overlap) return;
+        const parent = tag.parentNode;
+        if (!parent) return;
+        while (tag.firstChild) parent.insertBefore(tag.firstChild, tag);
+        parent.removeChild(tag);
       });
     } else {
-      // ADD formatting (or non-bold/italic command): use native execCommand
+      // ADD formatting: use native execCommand
       document.execCommand(command, false, null);
     }
 
