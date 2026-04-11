@@ -104,6 +104,16 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     setEditorHtml(buildEditorHtml(rawText));
   }, [content]);
 
+  // Manually update editor innerHTML only when editorHtml changes and editor is not focused
+  useEffect(() => {
+    if (!editorRef.current || !editorHtml) return;
+    
+    // Don't update if user is actively editing
+    if (document.activeElement === editorRef.current) return;
+    
+    editorRef.current.innerHTML = editorHtml;
+  }, [editorHtml]);
+
   const saveSelection = () => {
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0 || !editorRef.current) return;
@@ -284,7 +294,6 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
           onMouseUp={() => { saveSelection(); updateActiveFormats(); }}
           onPaste={handlePastePlainText}
           style={{ fontFamily, fontSize: `${resolvedContentFontSize}rem`, color: contentTextColor }}
-          dangerouslySetInnerHTML={{ __html: editorHtml }}
         />
       </div>
     );
