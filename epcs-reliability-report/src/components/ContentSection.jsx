@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './ContentSection.css';
 
-const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, fontFamily = 'inherit', contentFontSize = 0.95, contentTextColor = '#e0e6f0' }) => {
+const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, fontFamily = 'inherit', contentFontSize = 0.95, contentTextColor = '#e0e6f0', contentAlign = 'center', onAlignChange }) => {
   const effectiveLiveMode = isLiveMode || new URLSearchParams(window.location.search).get('live') === '1';
   const [text, setText] = useState(content || '');
   const [editorHtml, setEditorHtml] = useState('');
@@ -170,7 +170,47 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
 
     editorRef.current.focus();
     restoreSelection();
+    
+    // Check if the format is currently active
+    const isActive = document.queryCommandState && document.queryCommandState(command);
+    
+    // Execute the command - browser should toggle it
     document.execCommand(command, false, null);
+    
+    // If the format was active and still is (toggle failed), force removal
+    if (isActive && document.queryCommandState && document.queryCommandState(command)) {
+      // Try to remove formatting by wrapping in opposite
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const selectedContent = range.extractContents();
+        
+        // Create a temporary div to process the content
+        const temp = document.createElement('div');
+        temp.appendChild(selectedContent);
+        
+        // Remove the specific formatting tags
+        const tagName = command === 'bold' ? 'STRONG' : command === 'italic' ? 'EM' : '';
+        if (tagName) {
+          const tags = temp.querySelectorAll(tagName.toLowerCase());
+          tags.forEach(tag => {
+            const parent = tag.parentNode;
+            while (tag.firstChild) {
+              parent.insertBefore(tag.firstChild, tag);
+            }
+            parent.removeChild(tag);
+          });
+        }
+        
+        // Reinsert the cleaned content
+        range.insertNode(temp.firstChild ? temp : document.createTextNode(temp.textContent));
+        
+        // Restore selection
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    }
+    
     handleEditorInput();
     saveSelection();
     updateActiveFormats();
@@ -180,6 +220,12 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     e.preventDefault();
     const pastedText = (e.clipboardData || window.clipboardData).getData('text');
     document.execCommand('insertText', false, pastedText);
+  };
+
+  const handleAlignChange = (newAlign) => {
+    if (onAlignChange) {
+      onAlignChange(newAlign);
+    }
   };
 
   const parseToSegments = (str) => {
@@ -280,6 +326,20 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
         <div className="content-editor-toolbar">
           <button type="button" className={`content-editor-btn ${activeFormats.bold ? 'active' : ''}`} onMouseDown={(e) => { e.preventDefault(); applyInlineFormat('bold'); }} title="Bold selected text"><strong>B</strong></button>
           <button type="button" className={`content-editor-btn ${activeFormats.italic ? 'active' : ''}`} onMouseDown={(e) => { e.preventDefault(); applyInlineFormat('italic'); }} title="Italic selected text"><em>I</em></button>
+          {onAlignChange && (
+            <>
+              <span style={{ width: '1px', height: '20px', background: '#ccc', margin: '0 8px' }}></span>
+              <button type="button" className={`content-editor-btn ${contentAlign === 'left' ? 'active' : ''}`} onClick={() => handleAlignChange('left')} title="Align left">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M0 2h16v2H0V2zm0 4h10v2H0V6zm0 4h16v2H0v-2zm0 4h10v2H0v-2z"/></svg>
+              </button>
+              <button type="button" className={`content-editor-btn ${contentAlign === 'center' ? 'active' : ''}`} onClick={() => handleAlignChange('center')} title="Align center">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M0 2h16v2H0V2zm3 4h10v2H3V6zm-3 4h16v2H0v-2zm3 4h10v2H3v-2z"/></svg>
+              </button>
+              <button type="button" className={`content-editor-btn ${contentAlign === 'right' ? 'active' : ''}`} onClick={() => handleAlignChange('right')} title="Align right">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M0 2h16v2H0V2zm6 4h10v2H6V6zm-6 4h16v2H0v-2zm6 4h10v2H6v-2z"/></svg>
+              </button>
+            </>
+          )}
         </div>
         <div className="content-editor-note">Formatting tags are hidden while editing. Bold and italic are supported for selected text.</div>
         <div
@@ -293,7 +353,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
           onKeyUp={() => { saveSelection(); updateActiveFormats(); }}
           onMouseUp={() => { saveSelection(); updateActiveFormats(); }}
           onPaste={handlePastePlainText}
-          style={{ fontFamily, fontSize: `${resolvedContentFontSize}rem`, color: contentTextColor }}
+          style={{ fontFamily, fontSize: `${resolvedContentFontSize}rem`, color: contentTextColor, textAlign: contentAlign }}
         />
       </div>
     );
@@ -322,7 +382,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
 
   return (
     <div className="content-section">
-      <div className="content-text" style={{ fontFamily, fontSize: `${resolvedContentFontSize}rem`, color: contentTextColor }}>
+      <div className="content-text" style={{ fontFamily, fontSize: `${resolvedContentFontSize}rem`, color: contentTextColor, textAlign: contentAlign }}>
         {parseStyledText(text)}
       </div>
     </div>
