@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './ContentSection.css';
 
-const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, fontFamily = 'inherit', contentFontSize = 0.95, contentTextColor = '#e0e6f0', contentAlign = 'center', onAlignChange }) => {
+const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, fontFamily = 'inherit', contentFontSize = 0.95, contentTextColor = '#e0e6f0', contentAlign = 'left', onAlignChange }) => {
   const effectiveLiveMode = isLiveMode || new URLSearchParams(window.location.search).get('live') === '1';
   const [text, setText] = useState(content || '');
   const [editorHtml, setEditorHtml] = useState('');
@@ -170,47 +170,31 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
 
     editorRef.current.focus();
     restoreSelection();
-    
-    // Check if the format is currently active
-    const isActive = document.queryCommandState && document.queryCommandState(command);
-    
-    // Execute the command - browser should toggle it
-    document.execCommand(command, false, null);
-    
-    // If the format was active and still is (toggle failed), force removal
-    if (isActive && document.queryCommandState && document.queryCommandState(command)) {
-      // Try to remove formatting by wrapping in opposite
-      const selection = window.getSelection();
-      if (selection && selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        const selectedContent = range.extractContents();
-        
-        // Create a temporary div to process the content
-        const temp = document.createElement('div');
-        temp.appendChild(selectedContent);
-        
-        // Remove the specific formatting tags
-        const tagName = command === 'bold' ? 'STRONG' : command === 'italic' ? 'EM' : '';
-        if (tagName) {
-          const tags = temp.querySelectorAll(tagName.toLowerCase());
-          tags.forEach(tag => {
-            const parent = tag.parentNode;
-            while (tag.firstChild) {
-              parent.insertBefore(tag.firstChild, tag);
-            }
-            parent.removeChild(tag);
-          });
-        }
-        
-        // Reinsert the cleaned content
-        range.insertNode(temp.firstChild ? temp : document.createTextNode(temp.textContent));
-        
-        // Restore selection
-        selection.removeAllRanges();
-        selection.addRange(range);
-      }
+
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+
+    const tagName = command === 'bold' ? 'strong' : command === 'italic' ? 'em' : null;
+    const isCurrentlyActive = tagName && document.queryCommandState && document.queryCommandState(command);
+
+    if (tagName && isCurrentlyActive) {
+      // REMOVE formatting: directly unwrap all matching tags in every selected editor line
+      const range = sel.getRangeAt(0);
+      const lineDivs = Array.from(editorRef.current.querySelectorAll('[data-line-style]'));
+      lineDivs.forEach((div) => {
+        if (!range.intersectsNode(div)) return;
+        Array.from(div.querySelectorAll(tagName)).forEach((tag) => {
+          const parent = tag.parentNode;
+          if (!parent) return;
+          while (tag.firstChild) parent.insertBefore(tag.firstChild, tag);
+          parent.removeChild(tag);
+        });
+      });
+    } else {
+      // ADD formatting (or non-bold/italic command): use native execCommand
+      document.execCommand(command, false, null);
     }
-    
+
     handleEditorInput();
     saveSelection();
     updateActiveFormats();

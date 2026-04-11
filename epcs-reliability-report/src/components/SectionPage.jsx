@@ -967,7 +967,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
             fontFamily={fontFamily}
             contentFontSize={contentFontSize}
             contentTextColor={contentTextColor}
-            contentAlign={page.contentAlign || 'center'}
+            contentAlign={page.contentAlign || 'left'}
             onAlignChange={(newAlign) => onCellChange(page.id, { contentAlign: newAlign })}
             onChange={(newContent) => onCellChange(page.id, { content: newContent })}
           />
@@ -998,7 +998,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
           fontFamily={fontFamily}
           contentFontSize={contentFontSize}
           contentTextColor={contentTextColor}
-          contentAlign={page.contentAlign || 'center'}
+          contentAlign={page.contentAlign || 'left'}
           onChange={(newContent) => onHeadingChange(page.id, newContent)}
         />
       </div>
