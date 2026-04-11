@@ -155,6 +155,102 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     });
   };
 
+  const rangeIntersectsNode = (range, node) => {
+    if (!range || !node) return false;
+
+    if (typeof range.intersectsNode === 'function') {
+      try {
+        return range.intersectsNode(node);
+      } catch {
+        // Fall back to manual boundary comparison below.
+      }
+    }
+
+    const nodeRange = document.createRange();
+    nodeRange.selectNodeContents(node);
+    return !(
+      range.compareBoundaryPoints(Range.END_TO_START, nodeRange) < 0 ||
+      range.compareBoundaryPoints(Range.START_TO_END, nodeRange) > 0
+    );
+  };
+
+  const getSelectedLineRanges = () => {
+    if (!editorRef.current) return [];
+
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return [];
+
+    const selectionRange = selection.getRangeAt(0);
+    return Array.from(editorRef.current.querySelectorAll('[data-line-style]'))
+      .filter((line) => rangeIntersectsNode(selectionRange, line))
+      .map((line) => {
+        const lineRange = document.createRange();
+
+        if (line.contains(selectionRange.startContainer)) {
+          lineRange.setStart(selectionRange.startContainer, selectionRange.startOffset);
+        } else {
+          lineRange.setStart(line, 0);
+        }
+
+        if (line.contains(selectionRange.endContainer)) {
+          lineRange.setEnd(selectionRange.endContainer, selectionRange.endOffset);
+        } else {
+          lineRange.setEnd(line, line.childNodes.length);
+        }
+
+        return { line, range: lineRange };
+      });
+  };
+
+  const isSelectionFullyFormatted = (tagName) => {
+    const selectedRanges = getSelectedLineRanges();
+    if (selectedRanges.length === 0) return false;
+
+    let foundText = false;
+
+    for (const { line, range } of selectedRanges) {
+      const walker = document.createTreeWalker(line, NodeFilter.SHOW_TEXT);
+      let textNode = walker.nextNode();
+
+      while (textNode) {
+        if (textNode.textContent.trim() && rangeIntersectsNode(range, textNode)) {
+          foundText = true;
+          let current = textNode.parentNode;
+          let hasFormat = false;
+
+          while (current && current !== line) {
+            if (current.nodeType === Node.ELEMENT_NODE && current.tagName.toLowerCase() === tagName) {
+              hasFormat = true;
+              break;
+            }
+            current = current.parentNode;
+          }
+
+          if (!hasFormat) {
+            return false;
+          }
+        }
+
+        textNode = walker.nextNode();
+      }
+    }
+
+    return foundText;
+  };
+
+  const unwrapFormatTags = (root, tagName) => {
+    if (!root || !tagName || typeof root.querySelectorAll !== 'function') return;
+
+    Array.from(root.querySelectorAll(tagName)).forEach((tag) => {
+      const parent = tag.parentNode;
+      if (!parent) return;
+      while (tag.firstChild) {
+        parent.insertBefore(tag.firstChild, tag);
+      }
+      parent.removeChild(tag);
+    });
+  };
+
   const handleEditorInput = () => {
     const rebuiltText = serializeEditorContent(editorRef.current);
     setText(rebuiltText);
@@ -171,33 +267,38 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     editorRef.current.focus();
     restoreSelection();
 
-    const sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0) return;
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
 
     const tagName = command === 'bold' ? 'strong' : command === 'italic' ? 'em' : null;
-    const isCurrentlyActive = tagName && document.queryCommandState && document.queryCommandState(command);
+    if (!tagName) return;
 
-    if (tagName && isCurrentlyActive) {
-      // REMOVE formatting: unwrap all matching tags that overlap with the selection.
-      // No overlap = tag ends before selection starts (END_TO_START < 0)
-      //           OR tag starts after selection ends (START_TO_END > 0).
-      const range = sel.getRangeAt(0);
-      const allTags = Array.from(editorRef.current.querySelectorAll(tagName));
-      allTags.forEach((tag) => {
-        const tagRange = document.createRange();
-        tagRange.selectNodeContents(tag);
-        const noOverlap = (range.compareBoundaryPoints(Range.END_TO_START, tagRange) < 0) ||
-                          (range.compareBoundaryPoints(Range.START_TO_END, tagRange) > 0);
-        if (noOverlap) return;
-        const parent = tag.parentNode;
-        if (!parent) return;
-        while (tag.firstChild) parent.insertBefore(tag.firstChild, tag);
-        parent.removeChild(tag);
-      });
-    } else {
-      // ADD formatting: use native execCommand
+    if (selection.isCollapsed) {
       document.execCommand(command, false, null);
+      handleEditorInput();
+      saveSelection();
+      updateActiveFormats();
+      return;
     }
+
+    const shouldRemove = isSelectionFullyFormatted(tagName);
+    const selectedRanges = getSelectedLineRanges().reverse();
+
+    selectedRanges.forEach(({ range }) => {
+      const fragment = range.extractContents();
+      if (!fragment) return;
+
+      unwrapFormatTags(fragment, tagName);
+
+      if (shouldRemove) {
+        range.insertNode(fragment);
+        return;
+      }
+
+      const wrapper = document.createElement(tagName);
+      wrapper.appendChild(fragment);
+      range.insertNode(wrapper);
+    });
 
     handleEditorInput();
     saveSelection();
