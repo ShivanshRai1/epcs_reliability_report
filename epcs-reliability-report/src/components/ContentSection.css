@@ -219,7 +219,9 @@
   color: inherit !important;
   font-style: italic !important;
   font-weight: 500;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.03em;
+  transform: skewX(-3deg);
+  display: inline-block;
 }
 
 .content-editor-rich:focus {
@@ -262,9 +264,12 @@
 
 .content-text em,
 .content-line em,
-.content-row em,
-.content-editor-rich em {
+.content-row em {
   font-style: italic;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  transform: skewX(-3deg);
+  display: inline-block;
 }
 
 /* Light mode support */
