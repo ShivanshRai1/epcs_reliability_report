@@ -121,6 +121,24 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
   };
 
   const updateActiveFormats = () => {
+    if (!editorRef.current) {
+      setActiveFormats({ bold: false, italic: false });
+      return;
+    }
+
+    const selection = window.getSelection();
+    const hasEditorSelection = Boolean(
+      selection &&
+      selection.rangeCount > 0 &&
+      editorRef.current.contains(selection.getRangeAt(0).commonAncestorContainer)
+    );
+    const isEditorFocused = document.activeElement === editorRef.current;
+
+    if (!isEditorFocused && !hasEditorSelection) {
+      setActiveFormats({ bold: false, italic: false });
+      return;
+    }
+
     setActiveFormats({
       bold: Boolean(document.queryCommandState && document.queryCommandState('bold')),
       italic: Boolean(document.queryCommandState && document.queryCommandState('italic')),
@@ -260,10 +278,10 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
           contentEditable
           suppressContentEditableWarning
           onInput={handleEditorInput}
-          onFocus={saveSelection}
-          onBlur={handleEditorInput}
-          onKeyUp={() => { saveSelection(); }}
-          onMouseUp={() => { saveSelection(); }}
+          onFocus={() => { saveSelection(); updateActiveFormats(); }}
+          onBlur={() => { handleEditorInput(); setActiveFormats({ bold: false, italic: false }); }}
+          onKeyUp={() => { saveSelection(); updateActiveFormats(); }}
+          onMouseUp={() => { saveSelection(); updateActiveFormats(); }}
           onPaste={handlePastePlainText}
           style={{ fontFamily, fontSize: `${resolvedContentFontSize}rem`, color: contentTextColor }}
           dangerouslySetInnerHTML={{ __html: editorHtml }}
