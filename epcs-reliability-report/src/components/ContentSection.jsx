@@ -178,19 +178,17 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     const isCurrentlyActive = tagName && document.queryCommandState && document.queryCommandState(command);
 
     if (tagName && isCurrentlyActive) {
-      // Selection is currently bold/italic — remove it.
-      // Walk every node inside the editor, find <strong>/<em> tags that
-      // overlap with the current selection, and unwrap them.
+      // REMOVE formatting: unwrap all matching tags that overlap with the selection.
+      // No overlap = tag ends before selection starts (END_TO_START < 0)
+      //           OR tag starts after selection ends (START_TO_END > 0).
       const range = sel.getRangeAt(0);
-      // Collect all matching tags in editor
       const allTags = Array.from(editorRef.current.querySelectorAll(tagName));
       allTags.forEach((tag) => {
-        // Check if this tag overlaps the selection range
         const tagRange = document.createRange();
         tagRange.selectNodeContents(tag);
-        const overlap = !(range.compareBoundaryPoints(Range.END_TO_START, tagRange) >= 0 ||
-                          range.compareBoundaryPoints(Range.START_TO_END, tagRange) <= 0);
-        if (!overlap) return;
+        const noOverlap = (range.compareBoundaryPoints(Range.END_TO_START, tagRange) < 0) ||
+                          (range.compareBoundaryPoints(Range.START_TO_END, tagRange) > 0);
+        if (noOverlap) return;
         const parent = tag.parentNode;
         if (!parent) return;
         while (tag.firstChild) parent.insertBefore(tag.firstChild, tag);
