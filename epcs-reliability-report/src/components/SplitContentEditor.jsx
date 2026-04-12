@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './SplitContentEditor.css';
 import LinkTargetInput from './LinkTargetInput';
 import { getTemplateBadge } from '../utils/templateInfo.jsx';
@@ -78,6 +78,9 @@ const SplitContentEditor = ({ page, onChange }) => {
   const [rightLinkTargetDraft, setRightLinkTargetDraft] = useState('');
   const [leftImageDraft, setLeftImageDraft] = useState('');
   const [rightImageDraft, setRightImageDraft] = useState('');
+  const leftDraftRef = useRef(null);
+  const rightDraftRef = useRef(null);
+  const blockTextRefs = useRef({});
 
   useEffect(() => {
     setTitle(page.title || '');
@@ -249,6 +252,56 @@ const SplitContentEditor = ({ page, onChange }) => {
     }
   };
 
+  const applyTextareaTag = (textareaEl, value, setValue, tag) => {
+    if (!textareaEl) return;
+
+    const start = textareaEl.selectionStart ?? 0;
+    const end = textareaEl.selectionEnd ?? 0;
+    if (start === end) return;
+
+    const open = `<${tag}>`;
+    const close = `</${tag}>`;
+    const selected = value.slice(start, end);
+
+    // Toggle formatting when selection is already wrapped by the same tag.
+    if (selected.startsWith(open) && selected.endsWith(close)) {
+      const unwrapped = selected.slice(open.length, selected.length - close.length);
+      const next = `${value.slice(0, start)}${unwrapped}${value.slice(end)}`;
+      setValue(next);
+      requestAnimationFrame(() => {
+        textareaEl.focus();
+        textareaEl.setSelectionRange(start, start + unwrapped.length);
+      });
+      return;
+    }
+
+    const wrapped = `${open}${selected}${close}`;
+    const next = `${value.slice(0, start)}${wrapped}${value.slice(end)}`;
+    setValue(next);
+    requestAnimationFrame(() => {
+      textareaEl.focus();
+      textareaEl.setSelectionRange(start + open.length, start + open.length + selected.length);
+    });
+  };
+
+  const applyDraftFormat = (side, tag) => {
+    if (side === 'left') {
+      applyTextareaTag(leftDraftRef.current, leftTextDraft, setLeftTextDraft, tag);
+      return;
+    }
+
+    applyTextareaTag(rightDraftRef.current, rightTextDraft, setRightTextDraft, tag);
+  };
+
+  const applyBlockFormat = (side, blockId, textValue, tag) => {
+    const textareaEl = blockTextRefs.current[blockId];
+    if (!textareaEl) return;
+
+    applyTextareaTag(textareaEl, textValue || '', (nextValue) => {
+      updateBlockField(side, blockId, 'text', nextValue);
+    }, tag);
+  };
+
   const renderSideEditor = (side) => {
     const isLeft = side === 'left';
     const blocks = isLeft ? leftBlocks : rightBlocks;
@@ -261,7 +314,12 @@ const SplitContentEditor = ({ page, onChange }) => {
       <div className="side-blocks-editor">
         <div className="content-editor">
           <label>Add Text Block:</label>
+          <div className="split-text-toolbar">
+            <button type="button" className="split-format-btn" onMouseDown={(e) => { e.preventDefault(); applyDraftFormat(side, 'strong'); }} title="Bold selected text">B</button>
+            <button type="button" className="split-format-btn" onMouseDown={(e) => { e.preventDefault(); applyDraftFormat(side, 'em'); }} title="Italic selected text">I</button>
+          </div>
           <textarea
+            ref={isLeft ? leftDraftRef : rightDraftRef}
             value={textDraft}
             onChange={(e) => (isLeft ? setLeftTextDraft(e.target.value) : setRightTextDraft(e.target.value))}
             placeholder="Enter text"
@@ -322,12 +380,25 @@ const SplitContentEditor = ({ page, onChange }) => {
                   <div className="split-block-order">{index + 1}</div>
                   <div className="split-block-body">
                     {block.type === 'text' && (
-                      <textarea
-                        value={block.text || ''}
-                        onChange={(e) => updateBlockField(side, block.id, 'text', e.target.value)}
-                        className="content-textarea"
-                        rows="3"
-                      />
+                      <>
+                        <div className="split-text-toolbar">
+                          <button type="button" className="split-format-btn" onMouseDown={(e) => { e.preventDefault(); applyBlockFormat(side, block.id, block.text || '', 'strong'); }} title="Bold selected text">B</button>
+                          <button type="button" className="split-format-btn" onMouseDown={(e) => { e.preventDefault(); applyBlockFormat(side, block.id, block.text || '', 'em'); }} title="Italic selected text">I</button>
+                        </div>
+                        <textarea
+                          ref={(el) => {
+                            if (el) {
+                              blockTextRefs.current[block.id] = el;
+                            } else {
+                              delete blockTextRefs.current[block.id];
+                            }
+                          }}
+                          value={block.text || ''}
+                          onChange={(e) => updateBlockField(side, block.id, 'text', e.target.value)}
+                          className="content-textarea"
+                          rows="3"
+                        />
+                      </>
                     )}
 
                     {block.type === 'link' && (

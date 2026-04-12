@@ -112,6 +112,27 @@
   gap: 12px;
 }
 
+.split-text-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.split-format-btn {
+  min-width: 34px;
+  height: 30px;
+  border: 1px solid #3a4555;
+  border-radius: 4px;
+  background: #242d3d;
+  color: #e0e6f0;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.split-format-btn:hover {
+  background: #2d3646;
+}
+
 .split-actions-row {
   display: flex;
   gap: 8px;
@@ -240,6 +261,12 @@
   }
 
   .split-add-btn {
+    background: #ffffff;
+    color: #213547;
+    border-color: #ddd;
+  }
+
+  .split-format-btn {
     background: #ffffff;
     color: #213547;
     border-color: #ddd;

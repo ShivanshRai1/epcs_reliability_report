@@ -81,6 +81,17 @@
   word-wrap: break-word;
 }
 
+.text-content strong {
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.text-content em {
+  font-style: italic;
+  font-weight: 600;
+  color: #334155;
+}
+
 .link-content {
   display: flex;
   align-items: center;
@@ -148,6 +159,14 @@
 
   .content-display {
     color: inherit;
+  }
+
+  .text-content strong {
+    color: #000000;
+  }
+
+  .text-content em {
+    color: #334155;
   }
 
   .left-header-box {

@@ -1,6 +1,44 @@
 import React from 'react';
 import './SplitContentRenderer.css';
 
+const sanitizeInlineHtml = (html = '') => {
+  if (typeof window === 'undefined') return String(html || '');
+
+  const container = document.createElement('div');
+  container.innerHTML = String(html || '')
+    .replace(/<span[^>]*font-weight\s*:\s*(bold|bolder|[6-9]00)[^>]*>([\s\S]*?)<\/span>/gi, '<strong>$2</strong>')
+    .replace(/<span[^>]*font-style\s*:\s*italic[^>]*>([\s\S]*?)<\/span>/gi, '<em>$1</em>')
+    .replace(/<(\/?)b>/gi, '<$1strong>')
+    .replace(/<(\/?)i>/gi, '<$1em>');
+
+  const allowedTags = new Set(['STRONG', 'EM', 'BR']);
+  const walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT);
+  const nodesToUnwrap = [];
+  let currentNode = walker.nextNode();
+
+  while (currentNode) {
+    if (!allowedTags.has(currentNode.tagName)) {
+      nodesToUnwrap.push(currentNode);
+    }
+    currentNode = walker.nextNode();
+  }
+
+  nodesToUnwrap.forEach((node) => {
+    const parent = node.parentNode;
+    if (!parent) return;
+    while (node.firstChild) {
+      parent.insertBefore(node.firstChild, node);
+    }
+    parent.removeChild(node);
+  });
+
+  return container.innerHTML.replace(/\n/g, '<br>');
+};
+
+const renderInlineContent = (value) => ({
+  __html: sanitizeInlineHtml(value || '')
+});
+
 const normalizeBlocksForRender = (blocks, contentType, content, image) => {
   if (Array.isArray(blocks) && blocks.length > 0) {
     return blocks;
@@ -39,8 +77,11 @@ const SplitContentRenderer = ({ title, leftHeader, rightHeader, titleColor, left
     };
     if (contentType === 'text') {
       return (
-        <div className="content-display text-content" style={{ fontSize: `${resolvedContentSize}rem`, color: resolvedContentTextColor }}>
-          {content}
+        <div
+          className="content-display text-content"
+          style={{ fontSize: `${resolvedContentSize}rem`, color: resolvedContentTextColor }}
+          dangerouslySetInnerHTML={renderInlineContent(content)}
+        >
         </div>
       );
     } else if (contentType === 'link') {
@@ -82,8 +123,12 @@ const SplitContentRenderer = ({ title, leftHeader, rightHeader, titleColor, left
     };
     if (block.type === 'text') {
       return (
-        <div key={block.id || `text-${idx}`} className="content-display text-content split-block-render-item" style={{ fontSize: `${resolvedContentSize}rem`, color: resolvedContentTextColor }}>
-          {block.text}
+        <div
+          key={block.id || `text-${idx}`}
+          className="content-display text-content split-block-render-item"
+          style={{ fontSize: `${resolvedContentSize}rem`, color: resolvedContentTextColor }}
+          dangerouslySetInnerHTML={renderInlineContent(block.text)}
+        >
         </div>
       );
     }
