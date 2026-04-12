@@ -211,14 +211,14 @@
 }
 
 .content-editor-rich strong {
-  color: inherit !important;
-  font-weight: 700 !important;
+  color: #0f172a !important;
+  font-weight: 800 !important;
 }
 
 .content-editor-rich em {
-  color: inherit !important;
+  color: #334155 !important;
   font-style: italic !important;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.03em;
   transform: skewX(-3deg);
   display: inline-block;
@@ -258,8 +258,8 @@
 }
 
 .content-editor-rich strong {
-  color: inherit !important;
-  font-weight: 700 !important;
+  color: #0f172a !important;
+  font-weight: 800 !important;
 }
 
 .content-text em,
