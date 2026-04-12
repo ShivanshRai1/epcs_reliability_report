@@ -150,8 +150,8 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     }
 
     setActiveFormats({
-      bold: Boolean(document.queryCommandState && document.queryCommandState('bold')),
-      italic: Boolean(document.queryCommandState && document.queryCommandState('italic')),
+      bold: isSelectionOrCaretFormatted('strong'),
+      italic: isSelectionOrCaretFormatted('em'),
     });
   };
 
@@ -236,6 +236,46 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     }
 
     return foundText;
+  };
+
+  const isCaretInsideTag = (tagName) => {
+    if (!editorRef.current) return false;
+
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0 || !selection.isCollapsed) return false;
+
+    let current = selection.anchorNode;
+    if (!current) return false;
+    if (current.nodeType === Node.TEXT_NODE) {
+      current = current.parentNode;
+    }
+
+    while (current && current !== editorRef.current) {
+      if (current.nodeType === Node.ELEMENT_NODE && current.tagName.toLowerCase() === tagName) {
+        return true;
+      }
+      current = current.parentNode;
+    }
+
+    return false;
+  };
+
+  const isSelectionOrCaretFormatted = (tagName) => {
+    if (!editorRef.current) return false;
+
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return false;
+
+    const range = selection.getRangeAt(0);
+    if (!editorRef.current.contains(range.commonAncestorContainer)) {
+      return false;
+    }
+
+    if (selection.isCollapsed) {
+      return isCaretInsideTag(tagName);
+    }
+
+    return isSelectionFullyFormatted(tagName);
   };
 
   const unwrapFormatTags = (root, tagName) => {
