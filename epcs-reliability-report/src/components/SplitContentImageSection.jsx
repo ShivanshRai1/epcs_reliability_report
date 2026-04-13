@@ -60,6 +60,71 @@ export default function SplitContentImageSection({
   const [leftImageUrlData, setLeftImageUrlData] = useState(leftImageUrl || '');
   const [leftContentData, setLeftContentData] = useState(leftContent || '');
   const fileInputRef = useRef();
+  const leftContentRef = useRef();
+
+  const sanitizeInlineHtml = (html = '') => {
+    if (typeof window === 'undefined') return String(html || '');
+
+    const container = document.createElement('div');
+    container.innerHTML = String(html || '')
+      .replace(/<(\/?)b>/gi, '<$1strong>')
+      .replace(/<(\/?)i>/gi, '<$1em>');
+
+    const allowedTags = new Set(['STRONG', 'EM', 'BR']);
+    const walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT);
+    const nodesToUnwrap = [];
+    let currentNode = walker.nextNode();
+
+    while (currentNode) {
+      if (!allowedTags.has(currentNode.tagName)) {
+        nodesToUnwrap.push(currentNode);
+      }
+      currentNode = walker.nextNode();
+    }
+
+    nodesToUnwrap.forEach((node) => {
+      const parent = node.parentNode;
+      if (!parent) return;
+      while (node.firstChild) {
+        parent.insertBefore(node.firstChild, node);
+      }
+      parent.removeChild(node);
+    });
+
+    return container.innerHTML.replace(/\n/g, '<br>');
+  };
+
+  const applyLeftTextFormat = (tag) => {
+    const textareaEl = leftContentRef.current;
+    if (!textareaEl) return;
+
+    const start = textareaEl.selectionStart ?? 0;
+    const end = textareaEl.selectionEnd ?? 0;
+    if (start === end) return;
+
+    const open = `<${tag}>`;
+    const close = `</${tag}>`;
+    const selected = leftContentData.slice(start, end);
+
+    if (selected.startsWith(open) && selected.endsWith(close)) {
+      const unwrapped = selected.slice(open.length, selected.length - close.length);
+      const next = `${leftContentData.slice(0, start)}${unwrapped}${leftContentData.slice(end)}`;
+      setLeftContentData(next);
+      requestAnimationFrame(() => {
+        textareaEl.focus();
+        textareaEl.setSelectionRange(start, start + unwrapped.length);
+      });
+      return;
+    }
+
+    const wrapped = `${open}${selected}${close}`;
+    const next = `${leftContentData.slice(0, start)}${wrapped}${leftContentData.slice(end)}`;
+    setLeftContentData(next);
+    requestAnimationFrame(() => {
+      textareaEl.focus();
+      textareaEl.setSelectionRange(start + open.length, start + open.length + selected.length);
+    });
+  };
 
   const emitImmediateChange = (overrides = {}) => {
     if (!isEditing || !onChange) return;
@@ -358,25 +423,29 @@ export default function SplitContentImageSection({
     if (splitTextImageMode) {
       if (isEditing) {
         return (
-          <textarea
-            className="split-left-content-textarea"
-            value={leftContentData}
-            onChange={e => setLeftContentData(e.target.value)}
-            style={{ width: '100%', minHeight: 120 }}
-            placeholder="Enter left-side content"
-          />
+          <div style={{ display: 'grid', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button type="button" className="split-add-btn" onMouseDown={(e) => { e.preventDefault(); applyLeftTextFormat('strong'); }} title="Bold selected text">B</button>
+              <button type="button" className="split-add-btn" onMouseDown={(e) => { e.preventDefault(); applyLeftTextFormat('em'); }} title="Italic selected text">I</button>
+            </div>
+            <textarea
+              ref={leftContentRef}
+              className="split-left-content-textarea"
+              value={leftContentData}
+              onChange={e => setLeftContentData(e.target.value)}
+              style={{ width: '100%', minHeight: 120 }}
+              placeholder="Enter left-side content"
+            />
+          </div>
         );
       }
 
       return (
-        <div className="split-left-content-text" style={{ fontFamily: fontFamilyData, fontSize: `${contentFontSizeData}rem`, color: contentTextColorData }}>
-          {(leftContentData || '').split('\n').map((line, idx) => (
-            <React.Fragment key={idx}>
-              {line}
-              <br />
-            </React.Fragment>
-          ))}
-        </div>
+        <div
+          className="split-left-content-text"
+          style={{ fontFamily: fontFamilyData, fontSize: `${contentFontSizeData}rem`, color: contentTextColorData }}
+          dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(leftContentData || '') }}
+        />
       );
     }
 
@@ -458,23 +527,27 @@ export default function SplitContentImageSection({
     if (typeof leftContentData === 'string' && leftContentData.trim()) {
       if (isEditing) {
         return (
-          <textarea
-            className="split-left-content-textarea"
-            value={leftContentData}
-            onChange={e => setLeftContentData(e.target.value)}
-            style={{ width: '100%', minHeight: 80 }}
-          />
+          <div style={{ display: 'grid', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button type="button" className="split-add-btn" onMouseDown={(e) => { e.preventDefault(); applyLeftTextFormat('strong'); }} title="Bold selected text">B</button>
+              <button type="button" className="split-add-btn" onMouseDown={(e) => { e.preventDefault(); applyLeftTextFormat('em'); }} title="Italic selected text">I</button>
+            </div>
+            <textarea
+              ref={leftContentRef}
+              className="split-left-content-textarea"
+              value={leftContentData}
+              onChange={e => setLeftContentData(e.target.value)}
+              style={{ width: '100%', minHeight: 80 }}
+            />
+          </div>
         );
       }
       return (
-        <div className="split-left-content-text" style={{ fontFamily: fontFamilyData, fontSize: `${contentFontSizeData}rem`, color: contentTextColorData }}>
-          {leftContentData.split('\n').map((line, idx) => (
-            <React.Fragment key={idx}>
-              {line}
-              <br />
-            </React.Fragment>
-          ))}
-        </div>
+        <div
+          className="split-left-content-text"
+          style={{ fontFamily: fontFamilyData, fontSize: `${contentFontSizeData}rem`, color: contentTextColorData }}
+          dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(leftContentData) }}
+        />
       );
     }
     // Fallback to links (legacy)
