@@ -1190,13 +1190,16 @@ a:hover, .index-link:hover {
   min-width: 0;
 }
 
-.pdf-viewer-content .legacy-live-page .content-row {
+.pdf-viewer-content .legacy-live-page .content-row,
+.legacy-live-page .content-row {
   margin: 0;
+  color: #2e98e6 !important;
   line-height: 1.1;
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.pdf-viewer-content .legacy-live-page .content-row-group {
+.pdf-viewer-content .legacy-live-page .content-row-group,
+.legacy-live-page .content-row-group {
   color: #cc6a2d !important;
   font-size: 20px;
   font-weight: 500;
@@ -1205,7 +1208,8 @@ a:hover, .index-link:hover {
   letter-spacing: 0;
 }
 
-.pdf-viewer-content .legacy-live-page .content-row-blue {
+.pdf-viewer-content .legacy-live-page .content-row-blue,
+.legacy-live-page .content-row-blue {
   color: #2e98e6 !important;
   font-size: 15px;
   font-weight: 500;
@@ -1213,7 +1217,8 @@ a:hover, .index-link:hover {
   padding-left: 42px;
 }
 
-.pdf-viewer-content .legacy-live-page .content-row-orange {
+.pdf-viewer-content .legacy-live-page .content-row-orange,
+.legacy-live-page .content-row-orange {
   color: #2e98e6 !important;
   font-size: 15px;
   font-weight: 500;
@@ -1221,7 +1226,8 @@ a:hover, .index-link:hover {
   padding-left: 42px;
 }
 
-.pdf-viewer-content .legacy-live-page .content-row-line {
+.pdf-viewer-content .legacy-live-page .content-row-line,
+.legacy-live-page .content-row-line {
   color: #2e98e6 !important;
   font-size: 15px;
   font-weight: 500;
@@ -1230,21 +1236,34 @@ a:hover, .index-link:hover {
 }
 
 .pdf-viewer-content .legacy-live-page .content-row strong,
+.legacy-live-page .content-row strong,
 .pdf-viewer-content .legacy-live-page .content-row-group strong,
+.legacy-live-page .content-row-group strong,
 .pdf-viewer-content .legacy-live-page .content-row-blue strong,
+.legacy-live-page .content-row-blue strong,
 .pdf-viewer-content .legacy-live-page .content-row-orange strong,
+.legacy-live-page .content-row-orange strong,
 .pdf-viewer-content .legacy-live-page .content-row-line strong,
+.legacy-live-page .content-row-line strong,
 .pdf-viewer-content .legacy-live-page .content-row-indent-1 strong,
-.pdf-viewer-content .legacy-live-page .content-row-indent-2 strong {
+.legacy-live-page .content-row-indent-1 strong,
+.pdf-viewer-content .legacy-live-page .content-row-indent-2 strong,
+.legacy-live-page .content-row-indent-2 strong {
   color: #d7803f !important;
 }
 
 .pdf-viewer-content .legacy-live-page .content-row em,
+.legacy-live-page .content-row em,
 .pdf-viewer-content .legacy-live-page .content-row-blue em,
+.legacy-live-page .content-row-blue em,
 .pdf-viewer-content .legacy-live-page .content-row-orange em,
+.legacy-live-page .content-row-orange em,
 .pdf-viewer-content .legacy-live-page .content-row-line em,
+.legacy-live-page .content-row-line em,
 .pdf-viewer-content .legacy-live-page .content-row-indent-1 em,
-.pdf-viewer-content .legacy-live-page .content-row-indent-2 em {
+.legacy-live-page .content-row-indent-1 em,
+.pdf-viewer-content .legacy-live-page .content-row-indent-2 em,
+.legacy-live-page .content-row-indent-2 em {
   color: #2e98e6 !important;
 }
 
