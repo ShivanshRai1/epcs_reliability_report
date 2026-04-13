@@ -1294,21 +1294,39 @@ a:hover, .index-link:hover {
 .legacy-live-page .content-section-live-plain .content-row-line {
   margin: 0 0 6px 0;
   padding-left: 0;
-  color: #2e98e6 !important;
+  color: #000000 !important;
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.2;
   font-family: Arial, Helvetica, sans-serif;
 }
 
 .pdf-viewer-content .legacy-live-page .content-section-live-plain .content-row strong,
 .legacy-live-page .content-section-live-plain .content-row strong {
-  color: #d7803f !important;
+  color: #111111 !important;
+  font-weight: 700;
 }
 
 .pdf-viewer-content .legacy-live-page .content-section-live-plain .content-row em,
 .legacy-live-page .content-section-live-plain .content-row em {
-  color: #2e98e6 !important;
+  color: #000000 !important;
+}
+
+/* Split text content pages in live mode: keep body text black and emphasis readable. */
+.pdf-viewer-content .legacy-live-page .split-content .text-content,
+.pdf-viewer-content .legacy-live-page .split-left-content-text {
+  color: #000000 !important;
+}
+
+.pdf-viewer-content .legacy-live-page .split-content .text-content strong,
+.pdf-viewer-content .legacy-live-page .split-left-content-text strong {
+  color: #111111 !important;
+  font-weight: 700;
+}
+
+.pdf-viewer-content .legacy-live-page .split-content .text-content em,
+.pdf-viewer-content .legacy-live-page .split-left-content-text em {
+  color: #000000 !important;
 }
 
 /* Keep text white on colored panels inside View Live mode */
