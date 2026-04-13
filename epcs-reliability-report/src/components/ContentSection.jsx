@@ -369,12 +369,63 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) return;
 
-    // Use execCommand for robust toggling (handles partial/nested/mixed selections)
-    document.execCommand(command, false, null);
-    // Sanitize the result to normalize tags
+    const tagName = command === 'bold' ? 'strong' : command === 'italic' ? 'em' : null;
+    if (!tagName) return;
+
+    // Collapsed caret: use execCommand so the next typed characters carry the format
+    if (selection.isCollapsed) {
+      document.execCommand(command, false, null);
+      handleEditorInput();
+      saveSelection();
+      updateActiveFormats();
+      return;
+    }
+
+    // Range selection: manual DOM wrap/unwrap — does NOT rely on CSS for state detection.
+    // This guarantees bold and italic work independently and can be combined.
+    const shouldRemove = isSelectionFullyFormatted(tagName);
+    const range = selection.getRangeAt(0);
+    const fragment = range.extractContents();
+    if (!fragment) return;
+
+    let firstNode, lastNode;
+
+    if (shouldRemove) {
+      // Remove ONLY this format; the other format (em/strong) is preserved inside.
+      unwrapFormatTags(fragment, tagName);
+      const insertedNodes = Array.from(fragment.childNodes);
+      range.insertNode(fragment);
+      firstNode = insertedNodes[0];
+      lastNode = insertedNodes[insertedNodes.length - 1];
+    } else {
+      // Wrap in the new tag. Any existing format (em/strong) inside is preserved.
+      const wrapper = document.createElement(tagName);
+      while (fragment.firstChild) {
+        wrapper.appendChild(fragment.firstChild);
+      }
+      range.insertNode(wrapper);
+      firstNode = wrapper;
+      lastNode = wrapper;
+    }
+
     handleEditorInput();
-    saveSelection();
-    updateActiveFormats();
+
+    requestAnimationFrame(() => {
+      if (!editorRef.current || !firstNode || !lastNode) return;
+      if (!editorRef.current.contains(firstNode)) return;
+      editorRef.current.focus();
+      const sel = window.getSelection();
+      if (!sel) return;
+      const newRange = document.createRange();
+      try {
+        newRange.setStartBefore(firstNode);
+        newRange.setEndAfter(lastNode);
+        sel.removeAllRanges();
+        sel.addRange(newRange);
+        selectionRef.current = newRange.cloneRange();
+      } catch (e) { /* node may have moved after sanitize, ignore */ }
+      updateActiveFormats();
+    });
   };
 
   const handlePastePlainText = (e) => {

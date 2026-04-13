@@ -182,12 +182,7 @@
   cursor: text;
   user-select: text;
   -webkit-user-select: text;
-  font-weight: 400 !important;
-}
-
-/* Make sure all normal text is regular weight, only <strong> is bold */
-.content-editor-rich, .content-editor-rich *:not(strong):not(em) {
-  font-weight: 400 !important;
+  font-weight: 400;
 }
 
 .content-editor-line {
