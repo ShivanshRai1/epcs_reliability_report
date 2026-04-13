@@ -748,9 +748,10 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
     const captionClassName = isLiveMode ? 'legacy-live-table-caption' : '';
     const liveHeaderTextColor = isLiveMode ? '#000000' : pageTextColor;
     const liveContentTextColor = isLiveMode ? '#000000' : contentTextColor;
+    const containerStyle = isLiveMode ? undefined : { fontFamily };
 
     return (
-      <div className={containerClassName}>
+      <div className={containerClassName} style={containerStyle}>
         {showTableLogo && <div className="legacy-live-table-logo">EPC·SPACE</div>}
         <h2 className={headingClassName} style={headingStyle}>
           {page.title}
