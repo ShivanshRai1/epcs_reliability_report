@@ -26,7 +26,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
 
     const container = document.createElement('div');
     container.innerHTML = String(html || '')
-      .replace(/<span[^>]*font-weight\s*:\s*(bold|bolder|[6-9]00)[^>]*>([\s\S]*?)<\/span>/gi, '<strong>$2</strong>')
+      .replace(/<span[^>]*font-weight\s*:\s*(bold|bolder|[7-9]00)[^>]*>([\s\S]*?)<\/span>/gi, '<strong>$2</strong>')
       .replace(/<span[^>]*font-style\s*:\s*italic[^>]*>([\s\S]*?)<\/span>/gi, '<em>$1</em>')
       .replace(/<(\/?)b>/gi, '<$1strong>')
       .replace(/<(\/?)i>/gi, '<$1em>');
@@ -321,7 +321,15 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     if (!editorRef.current) return;
 
     editorRef.current.focus();
-    restoreSelection();
+    const initialSelection = window.getSelection();
+    const hasActiveEditorSelection = Boolean(
+      initialSelection &&
+      initialSelection.rangeCount > 0 &&
+      editorRef.current.contains(initialSelection.getRangeAt(0).commonAncestorContainer)
+    );
+    if (!hasActiveEditorSelection) {
+      restoreSelection();
+    }
 
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) return;
@@ -339,6 +347,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
 
     const shouldRemove = isSelectionFullyFormatted(tagName);
     const selectedRanges = getSelectedLineRanges().reverse();
+    const insertedWrappers = [];
 
     selectedRanges.forEach(({ range }) => {
       const fragment = range.extractContents();
@@ -354,9 +363,30 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
       const wrapper = document.createElement(tagName);
       wrapper.appendChild(fragment);
       range.insertNode(wrapper);
+      insertedWrappers.push(wrapper);
     });
 
     handleEditorInput();
+
+    if (insertedWrappers.length > 0) {
+      const firstWrapper = insertedWrappers[insertedWrappers.length - 1];
+      const lastWrapper = insertedWrappers[0];
+      requestAnimationFrame(() => {
+        if (!editorRef.current || !editorRef.current.contains(firstWrapper)) return;
+        editorRef.current.focus();
+        const sel = window.getSelection();
+        if (!sel) return;
+        const newRange = document.createRange();
+        newRange.setStartBefore(firstWrapper);
+        newRange.setEndAfter(lastWrapper);
+        sel.removeAllRanges();
+        sel.addRange(newRange);
+        selectionRef.current = newRange.cloneRange();
+        updateActiveFormats();
+      });
+      return;
+    }
+
     saveSelection();
     updateActiveFormats();
   };
@@ -365,7 +395,15 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     if (!editorRef.current) return;
 
     editorRef.current.focus();
-    restoreSelection();
+    const initialSelection = window.getSelection();
+    const hasActiveEditorSelection = Boolean(
+      initialSelection &&
+      initialSelection.rangeCount > 0 &&
+      editorRef.current.contains(initialSelection.getRangeAt(0).commonAncestorContainer)
+    );
+    if (!hasActiveEditorSelection) {
+      restoreSelection();
+    }
 
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return;

@@ -103,6 +103,7 @@
 .split-content-display {
   font-size: 0.95rem;
   line-height: 1.6;
+  font-weight: 400;
   color: inherit;
 }
 
@@ -110,6 +111,7 @@
 .split-left-content-text {
   font-size: 0.95rem;
   line-height: 1.8;
+  font-weight: 400;
   color: inherit;
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -117,11 +119,8 @@
 
 .split-content-display strong,
 .split-left-content-text strong {
-  font-weight: 900;
-  letter-spacing: 0.02em;
-  text-decoration-line: underline;
-  text-decoration-thickness: 0.06em;
-  text-underline-offset: 0.08em;
+  font-weight: 800;
+  letter-spacing: 0.01em;
 }
 
 .split-left-content-textarea {

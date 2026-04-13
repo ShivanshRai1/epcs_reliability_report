@@ -79,15 +79,13 @@
 .text-content {
   white-space: pre-wrap;
   word-wrap: break-word;
+  font-weight: 400;
 }
 
 .text-content strong {
-  font-weight: 900;
+  font-weight: 800;
   color: #0f172a;
-  letter-spacing: 0.02em;
-  text-decoration-line: underline;
-  text-decoration-thickness: 0.06em;
-  text-underline-offset: 0.08em;
+  letter-spacing: 0.01em;
 }
 
 .text-content em {
@@ -167,11 +165,8 @@
 
   .text-content strong {
     color: #000000;
-    font-weight: 900;
-    letter-spacing: 0.02em;
-    text-decoration-line: underline;
-    text-decoration-thickness: 0.06em;
-    text-underline-offset: 0.08em;
+    font-weight: 800;
+    letter-spacing: 0.01em;
   }
 
   .text-content em {
