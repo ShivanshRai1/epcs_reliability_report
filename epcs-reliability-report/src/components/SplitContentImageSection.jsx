@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Modal from './Modal';
+import ContentSection from './ContentSection';
 import './SplitContentImageSection.css';
 import { toOpenableUrl } from '../utils/linkTarget';
 import LinkTargetInput from './LinkTargetInput';
@@ -60,7 +61,6 @@ export default function SplitContentImageSection({
   const [leftImageUrlData, setLeftImageUrlData] = useState(leftImageUrl || '');
   const [leftContentData, setLeftContentData] = useState(leftContent || '');
   const fileInputRef = useRef();
-  const leftContentRef = useRef();
 
   const sanitizeInlineHtml = (html = '') => {
     if (typeof window === 'undefined') return String(html || '');
@@ -92,38 +92,6 @@ export default function SplitContentImageSection({
     });
 
     return container.innerHTML.replace(/\n/g, '<br>');
-  };
-
-  const applyLeftTextFormat = (tag) => {
-    const textareaEl = leftContentRef.current;
-    if (!textareaEl) return;
-
-    const start = textareaEl.selectionStart ?? 0;
-    const end = textareaEl.selectionEnd ?? 0;
-    if (start === end) return;
-
-    const open = `<${tag}>`;
-    const close = `</${tag}>`;
-    const selected = leftContentData.slice(start, end);
-
-    if (selected.startsWith(open) && selected.endsWith(close)) {
-      const unwrapped = selected.slice(open.length, selected.length - close.length);
-      const next = `${leftContentData.slice(0, start)}${unwrapped}${leftContentData.slice(end)}`;
-      setLeftContentData(next);
-      requestAnimationFrame(() => {
-        textareaEl.focus();
-        textareaEl.setSelectionRange(start, start + unwrapped.length);
-      });
-      return;
-    }
-
-    const wrapped = `${open}${selected}${close}`;
-    const next = `${leftContentData.slice(0, start)}${wrapped}${leftContentData.slice(end)}`;
-    setLeftContentData(next);
-    requestAnimationFrame(() => {
-      textareaEl.focus();
-      textareaEl.setSelectionRange(start + open.length, start + open.length + selected.length);
-    });
   };
 
   const emitImmediateChange = (overrides = {}) => {
@@ -423,20 +391,15 @@ export default function SplitContentImageSection({
     if (splitTextImageMode) {
       if (isEditing) {
         return (
-          <div style={{ display: 'grid', gap: '8px' }}>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button type="button" className="split-add-btn" onMouseDown={(e) => { e.preventDefault(); applyLeftTextFormat('strong'); }} title="Bold selected text">B</button>
-              <button type="button" className="split-add-btn" onMouseDown={(e) => { e.preventDefault(); applyLeftTextFormat('em'); }} title="Italic selected text">I</button>
-            </div>
-            <textarea
-              ref={leftContentRef}
-              className="split-left-content-textarea"
-              value={leftContentData}
-              onChange={e => setLeftContentData(e.target.value)}
-              style={{ width: '100%', minHeight: 120 }}
-              placeholder="Enter left-side content"
-            />
-          </div>
+          <ContentSection
+            content={leftContentData}
+            isEditing={true}
+            fontFamily={fontFamilyData}
+            contentFontSize={contentFontSizeData}
+            contentTextColor={contentTextColorData}
+            contentAlign="left"
+            onChange={(newContent) => setLeftContentData(newContent)}
+          />
         );
       }
 
@@ -527,19 +490,15 @@ export default function SplitContentImageSection({
     if (typeof leftContentData === 'string' && leftContentData.trim()) {
       if (isEditing) {
         return (
-          <div style={{ display: 'grid', gap: '8px' }}>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button type="button" className="split-add-btn" onMouseDown={(e) => { e.preventDefault(); applyLeftTextFormat('strong'); }} title="Bold selected text">B</button>
-              <button type="button" className="split-add-btn" onMouseDown={(e) => { e.preventDefault(); applyLeftTextFormat('em'); }} title="Italic selected text">I</button>
-            </div>
-            <textarea
-              ref={leftContentRef}
-              className="split-left-content-textarea"
-              value={leftContentData}
-              onChange={e => setLeftContentData(e.target.value)}
-              style={{ width: '100%', minHeight: 80 }}
-            />
-          </div>
+          <ContentSection
+            content={leftContentData}
+            isEditing={true}
+            fontFamily={fontFamilyData}
+            contentFontSize={contentFontSizeData}
+            contentTextColor={contentTextColorData}
+            contentAlign="left"
+            onChange={(newContent) => setLeftContentData(newContent)}
+          />
         );
       }
       return (
