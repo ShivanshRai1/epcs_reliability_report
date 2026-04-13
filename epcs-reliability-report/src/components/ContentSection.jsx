@@ -371,6 +371,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
       return;
     }
 
+
     const shouldRemove = isSelectionFullyFormatted(tagName);
     const selectedRanges = getSelectedLineRanges().reverse();
     const insertedBoundaries = [];
@@ -379,11 +380,9 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
       const fragment = range.extractContents();
       if (!fragment) return;
 
-      // Only unwrap the relevant tag, but preserve the other format if present
-      unwrapFormatTags(fragment, tagName);
-
       if (shouldRemove) {
         // Remove only the relevant format, keep the other
+        unwrapFormatTags(fragment, tagName);
         const insertedNodes = Array.from(fragment.childNodes);
         range.insertNode(fragment);
         if (insertedNodes.length > 0) {
@@ -395,10 +394,35 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
         return;
       }
 
-      // If the other format is present, nest the new tag inside it
-      // e.g., if making bold inside italic, wrap with <strong> inside <em>
+      // --- NEST THE NEW FORMAT INSIDE EXISTING FORMATS ---
+      // If the fragment is already wrapped in the other format, preserve it and wrap the new tag around it
+      // e.g., if fragment is <strong>text</strong> and we apply italic, result should be <strong><em>text</em></strong>
+      // If fragment is <em>text</em> and we apply bold, result should be <em><strong>text</strong></em>
+
+      // If fragment has only one child and it's the other format, wrap inside
+      const otherTag = tagName === 'strong' ? 'em' : 'strong';
+      if (
+        fragment.childNodes.length === 1 &&
+        fragment.firstChild.nodeType === Node.ELEMENT_NODE &&
+        fragment.firstChild.tagName.toLowerCase() === otherTag
+      ) {
+        // Wrap the child in the new tag
+        const wrapper = document.createElement(tagName);
+        while (fragment.firstChild.firstChild) {
+          wrapper.appendChild(fragment.firstChild.firstChild);
+        }
+        fragment.firstChild.appendChild(wrapper);
+        range.insertNode(fragment);
+        insertedBoundaries.push({ first: fragment, last: fragment });
+        return;
+      }
+
+      // Otherwise, just wrap the fragment in the new tag
+      unwrapFormatTags(fragment, tagName); // Remove any duplicate tags
       const wrapper = document.createElement(tagName);
-      wrapper.appendChild(fragment);
+      while (fragment.firstChild) {
+        wrapper.appendChild(fragment.firstChild);
+      }
       range.insertNode(wrapper);
       insertedBoundaries.push({ first: wrapper, last: wrapper });
     });
