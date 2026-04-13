@@ -489,6 +489,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
   }
 
   if (effectiveLiveMode) {
+    const hasStructuredTags = /\[(GROUP|BLUE|ORANGE|INDENT-1|INDENT-2)\]/i.test(text || '');
     const segments = parseToSegments(text || '');
     const groupIndices = segments.reduce((acc, seg, i) => {
       if (seg.type === 'GROUP') acc.push(i);
@@ -500,9 +501,10 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     const leftSegs = segments.slice(0, splitAt);
     const rightSegs = segments.slice(splitAt);
     const useTwoCol = rightSegs.length > 0;
+    const liveVariantClass = hasStructuredTags ? 'content-section-live-tagged' : 'content-section-live-plain';
 
     return (
-      <div className={useTwoCol ? 'content-section-live' : 'content-section-live content-section-live-single'}>
+      <div className={`${useTwoCol ? 'content-section-live' : 'content-section-live content-section-live-single'} ${liveVariantClass}`}>
         <div className="content-live-col">{leftSegs.map(renderSegment)}</div>
         {useTwoCol && <div className="content-live-col">{rightSegs.map(renderSegment)}</div>}
       </div>
