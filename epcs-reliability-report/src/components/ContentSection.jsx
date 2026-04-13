@@ -218,79 +218,84 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
       });
   };
 
+  // --- IMPROVED FORMAT DETECTION ---
+  // Returns true if every text node in the selection is fully wrapped in the given tag (strong/em),
+  // or has the corresponding style (font-weight/font-style) applied.
   const isSelectionFullyFormatted = (tagName) => {
     const selectedRanges = getSelectedLineRanges();
     if (selectedRanges.length === 0) return false;
-
     let foundText = false;
-
     for (const { line, range } of selectedRanges) {
       const walker = document.createTreeWalker(line, NodeFilter.SHOW_TEXT);
       let textNode = walker.nextNode();
-
       while (textNode) {
         if (textNode.textContent.trim() && rangeIntersectsNode(range, textNode)) {
           foundText = true;
           let current = textNode.parentNode;
           let hasFormat = false;
-
           while (current && current !== line) {
-            if (current.nodeType === Node.ELEMENT_NODE && current.tagName.toLowerCase() === tagName) {
-              hasFormat = true;
-              break;
+            if (current.nodeType === Node.ELEMENT_NODE) {
+              if (current.tagName.toLowerCase() === tagName) {
+                hasFormat = true;
+                break;
+              }
+              // Also check for style-based formatting
+              const style = current.getAttribute && current.getAttribute('style');
+              if (tagName === 'strong' && style && /font-weight\s*:\s*(bold|bolder|[7-9]00)/i.test(style)) {
+                hasFormat = true;
+                break;
+              }
+              if (tagName === 'em' && style && /font-style\s*:\s*italic/i.test(style)) {
+                hasFormat = true;
+                break;
+              }
             }
             current = current.parentNode;
           }
-
           if (!hasFormat) {
             return false;
           }
         }
-
         textNode = walker.nextNode();
       }
     }
-
     return foundText;
   };
 
+  // Returns true if the caret is inside a tag or style span for the given format
   const isCaretInsideTag = (tagName) => {
     if (!editorRef.current) return false;
-
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0 || !selection.isCollapsed) return false;
-
     let current = selection.anchorNode;
     if (!current) return false;
     if (current.nodeType === Node.TEXT_NODE) {
       current = current.parentNode;
     }
-
     while (current && current !== editorRef.current) {
-      if (current.nodeType === Node.ELEMENT_NODE && current.tagName.toLowerCase() === tagName) {
-        return true;
+      if (current.nodeType === Node.ELEMENT_NODE) {
+        if (current.tagName.toLowerCase() === tagName) return true;
+        const style = current.getAttribute && current.getAttribute('style');
+        if (tagName === 'strong' && style && /font-weight\s*:\s*(bold|bolder|[7-9]00)/i.test(style)) return true;
+        if (tagName === 'em' && style && /font-style\s*:\s*italic/i.test(style)) return true;
       }
       current = current.parentNode;
     }
-
     return false;
   };
 
+  // Returns true if the selection or caret is fully formatted with the given tag/style
   const isSelectionOrCaretFormatted = (tagName) => {
     if (!editorRef.current) return false;
-
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) return false;
-
     const range = selection.getRangeAt(0);
     if (!editorRef.current.contains(range.commonAncestorContainer)) {
       return false;
     }
-
     if (selection.isCollapsed) {
       return isCaretInsideTag(tagName);
     }
-
     return isSelectionFullyFormatted(tagName);
   };
 
