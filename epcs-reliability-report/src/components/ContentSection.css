@@ -212,7 +212,11 @@
 
 .content-editor-rich strong {
   color: #0f172a !important;
-  font-weight: 800 !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.02em;
+  text-decoration-line: underline;
+  text-decoration-thickness: 0.06em;
+  text-underline-offset: 0.08em;
 }
 
 .content-editor-rich em {
@@ -248,20 +252,25 @@
 }
 .content-text strong,
 .content-line strong {
-  font-weight: 800;
+  font-weight: 900;
   color: #111111;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
+  text-decoration-line: underline;
+  text-decoration-thickness: 0.06em;
+  text-underline-offset: 0.08em;
 }
 
-.content-row strong {
-  color: #ff6b35;
-  font-weight: 700;
-}
-
-.content-editor-rich strong {
-  color: #0f172a !important;
-  font-weight: 800 !important;
-  letter-spacing: 0.01em;
+.content-group strong,
+.content-blue strong,
+.content-orange strong,
+.content-indent-1 strong,
+.content-indent-2 strong {
+  color: currentColor;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-decoration-line: underline;
+  text-decoration-thickness: 0.06em;
+  text-underline-offset: 0.08em;
 }
 
 .content-text em,
@@ -289,7 +298,11 @@
   .content-text strong,
   .content-line strong {
     color: #000000;
-    font-weight: 800;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    text-decoration-line: underline;
+    text-decoration-thickness: 0.06em;
+    text-underline-offset: 0.08em;
   }
 
   .content-group,
