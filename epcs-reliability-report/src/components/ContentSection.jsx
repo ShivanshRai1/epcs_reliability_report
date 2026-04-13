@@ -379,9 +379,11 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
       const fragment = range.extractContents();
       if (!fragment) return;
 
+      // Only unwrap the relevant tag, but preserve the other format if present
       unwrapFormatTags(fragment, tagName);
 
       if (shouldRemove) {
+        // Remove only the relevant format, keep the other
         const insertedNodes = Array.from(fragment.childNodes);
         range.insertNode(fragment);
         if (insertedNodes.length > 0) {
@@ -393,6 +395,8 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
         return;
       }
 
+      // If the other format is present, nest the new tag inside it
+      // e.g., if making bold inside italic, wrap with <strong> inside <em>
       const wrapper = document.createElement(tagName);
       wrapper.appendChild(fragment);
       range.insertNode(wrapper);
