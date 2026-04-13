@@ -347,7 +347,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
 
     const shouldRemove = isSelectionFullyFormatted(tagName);
     const selectedRanges = getSelectedLineRanges().reverse();
-    const insertedWrappers = [];
+    const insertedBoundaries = [];
 
     selectedRanges.forEach(({ range }) => {
       const fragment = range.extractContents();
@@ -356,29 +356,36 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
       unwrapFormatTags(fragment, tagName);
 
       if (shouldRemove) {
+        const insertedNodes = Array.from(fragment.childNodes);
         range.insertNode(fragment);
+        if (insertedNodes.length > 0) {
+          insertedBoundaries.push({
+            first: insertedNodes[0],
+            last: insertedNodes[insertedNodes.length - 1]
+          });
+        }
         return;
       }
 
       const wrapper = document.createElement(tagName);
       wrapper.appendChild(fragment);
       range.insertNode(wrapper);
-      insertedWrappers.push(wrapper);
+      insertedBoundaries.push({ first: wrapper, last: wrapper });
     });
 
     handleEditorInput();
 
-    if (insertedWrappers.length > 0) {
-      const firstWrapper = insertedWrappers[insertedWrappers.length - 1];
-      const lastWrapper = insertedWrappers[0];
+    if (insertedBoundaries.length > 0) {
+      const startNode = insertedBoundaries[insertedBoundaries.length - 1].first;
+      const endNode = insertedBoundaries[0].last;
       requestAnimationFrame(() => {
-        if (!editorRef.current || !editorRef.current.contains(firstWrapper)) return;
+        if (!editorRef.current || !editorRef.current.contains(startNode) || !editorRef.current.contains(endNode)) return;
         editorRef.current.focus();
         const sel = window.getSelection();
         if (!sel) return;
         const newRange = document.createRange();
-        newRange.setStartBefore(firstWrapper);
-        newRange.setEndAfter(lastWrapper);
+        newRange.setStartBefore(startNode);
+        newRange.setEndAfter(endNode);
         sel.removeAllRanges();
         sel.addRange(newRange);
         selectionRef.current = newRange.cloneRange();
