@@ -302,14 +302,19 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
   const unwrapFormatTags = (root, tagName) => {
     if (!root || !tagName || typeof root.querySelectorAll !== 'function') return;
 
-    Array.from(root.querySelectorAll(tagName)).forEach((tag) => {
-      const parent = tag.parentNode;
-      if (!parent) return;
-      while (tag.firstChild) {
-        parent.insertBefore(tag.firstChild, tag);
-      }
-      parent.removeChild(tag);
-    });
+    // Recursively unwrap all instances of the tag, even if nested
+    let tags = Array.from(root.querySelectorAll(tagName));
+    while (tags.length > 0) {
+      tags.forEach((tag) => {
+        const parent = tag.parentNode;
+        if (!parent) return;
+        while (tag.firstChild) {
+          parent.insertBefore(tag.firstChild, tag);
+        }
+        parent.removeChild(tag);
+      });
+      tags = Array.from(root.querySelectorAll(tagName));
+    }
 
     // Also unwrap inline style-based formatting produced by browser editing commands.
     if (tagName === 'strong' || tagName === 'em') {
@@ -320,16 +325,20 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
         return /font-style\s*:\s*italic/i.test(styleValue);
       };
 
-      Array.from(root.querySelectorAll('span[style]')).forEach((span) => {
-        const styleValue = span.getAttribute('style') || '';
-        if (!isMatch(styleValue)) return;
-        const parent = span.parentNode;
-        if (!parent) return;
-        while (span.firstChild) {
-          parent.insertBefore(span.firstChild, span);
-        }
-        parent.removeChild(span);
-      });
+      let spans = Array.from(root.querySelectorAll('span[style]'));
+      while (spans.length > 0) {
+        spans.forEach((span) => {
+          const styleValue = span.getAttribute('style') || '';
+          if (!isMatch(styleValue)) return;
+          const parent = span.parentNode;
+          if (!parent) return;
+          while (span.firstChild) {
+            parent.insertBefore(span.firstChild, span);
+          }
+          parent.removeChild(span);
+        });
+        spans = Array.from(root.querySelectorAll('span[style]'));
+      }
     }
   };
 
