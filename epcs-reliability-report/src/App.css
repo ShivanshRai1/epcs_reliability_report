@@ -1201,7 +1201,7 @@ a:hover, .index-link:hover {
 .pdf-viewer-content .legacy-live-page .content-section-live-tagged .content-row-group,
 .legacy-live-page .content-section-live-tagged .content-row-group {
   color: #cc6a2d !important;
-  font-size: 20px;
+  font-size: var(--live-content-group-size, 20px);
   font-weight: 500;
   margin: 0 0 10px 0;
   line-height: 1.0;
@@ -1211,7 +1211,7 @@ a:hover, .index-link:hover {
 .pdf-viewer-content .legacy-live-page .content-section-live-tagged .content-row-blue,
 .legacy-live-page .content-section-live-tagged .content-row-blue {
   color: #2e98e6 !important;
-  font-size: 15px;
+  font-size: var(--live-content-base-size, 15px);
   font-weight: 500;
   margin: 0 0 4px 0;
   padding-left: 42px;
@@ -1220,7 +1220,7 @@ a:hover, .index-link:hover {
 .pdf-viewer-content .legacy-live-page .content-section-live-tagged .content-row-orange,
 .legacy-live-page .content-section-live-tagged .content-row-orange {
   color: #2e98e6 !important;
-  font-size: 15px;
+  font-size: var(--live-content-base-size, 15px);
   font-weight: 500;
   margin: 0 0 10px 0;
   padding-left: 42px;
@@ -1229,7 +1229,7 @@ a:hover, .index-link:hover {
 .pdf-viewer-content .legacy-live-page .content-section-live-tagged .content-row-line,
 .legacy-live-page .content-section-live-tagged .content-row-line {
   color: #2e98e6 !important;
-  font-size: 15px;
+  font-size: var(--live-content-base-size, 15px);
   font-weight: 500;
   margin: 0 0 4px 0;
   padding-left: 42px;
@@ -1295,7 +1295,7 @@ a:hover, .index-link:hover {
   margin: 0 0 6px 0;
   padding-left: 0;
   color: #000000 !important;
-  font-size: 15px;
+  font-size: var(--live-content-base-size, 15px);
   font-weight: 400;
   line-height: 1.2;
   font-family: inherit;

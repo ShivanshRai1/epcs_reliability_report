@@ -558,7 +558,11 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     return (
       <div
         className={`${useTwoCol ? 'content-section-live' : 'content-section-live content-section-live-single'} ${liveVariantClass}`}
-        style={{ fontFamily }}
+        style={{
+          fontFamily,
+          '--live-content-base-size': `${resolvedContentFontSize}rem`,
+          '--live-content-group-size': `${Math.max(0.8, resolvedContentFontSize + 0.35)}rem`
+        }}
       >
         <div className="content-live-col">{leftSegs.map(renderSegment)}</div>
         {useTwoCol && <div className="content-live-col">{rightSegs.map(renderSegment)}</div>}
