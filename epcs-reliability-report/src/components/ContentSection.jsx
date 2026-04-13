@@ -371,6 +371,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return;
 
     const selectedRanges = getSelectedLineRanges().reverse();
+    const insertedWrappers = [];
 
     selectedRanges.forEach(({ range }) => {
       const fragment = range.extractContents();
@@ -382,10 +383,20 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
       wrapper.setAttribute('style', `font-size: ${safeDelta}em;`);
       wrapper.appendChild(fragment);
       range.insertNode(wrapper);
+      insertedWrappers.push(wrapper);
     });
 
+    // Re-select all the newly inserted content so user can keep pressing A+/A-.
+    if (insertedWrappers.length > 0) {
+      const newRange = document.createRange();
+      newRange.setStartBefore(insertedWrappers[insertedWrappers.length - 1]);
+      newRange.setEndAfter(insertedWrappers[0]);
+      selection.removeAllRanges();
+      selection.addRange(newRange);
+      selectionRef.current = newRange.cloneRange();
+    }
+
     handleEditorInput();
-    saveSelection();
     updateActiveFormats();
   };
 
