@@ -1280,6 +1280,16 @@ a:hover, .index-link:hover {
 /* Plain text-only live pages: keep simple mapping without GROUP style treatment. */
 .pdf-viewer-content .legacy-live-page .content-section-live-plain .content-row,
 .legacy-live-page .content-section-live-plain .content-row,
+.pdf-viewer-content .legacy-live-page .content-section-live-plain .content-row-group,
+.legacy-live-page .content-section-live-plain .content-row-group,
+.pdf-viewer-content .legacy-live-page .content-section-live-plain .content-row-blue,
+.legacy-live-page .content-section-live-plain .content-row-blue,
+.pdf-viewer-content .legacy-live-page .content-section-live-plain .content-row-orange,
+.legacy-live-page .content-section-live-plain .content-row-orange,
+.pdf-viewer-content .legacy-live-page .content-section-live-plain .content-row-indent-1,
+.legacy-live-page .content-section-live-plain .content-row-indent-1,
+.pdf-viewer-content .legacy-live-page .content-section-live-plain .content-row-indent-2,
+.legacy-live-page .content-section-live-plain .content-row-indent-2,
 .pdf-viewer-content .legacy-live-page .content-section-live-plain .content-row-line,
 .legacy-live-page .content-section-live-plain .content-row-line {
   margin: 0 0 6px 0;

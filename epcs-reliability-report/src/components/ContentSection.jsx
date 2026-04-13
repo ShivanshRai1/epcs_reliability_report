@@ -372,11 +372,6 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
         return;
       }
 
-      if (/^GROUP\s+[A-Z]/i.test(trimmed)) {
-        segments.push({ type: 'GROUP', text: trimmed });
-        return;
-      }
-
       segments.push({ type: 'line', text: trimmed });
     });
 
@@ -489,7 +484,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
   }
 
   if (effectiveLiveMode) {
-    const hasStructuredTags = /\[(GROUP|BLUE|ORANGE|INDENT-1|INDENT-2)\]/i.test(text || '');
+    const hasStructuredTags = /\[(BLUE|ORANGE|INDENT-1|INDENT-2)\]/i.test(text || '');
     const segments = parseToSegments(text || '');
     const groupIndices = segments.reduce((acc, seg, i) => {
       if (seg.type === 'GROUP') acc.push(i);
