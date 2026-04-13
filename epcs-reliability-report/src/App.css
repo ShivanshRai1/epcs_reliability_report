@@ -1303,8 +1303,9 @@ a:hover, .index-link:hover {
 
 .pdf-viewer-content .legacy-live-page .content-section-live-plain .content-row strong,
 .legacy-live-page .content-section-live-plain .content-row strong {
-  color: #111111 !important;
-  font-weight: 700;
+  color: #000000 !important;
+  font-weight: 800;
+  letter-spacing: 0.01em;
 }
 
 .pdf-viewer-content .legacy-live-page .content-section-live-plain .content-row em,
@@ -1320,8 +1321,9 @@ a:hover, .index-link:hover {
 
 .pdf-viewer-content .legacy-live-page .split-content .text-content strong,
 .pdf-viewer-content .legacy-live-page .split-left-content-text strong {
-  color: #111111 !important;
-  font-weight: 700;
+  color: #000000 !important;
+  font-weight: 800;
+  letter-spacing: 0.01em;
 }
 
 .pdf-viewer-content .legacy-live-page .split-content .text-content em,
