@@ -221,7 +221,6 @@
 .content-editor-rich em {
   color: #334155 !important;
   font-style: italic !important;
-  font-weight: 600;
   letter-spacing: 0.03em;
   transform: skewX(-3deg);
   display: inline-block;
@@ -270,7 +269,6 @@
 .content-line em,
 .content-row em {
   font-style: italic;
-  font-weight: 500;
   letter-spacing: 0.03em;
   transform: skewX(-3deg);
   display: inline-block;

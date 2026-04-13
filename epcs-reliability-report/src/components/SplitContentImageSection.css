@@ -123,6 +123,12 @@
   letter-spacing: 0.01em;
 }
 
+.split-content-display em,
+.split-left-content-text em {
+  font-style: italic;
+  letter-spacing: 0.03em;
+}
+
 .split-left-content-textarea {
   font-family: Arial, sans-serif;
   font-size: 0.95rem;
