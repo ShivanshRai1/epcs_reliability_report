@@ -1214,7 +1214,7 @@ a:hover, .index-link:hover {
 }
 
 .pdf-viewer-content .legacy-live-page .content-row-orange {
-  color: #d7803f !important;
+  color: #2e98e6 !important;
   font-size: 15px;
   font-weight: 500;
   margin: 0 0 10px 0;
@@ -1227,6 +1227,25 @@ a:hover, .index-link:hover {
   font-weight: 500;
   margin: 0 0 4px 0;
   padding-left: 42px;
+}
+
+.pdf-viewer-content .legacy-live-page .content-row strong,
+.pdf-viewer-content .legacy-live-page .content-row-group strong,
+.pdf-viewer-content .legacy-live-page .content-row-blue strong,
+.pdf-viewer-content .legacy-live-page .content-row-orange strong,
+.pdf-viewer-content .legacy-live-page .content-row-line strong,
+.pdf-viewer-content .legacy-live-page .content-row-indent-1 strong,
+.pdf-viewer-content .legacy-live-page .content-row-indent-2 strong {
+  color: #d7803f !important;
+}
+
+.pdf-viewer-content .legacy-live-page .content-row em,
+.pdf-viewer-content .legacy-live-page .content-row-blue em,
+.pdf-viewer-content .legacy-live-page .content-row-orange em,
+.pdf-viewer-content .legacy-live-page .content-row-line em,
+.pdf-viewer-content .legacy-live-page .content-row-indent-1 em,
+.pdf-viewer-content .legacy-live-page .content-row-indent-2 em {
+  color: #2e98e6 !important;
 }
 
 .pdf-viewer-content .legacy-live-page .content-row-indent-1 {
