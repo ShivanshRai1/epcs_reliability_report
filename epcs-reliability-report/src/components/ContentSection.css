@@ -223,8 +223,6 @@
   color: #334155 !important;
   font-style: italic !important;
   letter-spacing: 0.03em;
-  transform: skewX(-3deg);
-  display: inline-block;
 }
 
 .content-editor-rich:focus {

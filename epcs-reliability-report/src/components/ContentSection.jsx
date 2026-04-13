@@ -372,7 +372,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     const tagName = command === 'bold' ? 'strong' : command === 'italic' ? 'em' : null;
     if (!tagName) return;
 
-    // Collapsed caret: use execCommand so the next typed characters carry the format
+    // Collapsed caret: use execCommand so typed characters carry the format
     if (selection.isCollapsed) {
       document.execCommand(command, false, null);
       handleEditorInput();
@@ -381,51 +381,113 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
       return;
     }
 
-    // Range selection: manual DOM wrap/unwrap — does NOT rely on CSS for state detection.
-    // This guarantees bold and italic work independently and can be combined.
+    // Process line by line to preserve line structure and avoid spacing artifacts.
     const shouldRemove = isSelectionFullyFormatted(tagName);
-    const range = selection.getRangeAt(0);
-    const fragment = range.extractContents();
-    if (!fragment) return;
+    const selectedRanges = getSelectedLineRanges().reverse();
+    const insertedBoundaries = [];
 
-    let firstNode, lastNode;
+    selectedRanges.forEach(({ range }) => {
+      const fragment = range.extractContents();
+      if (!fragment) return;
 
-    if (shouldRemove) {
-      // Remove ONLY this format; the other format (em/strong) is preserved inside.
-      unwrapFormatTags(fragment, tagName);
-      const insertedNodes = Array.from(fragment.childNodes);
-      range.insertNode(fragment);
-      firstNode = insertedNodes[0];
-      lastNode = insertedNodes[insertedNodes.length - 1];
-    } else {
-      // Wrap in the new tag. Any existing format (em/strong) inside is preserved.
-      const wrapper = document.createElement(tagName);
-      while (fragment.firstChild) {
-        wrapper.appendChild(fragment.firstChild);
+      if (shouldRemove) {
+        // Remove ONLY this format; other format (em/strong) is preserved inside.
+        unwrapFormatTags(fragment, tagName);
+        const nodes = Array.from(fragment.childNodes);
+        range.insertNode(fragment);
+        if (nodes.length > 0) {
+          insertedBoundaries.push({ first: nodes[0], last: nodes[nodes.length - 1] });
+        }
+      } else {
+        // Wrap in the new tag; existing format inside is preserved.
+        const wrapper = document.createElement(tagName);
+        while (fragment.firstChild) {
+          wrapper.appendChild(fragment.firstChild);
+        }
+        range.insertNode(wrapper);
+        insertedBoundaries.push({ first: wrapper, last: wrapper });
       }
-      range.insertNode(wrapper);
-      firstNode = wrapper;
-      lastNode = wrapper;
-    }
+    });
 
     handleEditorInput();
 
-    requestAnimationFrame(() => {
-      if (!editorRef.current || !firstNode || !lastNode) return;
-      if (!editorRef.current.contains(firstNode)) return;
-      editorRef.current.focus();
-      const sel = window.getSelection();
-      if (!sel) return;
-      const newRange = document.createRange();
-      try {
-        newRange.setStartBefore(firstNode);
-        newRange.setEndAfter(lastNode);
+    if (insertedBoundaries.length > 0) {
+      const startNode = insertedBoundaries[insertedBoundaries.length - 1].first;
+      const endNode = insertedBoundaries[0].last;
+      requestAnimationFrame(() => {
+        if (!editorRef.current || !startNode || !endNode) return;
+        if (!editorRef.current.contains(startNode)) return;
+        editorRef.current.focus();
+        const sel = window.getSelection();
+        if (!sel) return;
+        const newRange = document.createRange();
+        try {
+          newRange.setStartBefore(startNode);
+          newRange.setEndAfter(endNode);
+          sel.removeAllRanges();
+          sel.addRange(newRange);
+          selectionRef.current = newRange.cloneRange();
+        } catch (e) { /* node may have shifted after sanitize */ }
+        updateActiveFormats();
+      });
+    } else {
+      saveSelection();
+      updateActiveFormats();
+    }
+  };
+
+  const applyInlineTextScale = (delta) => {
+    if (!editorRef.current) return;
+
+    editorRef.current.focus();
+    const initialSelection = window.getSelection();
+    const hasActiveEditorSelection = Boolean(
+      initialSelection &&
+      initialSelection.rangeCount > 0 &&
+      editorRef.current.contains(initialSelection.getRangeAt(0).commonAncestorContainer)
+    );
+    if (!hasActiveEditorSelection) {
+      restoreSelection();
+    }
+
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return;
+
+    const selectedRanges = getSelectedLineRanges().reverse();
+    const insertedWrappers = [];
+
+    selectedRanges.forEach(({ range }) => {
+      const fragment = range.extractContents();
+      if (!fragment || !fragment.textContent?.trim()) return;
+
+      const wrapper = document.createElement('span');
+      const safeDelta = delta > 0 ? 1.12 : 0.9;
+      wrapper.setAttribute('data-text-scale', String(safeDelta));
+      wrapper.setAttribute('style', `font-size: ${safeDelta}em;`);
+      wrapper.appendChild(fragment);
+      range.insertNode(wrapper);
+      insertedWrappers.push(wrapper);
+    });
+
+    handleEditorInput();
+    updateActiveFormats();
+
+    if (insertedWrappers.length > 0) {
+      const firstWrapper = insertedWrappers[insertedWrappers.length - 1];
+      const lastWrapper = insertedWrappers[0];
+      requestAnimationFrame(() => {
+        if (!editorRef.current || !editorRef.current.contains(firstWrapper)) return;
+        editorRef.current.focus();
+        const sel = window.getSelection();
+        if (!sel) return;
+        const newRange = document.createRange();
+        newRange.setStartBefore(firstWrapper);
+        newRange.setEndAfter(lastWrapper);
         sel.removeAllRanges();
         sel.addRange(newRange);
         selectionRef.current = newRange.cloneRange();
-      } catch (e) { /* node may have moved after sanitize, ignore */ }
-      updateActiveFormats();
-    });
+      });
+    }
   };
 
   const handlePastePlainText = (e) => {
