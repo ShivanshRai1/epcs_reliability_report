@@ -392,7 +392,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
                 <a href="#" className="index-link" onClick={(e) => {
                   e.preventDefault();
                   if (onLinkClick) onLinkClick(block.target);
-                }}>
+                }} style={{ fontSize: `${contentFontSize}rem`, fontFamily, color: contentTextColor }}>
                   {block.title}
                 </a>
               </div>
@@ -735,12 +735,18 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
     const isThirdGenerationVariant = isLiveMode && hasThirdGenerationTitle;
     const isQualifiedVariant = isLiveMode && (hasQualifiedTitle || hasQualifiedRowPalette);
     const showTableLogo = isLiveMode && (hasPartNumberTitle || hasThirdGenerationTitle);
-    const headingStyle = isLiveMode
-      ? undefined
-      : { fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.2rem', color: pageTextColor };
-    const captionStyle = isLiveMode
-      ? undefined
-      : { fontSize: '0.95rem', color: '#ddd' };
+    const headingStyle = {
+      fontSize: `${titleFontSize}rem`,
+      fontFamily,
+      fontWeight: 600,
+      marginBottom: '1.2rem',
+      ...(isLiveMode ? {} : { color: pageTextColor })
+    };
+    const captionStyle = {
+      fontSize: `${headerFontSize}rem`,
+      fontFamily,
+      ...(isLiveMode ? {} : { color: '#ddd' })
+    };
     const containerClassName = isLiveMode
       ? `legacy-live-table${isSecondGenerationVariant ? ' legacy-live-table-second-gen' : ''}${isThirdGenerationVariant ? ' legacy-live-table-third-gen' : ''}${isQualifiedVariant ? ' legacy-live-table-qualified' : ''}`
       : '';
@@ -785,7 +791,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
                   <div key={block.id || bIdx} style={{ marginBottom: '0.6rem' }}>
                     <a
                       href="#"
-                      style={{ color: '#2e7be6', textDecoration: 'none', fontSize: '0.95rem' }}
+                      style={{ color: '#2e7be6', textDecoration: 'none', fontSize: `${contentFontSize}rem`, fontFamily }}
                       onClick={(e) => {
                         e.preventDefault();
                         if (onLinkClick) onLinkClick(block.target);
@@ -797,7 +803,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
                 );
               }
               return (
-                <p key={block.id || bIdx} style={{ fontSize: `${contentFontSize}rem`, color: contentTextColor, lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: '0.8rem' }}>
+                <p key={block.id || bIdx} style={{ fontSize: `${contentFontSize}rem`, fontFamily, color: contentTextColor, lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: '0.8rem' }}>
                   {block.text}
                 </p>
               );

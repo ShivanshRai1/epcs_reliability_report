@@ -55,6 +55,28 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
   const page = getPage(pageId);
   if (!page) return <div className="App"><p>Page not found</p></div>;
 
+  const toPositiveNumber = (value, fallback) => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+  };
+
+  const pageFontFamily = page?.fontFamily || 'inherit';
+  const pageTitleSize = toPositiveNumber(page?.titleFontSize, 1.2);
+  const pageHeaderSize = toPositiveNumber(page?.headerFontSize, 0.95);
+  const pageContentSize = toPositiveNumber(page?.contentFontSize, 0.95);
+  const isHeadingPage = page?.pageType === 'heading';
+  const pageTextColor = page?.textColor || (isHeadingPage ? '#f6fbff' : '#1f2937');
+  const pageContentColor = page?.contentTextColor || (isHeadingPage ? '#e0e6f0' : pageTextColor);
+  const pageDisplayStyle = {
+    fontFamily: pageFontFamily,
+    color: pageTextColor,
+    '--page-title-size': `${pageTitleSize}rem`,
+    '--page-header-size': `${pageHeaderSize}rem`,
+    '--page-content-size': `${pageContentSize}rem`,
+    '--page-text-color': pageTextColor,
+    '--page-content-color': pageContentColor,
+  };
+
   const currentPageIndex = orderedPages.findIndex((p) => String(p?.id) === String(page?.id));
   const currentDisplayPageNumber = currentPageIndex >= 0 ? currentPageIndex + 1 : 1;
 
@@ -136,7 +158,7 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
         <div className={`${liveContentClassName} legacy-live-canvas mx-auto`}>
           <div
             className={`legacy-live-page${isLiveHeadingPage ? ' legacy-live-page-heading' : ''}${isLiveTablePage ? ' legacy-live-page-table' : ''}`}
-            style={{ color: page.textColor || '#222222', fontFamily: page?.fontFamily || 'inherit' }}
+            style={pageDisplayStyle}
           >
             <SectionPage page={page} routePageId={pageId} onLinkClick={handleLinkClick} isEditMode={false} isLiveMode={true} indexPageOrdinal={indexPageOrdinal} onCellChange={onCellChange} onHeadingChange={onHeadingChange} onImageChange={onImageChange} onIndexChange={onIndexChange} onImageClick={onImageClick} allIndexItems={allIndexItems} allPages={orderedPages} />
           </div>
@@ -157,7 +179,7 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
           <h1>EPCS Reliability Report</h1>
         </button>
         <Navigation onNavigate={handleNav} isEditMode={effectiveEditMode} isLiveMode={isLiveMode} publishStatusLabel={publishStatusLabel} onEditToggle={onEditToggle} onToggleLive={handleToggleLive} onUndo={() => onUndo(page.id)} onPublish={onPublish} onSave={onSave} onCancel={onCancel} onAddPage={() => onAddPage(page.id)} onDeletePage={() => onDeletePage(page)} onManagePages={onManagePages} currentPageId={page.id} currentPageNumber={currentDisplayPageNumber} totalPages={totalPages} isTestMode={isTestMode} isSeedingTestData={isSeedingTestData} isPublishingTestData={isPublishingTestData} onToggleTestMode={onToggleTestMode} onSeedTestData={onSeedTestData} onPublishTestData={onPublishTestData} onRestoreOriginal={onRestoreOriginal} isRestoringOriginal={isRestoringOriginal} />
-        <div className="section-card report-content">
+        <div className="section-card report-content" style={pageDisplayStyle}>
           <SectionPage page={page} routePageId={pageId} onLinkClick={handleLinkClick} isEditMode={effectiveEditMode} isLiveMode={false} indexPageOrdinal={indexPageOrdinal} onCellChange={onCellChange} onHeadingChange={onHeadingChange} onImageChange={onImageChange} onIndexChange={onIndexChange} onImageClick={onImageClick} allIndexItems={allIndexItems} allPages={orderedPages} />
         </div>
       </div>
