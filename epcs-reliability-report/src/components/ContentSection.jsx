@@ -556,7 +556,10 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     const liveVariantClass = hasStructuredTags ? 'content-section-live-tagged' : 'content-section-live-plain';
 
     return (
-      <div className={`${useTwoCol ? 'content-section-live' : 'content-section-live content-section-live-single'} ${liveVariantClass}`}>
+      <div
+        className={`${useTwoCol ? 'content-section-live' : 'content-section-live content-section-live-single'} ${liveVariantClass}`}
+        style={{ fontFamily }}
+      >
         <div className="content-live-col">{leftSegs.map(renderSegment)}</div>
         {useTwoCol && <div className="content-live-col">{rightSegs.map(renderSegment)}</div>}
       </div>
