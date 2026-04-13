@@ -4,6 +4,7 @@ const Table = ({
   columns,
   data,
   isEditMode,
+  isLiveMode = false,
   pageId,
   onCellChange,
   textColor,
@@ -13,8 +14,60 @@ const Table = ({
 }) => {
   if (!data || data.length === 0) return <div>No data available.</div>;
 
-  const resolvedHeaderTextColor = textColor || '#ffffff';
-  const resolvedContentTextColor = contentTextColor || '#1b1f2a';
+  const parseHexColor = (value) => {
+    if (!value || typeof value !== 'string') return null;
+    const normalized = value.trim().toLowerCase();
+    if (/^#([0-9a-f]{3})$/.test(normalized)) {
+      return {
+        r: parseInt(normalized[1] + normalized[1], 16),
+        g: parseInt(normalized[2] + normalized[2], 16),
+        b: parseInt(normalized[3] + normalized[3], 16),
+      };
+    }
+    if (/^#([0-9a-f]{6})$/.test(normalized)) {
+      return {
+        r: parseInt(normalized.slice(1, 3), 16),
+        g: parseInt(normalized.slice(3, 5), 16),
+        b: parseInt(normalized.slice(5, 7), 16),
+      };
+    }
+    return null;
+  };
+
+  const relativeLuminance = ({ r, g, b }) => {
+    const toLinear = (c) => {
+      const channel = c / 255;
+      return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+    };
+    const R = toLinear(r);
+    const G = toLinear(g);
+    const B = toLinear(b);
+    return (0.2126 * R) + (0.7152 * G) + (0.0722 * B);
+  };
+
+  const contrastRatio = (fg, bg) => {
+    const L1 = relativeLuminance(fg);
+    const L2 = relativeLuminance(bg);
+    const lighter = Math.max(L1, L2);
+    const darker = Math.min(L1, L2);
+    return (lighter + 0.05) / (darker + 0.05);
+  };
+
+  const pickReadableColor = (candidate, backgroundHex, fallbackHex) => {
+    const bg = parseHexColor(backgroundHex);
+    const fallback = parseHexColor(fallbackHex);
+    const parsedCandidate = parseHexColor(candidate);
+    if (!bg || !fallback) return candidate || fallbackHex;
+    if (!parsedCandidate) return fallbackHex;
+    return contrastRatio(parsedCandidate, bg) >= 4.5 ? candidate : fallbackHex;
+  };
+
+  const resolvedHeaderTextColor = isLiveMode
+    ? pickReadableColor(textColor, '#2f74c0', '#000000')
+    : pickReadableColor(textColor, '#2e7be6', '#f3f7ff');
+  const resolvedContentTextColor = isLiveMode
+    ? pickReadableColor(contentTextColor, '#ffffff', '#000000')
+    : pickReadableColor(contentTextColor, '#232b44', '#eaf1ff');
   const resolvedHeaderFontSize = Number.isFinite(Number(headerFontSize)) ? `${headerFontSize}rem` : undefined;
   const resolvedContentFontSize = Number.isFinite(Number(contentFontSize)) ? `${contentFontSize}rem` : undefined;
   
@@ -49,7 +102,7 @@ const Table = ({
       </thead>
       <tbody>
         {data.map((row, idx) => (
-          <tr key={idx} className={row.rowColor ? `row-${row.rowColor}` : ''}>
+          <tr key={idx} className={(row.rowClass || row.rowColor) ? `row-${String(row.rowClass || row.rowColor).replace(/^row-/, '')}` : ''}>
             {columns.map((col) => {
               // Skip if this cell is spanned by a previous row
               if (spannedCells[idx] && spannedCells[idx][col]) {
@@ -60,12 +113,20 @@ const Table = ({
               const rowspanKey = col + 'Rowspan';
               const rowspanAttr = row[rowspanKey] && row[rowspanKey] > 1 ? row[rowspanKey] : undefined;
 
+              const hasRowPalette = Boolean(row.rowClass || row.rowColor);
+              const cellStyle = {
+                fontSize: resolvedContentFontSize,
+              };
+              if (isEditMode || !hasRowPalette) {
+                cellStyle.color = resolvedContentTextColor;
+              }
+
               return (
                 <td
                   key={col}
                   {...(rowspanAttr && { rowSpan: rowspanAttr })}
                   className={isEditMode ? 'editable-cell' : ''}
-                  style={{ color: resolvedContentTextColor, fontSize: resolvedContentFontSize }}
+                  style={cellStyle}
                 >
                   {isEditMode ? (
                     <input

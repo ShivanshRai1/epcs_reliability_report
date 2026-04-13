@@ -771,6 +771,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
           columns={page.table.columns}
           data={tableRows}
           isEditMode={false}
+          isLiveMode={isLiveMode}
           pageId={page.id}
           onCellChange={onCellChange}
           textColor={liveHeaderTextColor}
