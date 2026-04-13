@@ -386,18 +386,28 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
       insertedWrappers.push(wrapper);
     });
 
-    // Re-select all the newly inserted content so user can keep pressing A+/A-.
-    if (insertedWrappers.length > 0) {
-      const newRange = document.createRange();
-      newRange.setStartBefore(insertedWrappers[insertedWrappers.length - 1]);
-      newRange.setEndAfter(insertedWrappers[0]);
-      selection.removeAllRanges();
-      selection.addRange(newRange);
-      selectionRef.current = newRange.cloneRange();
-    }
-
+    // Save content first so state updates happen before we restore selection.
     handleEditorInput();
     updateActiveFormats();
+
+    // Re-select the inserted wrappers after React state updates settle (requestAnimationFrame
+    // fires after renders, ensuring the DOM is stable and the selection sticks visually).
+    if (insertedWrappers.length > 0) {
+      const firstWrapper = insertedWrappers[insertedWrappers.length - 1];
+      const lastWrapper = insertedWrappers[0];
+      requestAnimationFrame(() => {
+        if (!editorRef.current || !editorRef.current.contains(firstWrapper)) return;
+        editorRef.current.focus();
+        const sel = window.getSelection();
+        if (!sel) return;
+        const newRange = document.createRange();
+        newRange.setStartBefore(firstWrapper);
+        newRange.setEndAfter(lastWrapper);
+        sel.removeAllRanges();
+        sel.addRange(newRange);
+        selectionRef.current = newRange.cloneRange();
+      });
+    }
   };
 
   const handlePastePlainText = (e) => {
