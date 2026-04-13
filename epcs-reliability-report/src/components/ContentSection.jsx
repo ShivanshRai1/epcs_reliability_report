@@ -31,12 +31,28 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
       .replace(/<(\/?)b>/gi, '<$1strong>')
       .replace(/<(\/?)i>/gi, '<$1em>');
 
-    const allowedTags = new Set(['STRONG', 'EM', 'BR']);
+    const allowedTags = new Set(['STRONG', 'EM', 'BR', 'SPAN']);
     const walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT);
     const nodesToUnwrap = [];
     let currentNode = walker.nextNode();
 
     while (currentNode) {
+      if (currentNode.tagName === 'SPAN') {
+        const rawScale = currentNode.getAttribute('data-text-scale') || '';
+        const parsedScale = Number.parseFloat(rawScale);
+        const safeScale = Number.isFinite(parsedScale) ? Math.min(2, Math.max(0.7, parsedScale)) : 1;
+
+        // Keep only the custom text-scale marker and a normalized font-size style.
+        Array.from(currentNode.attributes).forEach((attr) => {
+          if (attr.name !== 'data-text-scale') {
+            currentNode.removeAttribute(attr.name);
+          }
+        });
+
+        currentNode.setAttribute('data-text-scale', String(Number(safeScale.toFixed(2))));
+        currentNode.setAttribute('style', `font-size: ${safeScale}em;`);
+      }
+
       if (!allowedTags.has(currentNode.tagName)) {
         nodesToUnwrap.push(currentNode);
       }
@@ -345,6 +361,34 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     updateActiveFormats();
   };
 
+  const applyInlineTextScale = (delta) => {
+    if (!editorRef.current) return;
+
+    editorRef.current.focus();
+    restoreSelection();
+
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return;
+
+    const selectedRanges = getSelectedLineRanges().reverse();
+
+    selectedRanges.forEach(({ range }) => {
+      const fragment = range.extractContents();
+      if (!fragment || !fragment.textContent?.trim()) return;
+
+      const wrapper = document.createElement('span');
+      const safeDelta = delta > 0 ? 1.12 : 0.9;
+      wrapper.setAttribute('data-text-scale', String(safeDelta));
+      wrapper.setAttribute('style', `font-size: ${safeDelta}em;`);
+      wrapper.appendChild(fragment);
+      range.insertNode(wrapper);
+    });
+
+    handleEditorInput();
+    saveSelection();
+    updateActiveFormats();
+  };
+
   const handlePastePlainText = (e) => {
     e.preventDefault();
     const pastedText = (e.clipboardData || window.clipboardData).getData('text');
@@ -450,6 +494,8 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
         <div className="content-editor-toolbar">
           <button type="button" className={`content-editor-btn ${activeFormats.bold ? 'active' : ''}`} onMouseDown={(e) => { e.preventDefault(); applyInlineFormat('bold'); }} title="Bold selected text"><strong>B</strong></button>
           <button type="button" className={`content-editor-btn ${activeFormats.italic ? 'active' : ''}`} onMouseDown={(e) => { e.preventDefault(); applyInlineFormat('italic'); }} title="Italic selected text"><em>I</em></button>
+          <button type="button" className="content-editor-btn" onMouseDown={(e) => { e.preventDefault(); applyInlineTextScale(-1); }} title="Decrease selected text size">A-</button>
+          <button type="button" className="content-editor-btn" onMouseDown={(e) => { e.preventDefault(); applyInlineTextScale(1); }} title="Increase selected text size">A+</button>
           {onAlignChange && (
             <>
               <span style={{ width: '1px', height: '20px', background: '#ccc', margin: '0 8px' }}></span>
