@@ -305,6 +305,27 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
       }
       parent.removeChild(tag);
     });
+
+    // Also unwrap inline style-based formatting produced by browser editing commands.
+    if (tagName === 'strong' || tagName === 'em') {
+      const isMatch = (styleValue = '') => {
+        if (tagName === 'strong') {
+          return /font-weight\s*:\s*(bold|bolder|[7-9]00)/i.test(styleValue);
+        }
+        return /font-style\s*:\s*italic/i.test(styleValue);
+      };
+
+      Array.from(root.querySelectorAll('span[style]')).forEach((span) => {
+        const styleValue = span.getAttribute('style') || '';
+        if (!isMatch(styleValue)) return;
+        const parent = span.parentNode;
+        if (!parent) return;
+        while (span.firstChild) {
+          parent.insertBefore(span.firstChild, span);
+        }
+        parent.removeChild(span);
+      });
+    }
   };
 
   const handleEditorInput = () => {
