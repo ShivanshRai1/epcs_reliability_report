@@ -439,38 +439,11 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
       lineRange.selectNodeContents(caretLine);
       selection.removeAllRanges();
       selection.addRange(lineRange);
-      // Fall through to the non-collapsed path below with the expanded selection.
-    }
-
-    // Get the ranges to process BEFORE inserting any markers
-    const selectedRanges = getSelectedLineRanges().reverse();
-    
-    // For range selections: insert invisible markers at selection boundaries AFTER getting ranges
-    let startMarker = null;
-    let endMarker = null;
-    if (!wasCollapsed) {
-      const range = selection.getRangeAt(0);
-      startMarker = document.createElement('span');
-      startMarker.id = 'reset-start-marker';
-      startMarker.style.display = 'none';
-      
-      endMarker = document.createElement('span');
-      endMarker.id = 'reset-end-marker';
-      endMarker.style.display = 'none';
-
-      // Clone the range to avoid modifying the selection
-      const startRange = range.cloneRange();
-      startRange.collapse(true);
-      startRange.insertNode(startMarker);
-
-      // Re-get the selection after inserting start marker
-      const newRange = selection.getRangeAt(0);
-      const endRange = newRange.cloneRange();
-      endRange.collapse(false);
-      endRange.insertNode(endMarker);
     }
 
     // Process line by line: remove all <strong>, <em>, and style-based bold/italic
+    const selectedRanges = getSelectedLineRanges().reverse();
+    
     selectedRanges.forEach(({ range }) => {
       const fragment = range.extractContents();
       if (!fragment) return;
@@ -513,37 +486,8 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     });
 
     handleEditorInput();
-
-    // Restore selection using markers for range selections
-    if (!wasCollapsed && startMarker && endMarker) {
-      requestAnimationFrame(() => {
-        const start = document.getElementById('reset-start-marker');
-        const end = document.getElementById('reset-end-marker');
-        
-        if (start && end && editorRef.current && editorRef.current.contains(start) && editorRef.current.contains(end)) {
-          const sel = window.getSelection();
-          const newRange = document.createRange();
-          
-          try {
-            newRange.setStartAfter(start);
-            newRange.setEndBefore(end);
-            sel.removeAllRanges();
-            sel.addRange(newRange);
-            selectionRef.current = newRange.cloneRange();
-          } catch (e) {
-            // Fallback: if markers got moved/removed, just restore saved selection
-          }
-          
-          // Remove markers
-          if (start.parentNode) start.parentNode.removeChild(start);
-          if (end.parentNode) end.parentNode.removeChild(end);
-        }
-        updateActiveFormats();
-      });
-    } else {
-      saveSelection();
-      updateActiveFormats();
-    }
+    saveSelection();
+    updateActiveFormats();
   };
 
   const applyInlineFormat = (command) => {
