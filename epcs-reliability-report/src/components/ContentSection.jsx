@@ -302,19 +302,17 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
   const unwrapFormatTags = (root, tagName) => {
     if (!root || !tagName || typeof root.querySelectorAll !== 'function') return;
 
-    // Recursively unwrap all instances of the tag, even if nested
-    let tags = Array.from(root.querySelectorAll(tagName));
-    while (tags.length > 0) {
-      tags.forEach((tag) => {
-        const parent = tag.parentNode;
-        if (!parent) return;
-        while (tag.firstChild) {
-          parent.insertBefore(tag.firstChild, tag);
-        }
-        parent.removeChild(tag);
-      });
-      tags = Array.from(root.querySelectorAll(tagName));
-    }
+    // Single-pass reverse traversal: process innermost nodes first.
+    // Reversing ensures nested tags are unwrapped before their parents,
+    // so no while-loop re-query is needed (eliminates infinite-loop risk).
+    Array.from(root.querySelectorAll(tagName)).reverse().forEach((tag) => {
+      const parent = tag.parentNode;
+      if (!parent) return;
+      while (tag.firstChild) {
+        parent.insertBefore(tag.firstChild, tag);
+      }
+      parent.removeChild(tag);
+    });
 
     // Also unwrap inline style-based formatting produced by browser editing commands.
     if (tagName === 'strong' || tagName === 'em') {
@@ -325,20 +323,16 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
         return /font-style\s*:\s*italic/i.test(styleValue);
       };
 
-      let spans = Array.from(root.querySelectorAll('span[style]'));
-      while (spans.length > 0) {
-        spans.forEach((span) => {
-          const styleValue = span.getAttribute('style') || '';
-          if (!isMatch(styleValue)) return;
-          const parent = span.parentNode;
-          if (!parent) return;
-          while (span.firstChild) {
-            parent.insertBefore(span.firstChild, span);
-          }
-          parent.removeChild(span);
-        });
-        spans = Array.from(root.querySelectorAll('span[style]'));
-      }
+      Array.from(root.querySelectorAll('span[style]')).reverse().forEach((span) => {
+        const styleValue = span.getAttribute('style') || '';
+        if (!isMatch(styleValue)) return;
+        const parent = span.parentNode;
+        if (!parent) return;
+        while (span.firstChild) {
+          parent.insertBefore(span.firstChild, span);
+        }
+        parent.removeChild(span);
+      });
     }
   };
 
