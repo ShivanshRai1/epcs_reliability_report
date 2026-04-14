@@ -428,10 +428,6 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     if (!selection || selection.rangeCount === 0) return;
 
     const wasCollapsed = selection.isCollapsed;
-    let origStartContainer = selection.anchorNode;
-    let origStartOffset = selection.anchorOffset;
-    let origEndContainer = selection.focusNode;
-    let origEndOffset = selection.focusOffset;
 
     // Collapsed caret: reset the entire line
     if (wasCollapsed) {
@@ -446,39 +442,14 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
       // Fall through to the non-collapsed path below with the expanded selection.
     }
 
+    // --- Robust selection restore for range selections ---
+    let selectedText = '';
+    if (!wasCollapsed) {
+      selectedText = selection.toString();
+    }
+
     // Process line by line: remove all <strong>, <em>, and style-based bold/italic
     const selectedRanges = getSelectedLineRanges().reverse();
-    let totalText = '';
-    let startOffset = 0;
-    let endOffset = 0;
-    let foundStart = false;
-    let foundEnd = false;
-
-    // Calculate absolute offsets for the selection
-    function getAbsoluteOffset(node, offset) {
-      let textSoFar = '';
-      function walk(n) {
-        if (n === node) {
-          textSoFar += (n.nodeType === Node.TEXT_NODE) ? n.textContent.slice(0, offset) : '';
-          return true;
-        }
-        if (n.nodeType === Node.TEXT_NODE) {
-          textSoFar += n.textContent;
-        } else if (n.childNodes) {
-          for (let i = 0; i < n.childNodes.length; i++) {
-            if (walk(n.childNodes[i])) return true;
-          }
-        }
-        return false;
-      }
-      walk(editorRef.current);
-      return textSoFar.length;
-    }
-    if (!wasCollapsed) {
-      startOffset = getAbsoluteOffset(origStartContainer, origStartOffset);
-      endOffset = getAbsoluteOffset(origEndContainer, origEndOffset);
-    }
-
     selectedRanges.forEach(({ range }) => {
       const fragment = range.extractContents();
       if (!fragment) return;
@@ -522,36 +493,70 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
 
     handleEditorInput();
 
-    // Restore selection to the exact character offsets
-    if (!wasCollapsed) {
+    // Restore selection to the same text after formatting is cleared
+    if (!wasCollapsed && selectedText) {
       requestAnimationFrame(() => {
         if (!editorRef.current) return;
-        // Walk all text nodes and set selection at the correct offsets
-        let abs = 0;
-        let startNode = null, endNode = null, startOff = 0, endOff = 0;
-        function walk(n) {
-          if (n.nodeType === Node.TEXT_NODE) {
-            const len = n.textContent.length;
-            if (!startNode && abs + len >= startOffset) {
-              startNode = n;
-              startOff = startOffset - abs;
+        const walker = document.createTreeWalker(editorRef.current, NodeFilter.SHOW_TEXT);
+        let node, startNode = null, endNode = null, startOffset = 0, endOffset = 0;
+        let buffer = '';
+        let foundStart = false;
+        let foundEnd = false;
+        while ((node = walker.nextNode())) {
+          if (foundEnd) break;
+          const idx = selectedText && node.textContent.indexOf(selectedText);
+          if (!foundStart && idx !== -1) {
+            startNode = node;
+            endNode = node;
+            startOffset = idx;
+            endOffset = idx + selectedText.length;
+            foundStart = true;
+            foundEnd = true;
+            break;
+          }
+          if (!foundStart && buffer.length + node.textContent.length >= selectedText.length) {
+            // Fallback: try to match across nodes
+            const combined = buffer + node.textContent;
+            const idx2 = combined.indexOf(selectedText);
+            if (idx2 !== -1) {
+              // Find start and end node/offset
+              let remain = idx2;
+              let walker2 = document.createTreeWalker(editorRef.current, NodeFilter.SHOW_TEXT);
+              let n2, acc = 0;
+              while ((n2 = walker2.nextNode())) {
+                if (acc + n2.textContent.length > remain) {
+                  startNode = n2;
+                  startOffset = remain;
+                  break;
+                }
+                acc += n2.textContent.length;
+              }
+              remain = idx2 + selectedText.length;
+              walker2 = document.createTreeWalker(editorRef.current, NodeFilter.SHOW_TEXT);
+              acc = 0;
+              while ((n2 = walker2.nextNode())) {
+                if (acc + n2.textContent.length >= remain) {
+                  endNode = n2;
+                  endOffset = remain - acc;
+                  break;
+                }
+                acc += n2.textContent.length;
+              }
+              foundStart = true;
+              foundEnd = true;
+              break;
             }
-            if (!endNode && abs + len >= endOffset) {
-              endNode = n;
-              endOff = endOffset - abs;
-            }
-            abs += len;
-          } else if (n.childNodes) {
-            for (let i = 0; i < n.childNodes.length; i++) walk(n.childNodes[i]);
+            buffer += node.textContent;
+          } else {
+            buffer += node.textContent;
           }
         }
-        walk(editorRef.current);
         if (startNode && endNode) {
           const sel = window.getSelection();
           const newRange = document.createRange();
           try {
-            newRange.setStart(startNode, Math.max(0, startOff));
-            newRange.setEnd(endNode, Math.max(0, endOff));
+            newRange.setStart(startNode, Math.max(0, startOffset));
+            newRange.setEnd(endNode, Math.max(0, endOffset));
             sel.removeAllRanges();
             sel.addRange(newRange);
             selectionRef.current = newRange.cloneRange();
