@@ -366,13 +366,18 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     const tagName = command === 'bold' ? 'strong' : command === 'italic' ? 'em' : null;
     if (!tagName) return;
 
-    // Collapsed caret: use execCommand so typed characters carry the format
+    // Collapsed caret: expand to the entire containing line so existing text is toggled.
+    // (execCommand only affects future typing and is unreliable in modern browsers.)
     if (selection.isCollapsed) {
-      document.execCommand(command, false, null);
-      handleEditorInput();
-      saveSelection();
-      updateActiveFormats();
-      return;
+      const lines = Array.from(editorRef.current.querySelectorAll('[data-line-style]'));
+      const caretNode = selection.anchorNode;
+      const caretLine = lines.find((l) => l === caretNode || l.contains(caretNode));
+      if (!caretLine) return;
+      const lineRange = document.createRange();
+      lineRange.selectNodeContents(caretLine);
+      selection.removeAllRanges();
+      selection.addRange(lineRange);
+      // Fall through to the non-collapsed path below with the expanded selection.
     }
 
     // Process line by line to preserve line structure and avoid spacing artifacts.
@@ -400,6 +405,15 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
         }
         range.insertNode(wrapper);
         insertedBoundaries.push({ first: wrapper, last: wrapper });
+      }
+    });
+
+    // extractContents() with text-node-level range boundaries clones ancestor tags into
+    // the fragment but leaves empty shells (e.g. <em></em>) in the original line.
+    // Remove those orphaned shells so they don't corrupt future format detection.
+    Array.from(editorRef.current.querySelectorAll('strong,em')).forEach((tag) => {
+      if (!tag.textContent && tag.parentNode) {
+        tag.parentNode.removeChild(tag);
       }
     });
 
