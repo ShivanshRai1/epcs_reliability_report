@@ -413,16 +413,10 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
   const applyResetFormat = () => {
     if (!editorRef.current) return;
 
+    // Always restore the saved selection first (same approach that makes cursor-only reset work).
+    // This ensures clicking the button never loses whatever was highlighted.
     editorRef.current.focus();
-    const initialSelection = window.getSelection();
-    const hasActiveEditorSelection = Boolean(
-      initialSelection &&
-      initialSelection.rangeCount > 0 &&
-      editorRef.current.contains(initialSelection.getRangeAt(0).commonAncestorContainer)
-    );
-    if (!hasActiveEditorSelection) {
-      restoreSelection();
-    }
+    restoreSelection();
 
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) return;
