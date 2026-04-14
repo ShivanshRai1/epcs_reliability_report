@@ -413,18 +413,26 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
   const applyResetFormat = () => {
     if (!editorRef.current) return;
 
-    // Always restore the saved selection first (same approach that makes cursor-only reset work).
-    // This ensures clicking the button never loses whatever was highlighted.
     editorRef.current.focus();
-    restoreSelection();
+    // Use live browser selection if it's inside the editor, otherwise restore saved one.
+    // This is the same pattern that makes Bold/Italic work reliably.
+    const initialSelection = window.getSelection();
+    const hasActiveEditorSelection = Boolean(
+      initialSelection &&
+      initialSelection.rangeCount > 0 &&
+      editorRef.current.contains(initialSelection.getRangeAt(0).commonAncestorContainer)
+    );
+    if (!hasActiveEditorSelection) {
+      restoreSelection();
+    }
 
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) return;
 
     const wasCollapsed = selection.isCollapsed;
 
-    // Collapsed caret: reset the entire line
     if (wasCollapsed) {
+      // Cursor only: expand to the whole line (same as before, already works)
       const lines = Array.from(editorRef.current.querySelectorAll('[data-line-style]'));
       const caretNode = selection.anchorNode;
       const caretLine = lines.find((l) => l === caretNode || l.contains(caretNode));
@@ -433,79 +441,77 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
       lineRange.selectNodeContents(caretLine);
       selection.removeAllRanges();
       selection.addRange(lineRange);
+
+      // Process the whole line directly
+      const fragment = lineRange.extractContents();
+      if (fragment) {
+        unwrapFormatTags(fragment, 'strong');
+        unwrapFormatTags(fragment, 'em');
+        Array.from(fragment.querySelectorAll('span[style]')).forEach((span) => {
+          const style = span.getAttribute('style') || '';
+          const cleaned = style
+            .replace(/font-weight\s*:\s*(bold|bolder|[7-9]00)\s*;?\s*/gi, '')
+            .replace(/font-style\s*:\s*italic\s*;?\s*/gi, '')
+            .trim();
+          if (!cleaned) {
+            const parent = span.parentNode;
+            if (parent) { while (span.firstChild) parent.insertBefore(span.firstChild, span); parent.removeChild(span); }
+          } else {
+            span.setAttribute('style', cleaned);
+          }
+        });
+        lineRange.insertNode(fragment);
+      }
+    } else {
+      // Highlighted text: work directly on the raw selection range (bypass getSelectedLineRanges)
+      const rawRange = selection.getRangeAt(0).cloneRange();
+      const fragment = rawRange.extractContents();
+      if (fragment) {
+        unwrapFormatTags(fragment, 'strong');
+        unwrapFormatTags(fragment, 'em');
+        Array.from(fragment.querySelectorAll('span[style]')).forEach((span) => {
+          const style = span.getAttribute('style') || '';
+          const cleaned = style
+            .replace(/font-weight\s*:\s*(bold|bolder|[7-9]00)\s*;?\s*/gi, '')
+            .replace(/font-style\s*:\s*italic\s*;?\s*/gi, '')
+            .trim();
+          if (!cleaned) {
+            const parent = span.parentNode;
+            if (parent) { while (span.firstChild) parent.insertBefore(span.firstChild, span); parent.removeChild(span); }
+          } else {
+            span.setAttribute('style', cleaned);
+          }
+        });
+        const nodes = Array.from(fragment.childNodes);
+        rawRange.insertNode(fragment);
+        // Restore highlight over the re-inserted content
+        if (nodes.length > 0) {
+          const firstNode = nodes[0];
+          const lastNode = nodes[nodes.length - 1];
+          requestAnimationFrame(() => {
+            if (!editorRef.current || !editorRef.current.contains(firstNode)) return;
+            const sel = window.getSelection();
+            const newRange = document.createRange();
+            try {
+              newRange.setStartBefore(firstNode);
+              newRange.setEndAfter(lastNode);
+              sel.removeAllRanges();
+              sel.addRange(newRange);
+              selectionRef.current = newRange.cloneRange();
+            } catch (e) {}
+            updateActiveFormats();
+          });
+        }
+      }
     }
 
-    // Process line by line: remove all <strong>, <em>, and style-based bold/italic
-    const selectedRanges = getSelectedLineRanges().reverse();
-    const insertedBoundaries = [];
-    
-    selectedRanges.forEach(({ range }) => {
-      const fragment = range.extractContents();
-      if (!fragment) return;
-
-      // Remove all <strong> and <em> tags
-      unwrapFormatTags(fragment, 'strong');
-      unwrapFormatTags(fragment, 'em');
-
-      // Remove style-based bold/italic from any spans
-      Array.from(fragment.querySelectorAll('span[style]')).forEach((span) => {
-        const style = span.getAttribute('style') || '';
-        // Remove font-weight:bold/bolder/700+ and font-style:italic
-        const cleaned = style
-          .replace(/font-weight\s*:\s*(bold|bolder|[7-9]00)\s*;?\s*/gi, '')
-          .replace(/font-style\s*:\s*italic\s*;?\s*/gi, '')
-          .trim();
-
-        if (!cleaned) {
-          // If no style left, unwrap the span
-          const parent = span.parentNode;
-          if (!parent) return;
-          while (span.firstChild) {
-            parent.insertBefore(span.firstChild, span);
-          }
-          parent.removeChild(span);
-        } else {
-          // Keep the span but with cleaned style
-          span.setAttribute('style', cleaned);
-        }
-      });
-
-      const nodes = Array.from(fragment.childNodes);
-      range.insertNode(fragment);
-      if (nodes.length > 0) {
-        insertedBoundaries.push({ first: nodes[0], last: nodes[nodes.length - 1] });
-      }
-    });
-
-    // Clean up any orphaned empty tags
+    // Clean up orphaned empty tags
     Array.from(editorRef.current.querySelectorAll('strong,em')).forEach((tag) => {
-      if (!tag.textContent && tag.parentNode) {
-        tag.parentNode.removeChild(tag);
-      }
+      if (!tag.textContent && tag.parentNode) tag.parentNode.removeChild(tag);
     });
 
     handleEditorInput();
-
-    if (!wasCollapsed && insertedBoundaries.length > 0) {
-      const startNode = insertedBoundaries[insertedBoundaries.length - 1].first;
-      const endNode = insertedBoundaries[0].last;
-      requestAnimationFrame(() => {
-        if (!editorRef.current || !startNode || !endNode) return;
-        if (!editorRef.current.contains(startNode) || !editorRef.current.contains(endNode)) return;
-        editorRef.current.focus();
-        const sel = window.getSelection();
-        if (!sel) return;
-        const newRange = document.createRange();
-        try {
-          newRange.setStartBefore(startNode);
-          newRange.setEndAfter(endNode);
-          sel.removeAllRanges();
-          sel.addRange(newRange);
-          selectionRef.current = newRange.cloneRange();
-        } catch (e) { /* node may have shifted after sanitize */ }
-        updateActiveFormats();
-      });
-    } else {
+    if (wasCollapsed) {
       saveSelection();
       updateActiveFormats();
     }
