@@ -443,6 +443,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
 
     // Process line by line: remove all <strong>, <em>, and style-based bold/italic
     const selectedRanges = getSelectedLineRanges().reverse();
+    const insertedBoundaries = [];
     
     selectedRanges.forEach(({ range }) => {
       const fragment = range.extractContents();
@@ -475,7 +476,11 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
         }
       });
 
+      const nodes = Array.from(fragment.childNodes);
       range.insertNode(fragment);
+      if (nodes.length > 0) {
+        insertedBoundaries.push({ first: nodes[0], last: nodes[nodes.length - 1] });
+      }
     });
 
     // Clean up any orphaned empty tags
@@ -486,8 +491,30 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     });
 
     handleEditorInput();
-    saveSelection();
-    updateActiveFormats();
+
+    if (!wasCollapsed && insertedBoundaries.length > 0) {
+      const startNode = insertedBoundaries[insertedBoundaries.length - 1].first;
+      const endNode = insertedBoundaries[0].last;
+      requestAnimationFrame(() => {
+        if (!editorRef.current || !startNode || !endNode) return;
+        if (!editorRef.current.contains(startNode) || !editorRef.current.contains(endNode)) return;
+        editorRef.current.focus();
+        const sel = window.getSelection();
+        if (!sel) return;
+        const newRange = document.createRange();
+        try {
+          newRange.setStartBefore(startNode);
+          newRange.setEndAfter(endNode);
+          sel.removeAllRanges();
+          sel.addRange(newRange);
+          selectionRef.current = newRange.cloneRange();
+        } catch (e) { /* node may have shifted after sanitize */ }
+        updateActiveFormats();
+      });
+    } else {
+      saveSelection();
+      updateActiveFormats();
+    }
   };
 
   const applyInlineFormat = (command) => {
