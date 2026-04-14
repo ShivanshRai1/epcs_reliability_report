@@ -410,6 +410,85 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     updateActiveFormats();
   };
 
+  const applyResetFormat = () => {
+    if (!editorRef.current) return;
+
+    editorRef.current.focus();
+    const initialSelection = window.getSelection();
+    const hasActiveEditorSelection = Boolean(
+      initialSelection &&
+      initialSelection.rangeCount > 0 &&
+      editorRef.current.contains(initialSelection.getRangeAt(0).commonAncestorContainer)
+    );
+    if (!hasActiveEditorSelection) {
+      restoreSelection();
+    }
+
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+
+    // Collapsed caret: reset the entire line
+    if (selection.isCollapsed) {
+      const lines = Array.from(editorRef.current.querySelectorAll('[data-line-style]'));
+      const caretNode = selection.anchorNode;
+      const caretLine = lines.find((l) => l === caretNode || l.contains(caretNode));
+      if (!caretLine) return;
+      const lineRange = document.createRange();
+      lineRange.selectNodeContents(caretLine);
+      selection.removeAllRanges();
+      selection.addRange(lineRange);
+      // Fall through to the non-collapsed path below with the expanded selection.
+    }
+
+    // Process line by line: remove all <strong>, <em>, and style-based bold/italic
+    const selectedRanges = getSelectedLineRanges().reverse();
+
+    selectedRanges.forEach(({ range }) => {
+      const fragment = range.extractContents();
+      if (!fragment) return;
+
+      // Remove all <strong> and <em> tags
+      unwrapFormatTags(fragment, 'strong');
+      unwrapFormatTags(fragment, 'em');
+
+      // Remove style-based bold/italic from any spans
+      Array.from(fragment.querySelectorAll('span[style]')).forEach((span) => {
+        const style = span.getAttribute('style') || '';
+        // Remove font-weight:bold/bolder/700+ and font-style:italic
+        const cleaned = style
+          .replace(/font-weight\s*:\s*(bold|bolder|[7-9]00)\s*;?\s*/gi, '')
+          .replace(/font-style\s*:\s*italic\s*;?\s*/gi, '')
+          .trim();
+
+        if (!cleaned) {
+          // If no style left, unwrap the span
+          const parent = span.parentNode;
+          if (!parent) return;
+          while (span.firstChild) {
+            parent.insertBefore(span.firstChild, span);
+          }
+          parent.removeChild(span);
+        } else {
+          // Keep the span but with cleaned style
+          span.setAttribute('style', cleaned);
+        }
+      });
+
+      range.insertNode(fragment);
+    });
+
+    // Clean up any orphaned empty tags
+    Array.from(editorRef.current.querySelectorAll('strong,em')).forEach((tag) => {
+      if (!tag.textContent && tag.parentNode) {
+        tag.parentNode.removeChild(tag);
+      }
+    });
+
+    handleEditorInput();
+    saveSelection();
+    updateActiveFormats();
+  };
+
   const applyInlineFormat = (command) => {
     if (!editorRef.current) return;
 
@@ -646,6 +725,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
         <div className="content-editor-toolbar">
           <button type="button" className={`content-editor-btn ${activeFormats.bold ? 'active' : ''}`} onMouseDown={(e) => { e.preventDefault(); applyInlineFormat('bold'); }} title="Bold selected text"><strong>B</strong></button>
           <button type="button" className={`content-editor-btn ${activeFormats.italic ? 'active' : ''}`} onMouseDown={(e) => { e.preventDefault(); applyInlineFormat('italic'); }} title="Italic selected text"><em>I</em></button>
+          <button type="button" className="content-editor-btn" onMouseDown={(e) => { e.preventDefault(); applyResetFormat(); }} title="Reset: remove all bold/italic formatting">Reset</button>
           <button type="button" className="content-editor-btn" onMouseDown={(e) => { e.preventDefault(); applyInlineTextScale(-1); }} title="Decrease selected text size">A-</button>
           <button type="button" className="content-editor-btn" onMouseDown={(e) => { e.preventDefault(); applyInlineTextScale(1); }} title="Increase selected text size">A+</button>
           <>
