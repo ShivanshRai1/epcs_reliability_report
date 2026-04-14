@@ -428,9 +428,13 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     if (!selection || selection.rangeCount === 0) return;
 
     const wasCollapsed = selection.isCollapsed;
-    
+    let origStartContainer = selection.anchorNode;
+    let origStartOffset = selection.anchorOffset;
+    let origEndContainer = selection.focusNode;
+    let origEndOffset = selection.focusOffset;
+
     // Collapsed caret: reset the entire line
-    if (selection.isCollapsed) {
+    if (wasCollapsed) {
       const lines = Array.from(editorRef.current.querySelectorAll('[data-line-style]'));
       const caretNode = selection.anchorNode;
       const caretLine = lines.find((l) => l === caretNode || l.contains(caretNode));
@@ -444,8 +448,36 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
 
     // Process line by line: remove all <strong>, <em>, and style-based bold/italic
     const selectedRanges = getSelectedLineRanges().reverse();
-    let firstNode = null;
-    let lastNode = null;
+    let totalText = '';
+    let startOffset = 0;
+    let endOffset = 0;
+    let foundStart = false;
+    let foundEnd = false;
+
+    // Calculate absolute offsets for the selection
+    function getAbsoluteOffset(node, offset) {
+      let textSoFar = '';
+      function walk(n) {
+        if (n === node) {
+          textSoFar += (n.nodeType === Node.TEXT_NODE) ? n.textContent.slice(0, offset) : '';
+          return true;
+        }
+        if (n.nodeType === Node.TEXT_NODE) {
+          textSoFar += n.textContent;
+        } else if (n.childNodes) {
+          for (let i = 0; i < n.childNodes.length; i++) {
+            if (walk(n.childNodes[i])) return true;
+          }
+        }
+        return false;
+      }
+      walk(editorRef.current);
+      return textSoFar.length;
+    }
+    if (!wasCollapsed) {
+      startOffset = getAbsoluteOffset(origStartContainer, origStartOffset);
+      endOffset = getAbsoluteOffset(origEndContainer, origEndOffset);
+    }
 
     selectedRanges.forEach(({ range }) => {
       const fragment = range.extractContents();
@@ -479,13 +511,6 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
       });
 
       range.insertNode(fragment);
-      
-      // Track first and last nodes (traversing in reverse, so last processed is first)
-      const nodes = Array.from(fragment.childNodes);
-      if (nodes.length > 0) {
-        lastNode = nodes[0];  // Because we're reversing through ranges
-        if (!firstNode) firstNode = nodes[nodes.length - 1];
-      }
     });
 
     // Clean up any orphaned empty tags
@@ -497,29 +522,43 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
 
     handleEditorInput();
 
-    // Restore selection 
-    if (!wasCollapsed && firstNode && lastNode) {
-      // For range selections, select the span of the modified content
+    // Restore selection to the exact character offsets
+    if (!wasCollapsed) {
       requestAnimationFrame(() => {
-        if (!editorRef.current || !firstNode || !lastNode) return;
-        if (!editorRef.current.contains(firstNode) || !editorRef.current.contains(lastNode)) return;
-        editorRef.current.focus();
-        const sel = window.getSelection();
-        if (!sel) return;
-        const newRange = document.createRange();
-        try {
-          newRange.setStartBefore(firstNode);
-          newRange.setEndAfter(lastNode);
-          sel.removeAllRanges();
-          sel.addRange(newRange);
-          selectionRef.current = newRange.cloneRange();
-        } catch (e) { /* node may have shifted */ }
+        if (!editorRef.current) return;
+        // Walk all text nodes and set selection at the correct offsets
+        let abs = 0;
+        let startNode = null, endNode = null, startOff = 0, endOff = 0;
+        function walk(n) {
+          if (n.nodeType === Node.TEXT_NODE) {
+            const len = n.textContent.length;
+            if (!startNode && abs + len >= startOffset) {
+              startNode = n;
+              startOff = startOffset - abs;
+            }
+            if (!endNode && abs + len >= endOffset) {
+              endNode = n;
+              endOff = endOffset - abs;
+            }
+            abs += len;
+          } else if (n.childNodes) {
+            for (let i = 0; i < n.childNodes.length; i++) walk(n.childNodes[i]);
+          }
+        }
+        walk(editorRef.current);
+        if (startNode && endNode) {
+          const sel = window.getSelection();
+          const newRange = document.createRange();
+          try {
+            newRange.setStart(startNode, Math.max(0, startOff));
+            newRange.setEnd(endNode, Math.max(0, endOff));
+            sel.removeAllRanges();
+            sel.addRange(newRange);
+            selectionRef.current = newRange.cloneRange();
+          } catch (e) {}
+        }
         updateActiveFormats();
       });
-    } else if (wasCollapsed) {
-      // For collapsed selections (full line), restore normally
-      saveSelection();
-      updateActiveFormats();
     } else {
       saveSelection();
       updateActiveFormats();
