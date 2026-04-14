@@ -32,8 +32,10 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
 
     const container = document.createElement('div');
     container.innerHTML = String(html || '')
-      .replace(/<span[^>]*font-weight\s*:\s*(bold|bolder|[7-9]00)[^>]*>([\s\S]*?)<\/span>/gi, '<strong>$2</strong>')
-      .replace(/<span[^>]*font-style\s*:\s*italic[^>]*>([\s\S]*?)<\/span>/gi, '<em>$1</em>')
+      // Replace any span with font-weight:bold/bolder/700+ with <strong>
+      .replace(/<span([^>]*)style=["'][^"']*font-weight\s*:\s*(bold|bolder|[7-9]00)[^"']*["']([^>]*)>([\s\S]*?)<\/span>/gi, '<strong>$4</strong>')
+      // Replace any span with font-style:italic with <em>
+      .replace(/<span([^>]*)style=["'][^"']*font-style\s*:\s*italic[^"']*["']([^>]*)>([\s\S]*?)<\/span>/gi, '<em>$3</em>')
       .replace(/<(\/?)b>/gi, '<$1strong>')
       .replace(/<(\/?)i>/gi, '<$1em>');
 
