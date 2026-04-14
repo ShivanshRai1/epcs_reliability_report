@@ -427,6 +427,8 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) return;
 
+    const wasCollapsed = selection.isCollapsed;
+    
     // Collapsed caret: reset the entire line
     if (selection.isCollapsed) {
       const lines = Array.from(editorRef.current.querySelectorAll('[data-line-style]'));
@@ -442,7 +444,8 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
 
     // Process line by line: remove all <strong>, <em>, and style-based bold/italic
     const selectedRanges = getSelectedLineRanges().reverse();
-    const insertedBoundaries = [];
+    let firstNode = null;
+    let lastNode = null;
 
     selectedRanges.forEach(({ range }) => {
       const fragment = range.extractContents();
@@ -475,10 +478,13 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
         }
       });
 
-      const nodes = Array.from(fragment.childNodes);
       range.insertNode(fragment);
+      
+      // Track first and last nodes (traversing in reverse, so last processed is first)
+      const nodes = Array.from(fragment.childNodes);
       if (nodes.length > 0) {
-        insertedBoundaries.push({ first: nodes[0], last: nodes[nodes.length - 1] });
+        lastNode = nodes[0];  // Because we're reversing through ranges
+        if (!firstNode) firstNode = nodes[nodes.length - 1];
       }
     });
 
@@ -491,26 +497,29 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
 
     handleEditorInput();
 
-    // Restore selection to the reset content, just like applyInlineFormat does
-    if (insertedBoundaries.length > 0) {
-      const startNode = insertedBoundaries[insertedBoundaries.length - 1].first;
-      const endNode = insertedBoundaries[0].last;
+    // Restore selection 
+    if (!wasCollapsed && firstNode && lastNode) {
+      // For range selections, select the span of the modified content
       requestAnimationFrame(() => {
-        if (!editorRef.current || !startNode || !endNode) return;
-        if (!editorRef.current.contains(startNode)) return;
+        if (!editorRef.current || !firstNode || !lastNode) return;
+        if (!editorRef.current.contains(firstNode) || !editorRef.current.contains(lastNode)) return;
         editorRef.current.focus();
         const sel = window.getSelection();
         if (!sel) return;
         const newRange = document.createRange();
         try {
-          newRange.setStartBefore(startNode);
-          newRange.setEndAfter(endNode);
+          newRange.setStartBefore(firstNode);
+          newRange.setEndAfter(lastNode);
           sel.removeAllRanges();
           sel.addRange(newRange);
           selectionRef.current = newRange.cloneRange();
         } catch (e) { /* node may have shifted */ }
         updateActiveFormats();
       });
+    } else if (wasCollapsed) {
+      // For collapsed selections (full line), restore normally
+      saveSelection();
+      updateActiveFormats();
     } else {
       saveSelection();
       updateActiveFormats();
