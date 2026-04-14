@@ -5,19 +5,25 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
   const effectiveLiveMode = isLiveMode || new URLSearchParams(window.location.search).get('live') === '1';
   const [text, setText] = useState(content || '');
   const [editorHtml, setEditorHtml] = useState('');
-  const [activeFormats, setActiveFormats] = useState({ bold: false, italic: false });
+  const [activeFormats, setActiveFormats] = useState({ bold: false, italic: false, align: 'left' });
   const editorRef = useRef(null);
   const selectionRef = useRef(null);
   const resolvedContentFontSize = Number.isFinite(Number(contentFontSize)) && Number(contentFontSize) > 0 ? Number(contentFontSize) : 0.95;
 
   const parseEditorLines = (str) => {
-    if (!str) return [{ type: 'line', text: '' }];
+    if (!str) return [{ type: 'line', text: '', align: 'left' }];
     return String(str).split(/\r?\n/).map((line) => {
-      const tagged = line.match(/^\[(GROUP|BLUE|ORANGE|INDENT-1|INDENT-2)\](.*?)\[\/\1\]$/);
+      // Strip per-line alignment prefix: [=C] = center, [=R] = right
+      let align = 'left';
+      let remaining = line;
+      if (remaining.startsWith('[=C]')) { align = 'center'; remaining = remaining.slice(4); }
+      else if (remaining.startsWith('[=R]')) { align = 'right'; remaining = remaining.slice(4); }
+
+      const tagged = remaining.match(/^\[(GROUP|BLUE|ORANGE|INDENT-1|INDENT-2)\](.*?)\[\/\1\]$/);
       if (tagged) {
-        return { type: tagged[1], text: tagged[2] };
+        return { type: tagged[1], text: tagged[2], align };
       }
-      return { type: 'line', text: line };
+      return { type: 'line', text: remaining, align };
     });
   };
 
@@ -88,7 +94,9 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
 
     return lines.map((line) => {
       const safeHtml = sanitizeInlineHtml(line.text) || '<br>';
-      return `<div class="content-editor-line ${classMap[line.type] || 'content-row-line'}" data-line-style="${line.type}">${safeHtml}</div>`;
+      const dataAlign = line.align || 'left';
+      // Always set text-align explicitly so per-line overrides the editor wrapper's textAlign.
+      return `<div class="content-editor-line ${classMap[line.type] || 'content-row-line'}" data-line-style="${line.type}" data-align="${dataAlign}" style="text-align:${dataAlign};">${safeHtml}</div>`;
     }).join('');
   };
 
@@ -97,9 +105,13 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
 
     return Array.from(root.children).map((node) => {
       const type = node.getAttribute('data-line-style') || 'line';
+      const align = node.getAttribute('data-align') || 'left';
+      const alignPrefix = align === 'center' ? '[=C]' : align === 'right' ? '[=R]' : '';
       const innerHtml = sanitizeInlineHtml(node.innerHTML || '').replace(/<br\s*\/?>/gi, '').trim();
       if (!innerHtml) return '';
-      return type !== 'line' ? `[${type}]${innerHtml}[/${type}]` : innerHtml;
+      return type !== 'line'
+        ? `${alignPrefix}[${type}]${innerHtml}[/${type}]`
+        : `${alignPrefix}${innerHtml}`;
     }).join('\n');
   };
 
@@ -148,7 +160,7 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
 
   const updateActiveFormats = () => {
     if (!editorRef.current) {
-      setActiveFormats({ bold: false, italic: false });
+      setActiveFormats({ bold: false, italic: false, align: 'left' });
       return;
     }
 
@@ -161,13 +173,28 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     const isEditorFocused = document.activeElement === editorRef.current;
 
     if (!isEditorFocused && !hasEditorSelection) {
-      setActiveFormats({ bold: false, italic: false });
+      setActiveFormats({ bold: false, italic: false, align: 'left' });
       return;
+    }
+
+    // Detect alignment of the caret's containing line div.
+    let detectedAlign = 'left';
+    if (selection && selection.rangeCount > 0) {
+      let node = selection.anchorNode;
+      if (node && node.nodeType === Node.TEXT_NODE) node = node.parentNode;
+      while (node && node !== editorRef.current) {
+        if (node.hasAttribute && node.hasAttribute('data-line-style')) {
+          detectedAlign = node.getAttribute('data-align') || 'left';
+          break;
+        }
+        node = node.parentNode;
+      }
     }
 
     setActiveFormats({
       bold: isSelectionOrCaretFormatted('strong'),
       italic: isSelectionOrCaretFormatted('em'),
+      align: detectedAlign,
     });
   };
 
@@ -346,6 +373,37 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     updateActiveFormats();
   };
 
+  const applyLineAlign = (align) => {
+    if (!editorRef.current) return;
+    editorRef.current.focus();
+
+    const selection = window.getSelection();
+    const allLines = Array.from(editorRef.current.querySelectorAll('[data-line-style]'));
+    let linesToAlign;
+
+    if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+      // No range selected — align the line the caret is in.
+      const caretNode = selection && selection.rangeCount > 0 ? selection.anchorNode : null;
+      const caretLine = caretNode
+        ? allLines.find((l) => l === caretNode || l.contains(caretNode))
+        : null;
+      linesToAlign = caretLine ? [caretLine] : [];
+    } else {
+      const range = selection.getRangeAt(0);
+      linesToAlign = allLines.filter((line) => rangeIntersectsNode(range, line));
+    }
+
+    linesToAlign.forEach((line) => {
+      line.setAttribute('data-align', align);
+      // Set explicitly so it overrides the editor wrapper's textAlign.
+      line.style.textAlign = align;
+    });
+
+    handleEditorInput();
+    saveSelection();
+    updateActiveFormats();
+  };
+
   const applyInlineFormat = (command) => {
     if (!editorRef.current) return;
 
@@ -516,16 +574,22 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
     const lines = String(str).split(/\r?\n/);
 
     lines.forEach((line) => {
-      const trimmed = line.trim();
+      // Strip per-line alignment prefix
+      let align = 'left';
+      let remaining = line;
+      if (remaining.startsWith('[=C]')) { align = 'center'; remaining = remaining.slice(4); }
+      else if (remaining.startsWith('[=R]')) { align = 'right'; remaining = remaining.slice(4); }
+
+      const trimmed = remaining.trim();
       if (!trimmed) return;
 
       const tagged = trimmed.match(/^\[(GROUP|BLUE|ORANGE|INDENT-1|INDENT-2)\](.*?)\[\/\1\]$/);
       if (tagged) {
-        segments.push({ type: tagged[1], text: tagged[2].trim() });
+        segments.push({ type: tagged[1], text: tagged[2].trim(), align });
         return;
       }
 
-      segments.push({ type: 'line', text: trimmed });
+      segments.push({ type: 'line', text: trimmed, align });
     });
 
     return segments;
@@ -540,59 +604,32 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
       'INDENT-2': 'content-row-blue content-row-indent-2',
       'line': 'content-row-line',
     };
-    return <div key={idx} className={`content-row ${typeToClass[seg.type] || 'content-row-line'}`} dangerouslySetInnerHTML={renderInlineContent(seg.text)} />;
+    const alignStyle = seg.align && seg.align !== 'left' ? { textAlign: seg.align } : {};
+    return <div key={idx} className={`content-row ${typeToClass[seg.type] || 'content-row-line'}`} style={alignStyle} dangerouslySetInnerHTML={renderInlineContent(seg.text)} />;
   };
 
-  // Parse styled text with markup: [GROUP]text[/GROUP], [BLUE]text[/BLUE], [ORANGE]text[/ORANGE]
   const parseStyledText = (str) => {
-
     if (!str) return null;
 
-    const elements = [];
-    let lastIndex = 0;
-    const regex = /\[(GROUP|BLUE|ORANGE|INDENT-1|INDENT-2)\](.*?)\[\/\1\]/g;
-    let match;
-
-    while ((match = regex.exec(str)) !== null) {
-      // Add text before this match
-      if (match.index > lastIndex) {
-        const textBefore = str.substring(lastIndex, match.index);
-        if (textBefore.trim()) {
-          elements.push(
-            <p key={`text-${lastIndex}`} className="content-line" dangerouslySetInnerHTML={renderInlineContent(textBefore)} />
-          );
+    // Reuse parseEditorLines so alignment markers and type tags are handled identically
+    // to the editor and live mode renderers.
+    const lines = parseEditorLines(str);
+    const elements = lines
+      .filter((line) => line.text.trim())
+      .map((line, idx) => {
+        const alignStyle = line.align !== 'left' ? { textAlign: line.align } : {};
+        const inlineStyle = { fontFamily, fontSize: `${resolvedContentFontSize}rem`, ...alignStyle };
+        if (line.type === 'GROUP') {
+          inlineStyle.fontSize = `${Math.max(0.8, resolvedContentFontSize + 0.1)}rem`;
         }
-      }
-
-      // Add styled element
-      const [, style, innerText] = match;
-      const className = `content-${style.toLowerCase()}`;
-      const inlineStyle = {
-        fontFamily,
-        fontSize: `${resolvedContentFontSize}rem`
-      };
-      if (style === 'GROUP') {
-        inlineStyle.fontSize = `${Math.max(0.8, resolvedContentFontSize + 0.1)}rem`;
-      }
-      if (style === 'BLUE' || style === 'ORANGE' || style === 'INDENT-1' || style === 'INDENT-2') {
-        inlineStyle.fontSize = `${resolvedContentFontSize}rem`;
-      }
-      elements.push(
-        <p key={`styled-${match.index}`} className={className} style={inlineStyle} dangerouslySetInnerHTML={renderInlineContent(innerText)} />
-      );
-
-      lastIndex = match.index + match[0].length;
-    }
-
-    // Add remaining text
-    if (lastIndex < str.length) {
-      const remaining = str.substring(lastIndex);
-      if (remaining.trim()) {
-        elements.push(
-          <p key={`text-${lastIndex}`} className="content-line" dangerouslySetInnerHTML={renderInlineContent(remaining)} />
+        const className = line.type !== 'line'
+          ? `content-${line.type.toLowerCase()}`
+          : 'content-line';
+        return (
+          <p key={idx} className={className} style={inlineStyle}
+            dangerouslySetInnerHTML={renderInlineContent(line.text)} />
         );
-      }
-    }
+      });
 
     return elements.length > 0 ? elements : <p className="content-line">{str}</p>;
   };
@@ -605,22 +642,19 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
           <button type="button" className={`content-editor-btn ${activeFormats.italic ? 'active' : ''}`} onMouseDown={(e) => { e.preventDefault(); applyInlineFormat('italic'); }} title="Italic selected text"><em>I</em></button>
           <button type="button" className="content-editor-btn" onMouseDown={(e) => { e.preventDefault(); applyInlineTextScale(-1); }} title="Decrease selected text size">A-</button>
           <button type="button" className="content-editor-btn" onMouseDown={(e) => { e.preventDefault(); applyInlineTextScale(1); }} title="Increase selected text size">A+</button>
-          {onAlignChange && (
-            <>
+          <>
               <span style={{ width: '1px', height: '20px', background: '#ccc', margin: '0 8px' }}></span>
-              <button type="button" className={`content-editor-btn ${contentAlign === 'left' ? 'active' : ''}`} onClick={() => handleAlignChange('left')} title="Align left">
+              <button type="button" className={`content-editor-btn ${activeFormats.align === 'left' ? 'active' : ''}`} onMouseDown={(e) => { e.preventDefault(); applyLineAlign('left'); }} title="Align left">
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M0 2h16v2H0V2zm0 4h10v2H0V6zm0 4h16v2H0v-2zm0 4h10v2H0v-2z"/></svg>
               </button>
-              <button type="button" className={`content-editor-btn ${contentAlign === 'center' ? 'active' : ''}`} onClick={() => handleAlignChange('center')} title="Align center">
+              <button type="button" className={`content-editor-btn ${activeFormats.align === 'center' ? 'active' : ''}`} onMouseDown={(e) => { e.preventDefault(); applyLineAlign('center'); }} title="Align center">
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M0 2h16v2H0V2zm3 4h10v2H3V6zm-3 4h16v2H0v-2zm3 4h10v2H3v-2z"/></svg>
               </button>
-              <button type="button" className={`content-editor-btn ${contentAlign === 'right' ? 'active' : ''}`} onClick={() => handleAlignChange('right')} title="Align right">
+              <button type="button" className={`content-editor-btn ${activeFormats.align === 'right' ? 'active' : ''}`} onMouseDown={(e) => { e.preventDefault(); applyLineAlign('right'); }} title="Align right">
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M0 2h16v2H0V2zm6 4h10v2H6V6zm-6 4h16v2H0v-2zm6 4h10v2H6v-2z"/></svg>
               </button>
             </>
-          )}
         </div>
-        <div className="content-editor-note">Formatting tags are hidden while editing. Bold and italic are supported for selected text.</div>
         <div
           ref={editorRef}
           className="content-editor-rich"
