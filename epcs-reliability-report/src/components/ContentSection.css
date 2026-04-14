@@ -220,9 +220,10 @@
 }
 
 .content-editor-rich em {
-  color: #334155 !important;
+  color: #1d4ed8 !important;
   font-style: italic !important;
-  letter-spacing: 0.03em;
+  font-family: Georgia, 'Times New Roman', serif;
+  letter-spacing: 0.02em;
 }
 
 .content-editor-rich:focus {
