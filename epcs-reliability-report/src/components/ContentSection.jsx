@@ -461,6 +461,14 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
           }
         });
         lineRange.insertNode(fragment);
+        // Also unwrap any parent strong/em tags surrounding the reinserted content
+        Array.from(lineRange.startContainer.parentNode?.querySelectorAll('strong,em') ?? []).forEach(tag => {
+          if (tag.parentNode && editorRef.current.contains(tag)) {
+            const p = tag.parentNode;
+            while (tag.firstChild) p.insertBefore(tag.firstChild, tag);
+            p.removeChild(tag);
+          }
+        });
       }
     } else {
       // Highlighted text: work directly on the raw selection range (bypass getSelectedLineRanges)
@@ -484,6 +492,25 @@ const ContentSection = ({ content, isEditing, onChange, isLiveMode = false, font
         });
         const nodes = Array.from(fragment.childNodes);
         rawRange.insertNode(fragment);
+
+        // KEY FIX: When selecting text inside a <strong> or <em>, extractContents()
+        // only returns the text node — the wrapper tag stays in the DOM surrounding our
+        // reinserted nodes. We must unwrap those parent tags too.
+        nodes.forEach(node => {
+          let parent = node.parentNode;
+          while (parent && parent !== editorRef.current) {
+            if (parent.nodeType === Node.ELEMENT_NODE &&
+                (parent.tagName === 'STRONG' || parent.tagName === 'EM')) {
+              const grandparent = parent.parentNode;
+              while (parent.firstChild) grandparent.insertBefore(parent.firstChild, parent);
+              grandparent.removeChild(parent);
+              parent = grandparent;
+            } else {
+              parent = parent.parentNode;
+            }
+          }
+        });
+
         // Restore highlight over the re-inserted content
         if (nodes.length > 0) {
           const firstNode = nodes[0];
