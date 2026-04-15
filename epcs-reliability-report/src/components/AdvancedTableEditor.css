@@ -224,6 +224,10 @@
   color: var(--ate-header-text-color, #f3f7ff) !important;
 }
 
+.cell-input.bold-text {
+  font-weight: bold;
+}
+
 .cell-input:focus {
   outline: none;
   background: #f0f6ff;

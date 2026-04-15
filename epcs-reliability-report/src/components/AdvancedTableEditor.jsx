@@ -394,7 +394,7 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
                         value={row?.[colName] || ''}
                         onChange={(e) => handleCellChange(rowIdx, colIdx, e.target.value)}
                         onFocus={() => setSelectedCell({ row: rowIdx, col: colIdx })}
-                        className="cell-input"
+                        className={`cell-input${row?.[colName + '__bold'] || row?.__rowBold || tableData.boldColumns?.includes(colName) ? ' bold-text' : ''}`}
                       />
                       <button
                         className={`bold-cell-btn${row?.[colName + '__bold'] ? ' bold-active' : ''}`}
