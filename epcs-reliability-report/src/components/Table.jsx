@@ -3,6 +3,7 @@ import React from 'react';
 const Table = ({
   columns,
   data,
+  boldColumns = [],
   isEditMode,
   isLiveMode = false,
   pageId,
@@ -94,7 +95,11 @@ const Table = ({
       <thead>
         <tr>
           {columns.map((col) => (
-            <th key={col} style={{ color: resolvedHeaderTextColor, fontSize: resolvedHeaderFontSize }}>
+            <th key={col} style={{
+              color: resolvedHeaderTextColor,
+              fontSize: resolvedHeaderFontSize,
+              fontWeight: boldColumns.includes(col) ? 'bold' : undefined,
+            }}>
               {col}
             </th>
           ))}
@@ -119,6 +124,13 @@ const Table = ({
               };
               if (isEditMode || !hasRowPalette) {
                 cellStyle.color = resolvedContentTextColor;
+              }
+              // Bold: cell-level > row-level > column-level
+              const isCellBold = Boolean(row[col + '__bold']);
+              const isRowBold = Boolean(row['__rowBold']);
+              const isColBold = boldColumns.includes(col);
+              if (isCellBold || isRowBold || isColBold) {
+                cellStyle.fontWeight = 'bold';
               }
 
               return (

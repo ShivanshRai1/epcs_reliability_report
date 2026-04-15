@@ -112,8 +112,45 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
     newTable.rows = newTable.rows.map(row => {
       const updatedRow = { ...row };
       delete updatedRow[colNameToDelete];
+      delete updatedRow[colNameToDelete + '__bold'];
       return updatedRow;
     });
+    // Remove from boldColumns if present
+    if (Array.isArray(newTable.boldColumns)) {
+      newTable.boldColumns = newTable.boldColumns.filter(c => c !== colNameToDelete);
+    }
+    setTableData(newTable);
+    updatePage(newTable);
+  };
+
+  const handleToggleCellBold = (rowIdx, colName) => {
+    const newTable = { ...tableData };
+    const key = colName + '__bold';
+    newTable.rows = newTable.rows.map((row, i) => {
+      if (i !== rowIdx) return row;
+      return { ...row, [key]: !row[key] };
+    });
+    setTableData(newTable);
+    updatePage(newTable);
+  };
+
+  const handleToggleRowBold = (rowIdx) => {
+    const newTable = { ...tableData };
+    newTable.rows = newTable.rows.map((row, i) => {
+      if (i !== rowIdx) return row;
+      return { ...row, __rowBold: !row.__rowBold };
+    });
+    setTableData(newTable);
+    updatePage(newTable);
+  };
+
+  const handleToggleColumnBold = (colName) => {
+    const newTable = { ...tableData };
+    const boldCols = Array.isArray(newTable.boldColumns) ? [...newTable.boldColumns] : [];
+    const idx = boldCols.indexOf(colName);
+    if (idx === -1) boldCols.push(colName);
+    else boldCols.splice(idx, 1);
+    newTable.boldColumns = boldCols;
     setTableData(newTable);
     updatePage(newTable);
   };
@@ -317,6 +354,13 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
                       className="header-input"
                     />
                     <button
+                      className={`bold-col-btn${Array.isArray(tableData.boldColumns) && tableData.boldColumns.includes(col) ? ' bold-active' : ''}`}
+                      onClick={() => handleToggleColumnBold(col)}
+                      title={`Toggle bold for entire "${col}" column`}
+                    >
+                      B col
+                    </button>
+                    <button
                       className="delete-col-btn"
                       onClick={() => handleDeleteColumn(colIdx)}
                       title="Delete column"
@@ -334,16 +378,32 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
               <tr key={rowIdx} className={selectedCell?.row === rowIdx ? 'selected-row' : ''}>
                 {(tableData.columns || []).map((colName, colIdx) => (
                   <td key={`${rowIdx}-${colIdx}`}>
-                    <input
-                      type="text"
-                      value={row?.[colName] || ''}
-                      onChange={(e) => handleCellChange(rowIdx, colIdx, e.target.value)}
-                      onFocus={() => setSelectedCell({ row: rowIdx, col: colIdx })}
-                      className="cell-input"
-                    />
+                    <div className="cell-with-bold">
+                      <input
+                        type="text"
+                        value={row?.[colName] || ''}
+                        onChange={(e) => handleCellChange(rowIdx, colIdx, e.target.value)}
+                        onFocus={() => setSelectedCell({ row: rowIdx, col: colIdx })}
+                        className="cell-input"
+                      />
+                      <button
+                        className={`bold-cell-btn${row?.[colName + '__bold'] ? ' bold-active' : ''}`}
+                        onClick={() => handleToggleCellBold(rowIdx, colName)}
+                        title="Toggle bold for this cell"
+                      >
+                        B
+                      </button>
+                    </div>
                   </td>
                 ))}
                 <td className="row-action">
+                  <button
+                    className={`bold-row-btn${row?.__rowBold ? ' bold-active' : ''}`}
+                    onClick={() => handleToggleRowBold(rowIdx)}
+                    title="Toggle bold for entire row"
+                  >
+                    B row
+                  </button>
                   <button
                     className="delete-row-btn"
                     onClick={() => handleDeleteRow(rowIdx)}

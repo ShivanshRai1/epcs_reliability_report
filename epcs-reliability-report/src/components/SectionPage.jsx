@@ -770,6 +770,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
         <Table
           columns={page.table.columns}
           data={tableRows}
+          boldColumns={Array.isArray(page.table.boldColumns) ? page.table.boldColumns : []}
           isEditMode={false}
           isLiveMode={isLiveMode}
           pageId={page.id}
