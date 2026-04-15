@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head><title>Test API Response</title></head>
+<body>
+<h1>Testing API Response for DLA Page</h1>
+<button onclick="testAPI()">Fetch Page Data</button>
+<pre id="output"></pre>
+
+<script>
+async function testAPI() {
+  try {
+    const response = await fetch('http://localhost:5000/api/pages/dla_qualified');
+    const data = await response.json();
+    
+    document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+    
+    // Check if table data has rowColor
+    if (data.page_data && data.page_data.table) {
+      console.log('Table structure:', data.page_data.table);
+      if (data.page_data.table.data) {
+        console.log('First row:', data.page_data.table.data[0]);
+        console.log('First row has rowColor:', !!data.page_data.table.data[0].rowColor);
+      }
+      if (data.page_data.table.rows) {
+        console.log('First row (rows):', data.page_data.table.rows[0]);
+        console.log('First row has rowColor:', !!data.page_data.table.rows[0].rowColor);
+      }
+    }
+  } catch (error) {
+    document.getElementById('output').textContent = 'Error: ' + error.message;
+  }
+}
+</script>
+</body>
+</html>
