@@ -72,19 +72,25 @@ const Table = ({
   const resolvedHeaderFontSize = Number.isFinite(Number(headerFontSize)) ? `${headerFontSize}rem` : undefined;
   const resolvedContentFontSize = Number.isFinite(Number(contentFontSize)) ? `${contentFontSize}rem` : undefined;
   
-  // Build a map of spanned cells based on rowspan metadata
+  // Build a map of spanned cells based on rowspan and colspan metadata
   const spannedCells = {};
-  data.forEach((row, idx) => {
-    if (!spannedCells[idx]) spannedCells[idx] = {};
-    
-    // Check for any column that has rowspan metadata
-    Object.keys(row).forEach((key) => {
-      const rowspanKey = key + 'Rowspan';
-      if (row[rowspanKey] && row[rowspanKey] > 1) {
-        // Mark subsequent rows as spanned for this column
-        for (let i = 1; i < row[rowspanKey]; i++) {
-          if (!spannedCells[idx + i]) spannedCells[idx + i] = {};
-          spannedCells[idx + i][key] = true;
+  data.forEach((row, rowIdx) => {
+    if (!spannedCells[rowIdx]) spannedCells[rowIdx] = {};
+
+    columns.forEach((key, colIdx) => {
+      const rowSpanCount = Number(row?.[key + 'Rowspan'] ?? 1);
+      const colSpanCount = Number(row?.[key + 'Colspan'] ?? 1);
+
+      for (let r = 0; r < rowSpanCount; r++) {
+        const targetRow = rowIdx + r;
+        if (!spannedCells[targetRow]) spannedCells[targetRow] = {};
+
+        for (let c = 0; c < colSpanCount; c++) {
+          if (r === 0 && c === 0) continue;
+          const targetCol = columns[colIdx + c];
+          if (targetCol) {
+            spannedCells[targetRow][targetCol] = true;
+          }
         }
       }
     });
@@ -116,7 +122,9 @@ const Table = ({
 
               // Check if this row spans multiple rows for this column
               const rowspanKey = col + 'Rowspan';
+              const colspanKey = col + 'Colspan';
               const rowspanAttr = row[rowspanKey] && row[rowspanKey] > 1 ? row[rowspanKey] : undefined;
+              const colspanAttr = row[colspanKey] && row[colspanKey] > 1 ? row[colspanKey] : undefined;
 
               const hasRowPalette = Boolean(row.rowClass || row.rowColor);
               const cellStyle = {
@@ -137,6 +145,7 @@ const Table = ({
                 <td
                   key={col}
                   {...(rowspanAttr && { rowSpan: rowspanAttr })}
+                  {...(colspanAttr && { colSpan: colspanAttr })}
                   className={isEditMode ? 'editable-cell' : ''}
                   style={cellStyle}
                 >

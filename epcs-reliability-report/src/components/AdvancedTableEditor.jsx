@@ -33,9 +33,18 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
         const rowObj = {};
         normalizedColumns.forEach((columnName) => {
           rowObj[columnName] = row[columnName] ?? '';
+          if (row[columnName + '__bold'] !== undefined) {
+            rowObj[columnName + '__bold'] = row[columnName + '__bold'];
+          }
+          if (row[columnName + 'Rowspan'] !== undefined) {
+            rowObj[columnName + 'Rowspan'] = row[columnName + 'Rowspan'];
+          }
+          if (row[columnName + 'Colspan'] !== undefined) {
+            rowObj[columnName + 'Colspan'] = row[columnName + 'Colspan'];
+          }
         });
         // Preserve row-level bold properties
-        if (row.__rowBold) rowObj.__rowBold = row.__rowBold;
+        if (row.__rowBold !== undefined) rowObj.__rowBold = row.__rowBold;
         if (row.__colBolds) rowObj.__colBolds = row.__colBolds;
         // Preserve row styling (colors, classes)
         if (row.rowClass) rowObj.rowClass = row.rowClass;
@@ -145,6 +154,8 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
       const updatedRow = { ...row };
       delete updatedRow[colNameToDelete];
       delete updatedRow[colNameToDelete + '__bold'];
+      delete updatedRow[colNameToDelete + 'Rowspan'];
+      delete updatedRow[colNameToDelete + 'Colspan'];
       return updatedRow;
     });
     // Remove from boldColumns if present
@@ -240,6 +251,18 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
     newTable.rows = newTable.rows.map((row) => {
       const updatedRow = { ...row };
       updatedRow[nextHeader] = updatedRow[oldHeader] ?? '';
+      if (Object.prototype.hasOwnProperty.call(updatedRow, oldHeader + '__bold')) {
+        updatedRow[nextHeader + '__bold'] = updatedRow[oldHeader + '__bold'];
+        delete updatedRow[oldHeader + '__bold'];
+      }
+      if (Object.prototype.hasOwnProperty.call(updatedRow, oldHeader + 'Rowspan')) {
+        updatedRow[nextHeader + 'Rowspan'] = updatedRow[oldHeader + 'Rowspan'];
+        delete updatedRow[oldHeader + 'Rowspan'];
+      }
+      if (Object.prototype.hasOwnProperty.call(updatedRow, oldHeader + 'Colspan')) {
+        updatedRow[nextHeader + 'Colspan'] = updatedRow[oldHeader + 'Colspan'];
+        delete updatedRow[oldHeader + 'Colspan'];
+      }
       delete updatedRow[oldHeader];
       return updatedRow;
     });

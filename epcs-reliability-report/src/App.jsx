@@ -279,6 +279,12 @@ function App() {
         repairedRow.rowClass = sourceRow.rowClass;
         hasRepairs = true;
       }
+      Object.keys(sourceRow).forEach((key) => {
+        if (/(Rowspan|Colspan)$/.test(key) && (repairedRow[key] == null || repairedRow[key] === '')) {
+          repairedRow[key] = sourceRow[key];
+          hasRepairs = true;
+        }
+      });
       return repairedRow;
     });
 
