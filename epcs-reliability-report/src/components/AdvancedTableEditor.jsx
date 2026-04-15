@@ -37,6 +37,9 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
         // Preserve row-level bold properties
         if (row.__rowBold) rowObj.__rowBold = row.__rowBold;
         if (row.__colBolds) rowObj.__colBolds = row.__colBolds;
+        // Preserve row styling (colors, classes)
+        if (row.rowClass) rowObj.rowClass = row.rowClass;
+        if (row.rowColor) rowObj.rowColor = row.rowColor;
         return rowObj;
       }
 
@@ -79,13 +82,12 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
     });
     // New rows start with no bold properties
     newRow.__rowBold = false;
-    const newTable = { ...tableData };
-    
-    if (position === 'top') {
-      newTable.rows = [newRow, ...newTable.rows];
-    } else {
-      newTable.rows = [...newTable.rows, newRow];
-    }
+    // New rows inherit styling from first row if available (optional)
+    const newTable = {
+      columns: tableData.columns,
+      rows: position === 'top' ? [newRow, ...tableData.rows] : [...tableData.rows, newRow],
+      boldColumns: tableData.boldColumns || []
+    };
     
     setTableData(newTable);
     updatePage(newTable);
@@ -113,14 +115,20 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
       newTable.columns = [newColumnName, ...newTable.columns];
       newTable.rows = newTable.rows.map(row => {
         const updated = { [newColumnName]: '', ...row };
+        // Preserve all row properties including styling
         if (row.__rowBold) updated.__rowBold = row.__rowBold;
+        if (row.rowClass) updated.rowClass = row.rowClass;
+        if (row.rowColor) updated.rowColor = row.rowColor;
         return updated;
       });
     } else {
       newTable.columns = [...newTable.columns, newColumnName];
       newTable.rows = newTable.rows.map(row => {
         const updated = { ...row, [newColumnName]: '' };
+        // Preserve all row properties including styling
         if (row.__rowBold) updated.__rowBold = row.__rowBold;
+        if (row.rowClass) updated.rowClass = row.rowClass;
+        if (row.rowColor) updated.rowColor = row.rowColor;
         return updated;
       });
     }
