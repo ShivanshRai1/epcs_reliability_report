@@ -233,6 +233,79 @@ function App() {
 
   const idMatches = (left, right) => String(left ?? '') === String(right ?? '');
 
+  const getTableRows = (table) => {
+    if (!table || typeof table !== 'object') return [];
+    if (Array.isArray(table.rows)) return table.rows;
+    if (Array.isArray(table.data)) return table.data;
+    return [];
+  };
+
+  const getTableRowStyleKey = (row, idx) => {
+    if (!row || typeof row !== 'object') return `idx:${idx}`;
+    return String(
+      row['PART NUMBER'] ??
+      row['Part Number'] ??
+      row['BASE PART'] ??
+      row['Base Part'] ??
+      row.id ??
+      `idx:${idx}`
+    );
+  };
+
+  const restoreMissingTableStyles = (candidatePage, sourcePage) => {
+    if (!candidatePage?.table || !sourcePage?.table) return candidatePage;
+
+    const candidateRows = getTableRows(candidatePage.table);
+    const sourceRows = getTableRows(sourcePage.table);
+    if (!candidateRows.length || !sourceRows.length) return candidatePage;
+
+    const sourceByKey = new Map(
+      sourceRows.map((row, idx) => [getTableRowStyleKey(row, idx), row])
+    );
+
+    let hasRepairs = false;
+    const repairedRows = candidateRows.map((row, idx) => {
+      if (!row || typeof row !== 'object') return row;
+
+      const sourceRow = sourceByKey.get(getTableRowStyleKey(row, idx)) || sourceRows[idx];
+      if (!sourceRow || typeof sourceRow !== 'object') return row;
+
+      const repairedRow = { ...row };
+      if ((repairedRow.rowColor == null || repairedRow.rowColor === '') && sourceRow.rowColor) {
+        repairedRow.rowColor = sourceRow.rowColor;
+        hasRepairs = true;
+      }
+      if ((repairedRow.rowClass == null || repairedRow.rowClass === '') && sourceRow.rowClass) {
+        repairedRow.rowClass = sourceRow.rowClass;
+        hasRepairs = true;
+      }
+      return repairedRow;
+    });
+
+    if (!hasRepairs) return candidatePage;
+
+    if (Array.isArray(candidatePage.table.rows)) {
+      return { ...candidatePage, table: { ...candidatePage.table, rows: repairedRows } };
+    }
+    if (Array.isArray(candidatePage.table.data)) {
+      return { ...candidatePage, table: { ...candidatePage.table, data: repairedRows } };
+    }
+    return candidatePage;
+  };
+
+  const mergeDraftWithFreshPages = (draftData, freshData) => {
+    if (!draftData?.pages || !freshData?.pages) return draftData;
+
+    const freshById = new Map(freshData.pages.map((page) => [String(page?.id ?? ''), page]));
+    return {
+      ...draftData,
+      pages: draftData.pages.map((draftPage) => {
+        const freshPage = freshById.get(String(draftPage?.id ?? ''));
+        return freshPage ? restoreMissingTableStyles(draftPage, freshPage) : draftPage;
+      })
+    };
+  };
+
   const saveReportCache = (data) => {
     try {
       if (!data?.pages || !Array.isArray(data.pages)) return;
@@ -700,7 +773,7 @@ const clearDraftCache = () => {
 
         if (savedDraft?.data?.pages?.length) {
           console.log('📝 Loading saved draft changes for normal mode');
-          transformedData = savedDraft.data;
+          transformedData = mergeDraftWithFreshPages(savedDraft.data, transformedData);
           setSavedDraftPages(new Set(savedDraft.pendingPageIds || []));
           setPendingCreates(savedDraft.pendingCreates || []);
           setPendingDeletes(savedDraft.pendingDeletes || []);
@@ -879,7 +952,7 @@ const clearDraftCache = () => {
 
       // Generic page update from editors like Links/Text/Image/etc.
       if (typeof rowIdxOrPage === 'object' && rowIdxOrPage !== null && colName === undefined) {
-        Object.assign(page, rowIdxOrPage);
+        Object.assign(page, restoreMissingTableStyles(rowIdxOrPage, page));
         return syncIndexPageContent(updated, staticIndexPagesRef.current);
       }
 

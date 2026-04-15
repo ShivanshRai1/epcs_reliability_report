@@ -44,20 +44,7 @@ router.get('/:pageId', async (req, res) => {
       return res.status(404).json({ error: 'Page not found' });
     }
 
-    const page = rows[0];
-    
-    // Debug logging
-    if (page.page_id === 'dla_qualified' && page.page_data && page.page_data.table) {
-      console.log('🔴 API returning DLA page');
-      console.log('🔴 Table has .data:', !!page.page_data.table.data);
-      console.log('🔴 Table has .rows:', !!page.page_data.table.rows);
-      if (page.page_data.table.data && page.page_data.table.data.length > 0) {
-        console.log('🔴 First row from data:', page.page_data.table.data[0]);
-        console.log('🔴 First row has rowColor:', page.page_data.table.data[0].rowColor);
-      }
-    }
-
-    res.json(page);
+    res.json(rows[0]);
   } catch (error) {
     console.error('Error fetching page:', error);
     res.status(500).json({ error: error.message });

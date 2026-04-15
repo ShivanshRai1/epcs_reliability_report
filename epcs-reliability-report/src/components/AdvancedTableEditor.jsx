@@ -3,8 +3,6 @@ import './AdvancedTableEditor.css';
 import { getTemplateBadge } from '../utils/templateInfo.jsx';
 
 const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTextColor = '#1b1f2a' }) => {
-  console.log('🔵 AdvancedTableEditor RENDER - Page:', page.id, 'Has table:', !!page.table);
-  
   // Handle both old (.data) and new (.rows) table structures for backward compatibility
   const getInitialTableData = () => {
     if (!page.table) return { rows: [], columns: [] };
@@ -14,8 +12,6 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
       ? { ...page.table, rows: page.table.data }
       : page.table;
     
-    console.log('📊 Table structure - has .data:', !!table.data, 'has .rows:', !!table.rows);
-    
     const rawColumns = Array.isArray(table.columns) ? table.columns : [];
     const normalizedColumns = rawColumns.map((col, idx) => {
       if (typeof col === 'string') return col;
@@ -24,12 +20,6 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
     });
 
     const rawRows = Array.isArray(table.rows) ? table.rows : [];
-    console.log('🟢 Processing rows - count:', rawRows.length);
-    if (rawRows.length > 0) {
-      console.log('🟢 First row sample:', rawRows[0]);
-      console.log('🟢 First row has rowColor:', !!rawRows[0]?.rowColor, rawRows[0]?.rowColor);
-    }
-    
     const normalizedRows = rawRows.map((row) => {
       if (Array.isArray(row)) {
         const rowObj = {};
@@ -64,9 +54,6 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
       return row;
     });
 
-    console.log('🟡 After normalization - first row:', normalizedRows[0]);
-    console.log('🟡 First normalized row has rowColor:', !!normalizedRows[0]?.rowColor, normalizedRows[0]?.rowColor);
-
     // Ensure both rows and columns exist as arrays in normalized shape
     return {
       rows: normalizedRows,
@@ -79,20 +66,6 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
   const [captionTop, setCaptionTop] = useState(page.captionTop || '');
   const [captionBottom, setCaptionBottom] = useState(page.captionBottom || '');
   const [selectedCell, setSelectedCell] = useState(null);
-
-  // Debug: log table data on mount
-  useEffect(() => {
-    console.log('=== AdvancedTableEditor Debug ===');
-    console.log('Page ID:', page.id);
-    console.log('Table data rows:', tableData.rows?.length);
-    if (tableData.rows && tableData.rows.length > 0) {
-      tableData.rows.forEach((row, idx) => {
-        if (row.rowColor) {
-          console.log(`Row ${idx} has color: ${row.rowColor}`);
-        }
-      });
-    }
-  }, [page.id, tableData.rows]);
 
   useEffect(() => {
     setTitle(page.title || '');
