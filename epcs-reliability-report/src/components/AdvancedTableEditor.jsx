@@ -34,6 +34,9 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
         normalizedColumns.forEach((columnName) => {
           rowObj[columnName] = row[columnName] ?? '';
         });
+        // Preserve row-level bold properties
+        if (row.__rowBold) rowObj.__rowBold = row.__rowBold;
+        if (row.__colBolds) rowObj.__colBolds = row.__colBolds;
         return rowObj;
       }
 
@@ -42,6 +45,10 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
         emptyRow[columnName] = '';
       });
       return emptyRow;
+    }).map((row) => {
+      // Ensure every row has the bold properties initialized if missing
+      if (!row.__rowBold) row.__rowBold = false;
+      return row;
     });
 
     // Ensure both rows and columns exist as arrays in normalized shape
@@ -70,6 +77,8 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
     (tableData.columns || []).forEach((columnName) => {
       newRow[columnName] = '';
     });
+    // New rows start with no bold properties
+    newRow.__rowBold = false;
     const newTable = { ...tableData };
     
     if (position === 'top') {
@@ -83,23 +92,37 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
   };
 
   const handleDeleteRow = (rowIdx) => {
-    const newTable = { ...tableData };
-    newTable.rows = newTable.rows.filter((_, i) => i !== rowIdx);
+    const newTable = {
+      columns: tableData.columns,
+      rows: tableData.rows.filter((_, i) => i !== rowIdx),
+      boldColumns: tableData.boldColumns || []
+    };
     setTableData(newTable);
     updatePage(newTable);
   };
 
   const handleAddColumn = (position = 'right') => {
-    const newTable = { ...tableData };
-    newTable.columns = [...(newTable.columns || [])];
+    const newTable = {
+      columns: [...(tableData.columns || [])],
+      rows: tableData.rows.map(row => ({ ...row })),
+      boldColumns: tableData.boldColumns || []
+    };
     const newColumnName = `Column ${(newTable.columns || []).length + 1}`;
     
     if (position === 'left') {
       newTable.columns = [newColumnName, ...newTable.columns];
-      newTable.rows = newTable.rows.map(row => ({ [newColumnName]: '', ...row }));
+      newTable.rows = newTable.rows.map(row => {
+        const updated = { [newColumnName]: '', ...row };
+        if (row.__rowBold) updated.__rowBold = row.__rowBold;
+        return updated;
+      });
     } else {
       newTable.columns = [...newTable.columns, newColumnName];
-      newTable.rows = newTable.rows.map(row => ({ ...row, [newColumnName]: '' }));
+      newTable.rows = newTable.rows.map(row => {
+        const updated = { ...row, [newColumnName]: '' };
+        if (row.__rowBold) updated.__rowBold = row.__rowBold;
+        return updated;
+      });
     }
     
     setTableData(newTable);
@@ -353,6 +376,7 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
         <table className="editable-table">
           <thead>
             <tr>
+              <th className="row-action-header">Actions</th>
               {tableData.columns && tableData.columns.map((col, colIdx) => (
                 <th key={colIdx}>
                   <div className="header-cell">
@@ -380,12 +404,27 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
                   </div>
                 </th>
               ))}
-              <th className="row-action-header">Actions</th>
             </tr>
           </thead>
           <tbody>
             {tableData.rows && tableData.rows.map((row, rowIdx) => (
               <tr key={rowIdx} className={selectedCell?.row === rowIdx ? 'selected-row' : ''}>
+                <td className="row-action">
+                  <button
+                    className={`bold-row-btn${row?.__rowBold ? ' bold-active' : ''}`}
+                    onClick={() => handleToggleRowBold(rowIdx)}
+                    title="Toggle bold for entire row"
+                  >
+                    B row
+                  </button>
+                  <button
+                    className="delete-row-btn"
+                    onClick={() => handleDeleteRow(rowIdx)}
+                    title="Delete row"
+                  >
+                    🗑 Delete
+                  </button>
+                </td>
                 {(tableData.columns || []).map((colName, colIdx) => (
                   <td key={`${rowIdx}-${colIdx}`}>
                     <div className="cell-with-bold">
@@ -406,22 +445,6 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
                     </div>
                   </td>
                 ))}
-                <td className="row-action">
-                  <button
-                    className={`bold-row-btn${row?.__rowBold ? ' bold-active' : ''}`}
-                    onClick={() => handleToggleRowBold(rowIdx)}
-                    title="Toggle bold for entire row"
-                  >
-                    B row
-                  </button>
-                  <button
-                    className="delete-row-btn"
-                    onClick={() => handleDeleteRow(rowIdx)}
-                    title="Delete row"
-                  >
-                    🗑 Delete
-                  </button>
-                </td>
               </tr>
             ))}
           </tbody>
