@@ -47,7 +47,8 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
     // Ensure both rows and columns exist as arrays in normalized shape
     return {
       rows: normalizedRows,
-      columns: normalizedColumns
+      columns: normalizedColumns,
+      boldColumns: Array.isArray(table.boldColumns) ? table.boldColumns : []
     };
   };
   
@@ -124,33 +125,42 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
   };
 
   const handleToggleCellBold = (rowIdx, colName) => {
-    const newTable = { ...tableData };
-    const key = colName + '__bold';
-    newTable.rows = newTable.rows.map((row, i) => {
-      if (i !== rowIdx) return row;
-      return { ...row, [key]: !row[key] };
-    });
+    const newTable = {
+      columns: tableData.columns,
+      rows: tableData.rows.map((row, i) => {
+        if (i !== rowIdx) return row;
+        const key = colName + '__bold';
+        return { ...row, [key]: !row[key] };
+      }),
+      boldColumns: tableData.boldColumns || []
+    };
     setTableData(newTable);
     updatePage(newTable);
   };
 
   const handleToggleRowBold = (rowIdx) => {
-    const newTable = { ...tableData };
-    newTable.rows = newTable.rows.map((row, i) => {
-      if (i !== rowIdx) return row;
-      return { ...row, __rowBold: !row.__rowBold };
-    });
+    const newTable = {
+      columns: tableData.columns,
+      rows: tableData.rows.map((row, i) => {
+        if (i !== rowIdx) return row;
+        return { ...row, __rowBold: !row.__rowBold };
+      }),
+      boldColumns: tableData.boldColumns || []
+    };
     setTableData(newTable);
     updatePage(newTable);
   };
 
   const handleToggleColumnBold = (colName) => {
-    const newTable = { ...tableData };
-    const boldCols = Array.isArray(newTable.boldColumns) ? [...newTable.boldColumns] : [];
+    const boldCols = Array.isArray(tableData.boldColumns) ? [...tableData.boldColumns] : [];
     const idx = boldCols.indexOf(colName);
     if (idx === -1) boldCols.push(colName);
     else boldCols.splice(idx, 1);
-    newTable.boldColumns = boldCols;
+    const newTable = {
+      columns: tableData.columns,
+      rows: tableData.rows,
+      boldColumns: boldCols
+    };
     setTableData(newTable);
     updatePage(newTable);
   };

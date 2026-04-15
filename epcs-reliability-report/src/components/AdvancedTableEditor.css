@@ -300,11 +300,13 @@
 .cell-with-bold {
   display: flex;
   align-items: stretch;
+  min-width: 140px;
 }
 
 .cell-with-bold .cell-input {
   flex: 1;
-  min-width: 0;
+  min-width: 90px;
+  min-width: 90px;
 }
 
 .cell-with-bold .bold-cell-btn {
@@ -316,12 +318,16 @@
 
 /* Row action column: stack bold + delete vertically */
 .row-action {
+  background: #f0f0f0;
+  border-right: none;
+  padding: 4px;
+  min-width: 130px;
+  text-align: center;
   display: flex;
   flex-direction: column;
   gap: 4px;
   align-items: center;
   justify-content: center;
-  padding: 4px 6px;
 }
 /* Light mode support */
 @media (prefers-color-scheme: light) {
