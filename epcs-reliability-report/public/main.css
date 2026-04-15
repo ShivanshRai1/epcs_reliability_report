@@ -1010,6 +1010,37 @@
 .x16{left:789.075320pt;}
 .x22{left:798.838585pt;}
 .x15{left:803.241987pt;}
+
+/* Row color styling for table pages */
+tr.row-light-blue,
+tr.row-light-blue td {
+  background: #add8e6 !important;
+  color: #000 !important;
+}
+
+tr.row-cyan,
+tr.row-cyan td {
+  background: #87ceeb !important;
+  color: #000 !important;
+}
+
+tr.row-green,
+tr.row-green td {
+  background: #90ee90 !important;
+  color: #000 !important;
+}
+
+tr.row-beige,
+tr.row-beige td {
+  background: #f5f5dc !important;
+  color: #000 !important;
+}
+
+tr.row-pink,
+tr.row-pink td {
+  background: #ffb6d9 !important;
+  color: #000 !important;
+}
 .x4b{left:849.147135pt;}
 .x2e{left:867.230794pt;}
 .x17{left:881.849904pt;}
