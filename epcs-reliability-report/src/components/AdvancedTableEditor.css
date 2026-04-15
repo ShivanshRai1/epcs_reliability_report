@@ -188,33 +188,33 @@
   background: #f0f6ff;
 }
 
-/* Row color styling for editor mode */
-.editable-table tbody tr.row-light-blue,
-.editable-table tbody tr.row-light-blue td {
+/* Row color styling for editor mode - must have same specificity as nth-child selectors */
+.advanced-table-editor .editable-table tbody tr.row-light-blue,
+.advanced-table-editor .editable-table tbody tr.row-light-blue td {
   background: #add8e6 !important;
   color: #000 !important;
 }
 
-.editable-table tbody tr.row-cyan,
-.editable-table tbody tr.row-cyan td {
+.advanced-table-editor .editable-table tbody tr.row-cyan,
+.advanced-table-editor .editable-table tbody tr.row-cyan td {
   background: #87ceeb !important;
   color: #000 !important;
 }
 
-.editable-table tbody tr.row-green,
-.editable-table tbody tr.row-green td {
+.advanced-table-editor .editable-table tbody tr.row-green,
+.advanced-table-editor .editable-table tbody tr.row-green td {
   background: #90ee90 !important;
   color: #000 !important;
 }
 
-.editable-table tbody tr.row-beige,
-.editable-table tbody tr.row-beige td {
+.advanced-table-editor .editable-table tbody tr.row-beige,
+.advanced-table-editor .editable-table tbody tr.row-beige td {
   background: #f5f5dc !important;
   color: #000 !important;
 }
 
-.editable-table tbody tr.row-pink,
-.editable-table tbody tr.row-pink td {
+.advanced-table-editor .editable-table tbody tr.row-pink,
+.advanced-table-editor .editable-table tbody tr.row-pink td {
   background: #ffb6d9 !important;
   color: #000 !important;
 }
