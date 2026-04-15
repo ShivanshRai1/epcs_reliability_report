@@ -438,8 +438,11 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
             </tr>
           </thead>
           <tbody>
-            {tableData.rows && tableData.rows.map((row, rowIdx) => (
-              <tr key={rowIdx} className={selectedCell?.row === rowIdx ? 'selected-row' : ''}>
+            {tableData.rows && tableData.rows.map((row, rowIdx) => {
+              const rowColorClass = row?.rowClass || row?.rowColor ? `row-${String(row.rowClass || row.rowColor).replace(/^row-/, '')}` : '';
+              const trClassName = `${selectedCell?.row === rowIdx ? 'selected-row' : ''} ${rowColorClass}`.trim();
+              return (
+              <tr key={rowIdx} className={trClassName}>
                 <td className="row-action">
                   <button
                     className={`bold-row-btn${row?.__rowBold ? ' bold-active' : ''}`}
@@ -477,7 +480,8 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
                   </td>
                 ))}
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>
