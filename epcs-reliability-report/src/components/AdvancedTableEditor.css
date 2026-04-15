@@ -188,6 +188,37 @@
   background: #f0f6ff;
 }
 
+/* Row color styling for editor mode */
+.editable-table tbody tr.row-light-blue,
+.editable-table tbody tr.row-light-blue td {
+  background: #add8e6 !important;
+  color: #000 !important;
+}
+
+.editable-table tbody tr.row-cyan,
+.editable-table tbody tr.row-cyan td {
+  background: #87ceeb !important;
+  color: #000 !important;
+}
+
+.editable-table tbody tr.row-green,
+.editable-table tbody tr.row-green td {
+  background: #90ee90 !important;
+  color: #000 !important;
+}
+
+.editable-table tbody tr.row-beige,
+.editable-table tbody tr.row-beige td {
+  background: #f5f5dc !important;
+  color: #000 !important;
+}
+
+.editable-table tbody tr.row-pink,
+.editable-table tbody tr.row-pink td {
+  background: #ffb6d9 !important;
+  color: #000 !important;
+}
+
 .editable-table td {
   padding: 0;
   border-right: 1px solid #dee2e6;
@@ -206,6 +237,18 @@
   color: var(--ate-cell-text-color, #1b1f2a) !important;
   -webkit-text-fill-color: var(--ate-cell-text-color, #1b1f2a);
   caret-color: var(--ate-cell-text-color, #1b1f2a);
+}
+
+/* Cell inputs in colored rows should inherit background */
+.editable-table tbody tr.row-light-blue .cell-input,
+.editable-table tbody tr.row-cyan .cell-input,
+.editable-table tbody tr.row-green .cell-input,
+.editable-table tbody tr.row-beige .cell-input,
+.editable-table tbody tr.row-pink .cell-input {
+  background: inherit !important;
+  color: #000 !important;
+  -webkit-text-fill-color: #000;
+  caret-color: #000;
 }
 
 .cell-input::placeholder,
