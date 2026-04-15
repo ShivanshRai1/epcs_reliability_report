@@ -67,6 +67,20 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
   const [captionBottom, setCaptionBottom] = useState(page.captionBottom || '');
   const [selectedCell, setSelectedCell] = useState(null);
 
+  // Debug: log table data on mount
+  useEffect(() => {
+    console.log('=== AdvancedTableEditor Debug ===');
+    console.log('Page ID:', page.id);
+    console.log('Table data rows:', tableData.rows?.length);
+    if (tableData.rows && tableData.rows.length > 0) {
+      tableData.rows.forEach((row, idx) => {
+        if (row.rowColor) {
+          console.log(`Row ${idx} has color: ${row.rowColor}`);
+        }
+      });
+    }
+  }, [page.id, tableData.rows]);
+
   useEffect(() => {
     setTitle(page.title || '');
     setTableData(getInitialTableData());
