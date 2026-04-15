@@ -147,6 +147,24 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
     updatePage(newTable);
   };
 
+  const handleToggleTableBold = () => {
+    // Check if ALL rows and columns are bold
+    const allRowsBold = tableData.rows?.every(row => row.__rowBold);
+    const allColsBold = tableData.columns?.every(col => tableData.boldColumns?.includes(col));
+    const allBold = allRowsBold && allColsBold;
+    
+    // Toggle: if all bold, turn all off; if any not bold, turn all on
+    const newBoldState = !allBold;
+    
+    const newTable = {
+      columns: tableData.columns,
+      rows: tableData.rows.map(row => ({ ...row, __rowBold: newBoldState })),
+      boldColumns: newBoldState ? [...(tableData.columns || [])] : []
+    };
+    setTableData(newTable);
+    updatePage(newTable);
+  };
+
   const handleToggleCellBold = (rowIdx, colName) => {
     const newTable = {
       columns: tableData.columns,
@@ -367,6 +385,11 @@ const AdvancedTableEditor = ({ page, onChange, textColor = '#e0e6f0', contentTex
           </button>
           <button onClick={() => handleAddColumn('right')} className="control-btn" title="Add column at right">
             Col Right ➡
+          </button>
+        </div>
+        <div className="control-group">
+          <button onClick={handleToggleTableBold} className="control-btn" title="Toggle bold for entire table">
+            ⭐ Table Bold
           </button>
         </div>
       </div>

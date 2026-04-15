@@ -222,6 +222,7 @@
 .advanced-table-editor .editable-table th,
 .advanced-table-editor .row-action-header {
   color: var(--ate-header-text-color, #f3f7ff) !important;
+  font-weight: bold;
 }
 
 .cell-input.bold-text {
