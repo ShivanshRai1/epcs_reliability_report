@@ -14,11 +14,14 @@ async function checkPage() {
 
   try {
     const [rows] = await connection.query(
-      `SELECT id, title, page_id, page_data FROM pages WHERE page_id = 'dla_qualified' OR title LIKE '%DLA QUALIFIED%'`
+      `SELECT id, title, page_id, page_type, page_data FROM pages WHERE page_id = 'dla_qualified' OR title LIKE '%DLA QUALIFIED%'`
     );
     
     if (rows.length > 0) {
       console.log('Found page:', rows[0].id, rows[0].title);
+      console.log('Page type:', rows[0].page_type);
+      console.log('Page ID:', rows[0].page_id);
+      
       const data = typeof rows[0].page_data === 'string' 
         ? JSON.parse(rows[0].page_data) 
         : rows[0].page_data;
