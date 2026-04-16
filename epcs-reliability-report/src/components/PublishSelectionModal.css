@@ -76,8 +76,9 @@
 .publish-selection-modal .page-title {
   flex: 1;
   font-size: 14px;
-  color: #333;
+  color: #000000;
   user-select: none;
+  font-weight: 500;
 }
 
 .publish-selection-modal .dialog-actions {
