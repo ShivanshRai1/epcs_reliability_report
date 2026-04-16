@@ -1924,6 +1924,7 @@ const clearDraftCache = () => {
       const deletedPosIdx = sortedBefore.findIndex(p => idMatches((p.id || p.page_id || p.pageId), resolvedPageId));
       // One position back in the sorted list; clamp to 0 so first-page deletion goes to index
       const targetPosIdx = Math.max(0, deletedPosIdx - 1);
+      setIsEditMode(false);
       navigate(`/page/${targetPosIdx + 1}`);
       
            // NEW: Track in pendingDeletes (will sync on Publish)
