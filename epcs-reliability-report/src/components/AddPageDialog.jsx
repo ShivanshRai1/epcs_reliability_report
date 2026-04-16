@@ -355,7 +355,8 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       return;
     }
 
-    const cloneSource = getSamplePageForTemplate(templateId);
+    const isTextOnly = templateId === 'text-only';
+    const cloneSource = isTextOnly ? null : getSamplePageForTemplate(templateId);
     const cloneSourcePageId = cloneSource?.id || null;
     const cloneSourcePageData = cloneSource ? JSON.parse(JSON.stringify(cloneSource)) : null;
 
@@ -376,11 +377,14 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       // NEW: Create draft page locally (skip backend)
       const draftPage = {
         id: `page_${Date.now()}`,
-        title: title,
+        title: isTextOnly ? 'text page' : title,
         pageType: getPageTypeForTemplate(templateId),
         pageTemplate: createTemplateId,
         _isDraftNew: true,
-        _draftTemplateId: createTemplateId
+        _draftTemplateId: createTemplateId,
+        ...(isTextOnly && {
+          content: 'Enter your text content here. This is a sample paragraph you can edit or replace with your own content.'
+        })
       };
 
       console.log('✅ Page added to draft (will sync on Publish):', draftPage);
