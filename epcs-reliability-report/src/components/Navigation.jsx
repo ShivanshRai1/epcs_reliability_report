@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const Navigation = ({ onNavigate, isEditMode, isLiveMode, publishStatusLabel, onEditToggle, onToggleLive, onUndo, onPublish, onSave, onCancel, onAddPage, onDeletePage, onManagePages, currentPageId, currentPageNumber, totalPages, isTestMode, isSeedingTestData, isPublishingTestData, onToggleTestMode, onSeedTestData, onPublishTestData, onRestoreOriginal, isRestoringOriginal }) => {
+const Navigation = ({ onNavigate, isEditMode, isLiveMode, publishStatusLabel, onEditToggle, onToggleLive, onUndo, onPublish, onSave, onCancel, onAddPage, onDeletePage, onManagePages, currentPageId, currentPageNumber, totalPages, isPublishing, isTestMode, isSeedingTestData, isPublishingTestData, onToggleTestMode, onSeedTestData, onPublishTestData, onRestoreOriginal, isRestoringOriginal }) => {
   const showTestSyncButtons = false;
   const [isJumpMode, setIsJumpMode] = useState(false);
   const [jumpPageNumber, setJumpPageNumber] = useState(currentPageNumber?.toString() || '');
@@ -131,7 +131,7 @@ const Navigation = ({ onNavigate, isEditMode, isLiveMode, publishStatusLabel, on
           <button className="section-list-btn edit-add" onClick={onAddPage} title="Add a page after the current page">➕ Add Page</button>
           <button className="section-list-btn edit-delete" onClick={onDeletePage} title="Delete this page">🗑 Delete Page</button>
           <button className="section-list-btn edit-save" onClick={onSave} title="Save current edits without publishing">💾 Save</button>
-          <button className="section-list-btn edit-publish" onClick={onPublish} title="Publish saved changes to live preview">🚀 Publish Changes</button>
+          <button className="section-list-btn edit-publish" onClick={onPublish} disabled={isPublishing} title={isPublishing ? 'Publishing changes...' : 'Publish saved changes to live preview'}>{isPublishing ? '⏳ Publishing...' : '🚀 Publish Changes'}</button>
           <button className="section-list-btn edit-cancel" onClick={onCancel} title="Discard unsaved edits">❌ Cancel Editing</button>
         </div>
       )}

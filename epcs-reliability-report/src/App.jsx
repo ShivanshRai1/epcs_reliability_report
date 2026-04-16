@@ -236,6 +236,27 @@ function App() {
   };
 
   const idMatches = (left, right) => String(left ?? '') === String(right ?? '');
+  const normalizeComparableText = (value) => String(value ?? '').trim().replace(/\s+/g, ' ').toLowerCase();
+
+  const isAlreadyPublishedPage = (draftPage, backendPages = []) => {
+    const draftNumber = normalizeComparableText(draftPage?.pageNumber);
+    const draftTitle = normalizeComparableText(draftPage?.title || draftPage?.heading);
+
+    return backendPages.some((backendPage) => {
+      if (backendPage?._isDraftNew) return false;
+
+      const backendNumber = normalizeComparableText(backendPage?.pageNumber);
+      const backendTitle = normalizeComparableText(backendPage?.title || backendPage?.heading);
+      const numberMatches = draftNumber && backendNumber === draftNumber;
+      const titleMatches = draftTitle && backendTitle === draftTitle;
+
+      if (draftNumber && draftTitle) {
+        return numberMatches && titleMatches;
+      }
+
+      return Boolean(numberMatches || titleMatches);
+    });
+  };
 
   const getTableRows = (table) => {
     if (!table || typeof table !== 'object') return [];
@@ -784,28 +805,49 @@ const clearDraftCache = () => {
         if (savedDraft?.data?.pages?.length) {
           console.log('📝 Loading saved draft changes for normal mode');
           transformedData = mergeDraftWithFreshPages(savedDraft.data, transformedData);
-          setSavedDraftPages(new Set(savedDraft.pendingPageIds || []));
-          
-          // Clean up pendingCreates: remove any draft pages that already exist in backend
-          const cleanedPendingCreates = (savedDraft.pendingCreates || []).filter(draftPage => {
-            // Check if this draft page already exists in the fresh backend data
-            // Match primarily by pageNumber (more reliable than title which can have formatting differences)
-            const existsInBackend = transformedData.pages.some(backendPage => 
-              backendPage.pageNumber === draftPage.pageNumber &&
-              !backendPage._isDraftNew
-            );
-            
-            if (existsInBackend) {
-              console.log(`🧹 Auto-removing published draft page: ${draftPage.title} (Page ${draftPage.pageNumber})`);
-            }
-            
-            // Only keep draft pages that DON'T exist in backend
-            return !existsInBackend;
-          });
-          
+
+          const savedPendingCreates = Array.isArray(savedDraft.pendingCreates) ? savedDraft.pendingCreates : [];
+          const removedPublishedCreateIds = new Set(
+            savedPendingCreates
+              .filter((draftPage) => isAlreadyPublishedPage(draftPage, transformedData.pages))
+              .map((draftPage) => String(draftPage?.id ?? ''))
+          );
+
+          const cleanedPendingCreates = savedPendingCreates.filter(
+            (draftPage) => !removedPublishedCreateIds.has(String(draftPage?.id ?? ''))
+          );
+          const cleanedPendingPageIds = (savedDraft.pendingPageIds || []).filter(
+            (pageId) => !removedPublishedCreateIds.has(String(pageId ?? ''))
+          );
+
+          if (removedPublishedCreateIds.size > 0) {
+            transformedData = {
+              ...transformedData,
+              pages: transformedData.pages.filter(
+                (page) => !removedPublishedCreateIds.has(String(page?.id ?? ''))
+              )
+            };
+            console.log(`🧹 Auto-removed ${removedPublishedCreateIds.size} published draft page(s)`);
+          }
+
+          setSavedDraftPages(new Set(cleanedPendingPageIds));
           setPendingCreates(cleanedPendingCreates);
           setPendingDeletes(savedDraft.pendingDeletes || []);
           setPendingReorder(savedDraft.pendingReorder || null);
+
+          if (removedPublishedCreateIds.size > 0) {
+            if (cleanedPendingPageIds.length || cleanedPendingCreates.length || (savedDraft.pendingDeletes || []).length || savedDraft.pendingReorder) {
+              saveDraftCache(
+                transformedData,
+                cleanedPendingPageIds,
+                cleanedPendingCreates,
+                savedDraft.pendingDeletes || [],
+                savedDraft.pendingReorder || null
+              );
+            } else {
+              clearDraftCache();
+            }
+          }
         } else {
           setSavedDraftPages(new Set());
           setPendingCreates([]);
@@ -1180,7 +1222,6 @@ const clearDraftCache = () => {
   };
 
       const confirmPublish = async () => {
-    setIsPublishDialogOpen(false);
     setIsPublishing(true);
 
     try {
@@ -1288,16 +1329,9 @@ const clearDraftCache = () => {
       
       // IMPORTANT: Filter out draft pages that were actually published (now exist in fresh backend)
       // This handles the case where a page was published but still lingering in pendingCreates with old draft ID
-      remainingPendingCreates = remainingPendingCreates.filter(draftPage => {
-        // Check if this draft page already exists in fresh backend data
-        // Match primarily by pageNumber (more reliable than title which can have formatting differences)
-        const existsInBackend = syncedFreshData.pages.some(backendPage => 
-          backendPage.pageNumber === draftPage.pageNumber &&
-          !backendPage._isDraftNew
-        );
-        // Only keep draft pages that DON'T exist in backend
-        return !existsInBackend;
-      });
+      remainingPendingCreates = remainingPendingCreates.filter(
+        (draftPage) => !isAlreadyPublishedPage(draftPage, syncedFreshData.pages)
+      );
       
       const remainingPendingDeletes = pendingDeletes.filter(id => !selection.deletedPages.has(id));
       const remainingDraftDeleted = reportData.pages
@@ -1361,14 +1395,13 @@ const clearDraftCache = () => {
         setPendingReorder(remainingReorder);
 
         // Save remaining draft to cache
-        saveDraftCache({
-          changedPages: Array.from(remainingChangedPages),
-          savedDraftPages: Array.from(remainingSavedDraftPages),
-          pendingCreates: remainingPendingCreates,
-          pendingDeletes: allRemainingDeletes,
-          pendingReorder: remainingReorder,
-          reportData: mergedData
-        });
+        saveDraftCache(
+          mergedData,
+          Array.from(new Set([...remainingSavedDraftPages, ...remainingChangedPages])),
+          remainingPendingCreates,
+          allRemainingDeletes,
+          remainingReorder
+        );
 
         console.log('✅ Selected changes published, remaining changes kept in draft');
       } else {
@@ -1400,6 +1433,7 @@ const clearDraftCache = () => {
       console.error('Error publishing changes:', err);
       window.alert(`Failed to publish changes: ${err.message}`);
     } finally {
+      setIsPublishDialogOpen(false);
       setIsPublishing(false);
     }
   };
@@ -2075,7 +2109,7 @@ const clearDraftCache = () => {
       />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/page/:pageId" element={<ReportPage reportData={displayData} isEditMode={isEditMode} hasUnsavedChanges={changedPages.size > 0} publishStatusLabel={publishStatusLabel} onEditToggle={handleEditToggle} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} isTestMode={isTestMode} isSeedingTestData={isSeedingTestData} isPublishingTestData={isPublishingTestData} onToggleTestMode={handleToggleTestMode} onSeedTestData={handleSeedTestData} onPublishTestData={handlePublishTestData} onRestoreOriginal={handleRestoreOriginalData} isRestoringOriginal={isRestoringOriginal} />} />
+        <Route path="/page/:pageId" element={<ReportPage reportData={displayData} isEditMode={isEditMode} hasUnsavedChanges={changedPages.size > 0} publishStatusLabel={publishStatusLabel} onEditToggle={handleEditToggle} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} isPublishing={isPublishing} isTestMode={isTestMode} isSeedingTestData={isSeedingTestData} isPublishingTestData={isPublishingTestData} onToggleTestMode={handleToggleTestMode} onSeedTestData={handleSeedTestData} onPublishTestData={handlePublishTestData} onRestoreOriginal={handleRestoreOriginalData} isRestoringOriginal={isRestoringOriginal} />} />
         <Route path="*" element={<div className="App"><p>Page not found</p></div>} />
       </Routes>
     </>
