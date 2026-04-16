@@ -1308,7 +1308,8 @@ const clearDraftCache = () => {
         .filter(p => p._isDraftDeleted)
         .map(p => p.id);
       const allDeleteIds = [...new Set([...pendingDeletes, ...deletedPageIds])]
-        .filter(pageId => selection.deletedPages.has(pageId));
+        .filter(pageId => selection.deletedPages.has(pageId))
+        .filter(pageId => !/^page_\d+$/.test(String(pageId ?? ''))); // skip draft-only local IDs (never on backend)
       
       for (const pageId of allDeleteIds) {
         await apiService.deletePage(pageId);
