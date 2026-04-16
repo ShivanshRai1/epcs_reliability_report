@@ -44,6 +44,7 @@ function App() {
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
   const [isPublishSelectionModalOpen, setIsPublishSelectionModalOpen] = useState(false);
   const [selectedPublishChanges, setSelectedPublishChanges] = useState(null);
+  const [isPublishing, setIsPublishing] = useState(false);
   const [isTestMode, setIsTestMode] = useState(() => apiService.getTestModeState().enabled);
   const [isSeedingTestData, setIsSeedingTestData] = useState(false);
   const [isPublishingTestData, setIsPublishingTestData] = useState(false);
@@ -1162,6 +1163,7 @@ const clearDraftCache = () => {
 
       const confirmPublish = async () => {
     setIsPublishDialogOpen(false);
+    setIsPublishing(true);
 
     try {
       // Determine which changes to publish based on selection
@@ -1360,15 +1362,13 @@ const clearDraftCache = () => {
 
       // Navigate to index page to avoid "Page not found" after structural changes
       navigate('/page/1');
-      setPageUndoHistory({});
-
-      // Navigate to index page to avoid "Page not found" after structural changes
-      navigate('/page/1');
 
       console.log('✅ All changes published to backend');
     } catch (err) {
       console.error('Error publishing changes:', err);
       window.alert(`Failed to publish changes: ${err.message}`);
+    } finally {
+      setIsPublishing(false);
     }
   };
 
@@ -2029,6 +2029,7 @@ const clearDraftCache = () => {
         isOpen={isPublishDialogOpen}
         onConfirm={confirmPublish}
         onCancel={() => setIsPublishDialogOpen(false)}
+        isPublishing={isPublishing}
       />
       <PageManagerModal
         isOpen={isPageManagerOpen}

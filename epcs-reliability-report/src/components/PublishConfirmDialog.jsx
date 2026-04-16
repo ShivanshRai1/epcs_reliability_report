@@ -2,7 +2,7 @@ import React from 'react';
 import Modal from './Modal';
 import './PublishConfirmDialog.css';
 
-const PublishConfirmDialog = ({ isOpen, onConfirm, onCancel }) => {
+const PublishConfirmDialog = ({ isOpen, onConfirm, onCancel, isPublishing }) => {
   return (
     <Modal isOpen={isOpen} onClose={onCancel}>
       <div className="publish-confirm-dialog">
@@ -17,11 +17,11 @@ const PublishConfirmDialog = ({ isOpen, onConfirm, onCancel }) => {
         </p>
 
         <div className="dialog-actions">
-          <button className="btn-cancel" onClick={onCancel}>
+          <button className="btn-cancel" onClick={onCancel} disabled={isPublishing}>
             Cancel
           </button>
-          <button className="btn-publish" onClick={onConfirm}>
-            Publish
+          <button className="btn-publish" onClick={onConfirm} disabled={isPublishing}>
+            {isPublishing ? 'Publishing...' : 'Publish'}
           </button>
         </div>
       </div>

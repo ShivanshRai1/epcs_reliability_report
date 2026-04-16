@@ -20,6 +20,16 @@ const PublishSelectionModal = ({
     reorder: false
   });
 
+  // Helper function to format page display with number and type
+  const formatPageDisplay = (page) => {
+    const pageNumber = page.pageNumber || '?';
+    const pageType = page.pageType || page.pageTemplate || 'Content';
+    // Capitalize first letter of page type
+    const formattedType = pageType.charAt(0).toUpperCase() + pageType.slice(1);
+    const title = page.title || page.heading || 'Untitled Page';
+    return `Page ${pageNumber} (${formattedType}) - ${title}`;
+  };
+
   // Initialize all changes as selected by default
   useEffect(() => {
     if (!isOpen) return;
@@ -139,7 +149,7 @@ const PublishSelectionModal = ({
                       checked={selectedChanges.editedPages.has(page.id)}
                       onChange={() => toggleEditedPage(page.id)}
                     />
-                    <span className="page-title">{page.title || page.heading || 'Untitled Page'}</span>
+                    <span className="page-title">{formatPageDisplay(page)}</span>
                   </label>
                 ))}
               </div>
@@ -158,7 +168,7 @@ const PublishSelectionModal = ({
                       checked={selectedChanges.newPages.has(page.id)}
                       onChange={() => toggleNewPage(page.id)}
                     />
-                    <span className="page-title">{page.title || page.heading || 'Untitled Page'}</span>
+                    <span className="page-title">{formatPageDisplay(page)}</span>
                   </label>
                 ))}
               </div>
@@ -177,7 +187,7 @@ const PublishSelectionModal = ({
                       checked={selectedChanges.deletedPages.has(page.id)}
                       onChange={() => toggleDeletedPage(page.id)}
                     />
-                    <span className="page-title">{page.title || page.heading || 'Untitled Page'}</span>
+                    <span className="page-title">{formatPageDisplay(page)}</span>
                   </label>
                 ))}
               </div>
