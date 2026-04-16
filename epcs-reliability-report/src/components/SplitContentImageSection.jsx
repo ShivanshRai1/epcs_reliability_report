@@ -404,10 +404,13 @@ export default function SplitContentImageSection({
       }
 
       return (
-        <div
-          className="split-left-content-text"
-          style={{ fontFamily: fontFamilyData, fontSize: `${contentFontSizeData}rem`, color: contentTextColorData }}
-          dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(leftContentData || '') }}
+        <ContentSection
+          content={leftContentData || ''}
+          isEditing={false}
+          fontFamily={fontFamilyData}
+          contentFontSize={contentFontSizeData}
+          contentTextColor={contentTextColorData}
+          contentAlign="left"
         />
       );
     }
@@ -502,10 +505,13 @@ export default function SplitContentImageSection({
         );
       }
       return (
-        <div
-          className="split-left-content-text"
-          style={{ fontFamily: fontFamilyData, fontSize: `${contentFontSizeData}rem`, color: contentTextColorData }}
-          dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(leftContentData) }}
+        <ContentSection
+          content={leftContentData}
+          isEditing={false}
+          fontFamily={fontFamilyData}
+          contentFontSize={contentFontSizeData}
+          contentTextColor={contentTextColorData}
+          contentAlign="left"
         />
       );
     }
