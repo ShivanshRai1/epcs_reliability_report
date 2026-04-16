@@ -21,7 +21,14 @@ const PublishConfirmDialog = ({ isOpen, onConfirm, onCancel, isPublishing }) => 
             Cancel
           </button>
           <button className="btn-publish" onClick={onConfirm} disabled={isPublishing}>
-            {isPublishing ? 'Publishing...' : 'Publish'}
+            {isPublishing ? (
+              <>
+                <span className="spinner"></span>
+                Publishing...
+              </>
+            ) : (
+              'Publish'
+            )}
           </button>
         </div>
       </div>

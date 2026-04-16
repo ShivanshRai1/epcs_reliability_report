@@ -9,12 +9,12 @@
 .publish-selection-modal h2 {
   margin: 0 0 16px 0;
   font-size: 24px;
-  color: #333;
+  color: #ffffff;
 }
 
 .publish-selection-modal .instruction-text {
   margin: 0 0 20px 0;
-  color: #666;
+  color: #d0d0d0;
   font-size: 14px;
   line-height: 1.5;
 }
@@ -39,7 +39,7 @@
 .publish-selection-modal .change-category h3 {
   margin: 0 0 12px 0;
   font-size: 16px;
-  color: #444;
+  color: #ffffff;
   font-weight: 600;
 }
 

@@ -54,6 +54,12 @@
   background: #70777f;
 }
 
+.btn-cancel:disabled {
+  background: #4a4e56;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .btn-publish {
   background: #ff6b6b;
   color: #fff;
@@ -64,10 +70,36 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
 }
 
 .btn-publish:hover {
   background: #ff5252;
+}
+
+.btn-publish:disabled {
+  background: #cc5555;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.btn-publish .spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ffffff;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Light mode (removed - using dark theme by default) */

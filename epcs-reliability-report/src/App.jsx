@@ -1380,7 +1380,6 @@ const clearDraftCache = () => {
         setPendingCreates([]);
         setPendingDeletes([]);
         setPendingReorder(null);
-        setIsEditMode(false);
         setPageUndoHistory({});
 
         console.log('✅ All changes published to backend');
@@ -1388,11 +1387,12 @@ const clearDraftCache = () => {
 
       // Reset selection
       setSelectedPublishChanges(null);
+      
+      // Always exit edit mode after publishing
+      setIsEditMode(false);
 
       // Navigate to index page to avoid "Page not found" after structural changes
       navigate('/page/1');
-
-      console.log('✅ All changes published to backend');
     } catch (err) {
       console.error('Error publishing changes:', err);
       window.alert(`Failed to publish changes: ${err.message}`);
