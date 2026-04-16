@@ -1,0 +1,129 @@
+.publish-selection-modal {
+  padding: 24px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.publish-selection-modal h2 {
+  margin: 0 0 16px 0;
+  font-size: 24px;
+  color: #333;
+}
+
+.publish-selection-modal .instruction-text {
+  margin: 0 0 20px 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.publish-selection-modal .changes-list {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  background: #f9f9f9;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.publish-selection-modal .change-category {
+  margin-bottom: 20px;
+}
+
+.publish-selection-modal .change-category:last-child {
+  margin-bottom: 0;
+}
+
+.publish-selection-modal .change-category h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: #444;
+  font-weight: 600;
+}
+
+.publish-selection-modal .change-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.publish-selection-modal .change-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.publish-selection-modal .change-item:hover {
+  background: #f5f5f5;
+  border-color: #ccc;
+}
+
+.publish-selection-modal .change-item input[type="checkbox"] {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+.publish-selection-modal .page-title {
+  flex: 1;
+  font-size: 14px;
+  color: #333;
+  user-select: none;
+}
+
+.publish-selection-modal .dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.publish-selection-modal .btn-cancel,
+.publish-selection-modal .btn-next {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.publish-selection-modal .btn-cancel {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.publish-selection-modal .btn-cancel:hover {
+  background: #e0e0e0;
+}
+
+.publish-selection-modal .btn-next {
+  background: #007bff;
+  color: white;
+}
+
+.publish-selection-modal .btn-next:hover {
+  background: #0056b3;
+}
+
+.publish-selection-modal .btn-next:disabled {
+  background: #ccc;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.publish-selection-modal .btn-next:disabled:hover {
+  background: #ccc;
+}

@@ -8,6 +8,7 @@ import AddPageDialog from './components/AddPageDialog';
 import DeletePageDialog from './components/DeletePageDialog';
 import PageManagerModal from './components/PageManagerModal';
 import PublishConfirmDialog from './components/PublishConfirmDialog';
+import PublishSelectionModal from './components/PublishSelectionModal';
 import { apiService } from './services/api';
 
 const OFFLINE_CACHE_KEY = 'epcs_report_cache_v2';
@@ -41,6 +42,8 @@ function App() {
   const [pageUndoHistory, setPageUndoHistory] = useState({});
   const [publishedData, setPublishedData] = useState(null);
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
+  const [isPublishSelectionModalOpen, setIsPublishSelectionModalOpen] = useState(false);
+  const [selectedPublishChanges, setSelectedPublishChanges] = useState(null);
   const [isTestMode, setIsTestMode] = useState(() => apiService.getTestModeState().enabled);
   const [isSeedingTestData, setIsSeedingTestData] = useState(false);
   const [isPublishingTestData, setIsPublishingTestData] = useState(false);
@@ -1141,16 +1144,40 @@ const clearDraftCache = () => {
   };
 
   const handlePublish = () => {
-    // Show the publish confirmation dialog
+    // Show the publish selection modal first
+    setIsPublishSelectionModalOpen(true);
+  };
+
+  const handleConfirmSelection = (selectedChanges) => {
+    // Store selected changes and proceed to confirmation dialog
+    setSelectedPublishChanges(selectedChanges);
+    setIsPublishSelectionModalOpen(false);
     setIsPublishDialogOpen(true);
+  };
+
+  const handleCancelSelection = () => {
+    setIsPublishSelectionModalOpen(false);
+    setSelectedPublishChanges(null);
   };
 
       const confirmPublish = async () => {
     setIsPublishDialogOpen(false);
 
     try {
-      // STEP 1: Create new pages (with full content including edits)
-      for (const draftPage of pendingCreates) {
+      // Determine which changes to publish based on selection
+      const selection = selectedPublishChanges || {
+        editedPages: new Set([...savedDraftPages, ...changedPages]),
+        newPages: new Set(pendingCreates.map(p => p.id)),
+        deletedPages: new Set([
+          ...pendingDeletes,
+          ...reportData.pages.filter(p => p._isDraftDeleted).map(p => p.id)
+        ]),
+        reorder: pendingReorder && pendingReorder.length > 0
+      };
+
+      // STEP 1: Create new pages (only selected ones)
+      const pagesToCreate = pendingCreates.filter(p => selection.newPages.has(p.id));
+      for (const draftPage of pagesToCreate) {
         // Find the current version of this page in reportData (may have been edited)
         const currentDraftPage = reportData.pages.find(p => idMatches(p.id, draftPage.id)) || draftPage;
 
@@ -1183,16 +1210,19 @@ const clearDraftCache = () => {
           'system'
         );
       }
-      console.log('✅ Pending creates published');
+      if (pagesToCreate.length > 0) {
+        console.log(`✅ ${pagesToCreate.length} new page(s) published`);
+      }
 
-      // STEP 2: Reorder pages
-      if (pendingReorder && pendingReorder.length > 0) {
+      // STEP 2: Reorder pages (only if selected)
+      if (selection.reorder && pendingReorder && pendingReorder.length > 0) {
         await apiService.reorderPages(pendingReorder);
         console.log('✅ Page reorder published');
       }
 
-      // STEP 3: Save edited pages
-      const pageIdsToPublish = Array.from(new Set([...savedDraftPages, ...changedPages]));
+      // STEP 3: Save edited pages (only selected ones)
+      const pageIdsToPublish = Array.from(new Set([...savedDraftPages, ...changedPages]))
+        .filter(pageId => selection.editedPages.has(pageId));
       for (const pageId of pageIdsToPublish) {
         const page = reportData.pages.find((p) => idMatches(p.id, pageId));
         if (!page || page._isDraftNew) continue;
@@ -1203,36 +1233,133 @@ const clearDraftCache = () => {
           'system'
         );
       }
-      console.log('✅ Page edits published');
+      if (pageIdsToPublish.length > 0) {
+        console.log(`✅ ${pageIdsToPublish.length} page edit(s) published`);
+      }
 
-      // STEP 4: Delete pages (both from pendingDeletes array and _isDraftDeleted flag)
+      // STEP 4: Delete pages (only selected ones)
       const deletedPageIds = reportData.pages
         .filter(p => p._isDraftDeleted)
         .map(p => p.id);
-      const allDeleteIds = [...new Set([...pendingDeletes, ...deletedPageIds])];
+      const allDeleteIds = [...new Set([...pendingDeletes, ...deletedPageIds])]
+        .filter(pageId => selection.deletedPages.has(pageId));
       
       for (const pageId of allDeleteIds) {
         await apiService.deletePage(pageId);
       }
-      console.log('✅ Pending deletes published');
+      if (allDeleteIds.length > 0) {
+        console.log(`✅ ${allDeleteIds.length} page(s) deleted`);
+      }
 
       // STEP 5: Reload fresh data from backend (with real IDs)
       const freshPages = await apiService.getPages(true); // forceFresh = true
       const freshData = transformPagesFromApi(freshPages);
       const syncedFreshData = syncIndexPageContent(freshData, staticIndexPagesRef.current);
 
-      // STEP 6: Clear all draft state and update with fresh backend data
-      clearDraftCache();
-      saveReportCache(syncedFreshData);
-      setReportData(syncedFreshData);
-      setOriginalData(JSON.parse(JSON.stringify(syncedFreshData)));
-      setPublishedData(JSON.parse(JSON.stringify(syncedFreshData)));
-      setSavedDraftPages(new Set());
-      setChangedPages(new Set());
-      setPendingCreates([]);
-      setPendingDeletes([]);
-      setPendingReorder(null);
-      setIsEditMode(false);
+      // STEP 6: Update draft state - keep unselected changes
+      // Calculate what should remain in draft
+      const remainingChangedPages = new Set(
+        Array.from(changedPages).filter(id => !selection.editedPages.has(id))
+      );
+      const remainingSavedDraftPages = new Set(
+        Array.from(savedDraftPages).filter(id => !selection.editedPages.has(id))
+      );
+      const remainingPendingCreates = pendingCreates.filter(p => !selection.newPages.has(p.id));
+      const remainingPendingDeletes = pendingDeletes.filter(id => !selection.deletedPages.has(id));
+      const remainingDraftDeleted = reportData.pages
+        .filter(p => p._isDraftDeleted && !selection.deletedPages.has(p.id))
+        .map(p => p.id);
+      const allRemainingDeletes = [...new Set([...remainingPendingDeletes, ...remainingDraftDeleted])];
+      const remainingReorder = selection.reorder ? null : pendingReorder;
+
+      // If there are remaining changes, keep them in draft
+      const hasRemainingChanges = 
+        remainingChangedPages.size > 0 || 
+        remainingSavedDraftPages.size > 0 || 
+        remainingPendingCreates.length > 0 || 
+        allRemainingDeletes.length > 0 ||
+        remainingReorder !== null;
+
+      if (hasRemainingChanges) {
+        // Merge fresh backend data with remaining draft changes
+        const mergedData = { ...syncedFreshData };
+        
+        // Re-apply remaining draft changes to fresh data
+        mergedData.pages = mergedData.pages.map(page => {
+          const pageId = page.id;
+          
+          // If this page has remaining edits, get it from current reportData
+          if (remainingChangedPages.has(pageId) || remainingSavedDraftPages.has(pageId)) {
+            const draftPage = reportData.pages.find(p => idMatches(p.id, pageId));
+            if (draftPage) {
+              return { ...draftPage };
+            }
+          }
+          
+          return page;
+        });
+
+        // Add back remaining new pages (that weren't published)
+        for (const draftPage of remainingPendingCreates) {
+          const currentDraft = reportData.pages.find(p => idMatches(p.id, draftPage.id));
+          if (currentDraft) {
+            mergedData.pages.push({ ...currentDraft });
+          } else {
+            mergedData.pages.push({ ...draftPage });
+          }
+        }
+
+        // Mark remaining deleted pages
+        mergedData.pages = mergedData.pages.map(page => {
+          if (allRemainingDeletes.includes(page.id)) {
+            return { ...page, _isDraftDeleted: true };
+          }
+          return page;
+        });
+
+        setReportData(mergedData);
+        setOriginalData(JSON.parse(JSON.stringify(syncedFreshData))); // Original is always fresh backend
+        setPublishedData(JSON.parse(JSON.stringify(syncedFreshData)));
+        setChangedPages(remainingChangedPages);
+        setSavedDraftPages(remainingSavedDraftPages);
+        setPendingCreates(remainingPendingCreates);
+        setPendingDeletes(allRemainingDeletes);
+        setPendingReorder(remainingReorder);
+
+        // Save remaining draft to cache
+        saveDraftCache({
+          changedPages: Array.from(remainingChangedPages),
+          savedDraftPages: Array.from(remainingSavedDraftPages),
+          pendingCreates: remainingPendingCreates,
+          pendingDeletes: allRemainingDeletes,
+          pendingReorder: remainingReorder,
+          reportData: mergedData
+        });
+
+        console.log('✅ Selected changes published, remaining changes kept in draft');
+      } else {
+        // No remaining changes - clear everything
+        clearDraftCache();
+        saveReportCache(syncedFreshData);
+        setReportData(syncedFreshData);
+        setOriginalData(JSON.parse(JSON.stringify(syncedFreshData)));
+        setPublishedData(JSON.parse(JSON.stringify(syncedFreshData)));
+        setSavedDraftPages(new Set());
+        setChangedPages(new Set());
+        setPendingCreates([]);
+        setPendingDeletes([]);
+        setPendingReorder(null);
+        setIsEditMode(false);
+        setPageUndoHistory({});
+
+        console.log('✅ All changes published to backend');
+      }
+
+      // Reset selection
+      setSelectedPublishChanges(null);
+
+      // Navigate to index page to avoid "Page not found" after structural changes
+      navigate('/page/1');
       setPageUndoHistory({});
 
       // Navigate to index page to avoid "Page not found" after structural changes
@@ -1886,6 +2013,17 @@ const clearDraftCache = () => {
         page={pageToDelete}
         onConfirmDelete={handleConfirmDelete}
         isDeleting={idMatches(isDeletingPageId, pageToDelete?.id)}
+      />
+      <PublishSelectionModal
+        isOpen={isPublishSelectionModalOpen}
+        onConfirm={handleConfirmSelection}
+        onCancel={handleCancelSelection}
+        changedPages={changedPages}
+        savedDraftPages={savedDraftPages}
+        pendingCreates={pendingCreates}
+        pendingDeletes={pendingDeletes}
+        pendingReorder={pendingReorder}
+        reportData={reportData}
       />
       <PublishConfirmDialog
         isOpen={isPublishDialogOpen}
