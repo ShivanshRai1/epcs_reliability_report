@@ -785,7 +785,21 @@ const clearDraftCache = () => {
           console.log('📝 Loading saved draft changes for normal mode');
           transformedData = mergeDraftWithFreshPages(savedDraft.data, transformedData);
           setSavedDraftPages(new Set(savedDraft.pendingPageIds || []));
-          setPendingCreates(savedDraft.pendingCreates || []);
+          
+          // Clean up pendingCreates: remove any draft pages that already exist in backend
+          const cleanedPendingCreates = (savedDraft.pendingCreates || []).filter(draftPage => {
+            // Check if this draft page already exists in the fresh backend data
+            // Match by pageNumber and title (since IDs will be different for published pages)
+            const existsInBackend = transformedData.pages.some(backendPage => 
+              backendPage.pageNumber === draftPage.pageNumber &&
+              backendPage.title === draftPage.title &&
+              !backendPage._isDraftNew
+            );
+            // Only keep draft pages that DON'T exist in backend
+            return !existsInBackend;
+          });
+          
+          setPendingCreates(cleanedPendingCreates);
           setPendingDeletes(savedDraft.pendingDeletes || []);
           setPendingReorder(savedDraft.pendingReorder || null);
         } else {
