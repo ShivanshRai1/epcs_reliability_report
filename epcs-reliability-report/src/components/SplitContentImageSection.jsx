@@ -380,6 +380,21 @@ export default function SplitContentImageSection({
     )
   );
 
+  // Render text with per-line alignment prefix support ([=C] = center, [=R] = right)
+  const renderAlignedText = (textContent) => {
+    if (!textContent) return null;
+    return String(textContent).split(/\r?\n/).map((line, idx) => {
+      let align = 'left';
+      let remaining = line;
+      if (remaining.startsWith('[=C]')) { align = 'center'; remaining = remaining.slice(4); }
+      else if (remaining.startsWith('[=R]')) { align = 'right'; remaining = remaining.slice(4); }
+      if (!remaining.trim()) return <br key={idx} />;
+      return (
+        <div key={idx} style={{ textAlign: align }} dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(remaining) }} />
+      );
+    });
+  };
+
   // Support editable leftContent (text) or fallback to links if leftContent is not present
   const renderContent = () => {
     // In split-image-image mode, render an image editor/viewer on the left (non-reversed) side.
@@ -404,14 +419,12 @@ export default function SplitContentImageSection({
       }
 
       return (
-        <ContentSection
-          content={leftContentData || ''}
-          isEditing={false}
-          fontFamily={fontFamilyData}
-          contentFontSize={contentFontSizeData}
-          contentTextColor={contentTextColorData}
-          contentAlign="left"
-        />
+        <div
+          className="split-left-content-text"
+          style={{ fontFamily: fontFamilyData, fontSize: `${contentFontSizeData}rem`, color: contentTextColorData }}
+        >
+          {renderAlignedText(leftContentData || '')}
+        </div>
       );
     }
 
@@ -505,14 +518,12 @@ export default function SplitContentImageSection({
         );
       }
       return (
-        <ContentSection
-          content={leftContentData}
-          isEditing={false}
-          fontFamily={fontFamilyData}
-          contentFontSize={contentFontSizeData}
-          contentTextColor={contentTextColorData}
-          contentAlign="left"
-        />
+        <div
+          className="split-left-content-text"
+          style={{ fontFamily: fontFamilyData, fontSize: `${contentFontSizeData}rem`, color: contentTextColorData }}
+        >
+          {renderAlignedText(leftContentData)}
+        </div>
       );
     }
     // Fallback to links (legacy)
