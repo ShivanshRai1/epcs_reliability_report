@@ -94,7 +94,13 @@ const PublishSelectionModal = ({
   };
 
   // Build change lists
-  const allEditedPageIds = Array.from(new Set([...savedDraftPages, ...changedPages]));
+  const newPageIds = new Set(pendingCreates.map(p => p.id));
+  
+  // Filter out pages that are in pendingCreates from the edited list
+  // (new pages should only show in "New Pages" section, not "Edited Pages")
+  const allEditedPageIds = Array.from(new Set([...savedDraftPages, ...changedPages]))
+    .filter(pageId => !newPageIds.has(pageId));
+  
   const editedPagesList = allEditedPageIds
     .map(pageId => reportData?.pages?.find(p => p.id === pageId || String(p.id) === String(pageId)))
     .filter(Boolean);
