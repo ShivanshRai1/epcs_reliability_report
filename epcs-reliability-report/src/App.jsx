@@ -804,12 +804,12 @@ const clearDraftCache = () => {
 
         if (savedDraft?.data?.pages?.length) {
           console.log('📝 Loading saved draft changes for normal mode');
-          transformedData = mergeDraftWithFreshPages(savedDraft.data, transformedData);
+            const freshBackendData = transformedData;
 
           const savedPendingCreates = Array.isArray(savedDraft.pendingCreates) ? savedDraft.pendingCreates : [];
           const removedPublishedCreateIds = new Set(
             savedPendingCreates
-              .filter((draftPage) => isAlreadyPublishedPage(draftPage, transformedData.pages))
+                .filter((draftPage) => isAlreadyPublishedPage(draftPage, freshBackendData.pages))
               .map((draftPage) => String(draftPage?.id ?? ''))
           );
 
@@ -820,13 +820,18 @@ const clearDraftCache = () => {
             (pageId) => !removedPublishedCreateIds.has(String(pageId ?? ''))
           );
 
+            const cleanedDraftData = removedPublishedCreateIds.size > 0
+              ? {
+                  ...savedDraft.data,
+                  pages: (savedDraft.data.pages || []).filter(
+                    (page) => !removedPublishedCreateIds.has(String(page?.id ?? ''))
+                  )
+                }
+              : savedDraft.data;
+
+            transformedData = mergeDraftWithFreshPages(cleanedDraftData, freshBackendData);
+
           if (removedPublishedCreateIds.size > 0) {
-            transformedData = {
-              ...transformedData,
-              pages: transformedData.pages.filter(
-                (page) => !removedPublishedCreateIds.has(String(page?.id ?? ''))
-              )
-            };
             console.log(`🧹 Auto-removed ${removedPublishedCreateIds.size} published draft page(s)`);
           }
 
@@ -838,7 +843,7 @@ const clearDraftCache = () => {
           if (removedPublishedCreateIds.size > 0) {
             if (cleanedPendingPageIds.length || cleanedPendingCreates.length || (savedDraft.pendingDeletes || []).length || savedDraft.pendingReorder) {
               saveDraftCache(
-                transformedData,
+                cleanedDraftData,
                 cleanedPendingPageIds,
                 cleanedPendingCreates,
                 savedDraft.pendingDeletes || [],
