@@ -1916,8 +1916,11 @@ const clearDraftCache = () => {
       setPageToDelete(null);
       
       // Redirect to the page immediately before the deleted one (by sorted position).
-      // Use positional index so gaps in pageNumber values don't cause off-by-one errors.
-      const sortedBefore = [...reportData.pages].sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
+      // Exclude already-deleted pages (but keep the page being deleted so we can find its index)
+      // so the positional index matches displayData (which filters _isDraftDeleted).
+      const sortedBefore = [...reportData.pages]
+        .filter(p => !p._isDraftDeleted || idMatches((p.id || p.page_id || p.pageId), resolvedPageId))
+        .sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
       const deletedPosIdx = sortedBefore.findIndex(p => idMatches((p.id || p.page_id || p.pageId), resolvedPageId));
       // One position back in the sorted list; clamp to 0 so first-page deletion goes to index
       const targetPosIdx = Math.max(0, deletedPosIdx - 1);
