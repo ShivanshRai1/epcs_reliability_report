@@ -789,12 +789,16 @@ const clearDraftCache = () => {
           // Clean up pendingCreates: remove any draft pages that already exist in backend
           const cleanedPendingCreates = (savedDraft.pendingCreates || []).filter(draftPage => {
             // Check if this draft page already exists in the fresh backend data
-            // Match by pageNumber and title (since IDs will be different for published pages)
+            // Match primarily by pageNumber (more reliable than title which can have formatting differences)
             const existsInBackend = transformedData.pages.some(backendPage => 
               backendPage.pageNumber === draftPage.pageNumber &&
-              backendPage.title === draftPage.title &&
               !backendPage._isDraftNew
             );
+            
+            if (existsInBackend) {
+              console.log(`🧹 Auto-removing published draft page: ${draftPage.title} (Page ${draftPage.pageNumber})`);
+            }
+            
             // Only keep draft pages that DON'T exist in backend
             return !existsInBackend;
           });
@@ -1286,10 +1290,9 @@ const clearDraftCache = () => {
       // This handles the case where a page was published but still lingering in pendingCreates with old draft ID
       remainingPendingCreates = remainingPendingCreates.filter(draftPage => {
         // Check if this draft page already exists in fresh backend data
-        // Match by pageNumber and title (since IDs will be different for published pages)
+        // Match primarily by pageNumber (more reliable than title which can have formatting differences)
         const existsInBackend = syncedFreshData.pages.some(backendPage => 
           backendPage.pageNumber === draftPage.pageNumber &&
-          backendPage.title === draftPage.title &&
           !backendPage._isDraftNew
         );
         // Only keep draft pages that DON'T exist in backend
