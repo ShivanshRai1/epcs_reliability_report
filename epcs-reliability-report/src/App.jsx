@@ -1241,8 +1241,13 @@ const clearDraftCache = () => {
         reorder: pendingReorder && pendingReorder.length > 0
       };
 
-      // STEP 1: Create new pages (only selected ones)
-      const pagesToCreate = pendingCreates.filter(p => selection.newPages.has(p.id));
+      // STEP 1: Create new pages (only selected ones, skip draft-created-then-deleted pages)
+      const draftDeletedIds = new Set(
+        reportData.pages.filter(p => p._isDraftDeleted).map(p => String(p.id ?? ''))
+      );
+      const pagesToCreate = pendingCreates.filter(p =>
+        selection.newPages.has(p.id) && !draftDeletedIds.has(String(p.id ?? ''))
+      );
       for (const draftPage of pagesToCreate) {
         // Find the current version of this page in reportData (may have been edited)
         const currentDraftPage = reportData.pages.find(p => idMatches(p.id, draftPage.id)) || draftPage;

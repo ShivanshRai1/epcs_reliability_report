@@ -95,6 +95,13 @@ const PublishSelectionModal = ({
 
   // Build change lists
   const newPageIds = new Set(pendingCreates.map(p => p.id));
+
+  // Draft-deleted pages that were also draft-created should NOT appear in New Pages
+  // (they were never on the backend, so publishing them would create then immediately delete)
+  const draftDeletedIds = new Set(
+    (reportData?.pages || []).filter(p => p._isDraftDeleted).map(p => p.id)
+  );
+  const publishableCreates = pendingCreates.filter(p => !draftDeletedIds.has(p.id));
   
   // Filter out pages that are in pendingCreates from the edited list
   // (new pages should only show in "New Pages" section, not "Edited Pages")
@@ -105,17 +112,18 @@ const PublishSelectionModal = ({
     .map(pageId => reportData?.pages?.find(p => p.id === pageId || String(p.id) === String(pageId)))
     .filter(Boolean);
 
-  const deletedPageIds = reportData?.pages
-    ?.filter(p => p._isDraftDeleted)
-    .map(p => p.id) || [];
-  const allDeleteIds = [...new Set([...pendingDeletes, ...deletedPageIds])];
-  const deletedPagesList = allDeleteIds
+  const deletedPageIds = Array.from(draftDeletedIds);
+  const allDeleteIds = [...new Set([...pendingDeletes, ...deletedPageIds])]
+    .filter(pageId => !newPageIds.has(pageId) || draftDeletedIds.has(pageId)); // only show real backend deletes + draft-created-then-deleted
+  // For display: only show pages actually on the backend (not draft-only creations)
+  const realDeleteIds = allDeleteIds.filter(pageId => !/^page_\d+$/.test(String(pageId ?? '')));
+  const deletedPagesList = realDeleteIds
     .map(pageId => reportData?.pages?.find(p => p.id === pageId || String(p.id) === String(pageId)))
     .filter(Boolean);
 
   const hasReorder = pendingReorder && pendingReorder.length > 0;
 
-  const totalChanges = editedPagesList.length + pendingCreates.length + allDeleteIds.length + (hasReorder ? 1 : 0);
+  const totalChanges = editedPagesList.length + publishableCreates.length + realDeleteIds.length + (hasReorder ? 1 : 0);
 
   if (totalChanges === 0) {
     return (
@@ -163,11 +171,11 @@ const PublishSelectionModal = ({
           )}
 
           {/* New Pages */}
-          {pendingCreates.length > 0 && (
+          {publishableCreates.length > 0 && (
             <div className="change-category">
-              <h3>➕ New Pages ({pendingCreates.length})</h3>
+              <h3>➕ New Pages ({publishableCreates.length})</h3>
               <div className="change-items">
-                {pendingCreates.map(page => (
+                {publishableCreates.map(page => (
                   <label key={page.id} className="change-item">
                     <input
                       type="checkbox"
@@ -182,9 +190,9 @@ const PublishSelectionModal = ({
           )}
 
           {/* Deleted Pages */}
-          {allDeleteIds.length > 0 && (
+          {realDeleteIds.length > 0 && (
             <div className="change-category">
-              <h3>🗑️ Deleted Pages ({allDeleteIds.length})</h3>
+              <h3>🗑️ Deleted Pages ({realDeleteIds.length})</h3>
               <div className="change-items">
                 {deletedPagesList.map(page => (
                   <label key={page.id} className="change-item">
