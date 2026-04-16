@@ -1266,7 +1266,22 @@ const clearDraftCache = () => {
       const remainingSavedDraftPages = new Set(
         Array.from(savedDraftPages).filter(id => !selection.editedPages.has(id))
       );
-      const remainingPendingCreates = pendingCreates.filter(p => !selection.newPages.has(p.id));
+      let remainingPendingCreates = pendingCreates.filter(p => !selection.newPages.has(p.id));
+      
+      // IMPORTANT: Filter out draft pages that were actually published (now exist in fresh backend)
+      // This handles the case where a page was published but still lingering in pendingCreates with old draft ID
+      remainingPendingCreates = remainingPendingCreates.filter(draftPage => {
+        // Check if this draft page already exists in fresh backend data
+        // Match by pageNumber and title (since IDs will be different for published pages)
+        const existsInBackend = syncedFreshData.pages.some(backendPage => 
+          backendPage.pageNumber === draftPage.pageNumber &&
+          backendPage.title === draftPage.title &&
+          !backendPage._isDraftNew
+        );
+        // Only keep draft pages that DON'T exist in backend
+        return !existsInBackend;
+      });
+      
       const remainingPendingDeletes = pendingDeletes.filter(id => !selection.deletedPages.has(id));
       const remainingDraftDeleted = reportData.pages
         .filter(p => p._isDraftDeleted && !selection.deletedPages.has(p.id))
