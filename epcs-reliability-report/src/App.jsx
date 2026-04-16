@@ -1564,7 +1564,8 @@ const clearDraftCache = () => {
         );
 
         // Navigate to the new page AFTER auto-save completes
-        const sortedForNav = [...transformedData.pages].sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
+        // Exclude _isDraftDeleted pages to match the displayData filter used by ReportPage
+        const sortedForNav = [...transformedData.pages].filter(p => !p._isDraftDeleted).sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
         const newPageIdx = sortedForNav.findIndex(p => idMatches(p.id, draftPageId));
         if (newPageIdx >= 0) {
           navigate(`/page/${newPageIdx + 1}`);
@@ -1625,7 +1626,8 @@ const clearDraftCache = () => {
         saveReportCache(transformedData);
 
         // Navigate by sorted positional index (robust regardless of pageNumber gaps)
-        const sortedForNavLocal = [...transformedData.pages].sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
+        // Exclude _isDraftDeleted pages to match the displayData filter used by ReportPage
+        const sortedForNavLocal = [...transformedData.pages].filter(p => !p._isDraftDeleted).sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
         const newPageIdxLocal = sortedForNavLocal.findIndex(p => idMatches(p.id, localPageId));
         if (newPageIdxLocal >= 0) {
           navigate(`/page/${newPageIdxLocal + 1}`);
@@ -1844,7 +1846,8 @@ const clearDraftCache = () => {
 
       // Navigate by sorted positional index so we always land on the right page
       // regardless of whether pageNumbers are contiguous or have gaps.
-      const sortedForNav = [...transformedData.pages].sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
+      // Exclude _isDraftDeleted pages to match the displayData filter used by ReportPage.
+      const sortedForNav = [...transformedData.pages].filter(p => !p._isDraftDeleted).sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
       let redirectIdx = createdPageId
         ? sortedForNav.findIndex(p => idMatches(p.id, createdPageId))
         : -1;
