@@ -105,6 +105,14 @@ const Navigation = ({ onNavigate, isEditMode, isLiveMode, publishStatusLabel, on
               {isPublishingTestData ? 'Copying Test to Production...' : '📤 Copy Test Data to Production Data'}
             </button>
           )}
+          <button
+            className="section-list-btn edit-publish"
+            onClick={onPublish}
+            disabled={isPublishing}
+            title={isPublishing ? 'Publishing changes...' : 'Publish saved changes to live preview'}
+          >
+            {isPublishing ? '⏳ Publishing...' : '🚀 Publish Changes'}
+          </button>
           {!isTestMode && (
             <button
               className="section-list-btn restore-original-btn"
@@ -122,12 +130,6 @@ const Navigation = ({ onNavigate, isEditMode, isLiveMode, publishStatusLabel, on
         <div className="toolbar-group toolbar-group-actions">
           <button className="section-list-btn edit-toggle" onClick={onEditToggle} title="Edit this page">✏️ Edit Page</button>
           <button className="section-list-btn edit-view-placeholder" onClick={onToggleLive} title="Open read-only preview in a new tab">👁 Live Preview</button>
-        </div>
-      )}
-
-      {isEditMode && !isLiveMode && (
-        <div className="toolbar-group toolbar-group-publish-header">
-          <button className="section-list-btn edit-publish" onClick={onPublish} disabled={isPublishing} title={isPublishing ? 'Publishing changes...' : 'Publish saved changes to live preview'}>{isPublishing ? '⏳ Publishing...' : '🚀 Publish Changes'}</button>
         </div>
       )}
 
