@@ -408,14 +408,25 @@ const clearDraftCache = () => {
 
     // Sort pages by backend pageNumber to maintain canonical ordering from database
     const sortedPages = [...data.pages].sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
-    const indexPages = sortedPages.filter(p => p.pageType === 'index');
+    
+    // Recalculate page numbers sequentially (1, 2, 3...) for non-deleted pages ONLY
+    // Deleted pages keep their original page numbers for display in publish dialog
+    const nonDeletedPages = sortedPages.filter(p => !p._isDraftDeleted);
+    const pagesWithUpdatedNumbers = data.pages.map(p => {
+      if (p._isDraftDeleted) return p; // Keep deleted pages unchanged - retain original page number
+      const newPageNumber = nonDeletedPages.findIndex(np => np.id === p.id) + 1;
+      return { ...p, pageNumber: Math.max(1, newPageNumber) };
+    });
+    
+    const resortedPages = [...pagesWithUpdatedNumbers].sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
+    const indexPages = resortedPages.filter(p => p.pageType === 'index');
 
     if (indexPages.length === 0) {
-      return data;
+      return { ...data, pages: pagesWithUpdatedNumbers };
     }
 
-    const nonIndexPages = sortedPages.filter(p => p.pageType !== 'index');
-    const targetPages = nonIndexPages.filter(p => p.pageType !== 'home');
+    const nonIndexPages = resortedPages.filter(p => p.pageType !== 'index');
+    const targetPages = nonIndexPages.filter(p => p.pageType !== 'home' && !p._isDraftDeleted);
     const livePagesById = new Map(targetPages.map((p) => [p.id, p]));
 
     // Update index pages with curated static content
@@ -659,11 +670,14 @@ const clearDraftCache = () => {
       effectiveIndexPages = insertNewContentItems([baseIndexPage], newContent);
     }
 
-    // Combine index and non-index pages, preserving original backend pageNumbers
+    // Combine index and non-index pages, preserving updated pageNumbers
     const allPages = [...effectiveIndexPages, ...nonIndexPages];
 
-    // Sort final result by original pageNumber (DO NOT renormalize)
-    const resultPages = allPages.sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
+    // Apply updated page numbers to all pages
+    const resultPages = allPages.map(p => {
+      const updated = pagesWithUpdatedNumbers.find(pu => pu.id === p.id);
+      return updated ? { ...p, pageNumber: updated.pageNumber } : p;
+    }).sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
 
     return { ...data, pages: resultPages };
   };

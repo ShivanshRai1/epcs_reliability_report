@@ -383,7 +383,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         _isDraftNew: true,
         _draftTemplateId: createTemplateId,
         ...(isTextOnly && {
-          content: 'Enter your text content here. This is a sample paragraph you can edit or replace with your own content.'
+          content: 'Enter your text content here. Edit and enter your own content.'
         })
       };
 

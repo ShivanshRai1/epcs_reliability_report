@@ -23,7 +23,8 @@ const PublishSelectionModal = ({
 
   // Helper function to format page display with number and type
   const formatPageDisplay = (page) => {
-    const pageNumber = page.pageNumber || '?';
+    // For deleted pages, show their original page number before deletion
+    const pageNumber = page.pageNumber || page.page_number || '?';
     const pageType = page.pageType || page.pageTemplate || 'Content';
     // Capitalize first letter of page type
     const formattedType = pageType.charAt(0).toUpperCase() + pageType.slice(1);
