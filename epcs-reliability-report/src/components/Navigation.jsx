@@ -105,14 +105,16 @@ const Navigation = ({ onNavigate, isEditMode, isLiveMode, publishStatusLabel, on
               {isPublishingTestData ? 'Copying Test to Production...' : '📤 Copy Test Data to Production Data'}
             </button>
           )}
-          <button
-            className="section-list-btn edit-publish"
-            onClick={onPublish}
-            disabled={isPublishing}
-            title={isPublishing ? 'Publishing changes...' : 'Publish saved changes to live preview'}
-          >
-            {isPublishing ? '⏳ Publishing...' : '🚀 Publish Changes'}
-          </button>
+          {publishStatusLabel && publishStatusLabel.includes('Draft') && (
+            <button
+              className="section-list-btn edit-publish"
+              onClick={onPublish}
+              disabled={isPublishing}
+              title={isPublishing ? 'Publishing changes...' : 'Publish saved changes to live preview'}
+            >
+              {isPublishing ? '⏳ Publishing...' : '🚀 Publish Changes'}
+            </button>
+          )}
           {!isTestMode && (
             <button
               className="section-list-btn restore-original-btn"
