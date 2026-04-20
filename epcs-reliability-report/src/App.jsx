@@ -1338,7 +1338,12 @@ const clearDraftCache = () => {
         .map(p => p.id);
       const allDeleteIds = [...new Set([...pendingDeletes, ...deletedPageIds])]
         .filter(pageId => selection.deletedPages.has(pageId))
-        .filter(pageId => !/^page_\d+$/.test(String(pageId ?? ''))); // skip draft-only local IDs (never on backend)
+        // Skip pages that were created in draft but never published to backend (_isDraftNew).
+        // Do NOT use ID-pattern matching — backend-created pages also use page_<timestamp> IDs.
+        .filter(pageId => {
+          const page = reportData.pages.find(p => String(p.id ?? '') === String(pageId ?? ''));
+          return !page?._isDraftNew;
+        });
       
       for (const pageId of allDeleteIds) {
         await apiService.deletePage(pageId);
