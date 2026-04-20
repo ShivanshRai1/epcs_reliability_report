@@ -1245,7 +1245,21 @@ const clearDraftCache = () => {
   };
 
   const handleSaveOnly = () => {
-    // Just close the modal - changes are already saved in draft
+    // Perform the same draft-save logic as handleSave so that:
+    // 1. Changes survive a "Cancel Editing" (originalData is updated)
+    // 2. changedPages are promoted to savedDraftPages (staged for next publish)
+    // 3. Draft cache is persisted to localStorage
+    const pagesToStage = new Set([...savedDraftPages, ...changedPages]);
+    saveDraftCache(
+      reportData,
+      Array.from(pagesToStage),
+      pendingCreates,
+      pendingDeletes,
+      pendingReorder
+    );
+    setOriginalData(JSON.parse(JSON.stringify(reportData)));
+    setSavedDraftPages(pagesToStage);
+    setChangedPages(new Set());
     setIsPublishSelectionModalOpen(false);
     setSelectedPublishChanges(null);
   };
