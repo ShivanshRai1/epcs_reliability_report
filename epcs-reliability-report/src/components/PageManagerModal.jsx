@@ -68,7 +68,7 @@ const PageManagerModal = ({
   };
 
   const handleMoveUp = async (index) => {
-    if (index > 0) {
+    if (index > 3) {
       const newList = [...pagesList];
       [newList[index - 1], newList[index]] = [newList[index], newList[index - 1]];
       setPagesList(newList);
@@ -87,7 +87,7 @@ const PageManagerModal = ({
   };
 
   const handleMoveDown = async (index) => {
-    if (index < pagesList.length - 1) {
+    if (index >= 3 && index < pagesList.length - 1) {
       const newList = [...pagesList];
       [newList[index], newList[index + 1]] = [newList[index + 1], newList[index]];
       setPagesList(newList);
@@ -121,7 +121,7 @@ const PageManagerModal = ({
               <div
                 key={page.id}
                 className={`page-item ${draggedItem === index ? 'dragging' : ''}`}
-                draggable={!isReordering}
+                draggable={!isReordering && index > 2}
                 onDragStart={(e) => handleDragStart(e, index)}
                 onDragOver={(e) => handleDragOver(e, index)}
                 onDragEnd={handleDragEnd}
@@ -138,8 +138,8 @@ const PageManagerModal = ({
                   <button
                     className="action-btn up-btn"
                     onClick={() => handleMoveUp(index)}
-                    disabled={index === 0 || isReordering}
-                    title="Move up"
+                    disabled={index <= 2 || isReordering}
+                    title={index <= 2 ? "First 3 pages are locked" : "Move up"}
                   >
                     ↑ Up
                   </button>
@@ -147,8 +147,8 @@ const PageManagerModal = ({
                   <button
                     className="action-btn down-btn"
                     onClick={() => handleMoveDown(index)}
-                    disabled={index === pagesList.length - 1 || isReordering}
-                    title="Move down"
+                    disabled={index <= 2 || index === pagesList.length - 1 || isReordering}
+                    title={index <= 2 ? "First 3 pages are locked" : "Move down"}
                   >
                     ↓ Down
                   </button>
