@@ -53,7 +53,7 @@ const Navigation = ({ onNavigate, isEditMode, isLiveMode, publishStatusLabel, on
       {!isLiveMode && currentPageNumber && totalPages && (
         <div className="toolbar-group toolbar-group-counter">
           {publishStatusLabel && (
-            <span className="page-counter" title="Current publish status" style={{ marginRight: '10px' }}>
+            <span className="publish-status-label" title="Current publish status" style={{ marginRight: '10px' }}>
               {publishStatusLabel}
             </span>
           )}

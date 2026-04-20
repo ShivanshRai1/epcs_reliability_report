@@ -132,6 +132,15 @@ h1 {
   transition: all 0.2s;
 }
 
+.publish-status-label {
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: default;
+  transition: all 0.2s;
+}
+
 .page-counter-input {
   width: 80px;
   padding: 0.5rem 0.75rem;
