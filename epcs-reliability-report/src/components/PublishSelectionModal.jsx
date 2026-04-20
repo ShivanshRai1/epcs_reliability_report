@@ -21,16 +21,23 @@ const PublishSelectionModal = ({
     reorder: false
   });
 
-  // Helper function to format page display with number and type
-  const formatPageDisplay = (page) => {
-    // For deleted pages, show their original page number before deletion
-    const pageNumber = page.pageNumber || page.page_number || '?';
-    const pageType = page.pageType || page.pageTemplate || 'Content';
-    // Capitalize first letter of page type
-    const formattedType = pageType.charAt(0).toUpperCase() + pageType.slice(1);
-    const title = page.title || page.heading || 'Untitled Page';
-    return `Page ${pageNumber} (${formattedType}) - ${title}`;
+
+  // Calculate what final page numbers WILL BE after publishing
+  const calculateFinalPageNumbers = () => {
+    // Get all pages that will exist after this publish action
+    const allPages = (reportData?.pages || []).filter(p => !p._isDraftDeleted);
+    const sortedPages = [...allPages].sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
+    
+    // Create a map of page id -> final page number
+    const finalPageNumberMap = new Map();
+    sortedPages.forEach((page, index) => {
+      finalPageNumberMap.set(page.id, index + 1);
+    });
+    
+    return finalPageNumberMap;
   };
+
+  const finalPageNumbers = calculateFinalPageNumbers();
 
   // Initialize all changes as selected by default
   useEffect(() => {
@@ -165,7 +172,7 @@ const PublishSelectionModal = ({
                       checked={selectedChanges.editedPages.has(page.id)}
                       onChange={() => toggleEditedPage(page.id)}
                     />
-                    <span className="page-title">{formatPageDisplay(page)}</span>
+                    <span className="page-title">Page {finalPageNumbers.get(page.id) || '?'} ({page.pageType || page.pageTemplate || 'Content'}) - {page.title || 'Untitled Page'}</span>
                   </label>
                 ))}
               </div>
@@ -184,7 +191,7 @@ const PublishSelectionModal = ({
                       checked={selectedChanges.newPages.has(page.id)}
                       onChange={() => toggleNewPage(page.id)}
                     />
-                    <span className="page-title">{formatPageDisplay(page)}</span>
+                    <span className="page-title">Page {finalPageNumbers.get(page.id) || '?'} ({page.pageType || page.pageTemplate || 'Content'}) - {page.title || 'Untitled Page'}</span>
                   </label>
                 ))}
               </div>
@@ -203,7 +210,7 @@ const PublishSelectionModal = ({
                       checked={selectedChanges.deletedPages.has(page.id)}
                       onChange={() => toggleDeletedPage(page.id)}
                     />
-                    <span className="page-title">{formatPageDisplay(page)}</span>
+                    <span className="page-title">Page {page.pageNumber || page.page_number || '?'} ({page.pageType || page.pageTemplate || 'Content'}) - {page.title || 'Untitled Page'}</span>
                   </label>
                 ))}
               </div>
