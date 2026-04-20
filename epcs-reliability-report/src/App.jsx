@@ -1889,6 +1889,67 @@ const clearDraftCache = () => {
     setIsDeleteDialogOpen(true);
   };
 
+  const handleDeletePageFromManager = async (page) => {
+    const resolvedPageId = page?.id || page?.page_id || page?.pageId;
+    if (!resolvedPageId) {
+      console.error('❌ Cannot delete page: missing page id');
+      return;
+    }
+
+    try {
+      setIsDeletingPageId(resolvedPageId);
+      console.log('🗑️ Deleting page:', resolvedPageId);
+      
+      // Get current page number being deleted
+      const pageBeingDeleted = reportData.pages.find(p => idMatches((p.id || p.page_id || p.pageId), resolvedPageId));
+      const pageNumberDeleted = pageBeingDeleted?.pageNumber;
+      console.log('📄 Page being deleted - number:', pageNumberDeleted);
+
+      // Mark page as deleted instead of removing it (so live preview can still show it)
+      const updatedPages = reportData.pages.map(p => 
+        idMatches((p.id || p.page_id || p.pageId), resolvedPageId)
+          ? { ...p, _isDraftDeleted: true }
+          : p
+      );
+      let transformedData = { ...reportData, pages: updatedPages };
+      
+      // Sync index page with new page numbers
+      transformedData = syncIndexPageContent(transformedData, staticIndexPagesRef.current);
+
+      setReportData(transformedData);
+      setOriginalData(JSON.parse(JSON.stringify(transformedData)));
+      setIsPageManagerOpen(false);
+      
+      // Redirect to the page immediately before the deleted one (by sorted position).
+      const sortedBefore = [...reportData.pages]
+        .filter(p => !p._isDraftDeleted || idMatches((p.id || p.page_id || p.pageId), resolvedPageId))
+        .sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
+      const deletedPosIdx = sortedBefore.findIndex(p => idMatches((p.id || p.page_id || p.pageId), resolvedPageId));
+      const targetPosIdx = Math.max(0, deletedPosIdx - 1);
+      setIsEditMode(false);
+      navigate(`/page/${targetPosIdx + 1}`);
+      
+      // Track in pendingDeletes
+      setPendingDeletes(prev => [...prev, resolvedPageId]);
+      
+      // Auto-save draft state
+      const updatedPendingDeletes = [...pendingDeletes, resolvedPageId];
+      saveDraftCache(
+        transformedData,
+        Array.from(changedPages),
+        pendingCreates,
+        updatedPendingDeletes,
+        pendingReorder
+      );
+      
+      console.log('✅ Page marked for deletion (will sync on Publish)');
+    } catch (err) {
+      console.error('❌ Error in delete flow:', err);
+    } finally {
+      setIsDeletingPageId(null);
+    }
+  };
+
   const handleConfirmDelete = async (pageId) => {
     const resolvedPageId = pageId || pageToDelete?.id || pageToDelete?.page_id || pageToDelete?.pageId;
     if (!resolvedPageId) {
@@ -2127,7 +2188,7 @@ const clearDraftCache = () => {
         onClose={() => setIsPageManagerOpen(false)}
         pages={reportData?.pages || []}
         onReorder={handleReorderPages}
-        onDelete={handleOpenDeleteDialog}
+        onDelete={handleDeletePageFromManager}
         onNavigate={handleNavigateToPage}
         isReordering={isReordering}
         isDeletingId={isDeletingPageId}
