@@ -409,11 +409,13 @@ nav button:hover, .section-list-btn:hover {
 }
 
 .edit-publish {
-  background: #2d7e3a !important;
+  background: #8b0000 !important;
+  border: 2px solid #ff4444 !important;
 }
 
 .edit-publish:hover {
-  background: #3ba047 !important;
+  background: #ff4444 !important;
+  color: #ffffff !important;
 }
 
 .test-mode-active {
