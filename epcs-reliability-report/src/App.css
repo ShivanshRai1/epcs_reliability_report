@@ -330,13 +330,13 @@ nav button:hover, .section-list-btn:hover {
 }
 
 .restore-original-btn {
-  background: #8b0000 !important;
-  border: 2px solid #ff4444 !important;
+  background: #cc9900 !important;
+  border: 2px solid #ffdd00 !important;
 }
 
 .restore-original-btn:hover {
-  background: #ff4444 !important;
-  color: #ffffff !important;
+  background: #ffdd00 !important;
+  color: #000000 !important;
 }
 
 .edit-disabled {
