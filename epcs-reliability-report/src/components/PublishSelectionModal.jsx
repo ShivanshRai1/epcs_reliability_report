@@ -99,7 +99,10 @@ const PublishSelectionModal = ({
   const draftDeletedIds = new Set(
     (reportData?.pages || []).filter(p => p._isDraftDeleted).map(p => p.id)
   );
-  const publishableCreates = pendingCreates.filter(p => !draftDeletedIds.has(p.id));
+  // Look up new pages from reportData.pages to get their current updated pageNumber
+  const publishableCreates = pendingCreates
+    .filter(p => !draftDeletedIds.has(p.id))
+    .map(p => reportData?.pages?.find(rp => String(rp.id) === String(p.id)) || p);
   
   // Filter out pages that are in pendingCreates from the edited list
   // (new pages should only show in "New Pages" section, not "Edited Pages")
@@ -180,7 +183,7 @@ const PublishSelectionModal = ({
                       checked={selectedChanges.newPages.has(page.id)}
                       onChange={() => toggleNewPage(page.id)}
                     />
-                    <span className="page-title">Page {getPageNumber(page.id)} ({page.pageType || page.pageTemplate || 'Content'}) - {page.title || 'Untitled Page'}</span>
+                    <span className="page-title">Page {page.pageNumber || '?'} ({page.pageType || page.pageTemplate || 'Content'}) - {page.title || 'Untitled Page'}</span>
                   </label>
                 ))}
               </div>
