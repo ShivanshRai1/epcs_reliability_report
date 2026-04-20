@@ -166,7 +166,14 @@ const PageManagerModal = ({
 
                   <button
                     className="action-btn delete-btn"
-                    onClick={() => onDelete(page)}
+                    onClick={() => {
+                      const confirmed = window.confirm(
+                        `Are you sure you want to delete this page?\n\n⚠️  Make sure you have updated the index sequence before deleting this page.`
+                      );
+                      if (confirmed) {
+                        onDelete(page);
+                      }
+                    }}
                     disabled={isDeletingId === page.id || isReordering}
                     title="Delete page"
                   >
