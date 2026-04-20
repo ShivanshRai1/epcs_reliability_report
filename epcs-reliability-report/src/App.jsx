@@ -1485,8 +1485,8 @@ const clearDraftCache = () => {
       // Always exit edit mode after publishing
       setIsEditMode(false);
 
-      // Navigate to index page to avoid "Page not found" after structural changes
-      navigate('/page/1');
+      // Stay on the current page after publishing (fall back to /page/1 only if needed)
+      navigate(location.pathname || '/page/1');
     } catch (err) {
       console.error('Error publishing changes:', err);
       window.alert(`Failed to publish changes: ${err.message}`);
