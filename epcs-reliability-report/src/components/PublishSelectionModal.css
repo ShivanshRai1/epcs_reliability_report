@@ -91,6 +91,7 @@
 }
 
 .publish-selection-modal .btn-cancel,
+.publish-selection-modal .btn-save-only,
 .publish-selection-modal .btn-next {
   padding: 10px 24px;
   border: none;
@@ -108,6 +109,22 @@
 
 .publish-selection-modal .btn-cancel:hover {
   background: #e0e0e0;
+}
+
+.publish-selection-modal .btn-save-only {
+  background: #6c757d;
+  color: white;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.publish-selection-modal .btn-save-only:hover {
+  background: #5a6268;
 }
 
 .publish-selection-modal .btn-next {

@@ -6,6 +6,7 @@ const PublishSelectionModal = ({
   isOpen, 
   onConfirm, 
   onCancel,
+  onSaveOnly,
   changedPages,
   savedDraftPages,
   pendingCreates,
@@ -229,6 +230,12 @@ const PublishSelectionModal = ({
         <div className="dialog-actions">
           <button className="btn-cancel" onClick={onCancel}>
             Cancel
+          </button>
+          <button 
+            className="btn-save-only" 
+            onClick={onSaveOnly}
+          >
+            Save Only
           </button>
           <button 
             className="btn-next" 

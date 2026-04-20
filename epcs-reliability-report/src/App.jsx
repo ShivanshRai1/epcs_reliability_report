@@ -1226,6 +1226,12 @@ const clearDraftCache = () => {
     setSelectedPublishChanges(null);
   };
 
+  const handleSaveOnly = () => {
+    // Just close the modal - changes are already saved in draft
+    setIsPublishSelectionModalOpen(false);
+    setSelectedPublishChanges(null);
+  };
+
       const confirmPublish = async () => {
     setIsPublishing(true);
 
@@ -2102,6 +2108,7 @@ const clearDraftCache = () => {
         isOpen={isPublishSelectionModalOpen}
         onConfirm={handleConfirmSelection}
         onCancel={handleCancelSelection}
+        onSaveOnly={handleSaveOnly}
         changedPages={changedPages}
         savedDraftPages={savedDraftPages}
         pendingCreates={pendingCreates}
