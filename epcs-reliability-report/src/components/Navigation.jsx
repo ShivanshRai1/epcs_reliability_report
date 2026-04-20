@@ -126,12 +126,17 @@ const Navigation = ({ onNavigate, isEditMode, isLiveMode, publishStatusLabel, on
       )}
 
       {isEditMode && !isLiveMode && (
+        <div className="toolbar-group toolbar-group-publish-header">
+          <button className="section-list-btn edit-publish" onClick={onPublish} disabled={isPublishing} title={isPublishing ? 'Publishing changes...' : 'Publish saved changes to live preview'}>{isPublishing ? '⏳ Publishing...' : '🚀 Publish Changes'}</button>
+        </div>
+      )}
+
+      {isEditMode && !isLiveMode && (
         <div className="toolbar-group toolbar-group-edit">
           <button className="section-list-btn edit-manage" onClick={onManagePages} title="Manage page order and structure">📄 Manage Pages</button>
           <button className="section-list-btn edit-add" onClick={onAddPage} title="Add a page after the current page">➕ Add Page</button>
           <button className="section-list-btn edit-delete" onClick={onDeletePage} title="Delete this page">🗑 Delete Page</button>
           <button className="section-list-btn edit-save" onClick={onSave} title="Save current edits without publishing">💾 Save</button>
-          <button className="section-list-btn edit-publish" onClick={onPublish} disabled={isPublishing} title={isPublishing ? 'Publishing changes...' : 'Publish saved changes to live preview'}>{isPublishing ? '⏳ Publishing...' : '🚀 Publish Changes'}</button>
           <button className="section-list-btn edit-cancel" onClick={onCancel} title="Discard unsaved edits">❌ Cancel Editing</button>
         </div>
       )}
