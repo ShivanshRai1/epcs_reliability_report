@@ -1420,7 +1420,11 @@ const clearDraftCache = () => {
           return page;
         });
 
-        setReportData(mergedData);
+        // Re-sync index now that _isDraftDeleted flags are applied, so deleted pages
+        // are excluded from the index content (syncIndexPageContent filters them via targetPages).
+        const reSyncedMergedData = syncIndexPageContent(mergedData, staticIndexPagesRef.current);
+
+        setReportData(reSyncedMergedData);
         setOriginalData(JSON.parse(JSON.stringify(syncedFreshData))); // Original is always fresh backend
         setPublishedData(JSON.parse(JSON.stringify(syncedFreshData)));
         setChangedPages(remainingChangedPages);
@@ -1431,7 +1435,7 @@ const clearDraftCache = () => {
 
         // Save remaining draft to cache
         saveDraftCache(
-          mergedData,
+          reSyncedMergedData,
           Array.from(new Set([...remainingSavedDraftPages, ...remainingChangedPages])),
           remainingPendingCreates,
           allRemainingDeletes,
