@@ -21,6 +21,10 @@ const PublishSelectionModal = ({
     reorder: false
   });
 
+  const draftNewPages = (reportData?.pages || [])
+    .filter((page) => page?._isDraftNew && !page?._isDraftDeleted)
+    .sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
+
 
   // Compute display page numbers by sorting all non-deleted pages and assigning 1, 2, 3...
   // This is purely a display calculation - never relies on stored fractional pageNumber values.
@@ -47,7 +51,10 @@ const PublishSelectionModal = ({
     if (!isOpen) return;
 
     const allEditedPageIds = Array.from(new Set([...savedDraftPages, ...changedPages]));
-    const allNewPageIds = pendingCreates.map(p => p.id);
+    const allNewPageIds = Array.from(new Set([
+      ...pendingCreates.map((page) => page.id),
+      ...draftNewPages.map((page) => page.id)
+    ]));
     const deletedPageIds = reportData?.pages
       ?.filter(p => p._isDraftDeleted)
       .map(p => p.id) || [];
@@ -106,21 +113,19 @@ const PublishSelectionModal = ({
   };
 
   // Build change lists
-  const newPageIds = new Set(pendingCreates.map(p => p.id));
+  const newPageIds = new Set([
+    ...pendingCreates.map((page) => page.id),
+    ...draftNewPages.map((page) => page.id)
+  ]);
 
   // Draft-deleted pages that were also draft-created should NOT appear in New Pages
   // (they were never on the backend, so publishing them would create then immediately delete)
   const draftDeletedIds = new Set(
     (reportData?.pages || []).filter(p => p._isDraftDeleted).map(p => p.id)
   );
-  // Look up new pages from reportData.pages to get their current updated pageNumber.
-  // Falls back to original pendingCreates entry if not found by ID.
-  const publishableCreates = pendingCreates
-    .filter(p => !draftDeletedIds.has(p.id))
-    .map(p => {
-      const fromReport = (reportData?.pages || []).find(rp => String(rp.id) === String(p.id));
-      return fromReport || p;
-    });
+  const publishableCreates = draftNewPages.length > 0
+    ? draftNewPages
+    : pendingCreates.filter((page) => !draftDeletedIds.has(page.id));
   
   // Filter out pages that are in pendingCreates from the edited list
   // (new pages should only show in "New Pages" section, not "Edited Pages")
