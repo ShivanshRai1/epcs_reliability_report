@@ -17,7 +17,9 @@ const PageManagerModal = ({
   const containerRef = useRef(null);
 
   React.useEffect(() => {
-    const sortedPages = [...(pages || [])].sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
+    const sortedPages = [...(pages || [])]
+      .filter(p => !p._isDraftDeleted)
+      .sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
     setPagesList(sortedPages);
   }, [pages, isOpen]);
 
@@ -28,7 +30,9 @@ const PageManagerModal = ({
   }, [isOpen]);
 
   const resetFromProps = () => {
-    const sortedPages = [...(pages || [])].sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
+    const sortedPages = [...(pages || [])]
+      .filter(p => !p._isDraftDeleted)
+      .sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
     setPagesList(sortedPages);
   };
 
