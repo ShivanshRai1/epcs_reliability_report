@@ -22,29 +22,11 @@ const PublishSelectionModal = ({
   });
 
 
-  // Calculate what final page numbers WILL BE after publishing
-  const calculateFinalPageNumbers = () => {
-    // Get ALL pages that are not deleted (including draft-new pages)
-    const allPages = (reportData?.pages || [])
-      .filter(p => !p._isDraftDeleted)
-      .map(p => ({
-        id: p.id,
-        pageNumber: p.pageNumber || 0
-      }));
-    
-    // Sort by current page number
-    const sortedPages = [...allPages].sort((a, b) => a.pageNumber - b.pageNumber);
-    
-    // Create a map of page id -> final sequential page number
-    const finalPageNumberMap = new Map();
-    sortedPages.forEach((page, index) => {
-      finalPageNumberMap.set(String(page.id), index + 1);
-    });
-    
-    return finalPageNumberMap;
+  // Look up the current sequential page number for any page by ID
+  const getPageNumber = (pageId) => {
+    const page = (reportData?.pages || []).find(p => String(p.id) === String(pageId));
+    return page?.pageNumber || '?';
   };
-
-  const finalPageNumbers = calculateFinalPageNumbers();
 
   // Initialize all changes as selected by default
   useEffect(() => {
@@ -179,7 +161,7 @@ const PublishSelectionModal = ({
                       checked={selectedChanges.editedPages.has(page.id)}
                       onChange={() => toggleEditedPage(page.id)}
                     />
-                    <span className="page-title">Page {finalPageNumbers.get(String(page.id)) || '?'} ({page.pageType || page.pageTemplate || 'Content'}) - {page.title || 'Untitled Page'}</span>
+                    <span className="page-title">Page {getPageNumber(page.id)} ({page.pageType || page.pageTemplate || 'Content'}) - {page.title || 'Untitled Page'}</span>
                   </label>
                 ))}
               </div>
@@ -198,7 +180,7 @@ const PublishSelectionModal = ({
                       checked={selectedChanges.newPages.has(page.id)}
                       onChange={() => toggleNewPage(page.id)}
                     />
-                    <span className="page-title">Page {finalPageNumbers.get(String(page.id)) || '?'} ({page.pageType || page.pageTemplate || 'Content'}) - {page.title || 'Untitled Page'}</span>
+                    <span className="page-title">Page {getPageNumber(page.id)} ({page.pageType || page.pageTemplate || 'Content'}) - {page.title || 'Untitled Page'}</span>
                   </label>
                 ))}
               </div>
