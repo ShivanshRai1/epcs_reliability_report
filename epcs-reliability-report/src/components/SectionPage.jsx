@@ -15,6 +15,7 @@ import SplitContentEditor from './SplitContentEditor';
 import SplitContentRenderer from './SplitContentRenderer';
 import ContentSection from './ContentSection';
 import IndexEditor from './IndexEditor';
+import ManagedContentEditor from './ManagedContentEditor';
 
 const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLiveMode = false, indexPageOrdinal = null, onCellChange, onHeadingChange, onImageChange, onIndexChange, onImageClick, allIndexItems, allPages = [] }) => {
   if (!page) return <div style={{ padding: '1.5rem 0' }}>No page data available.</div>;
@@ -944,6 +945,47 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
         onLinkClick={onLinkClick}
         onImageClick={onImageClick}
       />
+    );
+  }
+
+  // Render managed content page (rich editor with CKEditor)
+  if (page.pageType === 'managed-content') {
+    if (isEditMode) {
+      return wrapEditContent(
+        <ManagedContentEditor 
+          page={page} 
+          onChange={(updatedPage) => onCellChange(page.id, updatedPage)}
+        />
+      );
+    }
+
+    // Read-only view for managed content
+    return (
+      <div>
+        {page.title && (
+          <div style={{
+            background: page.titleColor || 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)',
+            color: 'white',
+            padding: '14px 24px',
+            fontSize: `${titleFontSize}rem`,
+            fontWeight: 600,
+            textAlign: 'center',
+            letterSpacing: '0.5px',
+            marginBottom: '1.2rem',
+          }}>
+            {page.title}
+          </div>
+        )}
+        <div 
+          style={{
+            fontFamily,
+            fontSize: `${contentFontSize}rem`,
+            color: contentTextColor,
+            lineHeight: 1.6,
+          }}
+          dangerouslySetInnerHTML={{ __html: page.htmlContent || '' }}
+        />
+      </div>
     );
   }
 
