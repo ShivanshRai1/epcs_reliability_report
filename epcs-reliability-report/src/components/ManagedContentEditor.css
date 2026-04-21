@@ -63,6 +63,18 @@
   font-size: 1rem;
 }
 
+/* Table styling - left align by default */
+.ckeditor-wrapper .ck-content table {
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  width: auto !important;
+}
+
+.ckeditor-wrapper .ck-content table td,
+.ckeditor-wrapper .ck-content table th {
+  text-align: left;
+}
+
 .editor-header {
   display: flex;
   flex-direction: column;
