@@ -123,8 +123,6 @@ const ManagedContentEditor = ({ page, onChange }) => {
               'tableRow',
               'mergeTableCells',
               'deleteTable',
-              'deleteColumn',
-              'deleteRow',
               '|',
               'alignment',
               'fontFamily',
@@ -141,7 +139,7 @@ const ManagedContentEditor = ({ page, onChange }) => {
               toolbar: ['imageTextAlternative', 'imageStyle:full', 'imageStyle:side']
             },
             table: {
-              contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'deleteTable', 'deleteColumn', 'deleteRow']
+              contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'deleteTable']
             },
             link: {
               defaultProtocol: 'https://',
