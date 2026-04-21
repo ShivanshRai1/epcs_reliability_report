@@ -1,45 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import { Plugin } from '@ckeditor/ckeditor5-core';
-import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import './ManagedContentEditor.css';
 import { getTemplateBadge } from '../utils/templateInfo.jsx';
 
-// Custom universal delete plugin
-class UniversalDelete extends Plugin {
-  static get pluginName() {
-    return 'UniversalDelete';
-  }
-
-  init() {
-    const editor = this.editor;
-    const command = editor.commands.get('delete');
-    
-    // Register UI button
-    editor.ui.componentFactory.add('universalDelete', (locale) => {
-      const view = new ButtonView(locale);
-      
-      view.set({
-        label: 'Delete',
-        icon: '<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M6 2a1 1 0 00-1 1v1H3a1 1 0 000 2h1v10a2 2 0 002 2h6a2 2 0 002-2V6h1a1 1 0 100-2h-2V3a1 1 0 00-1-1H6zm0 2h8v10H6V4z"/></svg>',
-        tooltip: true
-      });
-
-      view.bind('isEnabled').to(command, 'isEnabled');
-      
-      this.listenTo(view, 'execute', () => {
-        editor.execute('delete');
-        editor.editing.view.focus();
-      });
-
-      return view;
-    });
-  }
-}
-
-// Add plugin to ClassicEditor
-ClassicEditor.builtinPlugins.push(UniversalDelete);
+// Simple delete handler - use built-in delete command
+const handleDeleteClick = (editor) => {
+  editor.execute('delete');
+  editor.editing.view.focus();
+};
 
 const ManagedContentEditor = ({ page, onChange }) => {
   const [editorReady, setEditorReady] = useState(false);
@@ -160,8 +129,6 @@ const ManagedContentEditor = ({ page, onChange }) => {
               'tableRow',
               'mergeTableCells',
               'deleteTable',
-              '|',
-              'universalDelete',
               '|',
               'alignment',
               'fontFamily',
