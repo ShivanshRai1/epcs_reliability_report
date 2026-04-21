@@ -63,6 +63,17 @@
   font-size: 1rem;
 }
 
+/* List styling - ensure text color stays consistent */
+.ckeditor-wrapper .ck-content ol li,
+.ckeditor-wrapper .ck-content ul li {
+  color: #1f2937;
+}
+
+.ckeditor-wrapper .ck-content ol li > p,
+.ckeditor-wrapper .ck-content ul li > p {
+  color: #1f2937;
+}
+
 /* Table styling - left align by default */
 .ckeditor-wrapper .ck-content table {
   margin-left: 0 !important;
