@@ -76,6 +76,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       const templateMap = new Map(filteredTemplates.map((t) => [t.id, t]));
 
       const ensuredTemplates = [
+        { id: 'managed-content', name: 'Manage Content via Editor', description: 'Rich text editor with full formatting capabilities' },
         { id: 'split-text-image', name: 'Split Text + Image', description: 'Text on left and image on right with optional headers' },
         { id: 'split-links-image', name: 'Split Links + Image', description: 'Links on left and image on right with optional headers' },
         { id: 'split-image-links', name: 'Split Image + Links', description: 'Image on left and links on right with optional headers' },
