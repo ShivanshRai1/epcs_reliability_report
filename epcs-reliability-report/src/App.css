@@ -98,16 +98,20 @@ h1 {
   font-weight: 600;
 }
 
-/* Managed content list styling - fix rendered list text color */
-ol li,
-ul li {
-  color: #1f2937 !important;
-  list-style-color: #1f2937 !important;
+/* Managed content display - fix list text color in rendered output */
+.managed-content-display ol li,
+.managed-content-display ul li {
+  color: inherit !important;
 }
 
-ol li *,
-ul li * {
-  color: #1f2937 !important;
+.managed-content-display ol li *,
+.managed-content-display ul li * {
+  color: inherit !important;
+}
+
+.managed-content-display ol,
+.managed-content-display ul {
+  color: inherit !important;
 }
 
 .index-child-list {

@@ -977,6 +977,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
           </div>
         )}
         <div 
+          className="managed-content-display"
           style={{
             fontFamily,
             fontSize: `${contentFontSize}rem`,
