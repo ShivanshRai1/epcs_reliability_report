@@ -63,15 +63,28 @@
   font-size: 1rem;
 }
 
-/* List styling - ensure text color stays consistent */
+/* List styling - ensure text color stays consistent with normal text */
+.ckeditor-wrapper .ck-content ol,
+.ckeditor-wrapper .ck-content ul {
+  color: #1f2937;
+}
+
 .ckeditor-wrapper .ck-content ol li,
 .ckeditor-wrapper .ck-content ul li {
-  color: #1f2937;
+  color: #1f2937 !important;
 }
 
 .ckeditor-wrapper .ck-content ol li > p,
 .ckeditor-wrapper .ck-content ul li > p {
-  color: #1f2937;
+  color: #1f2937 !important;
+}
+
+.ckeditor-wrapper .ck-editor__editable .ck-list-item {
+  color: #1f2937 !important;
+}
+
+.ckeditor-wrapper .ck-editor__editable .ck-list-item-button {
+  color: #1f2937 !important;
 }
 
 /* Table styling - left align by default */
