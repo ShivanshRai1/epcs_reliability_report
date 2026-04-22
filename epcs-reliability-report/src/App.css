@@ -98,6 +98,18 @@ h1 {
   font-weight: 600;
 }
 
+/* Managed content list styling - fix rendered list text color */
+ol li,
+ul li {
+  color: #1f2937 !important;
+  list-style-color: #1f2937 !important;
+}
+
+ol li *,
+ul li * {
+  color: #1f2937 !important;
+}
+
 .index-child-list {
   list-style: none !important;
   margin: 0.2rem 0 0.35rem 0.2rem !important;
