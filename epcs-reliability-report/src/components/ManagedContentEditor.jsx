@@ -124,6 +124,10 @@ const ManagedContentEditor = ({ page, onChange }) => {
               'tableRow',
               'mergeTableCells',
               '|',
+              'alignment:left',
+              'alignment:center',
+              'alignment:right',
+              '|',
               'undo',
               'redo'
             ],
