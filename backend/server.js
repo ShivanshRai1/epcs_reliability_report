@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
+import path from 'path';
 import pool from './config/database.js';
 import { attachDataMode } from './config/dataMode.js';
 import pagesRoute from './routes/pages.js';
@@ -58,6 +59,7 @@ app.use('/api', attachDataMode);
 app.use('/api/pages', pagesRoute);
 app.use('/api/history', historyRoute);
 app.use('/api/cms', cmsRoute);
+app.use('/uploads', express.static(path.join(path.dirname(new URL(import.meta.url).pathname), 'uploads')));
 app.use('/api/test', testRoute);
 
 // Root endpoint

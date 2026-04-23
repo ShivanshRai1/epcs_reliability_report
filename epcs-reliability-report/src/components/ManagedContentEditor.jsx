@@ -4,6 +4,50 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import './ManagedContentEditor.css';
 import { getTemplateBadge } from '../utils/templateInfo.jsx';
 
+// CKEditor upload adapter
+class CustomUploadAdapter {
+  constructor(loader) {
+    this.loader = loader;
+  }
+
+  upload() {
+    return this.loader.file.then(file => {
+      return new Promise((resolve, reject) => {
+        const formData = new FormData();
+        formData.append('upload', file);
+        const apiUrl = '/api/cms/upload-image';
+
+        fetch(apiUrl, {
+          method: 'POST',
+          body: formData
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.error) {
+              reject(data.error);
+            } else {
+              console.log(`✅ Image uploaded: ${data.url}`);
+              resolve({ default: data.url });
+            }
+          })
+          .catch(error => {
+            console.error('Image upload failed:', error);
+            reject('Image upload failed: ' + error.message);
+          });
+      });
+    });
+  }
+
+  abort() {}
+}
+
+function CustomUploadAdapterPlugin(editor) {
+  editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+    return new CustomUploadAdapter(loader);
+  };
+}
+
+
 // Simple delete handler - use built-in delete command
 const handleDeleteClick = (editor) => {
   editor.execute('delete');
@@ -144,7 +188,8 @@ const ManagedContentEditor = ({ page, onChange }) => {
                   }
                 }
               }
-            }
+            },
+            extraPlugins: [CustomUploadAdapterPlugin]
           }}
         />
       </div>
