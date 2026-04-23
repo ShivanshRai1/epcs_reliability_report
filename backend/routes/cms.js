@@ -306,6 +306,9 @@ router.post('/create', async (req, res) => {
       );
     }
 
+    // Log the change
+    console.log(`📝 Page created: ${title} (id: ${pageId}, template: ${template}, position: ${insertPosition})`);
+
     // Rebuild all positions to ensure they're consecutive (1, 2, 3, ...)
     await rebuildPositions(connection, pagesTable);
 
@@ -335,7 +338,7 @@ router.delete('/:pageId', async (req, res) => {
 
     // Get the page to delete
     const [pageRows] = await connection.query(
-      `SELECT page_number, position FROM ${pagesTable} WHERE page_id = ? AND is_deleted = FALSE`,
+      `SELECT page_number, position, title FROM ${pagesTable} WHERE page_id = ? AND is_deleted = FALSE`,
       [pageId]
     );
 
@@ -344,12 +347,17 @@ router.delete('/:pageId', async (req, res) => {
       return res.status(404).json({ error: 'Page not found' });
     }
 
+    const pageTitle = pageRows[0].title;
+
     // Soft delete the page
     console.log('🗑️ Soft deleting page:', pageId);
     await connection.query(
       `UPDATE ${pagesTable} SET is_deleted = TRUE, updated_at = CURRENT_TIMESTAMP WHERE page_id = ?`,
       [pageId]
     );
+
+    // Log the change
+    console.log(`🗑️ Page deleted: ${pageTitle} (id: ${pageId})`);
 
     // Rebuild all positions to ensure they're consecutive
     console.log('🔧 Rebuilding positions after delete...');
@@ -580,6 +588,9 @@ router.post('/restore-original', async (req, res) => {
     );
 
     console.log(`  🗑️ Soft-deleted ${deleteResult.affectedRows} extra pages not in original data`);
+
+    // Log bulk restore action
+    console.log(`♻️ Data restored: ${restorePageIds.size} pages restored, ${deleteResult.affectedRows} pages deleted`);
 
     // Record the restore in history
     if (process.env.TRACK_HISTORY === 'true') {
