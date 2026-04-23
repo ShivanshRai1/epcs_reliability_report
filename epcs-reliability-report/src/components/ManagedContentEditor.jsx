@@ -108,7 +108,6 @@ const ManagedContentEditor = ({ page, onChange }) => {
               'italic',
               '|',
               'blockQuote',
-              'codeBlock',
               '|',
               'bulletedList',
               'numberedList',
@@ -123,10 +122,6 @@ const ManagedContentEditor = ({ page, onChange }) => {
               'tableColumn',
               'tableRow',
               'mergeTableCells',
-              '|',
-              'alignment:left',
-              'alignment:center',
-              'alignment:right',
               '|',
               'undo',
               'redo'
