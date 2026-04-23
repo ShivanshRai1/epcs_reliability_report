@@ -99,6 +99,12 @@
   text-align: left;
 }
 
+/* Image sizing - scale large images to fit editor width */
+.ckeditor-wrapper .ck-content img {
+  max-width: 100%;
+  height: auto;
+}
+
 .editor-header {
   display: flex;
   flex-direction: column;
