@@ -92,7 +92,9 @@ const deleteWithBaseFallback = async (pageId) => {
           continue;
         }
 
-        return await res.json();
+        const result = await res.json();
+        console.log(`🗑️ Page deleted: ${result.title || pageId}`);
+        return result;
       } catch (error) {
         lastError = error;
       }
@@ -156,7 +158,9 @@ export const apiService = {
         try {
           const res = await fetch(`${baseUrl}/pages${cacheBust}`, withModeRequest());
           if (!res.ok) continue;
-          return await res.json();
+          const pages = await res.json();
+          console.log(`📖 Loaded ${pages.length || 0} pages`);
+          return pages;
         } catch {
           // Try next base URL
         }
@@ -209,7 +213,9 @@ export const apiService = {
           lastError = new Error(`HTTP ${res.status} when saving page`);
           continue;
         }
-        return res.json();
+        const result = await res.json();
+        console.log(`💾 Page updated: ${pageId}`);
+        return result;
       } catch (error) {
         lastError = error;
       }
@@ -395,7 +401,9 @@ export const apiService = {
           lastError = new Error(`HTTP ${res.status} when restoring original data`);
           continue;
         }
-        return res.json();
+        const result = await res.json();
+        console.log(`♻️ Data restored: ${result.restored || 0} pages restored, ${result.deleted || 0} pages deleted`);
+        return result;
       } catch (error) {
         lastError = error;
       }
