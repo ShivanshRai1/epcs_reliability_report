@@ -101,8 +101,15 @@
 
 /* Image sizing - scale large images to fit editor width */
 .ckeditor-wrapper .ck-content img {
-  max-width: 100%;
-  height: auto;
+  max-width: 100% !important;
+  height: auto !important;
+  width: auto !important;
+}
+
+.ckeditor-wrapper .ck-editor__editable img {
+  max-width: 100% !important;
+  height: auto !important;
+  width: auto !important;
 }
 
 .editor-header {
