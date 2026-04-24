@@ -28,6 +28,14 @@ const buildApiCandidates = () => {
   return [...new Set(candidates)];
 };
 
+export const getUploadApiBase = () => {
+  if (isLocalhost()) {
+    return API_URL;
+  }
+
+  return REMOTE_API_CANDIDATES.find(Boolean) || API_URL;
+};
+
 const getTestModeState = () => {
   try {
     const enabled = localStorage.getItem(TEST_MODE_ENABLED_KEY) === '1';

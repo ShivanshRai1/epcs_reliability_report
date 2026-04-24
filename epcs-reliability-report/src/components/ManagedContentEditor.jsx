@@ -3,6 +3,7 @@ import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import './ManagedContentEditor.css';
 import { getTemplateBadge } from '../utils/templateInfo.jsx';
+import { getUploadApiBase } from '../services/api';
 
 // CKEditor upload adapter
 class CustomUploadAdapter {
@@ -15,7 +16,8 @@ class CustomUploadAdapter {
       return new Promise((resolve, reject) => {
         const formData = new FormData();
         formData.append('upload', file);
-        const apiUrl = '/api/cms/upload-image';
+        const uploadApiBase = getUploadApiBase();
+        const apiUrl = `${uploadApiBase}/cms/upload-image`;
 
         fetch(apiUrl, {
           method: 'POST',
@@ -26,8 +28,12 @@ class CustomUploadAdapter {
             if (data.error) {
               reject(data.error);
             } else {
-              console.log(`✅ Image uploaded: ${data.url}`);
-              resolve({ default: data.url });
+              const backendOrigin = uploadApiBase.startsWith('http')
+                ? new URL(uploadApiBase).origin
+                : window.location.origin;
+              const resolvedUrl = new URL(data.url, backendOrigin).toString();
+              console.log(`✅ Image uploaded: ${resolvedUrl}`);
+              resolve({ default: resolvedUrl });
             }
           })
           .catch(error => {
