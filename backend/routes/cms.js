@@ -671,24 +671,25 @@ router.post('/restore-original', async (req, res) => {
 
 
 // Image upload endpoint
+router.get('/image/:filename', (req, res) => {
+  const requested = decodeURIComponent(String(req.params.filename || ''));
+  const safeFilename = path.basename(requested);
+  const imagePath = path.join(uploadDir, safeFilename);
+
+  if (!fs.existsSync(imagePath)) {
+    return res.status(404).json({ error: 'Image not found' });
+  }
+
+  return res.sendFile(imagePath);
+});
+
 router.post('/upload-image', upload.single('upload'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
-  // Construct absolute URL using request context or environment variables
-  // This works for both local development and production (Render, Railway, etc.)
-  let protocol = req.protocol || 'https';
-  let host = req.get('host');
-  
-  // If no host header, try environment variable (important for production)
-  if (!host) {
-    host = process.env.BACKEND_URL || process.env.API_HOST || 'localhost:5000';
-  }
-  
-  // Ensure we have a proper URL
   const encodedFilename = encodeURIComponent(req.file.filename);
-  const imageUrl = `${protocol}://${host}/uploads/${encodedFilename}`;
+  const imageUrl = `/api/cms/image/${encodedFilename}`;
   console.log(`📸 Image uploaded: ${req.file.filename} → ${imageUrl}`);
   
   res.json({

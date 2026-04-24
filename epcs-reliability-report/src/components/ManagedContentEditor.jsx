@@ -3,7 +3,7 @@ import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import './ManagedContentEditor.css';
 import { getTemplateBadge } from '../utils/templateInfo.jsx';
-import { getUploadApiBase, getUploadAssetOrigin } from '../services/api';
+import { getUploadApiBase } from '../services/api';
 
 // CKEditor upload adapter
 class CustomUploadAdapter {
@@ -28,11 +28,14 @@ class CustomUploadAdapter {
             if (data.error) {
               reject(data.error);
             } else {
-              const backendOrigin = getUploadAssetOrigin();
               const rawUrl = String(data.url || '').trim();
               const isAbsolute = /^https?:\/\//i.test(rawUrl);
               const resolvedUrl = (() => {
-                if (!rawUrl) return `/uploads/${encodeURIComponent(file.name)}`;
+                if (!rawUrl) return `/api/cms/image/${encodeURIComponent(file.name)}`;
+
+                if (rawUrl.startsWith('/')) {
+                  return rawUrl;
+                }
 
                 if (isAbsolute) {
                   try {
@@ -46,11 +49,7 @@ class CustomUploadAdapter {
                   }
                 }
 
-                if (rawUrl.startsWith('/uploads/')) {
-                  return rawUrl;
-                }
-
-                return new URL(rawUrl, backendOrigin).toString();
+                return rawUrl;
               })();
               console.log(`✅ Image uploaded: ${resolvedUrl}`);
               resolve({ default: resolvedUrl });
