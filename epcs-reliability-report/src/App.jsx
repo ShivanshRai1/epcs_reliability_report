@@ -597,11 +597,8 @@ const clearDraftCache = () => {
     const newPages = targetPages.filter((p) => {
       const pageId = String(p.id || '');
       const normalizedTitle = String(p.title || '').trim().toLowerCase();
-      // Only match short sequential legacy IDs (page_1 through page_999999).
-      // Exclude timestamp-based IDs (page_1745209234567, 13 digits) used by
-      // both the frontend draft system and backend createPage endpoint — those
-      // are user-created pages and must NOT be silently appended to the index.
-      const isAutoCreatedPage = /^page_[0-9]{1,9}$/i.test(pageId);
+      // Match auto-generated page IDs: page_<number> (including timestamp-based IDs like page_1745209234567)
+      const isAutoCreatedPage = /^page_[0-9]+$/i.test(pageId);
       if (!isAutoCreatedPage) return false;
       if (blockedDynamicTitles.has(normalizedTitle)) return false;
       return !staticTargets.has(pageId);
