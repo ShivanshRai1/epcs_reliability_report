@@ -8,3 +8,9 @@
   to = "https://epcs-reliability-report.onrender.com/api/:splat"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/uploads/*"
+  to = "https://epcs-reliability-report.onrender.com/uploads/:splat"
+  status = 200
+  force = true

@@ -14,6 +14,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: true,
       },
+      '/uploads': {
+        target: process.env.VITE_PROXY_TARGET || 'https://epcs-reliability-report.onrender.com',
+        changeOrigin: true,
+        secure: true,
+      },
     },
   },
 })
