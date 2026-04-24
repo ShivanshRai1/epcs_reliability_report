@@ -667,9 +667,17 @@ router.post('/upload-image', upload.single('upload'), (req, res) => {
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
-  // Construct full absolute URL so CKEditor can access it reliably
-  const protocol = req.protocol || 'https';
-  const host = req.get('host') || process.env.API_HOST || 'localhost:5000';
+  // Construct absolute URL using request context or environment variables
+  // This works for both local development and production (Render, Railway, etc.)
+  let protocol = req.protocol || 'https';
+  let host = req.get('host');
+  
+  // If no host header, try environment variable (important for production)
+  if (!host) {
+    host = process.env.BACKEND_URL || process.env.API_HOST || 'localhost:5000';
+  }
+  
+  // Ensure we have a proper URL
   const imageUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
   console.log(`📸 Image uploaded: ${req.file.filename} → ${imageUrl}`);
   
