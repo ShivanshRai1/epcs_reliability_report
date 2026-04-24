@@ -1,6 +1,7 @@
 const ENV_API_URL =
   import.meta.env.VITE_API_URL ||
   import.meta.env.VITE_REACT_APP_API_URL ||
+  import.meta.env.VITE_PROXY_TARGET ||
   '';
 
 const TEST_MODE_ENABLED_KEY = 'epcs_test_mode_enabled';
@@ -28,12 +29,24 @@ const buildApiCandidates = () => {
   return [...new Set(candidates)];
 };
 
-export const getUploadApiBase = () => {
-  if (isLocalhost()) {
-    return API_URL;
+export const getUploadApiBase = () => API_URL;
+
+export const getUploadAssetOrigin = () => {
+  const remoteBase = REMOTE_API_CANDIDATES.find(Boolean);
+
+  if (remoteBase) {
+    try {
+      return new URL(remoteBase).origin;
+    } catch {
+      // Fall through to same-origin when env config is malformed.
+    }
   }
 
-  return REMOTE_API_CANDIDATES.find(Boolean) || API_URL;
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+
+  return '';
 };
 
 const getTestModeState = () => {
