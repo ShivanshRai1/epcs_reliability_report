@@ -43,9 +43,10 @@
 }
 
 .ckeditor-wrapper .ck-editor__editable {
-  min-height: 400px;
-  max-height: 600px;
+  min-height: 600px;
+  max-height: 900px;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 16px;
   font-family: inherit;
   font-size: 1rem;
@@ -99,17 +100,31 @@
   text-align: left;
 }
 
-/* Image sizing - scale large images to fit editor width */
+/* Image sizing - scale large images to fit editor width and keep them visible */
 .ckeditor-wrapper .ck-content img {
   max-width: 100% !important;
   height: auto !important;
   width: auto !important;
+  display: block !important;
+  margin: 12px 0 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .ckeditor-wrapper .ck-editor__editable img {
   max-width: 100% !important;
   height: auto !important;
   width: auto !important;
+  display: block !important;
+  margin: 12px 0 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.ckeditor-wrapper .ck-editor__editable figure {
+  max-width: 100% !important;
+  margin: 12px 0 !important;
+  overflow: visible !important;
 }
 
 .editor-header {
@@ -129,8 +144,8 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .ckeditor-wrapper .ck-editor__editable {
-    min-height: 300px;
-    max-height: 400px;
+    min-height: 450px;
+    max-height: 700px;
   }
 
   .managed-content-editor {
