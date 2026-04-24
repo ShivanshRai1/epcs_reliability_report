@@ -30,16 +30,10 @@ class CustomUploadAdapter {
             } else {
               const backendOrigin = getUploadAssetOrigin();
               const rawUrl = String(data.url || '').trim();
-              const rawPath = rawUrl
-                ? (() => {
-                    try {
-                      return new URL(rawUrl).pathname;
-                    } catch {
-                      return rawUrl;
-                    }
-                  })()
-                : '';
-              const resolvedUrl = new URL(rawPath || `/uploads/${file.name}`, backendOrigin).toString();
+              const isAbsolute = /^https?:\/\//i.test(rawUrl);
+              const resolvedUrl = isAbsolute
+                ? rawUrl
+                : new URL(rawUrl || `/uploads/${encodeURIComponent(file.name)}`, backendOrigin).toString();
               console.log(`✅ Image uploaded: ${resolvedUrl}`);
               resolve({ default: resolvedUrl });
             }

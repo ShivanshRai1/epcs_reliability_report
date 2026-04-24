@@ -16,7 +16,16 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const uniqueName = `${Date.now()}-${file.originalname}`;
+    const originalName = file?.originalname || 'image';
+    const extension = path.extname(originalName).toLowerCase();
+    const baseName = path.basename(originalName, extension);
+    const safeBaseName = baseName
+      .replace(/[^a-zA-Z0-9_-]/g, '_')
+      .replace(/_+/g, '_')
+      .replace(/^_+|_+$/g, '')
+      .slice(0, 80) || 'image';
+    const safeExtension = extension || '.png';
+    const uniqueName = `${Date.now()}-${safeBaseName}${safeExtension}`;
     cb(null, uniqueName);
   }
 });
@@ -678,7 +687,8 @@ router.post('/upload-image', upload.single('upload'), (req, res) => {
   }
   
   // Ensure we have a proper URL
-  const imageUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+  const encodedFilename = encodeURIComponent(req.file.filename);
+  const imageUrl = `${protocol}://${host}/uploads/${encodedFilename}`;
   console.log(`📸 Image uploaded: ${req.file.filename} → ${imageUrl}`);
   
   res.json({
