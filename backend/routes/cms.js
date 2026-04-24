@@ -667,8 +667,11 @@ router.post('/upload-image', upload.single('upload'), (req, res) => {
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
-  const imageUrl = `/uploads/${req.file.filename}`;
-  console.log(`📸 Image uploaded: ${req.file.filename}`);
+  // Construct full absolute URL so CKEditor can access it reliably
+  const protocol = req.protocol || 'https';
+  const host = req.get('host') || process.env.API_HOST || 'localhost:5000';
+  const imageUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+  console.log(`📸 Image uploaded: ${req.file.filename} → ${imageUrl}`);
   
   res.json({
     url: imageUrl,
