@@ -59,7 +59,12 @@ app.use('/api', attachDataMode);
 app.use('/api/pages', pagesRoute);
 app.use('/api/history', historyRoute);
 app.use('/api/cms', cmsRoute);
-app.use('/uploads', express.static(path.join(path.dirname(new URL(import.meta.url).pathname), 'uploads')));
+// Serve uploaded images with CORS headers so the frontend (Netlify) can load them
+app.use('/uploads', (req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  next();
+}, express.static(path.join(path.dirname(new URL(import.meta.url).pathname), 'uploads')));
 app.use('/api/test', testRoute);
 
 // Root endpoint
