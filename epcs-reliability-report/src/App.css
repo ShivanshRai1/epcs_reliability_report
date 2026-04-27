@@ -114,6 +114,23 @@ h1 {
   color: inherit !important;
 }
 
+/* Managed content display - keep images/charts inside the page in read-only mode */
+.managed-content-display img {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+.managed-content-display figure {
+  max-width: 100% !important;
+  margin: 12px 0 !important;
+}
+
+.managed-content-display figure.image img {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+}
+
 .index-child-list {
   list-style: none !important;
   margin: 0.2rem 0 0.35rem 0.2rem !important;

@@ -1,6 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import {
+  ClassicEditor,
+  Essentials,
+  Heading,
+  Paragraph,
+  Bold,
+  Italic,
+  BlockQuote,
+  List,
+  Indent,
+  Link,
+  Image,
+  ImageToolbar,
+  ImageCaption,
+  ImageStyle,
+  ImageInsert,
+  ImageInsertViaUrl,
+  ImageTextAlternative,
+  ImageUpload,
+  ImageResize,
+  ImageResizeHandles,
+  Table,
+  TableToolbar
+} from 'ckeditor5';
+import 'ckeditor5/ckeditor5.css';
 import './ManagedContentEditor.css';
 import { getTemplateBadge } from '../utils/templateInfo.jsx';
 import { getUploadApiBase } from '../services/api';
@@ -170,6 +194,29 @@ const ManagedContentEditor = ({ page, onChange }) => {
           onChange={handleEditorChange}
           onReady={() => setEditorReady(true)}
           config={{
+            plugins: [
+              Essentials,
+              Heading,
+              Paragraph,
+              Bold,
+              Italic,
+              BlockQuote,
+              List,
+              Indent,
+              Link,
+              Image,
+              ImageToolbar,
+              ImageCaption,
+              ImageStyle,
+              ImageInsert,
+              ImageInsertViaUrl,
+              ImageTextAlternative,
+              ImageUpload,
+              ImageResize,
+              ImageResizeHandles,
+              Table,
+              TableToolbar
+            ],
             toolbar: [
               'heading',
               '|',
@@ -185,7 +232,7 @@ const ManagedContentEditor = ({ page, onChange }) => {
               '|',
               'link',
               'imageUpload',
-              'imageInsert',
+              'insertImage',
               '|',
               'insertTable',
               'tableColumn',
@@ -222,8 +269,9 @@ const ManagedContentEditor = ({ page, onChange }) => {
               toolbar: [
                 'resizeImage',
                 '|',
+                'toggleImageCaption',
                 'imageTextAlternative',
-                'imageStyle:full',
+                'imageStyle:block',
                 'imageStyle:side'
               ]
             },
