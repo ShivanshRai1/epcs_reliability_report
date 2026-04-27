@@ -196,7 +196,36 @@ const ManagedContentEditor = ({ page, onChange }) => {
               'redo'
             ],
             image: {
-              toolbar: ['imageTextAlternative', 'imageStyle:full', 'imageStyle:side']
+              resizeUnit: '%',
+              resizeOptions: [
+                {
+                  name: 'resizeImage:original',
+                  value: null,
+                  label: 'Original'
+                },
+                {
+                  name: 'resizeImage:25',
+                  value: '25',
+                  label: '25%'
+                },
+                {
+                  name: 'resizeImage:50',
+                  value: '50',
+                  label: '50%'
+                },
+                {
+                  name: 'resizeImage:75',
+                  value: '75',
+                  label: '75%'
+                }
+              ],
+              toolbar: [
+                'resizeImage',
+                '|',
+                'imageTextAlternative',
+                'imageStyle:full',
+                'imageStyle:side'
+              ]
             },
             table: {
               contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'deleteTable']
