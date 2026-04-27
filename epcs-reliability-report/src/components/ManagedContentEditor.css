@@ -44,9 +44,8 @@
 
 .ckeditor-wrapper .ck-editor__editable {
   min-height: 600px;
-  max-height: 900px;
-  overflow-y: auto;
-  overflow-x: hidden;
+  max-height: none;
+  overflow: visible;
   padding: 16px;
   font-family: inherit;
   font-size: 1rem;
@@ -143,7 +142,7 @@
 @media (max-width: 768px) {
   .ckeditor-wrapper .ck-editor__editable {
     min-height: 450px;
-    max-height: 700px;
+    max-height: none;
   }
 
   .managed-content-editor {
