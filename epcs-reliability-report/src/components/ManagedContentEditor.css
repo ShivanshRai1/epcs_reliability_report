@@ -35,45 +35,6 @@
   color: #333;
 }
 
-.managed-content-image-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  padding: 8px 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background: #ffffff;
-}
-
-.managed-content-image-controls__label {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #374151;
-}
-
-.managed-content-image-controls__input {
-  width: 96px;
-  padding: 6px 8px;
-  border: 1px solid #b9c7da;
-  border-radius: 4px;
-  font-size: 0.9rem;
-}
-
-.managed-content-image-controls__button {
-  padding: 6px 10px;
-  border: 1px solid #b9c7da;
-  border-radius: 4px;
-  background: #f9fafb;
-  color: #1f2937;
-  cursor: pointer;
-  font-size: 0.85rem;
-}
-
-.managed-content-image-controls__button:hover {
-  background: #f3f4f6;
-}
-
 /* CKEditor styling - make it look good */
 .ckeditor-wrapper .ck-editor__main {
   border: 1px solid #b9c7da;
@@ -143,7 +104,6 @@
 .ckeditor-wrapper .ck-content img {
   max-width: 100% !important;
   height: auto !important;
-  width: auto !important;
   display: block !important;
   margin: 12px 0 !important;
   visibility: visible !important;
@@ -153,7 +113,6 @@
 .ckeditor-wrapper .ck-editor__editable img {
   max-width: 100% !important;
   height: auto !important;
-  width: auto !important;
   display: block !important;
   margin: 12px 0 !important;
   visibility: visible !important;

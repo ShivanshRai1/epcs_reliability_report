@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import './ManagedContentEditor.css';
@@ -84,16 +84,11 @@ const ManagedContentEditor = ({ page, onChange }) => {
   const [title, setTitle] = useState(page.title || '');
   const [titleColor, setTitleColor] = useState(page.titleColor || '#0052a3');
   const [htmlContent, setHtmlContent] = useState(page.htmlContent || '');
-  const [selectedImageSrc, setSelectedImageSrc] = useState('');
-  const [selectedImageWidth, setSelectedImageWidth] = useState('');
-  const editorInstanceRef = useRef(null);
 
   useEffect(() => {
     setTitle(page.title || '');
     setTitleColor(page.titleColor || '#0052a3');
     setHtmlContent(page.htmlContent || '');
-    setSelectedImageSrc('');
-    setSelectedImageWidth('');
   }, [page.id]);
 
   const handleTitleChange = (e) => {
@@ -111,65 +106,6 @@ const ManagedContentEditor = ({ page, onChange }) => {
   const handleEditorChange = (event, editor) => {
     const newContent = editor.getData();
     setHtmlContent(newContent);
-    emitChange({ htmlContent: newContent });
-    syncSelectedImage(editor, newContent);
-  };
-
-  const readSelectedImageWidth = (content, imageSrc) => {
-    if (!content || !imageSrc || typeof window === 'undefined') return '';
-
-    const doc = new window.DOMParser().parseFromString(content, 'text/html');
-    const image = Array.from(doc.querySelectorAll('img')).find((item) => item.getAttribute('src') === imageSrc);
-    if (!image) return '';
-
-    const styleWidth = image.style?.width || '';
-    const widthMatch = styleWidth.match(/(\d+(?:\.\d+)?)px/i);
-    if (widthMatch) return widthMatch[1];
-
-    const widthAttr = image.getAttribute('width');
-    return widthAttr ? String(widthAttr) : '';
-  };
-
-  const syncSelectedImage = (editor, content = null) => {
-    const selectedElement = editor?.model?.document?.selection?.getSelectedElement?.();
-    if (!selectedElement || !['imageBlock', 'imageInline'].includes(selectedElement.name)) {
-      setSelectedImageSrc('');
-      setSelectedImageWidth('');
-      return;
-    }
-
-    const imageSrc = selectedElement.getAttribute('src') || '';
-    setSelectedImageSrc(imageSrc);
-    setSelectedImageWidth(readSelectedImageWidth(content ?? editor.getData(), imageSrc));
-  };
-
-  const applyImageWidth = (nextWidth) => {
-    const editor = editorInstanceRef.current;
-    if (!editor || !selectedImageSrc || typeof window === 'undefined') return;
-
-    const normalizedWidth = String(nextWidth ?? '').trim();
-    const doc = new window.DOMParser().parseFromString(editor.getData(), 'text/html');
-    const images = Array.from(doc.querySelectorAll('img')).filter((item) => item.getAttribute('src') === selectedImageSrc);
-    if (images.length === 0) return;
-
-    images.forEach((image) => {
-      if (normalizedWidth) {
-        image.style.width = `${normalizedWidth}px`;
-        image.style.height = 'auto';
-        image.setAttribute('width', normalizedWidth);
-        image.removeAttribute('height');
-      } else {
-        image.style.removeProperty('width');
-        image.style.removeProperty('height');
-        image.removeAttribute('width');
-        image.removeAttribute('height');
-      }
-    });
-
-    const newContent = doc.body.innerHTML;
-    editor.setData(newContent);
-    setHtmlContent(newContent);
-    setSelectedImageWidth(normalizedWidth);
     emitChange({ htmlContent: newContent });
   };
 
@@ -228,36 +164,11 @@ const ManagedContentEditor = ({ page, onChange }) => {
         <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '0.95rem', color: '#333' }}>
           Content
         </label>
-        {selectedImageSrc && (
-          <div className="managed-content-image-controls">
-            <span className="managed-content-image-controls__label">Selected image width</span>
-            <input
-              type="number"
-              min="50"
-              step="10"
-              value={selectedImageWidth}
-              onChange={(e) => setSelectedImageWidth(e.target.value)}
-              onBlur={(e) => applyImageWidth(e.target.value)}
-              className="managed-content-image-controls__input"
-              placeholder="Auto"
-            />
-            <button type="button" onClick={() => applyImageWidth('320')} className="managed-content-image-controls__button">320</button>
-            <button type="button" onClick={() => applyImageWidth('480')} className="managed-content-image-controls__button">480</button>
-            <button type="button" onClick={() => applyImageWidth('640')} className="managed-content-image-controls__button">640</button>
-            <button type="button" onClick={() => applyImageWidth('')} className="managed-content-image-controls__button">Auto</button>
-          </div>
-        )}
         <CKEditor
           editor={ClassicEditor}
           data={htmlContent}
           onChange={handleEditorChange}
-          onReady={(editor) => {
-            editorInstanceRef.current = editor;
-            setEditorReady(true);
-            editor.model.document.selection.on('change:range', () => {
-              syncSelectedImage(editor);
-            });
-          }}
+          onReady={() => setEditorReady(true)}
           config={{
             toolbar: [
               'heading',
