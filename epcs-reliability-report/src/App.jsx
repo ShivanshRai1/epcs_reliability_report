@@ -1541,6 +1541,13 @@ const clearDraftCache = () => {
 
       // NEW: Draft-only path - create page locally with full positioning and template cloning
       if (options?.isDraftOnly) {
+        const selectedTemplateId =
+          newPage?._draftTemplateId ||
+          options?.templateId ||
+          newPage?.pageTemplate ||
+          newPage?.page_template ||
+          'content';
+
         const draftPageId = newPage?.id || newPage?.page_id || newPage?.pageId || `page_${Date.now()}`;
         const draftPage = {
           ...newPage,
@@ -1549,7 +1556,9 @@ const clearDraftCache = () => {
           pageType: newPage?.pageType || newPage?.page_type || 'content',
           _isDraftNew: true,
           _draftPositionParams: options?.positionParams || null,
-          _draftTemplateId: newPage?._draftTemplateId || options?.templateId || newPage?.pageTemplate || 'content'
+          _draftTemplateId: selectedTemplateId,
+          pageTemplate: selectedTemplateId,
+          page_template: selectedTemplateId
         };
 
         // Clone template content
@@ -1559,7 +1568,9 @@ const clearDraftCache = () => {
           draftPage.id = draftPageId;
           draftPage.pageType = draftPage.pageType || newPage?.pageType || newPage?.page_type || 'content';
           draftPage._isDraftNew = true;
-          draftPage._draftTemplateId = newPage?._draftTemplateId || options?.templateId || draftPage._draftTemplateId || 'content';
+          draftPage._draftTemplateId = selectedTemplateId;
+          draftPage.pageTemplate = selectedTemplateId;
+          draftPage.page_template = selectedTemplateId;
         }
 
         // Apply display inheritance from reference page
