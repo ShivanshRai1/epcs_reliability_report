@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import TldrawPageEditor from './TldrawPageEditor';
+import GrapesJSPageEditor from './GrapesJSPageEditor';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import {
   ClassicEditor,
@@ -104,6 +106,8 @@ const handleDeleteClick = (editor) => {
 };
 
 const ManagedContentEditor = ({ page, onChange }) => {
+  const pageTemplate = page?.pageTemplate || page?.page_template || '';
+
   const [editorReady, setEditorReady] = useState(false);
   const [title, setTitle] = useState(page.title || '');
   const [titleColor, setTitleColor] = useState(page.titleColor || '#0052a3');
@@ -142,6 +146,14 @@ const ManagedContentEditor = ({ page, onChange }) => {
       ...updates
     });
   };
+
+  // Delegate to isolated sub-editors for new template variants.
+  if (pageTemplate === 'tldraw-editor') {
+    return <TldrawPageEditor page={page} onChange={onChange} />;
+  }
+  if (pageTemplate === 'grapesjs-editor') {
+    return <GrapesJSPageEditor page={page} onChange={onChange} />;
+  }
 
   return (
     <div className="managed-content-editor">

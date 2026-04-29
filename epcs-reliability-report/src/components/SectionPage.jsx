@@ -950,6 +950,8 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
 
   // Render managed content page (rich editor with CKEditor)
   if (page.pageType === 'managed-content') {
+    const currentTemplate = String(page.pageTemplate || page.page_template || '').toLowerCase();
+
     if (isEditMode) {
       return wrapEditContent(
         <ManagedContentEditor 
@@ -959,7 +961,64 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
       );
     }
 
-    // Read-only view for managed content
+    // Read-only: GrapesJS — render saved HTML+CSS
+    if (currentTemplate === 'grapesjs-editor') {
+      return (
+        <div>
+          {page.title && (
+            <div style={{
+              background: page.titleColor || 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)',
+              color: 'white',
+              padding: '14px 24px',
+              fontSize: `${titleFontSize}rem`,
+              fontWeight: 600,
+              textAlign: 'center',
+              letterSpacing: '0.5px',
+              marginBottom: '1.2rem',
+            }}>
+              {page.title}
+            </div>
+          )}
+          {page.grapesjsCss && (
+            <style dangerouslySetInnerHTML={{ __html: page.grapesjsCss }} />
+          )}
+          <div
+            className="managed-content-display"
+            style={{ fontFamily, fontSize: `${contentFontSize}rem`, color: contentTextColor, lineHeight: 1.6 }}
+            dangerouslySetInnerHTML={{ __html: page.grapesjsHtml || '' }}
+          />
+        </div>
+      );
+    }
+
+    // Read-only: Tldraw — show a notice (canvas is interactive; export not needed for report view)
+    if (currentTemplate === 'tldraw-editor') {
+      return (
+        <div>
+          {page.title && (
+            <div style={{
+              background: page.titleColor || 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)',
+              color: 'white',
+              padding: '14px 24px',
+              fontSize: `${titleFontSize}rem`,
+              fontWeight: 600,
+              textAlign: 'center',
+              letterSpacing: '0.5px',
+              marginBottom: '1.2rem',
+            }}>
+              {page.title}
+            </div>
+          )}
+          <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280', fontSize: '0.95rem', background: '#f9fafb', borderRadius: '8px', border: '1px dashed #d1d5db' }}>
+            <div style={{ fontSize: '2rem', marginBottom: '8px' }}>🎨</div>
+            <strong>Tldraw Canvas</strong>
+            <p style={{ margin: '8px 0 0' }}>This page uses the Tldraw canvas editor. Switch to Edit mode to view and edit the canvas.</p>
+          </div>
+        </div>
+      );
+    }
+
+    // Read-only view for standard managed content (CKEditor HTML)
     return (
       <div>
         {page.title && (

@@ -95,6 +95,9 @@ router.get('/templates', async (req, res) => {
         { id: 'split-image-links', name: 'Split Image + Links', description: 'Left side image, right side links with optional headers' },
         { id: 'split-image-image', name: 'Split Image + Image', description: 'Left side image, right side image with optional headers' },
         { id: 'split-content', name: 'Split Content', description: 'Left/right content areas with flexible content types' },
+        { id: 'managed-content', name: 'MS WORD like editor', description: 'Rich text editor with full formatting capabilities' },
+        { id: 'tldraw-editor', name: 'Tldraw Canvas Editor', description: 'PowerPoint-like free canvas with drag, resize and shapes (experimental)' },
+        { id: 'grapesjs-editor', name: 'GrapesJS Page Builder', description: 'Visual drag-and-drop HTML page builder (experimental)' },
         { id: 'table', name: 'Table', description: 'Primary table page type' }
       ]
     });
@@ -284,6 +287,8 @@ router.post('/create', async (req, res) => {
       'text-only': 'content',
       'link-only': 'just-links',
       'mixed-content': 'just-images',
+      'tldraw-editor': 'managed-content',
+      'grapesjs-editor': 'managed-content',
       'split-text-image': 'split-content-image',
       'split-links-image': 'split-content-image',
       'split-image-links': 'split-content-image',
@@ -302,6 +307,8 @@ router.post('/create', async (req, res) => {
       'just-images': { images: [], captions: [] },
       'mixed-content': { pageBlocks: [], images: [], captions: [], mixedContentMode: true },
       'managed-content': { htmlContent: '', title: title },
+      'tldraw-editor': { tldrawSnapshot: null, title: title },
+      'grapesjs-editor': { grapesjsHtml: '<p>Start building your page here.</p>', grapesjsCss: '', title: title },
       'heading': { title: title, subtitle: '' },
       'index': { content: [] },
       'image-text': { imageUrl: '', imageCaption: '', content: '', imagePosition: 'left', link: null },
