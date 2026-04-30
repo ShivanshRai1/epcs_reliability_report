@@ -10,6 +10,7 @@ const TldrawPageEditor = ({ page, onChange }) => {
   const onChangeRef = useRef(onChange);
   const titleRef = useRef(title);
   const pageRef = useRef(page);
+  const lastSnapshotHashRef = useRef('');
 
   useEffect(() => {
     setTitle(page.title || '');
@@ -33,6 +34,26 @@ const TldrawPageEditor = ({ page, onChange }) => {
     onChangeRef.current({ ...pageRef.current, title: newTitle });
   };
 
+  const persistSnapshot = useCallback(() => {
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    try {
+      const snapshot = editor.store.getSnapshot();
+      const snapshotHash = JSON.stringify(snapshot);
+      if (snapshotHash === lastSnapshotHashRef.current) return;
+      lastSnapshotHashRef.current = snapshotHash;
+
+      onChangeRef.current({
+        ...pageRef.current,
+        title: titleRef.current,
+        tldrawSnapshot: snapshot
+      });
+    } catch (e) {
+      console.warn('TldrawPageEditor: could not save snapshot', e);
+    }
+  }, []);
+
   const handleMount = useCallback((editor) => {
     editorRef.current = editor;
 
@@ -52,24 +73,16 @@ const TldrawPageEditor = ({ page, onChange }) => {
     const unsub = editor.store.listen(() => {
       clearTimeout(saveTimerRef.current);
       saveTimerRef.current = setTimeout(() => {
-        try {
-          const snapshot = editor.store.getSnapshot();
-          onChangeRef.current({
-            ...pageRef.current,
-            title: titleRef.current,
-            tldrawSnapshot: snapshot
-          });
-        } catch (e) {
-          console.warn('TldrawPageEditor: could not save snapshot', e);
-        }
-      }, 1500);
+        persistSnapshot();
+      }, 8000);
     }, { scope: 'document', source: 'user' });
 
     return () => {
+      persistSnapshot();
       unsub();
       clearTimeout(saveTimerRef.current);
     };
-  }, [page.id]);
+  }, [page.id, persistSnapshot]);
 
   return (
     <div className="managed-content-editor" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>

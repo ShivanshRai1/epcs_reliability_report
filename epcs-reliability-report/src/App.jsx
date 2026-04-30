@@ -1017,6 +1017,44 @@ const clearDraftCache = () => {
   };
 
   const handleCellChange = (pageId, rowIdxOrPage, colName, newValue) => {
+    const isObjectUpdate = typeof rowIdxOrPage === 'object' && rowIdxOrPage !== null && colName === undefined;
+    const isHeavyManagedSnapshotUpdate = isObjectUpdate && (() => {
+      const incoming = rowIdxOrPage || {};
+      const hasHeavyPayload =
+        Object.prototype.hasOwnProperty.call(incoming, 'tldrawSnapshot') ||
+        Object.prototype.hasOwnProperty.call(incoming, 'grapesjsHtml') ||
+        Object.prototype.hasOwnProperty.call(incoming, 'grapesjsCss');
+      if (!hasHeavyPayload) return false;
+
+      const currentPage = reportData?.pages?.find((p) => p.id === pageId);
+      const templateId = String(
+        currentPage?.pageTemplate || currentPage?.page_template || currentPage?.pageType || ''
+      ).toLowerCase();
+      return templateId === 'tldraw-editor' || templateId === 'grapesjs-editor';
+    })();
+
+    // Fast path for high-frequency managed snapshot updates.
+    // Skip undo-history and index sync churn to keep editor UI responsive/stable.
+    if (isHeavyManagedSnapshotUpdate) {
+      setReportData((prevData) => {
+        const pages = (prevData?.pages || []).map((p) => {
+          if (p.id !== pageId) return p;
+          return {
+            ...p,
+            ...restoreMissingTableStyles(rowIdxOrPage, p)
+          };
+        });
+        return { ...prevData, pages };
+      });
+
+      setChangedPages((prev) => {
+        const next = new Set(prev);
+        next.add(pageId);
+        return next;
+      });
+      return;
+    }
+
     // Capture current page state for undo history (before making changes)
     setPageUndoHistory(prevHistory => {
       const history = { ...prevHistory };
