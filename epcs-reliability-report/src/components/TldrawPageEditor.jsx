@@ -7,43 +7,62 @@ const TldrawPageEditor = ({ page, onChange }) => {
   const [title, setTitle] = useState(page.title || '');
   const editorRef = useRef(null);
   const saveTimerRef = useRef(null);
+  const onChangeRef = useRef(onChange);
+  const titleRef = useRef(title);
+  const pageRef = useRef(page);
 
   useEffect(() => {
     setTitle(page.title || '');
   }, [page.id]);
 
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  useEffect(() => {
+    titleRef.current = title;
+  }, [title]);
+
+  useEffect(() => {
+    pageRef.current = page;
+  }, [page]);
+
   const handleTitleChange = (e) => {
     const newTitle = e.target.value;
     setTitle(newTitle);
-    onChange({ ...page, title: newTitle });
+    onChangeRef.current({ ...pageRef.current, title: newTitle });
   };
 
   const handleMount = useCallback((editor) => {
     editorRef.current = editor;
 
     // Load saved snapshot if present
-    if (page.tldrawSnapshot) {
+    if (pageRef.current?.tldrawSnapshot) {
       try {
-        const snapshot = typeof page.tldrawSnapshot === 'string'
-          ? JSON.parse(page.tldrawSnapshot)
-          : page.tldrawSnapshot;
+        const snapshot = typeof pageRef.current.tldrawSnapshot === 'string'
+          ? JSON.parse(pageRef.current.tldrawSnapshot)
+          : pageRef.current.tldrawSnapshot;
         editor.store.loadSnapshot(snapshot);
       } catch (e) {
         console.warn('TldrawPageEditor: could not load snapshot', e);
       }
     }
 
-    // Listen for any change and debounce save
+    // Persist less often to prevent heavy parent rerenders while users draw.
     const unsub = editor.store.listen(() => {
       clearTimeout(saveTimerRef.current);
       saveTimerRef.current = setTimeout(() => {
         try {
           const snapshot = editor.store.getSnapshot();
-          onChange({ ...page, title, tldrawSnapshot: snapshot });
+          onChangeRef.current({
+            ...pageRef.current,
+            title: titleRef.current,
+            tldrawSnapshot: snapshot
+          });
         } catch (e) {
           console.warn('TldrawPageEditor: could not save snapshot', e);
         }
-      }, 600);
+      }, 1500);
     }, { scope: 'document', source: 'user' });
 
     return () => {
