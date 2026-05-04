@@ -94,7 +94,10 @@ const ExcalidrawEditor = ({ page, onChange }) => {
               saveToActiveFile: false,
               loadScene: false,
               export: false,
-              toggleTheme: true,
+              saveAsImage: false,
+              clearCanvas: false,
+              changeViewBackgroundColor: false,
+              toggleTheme: false,
             },
           }}
         />
