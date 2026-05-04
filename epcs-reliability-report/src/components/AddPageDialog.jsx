@@ -19,7 +19,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     { id: 'table', name: 'Table', description: 'Structured table page' },
     { id: 'just-images', name: 'Images', description: 'Image-focused page' },
     { id: 'managed-content', name: 'MS WORD like editor', description: 'Rich text editor with full formatting capabilities' },
-    { id: 'tiptap-editor', name: 'Rich Block Editor', description: 'Block-based editor — text, images, tables, headings in one flow' },
+    { id: 'tiptap-editor', name: 'Text, Tables & Images', description: 'Add text, headings, tables and images in one page' },
     { id: 'excalidraw-editor', name: 'Excalidraw Canvas', description: 'Free-form canvas for diagrams, shapes, arrows and slide-like layouts' },
     { id: 'grapesjs-editor', name: 'GrapesJS Page Builder', description: 'Visual drag-and-drop HTML page builder (experimental)' },
     { id: 'split-text-image', name: 'Split Text + Image', description: 'Text on left and image on right with optional headers' },
