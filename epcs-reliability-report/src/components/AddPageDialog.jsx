@@ -496,7 +496,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
               {!templatesLoading && templates.length === 0 && <div className="error-message">No templates available</div>}
               {templates.length > 0 && (
                 <>
-                  {showGroupLabels && <div className="template-group-label">Templates</div>}
+                  {showGroupLabels && <div className="template-group-label">Pre Existing Slides</div>}
                   <div className="templates-grid">
                     {displayedTemplateGroup.map((template) => (
                       <div
