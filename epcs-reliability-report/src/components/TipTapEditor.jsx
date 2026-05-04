@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useEditor, EditorContent } from '@tiptap/react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useEditor, EditorContent, NodeViewWrapper, ReactNodeViewRenderer } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import { Table } from '@tiptap/extension-table';
@@ -103,6 +103,189 @@ const Toolbar = ({ editor, onImageUpload, uploading }) => {
   );
 };
 
+// ── Resizable Image NodeView (React, survives TipTap re-renders) ─────
+const HANDLES = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
+const HANDLE_POS = {
+  nw: { top: 3, left: 3, cursor: 'nw-resize' },
+  n:  { top: 3, left: 'calc(50% - 5px)', cursor: 'ns-resize' },
+  ne: { top: 3, right: 3, cursor: 'ne-resize' },
+  e:  { top: 'calc(50% - 5px)', right: 3, cursor: 'ew-resize' },
+  se: { bottom: 3, right: 3, cursor: 'se-resize' },
+  s:  { bottom: 3, left: 'calc(50% - 5px)', cursor: 'ns-resize' },
+  sw: { bottom: 3, left: 3, cursor: 'sw-resize' },
+  w:  { top: 'calc(50% - 5px)', left: 3, cursor: 'ew-resize' },
+};
+
+const ResizableImageNodeView = ({ node, updateAttributes }) => {
+  const containerRef = useRef(null);
+  const imgRef = useRef(null);
+  const [selected, setSelected] = useState(false);
+  const [size, setSize] = useState({
+    w: node.attrs.width ? Number(node.attrs.width) : null,
+    h: node.attrs.height ? Number(node.attrs.height) : null,
+  });
+  const sizeRef = useRef(size);
+  sizeRef.current = size;
+
+  useEffect(() => {
+    setSize({
+      w: node.attrs.width ? Number(node.attrs.width) : null,
+      h: node.attrs.height ? Number(node.attrs.height) : null,
+    });
+  }, [node.attrs.width, node.attrs.height]);
+
+  useEffect(() => {
+    const onDown = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setSelected(false);
+      }
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, []);
+
+  const startDrag = useCallback((e, handle) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startW = sizeRef.current.w || (imgRef.current ? imgRef.current.offsetWidth : 200);
+    const startH = sizeRef.current.h || (imgRef.current ? imgRef.current.offsetHeight : 200);
+
+    const onMove = (me) => {
+      const dx = me.clientX - startX;
+      const dy = me.clientY - startY;
+      let newW = startW, newH = startH;
+      if (handle.includes('e')) newW = Math.max(40, startW + dx);
+      if (handle.includes('w')) newW = Math.max(40, startW - dx);
+      if (handle.includes('s')) newH = Math.max(40, startH + dy);
+      if (handle.includes('n')) newH = Math.max(40, startH - dy);
+      setSize({ w: Math.round(newW), h: Math.round(newH) });
+    };
+    const onUp = () => {
+      updateAttributes({ width: sizeRef.current.w, height: sizeRef.current.h });
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  }, [updateAttributes]);
+
+  return (
+    <NodeViewWrapper as="span" style={{ display: 'inline-block' }}>
+      <span
+        ref={containerRef}
+        style={{
+          position: 'relative',
+          display: 'inline-block',
+          outline: selected ? '2px solid #2563eb' : '2px dashed rgba(100,130,200,0.35)',
+          outlineOffset: '2px',
+          lineHeight: 0,
+          maxWidth: '100%',
+        }}
+        onMouseDown={() => setSelected(true)}
+      >
+        <img
+          ref={imgRef}
+          src={node.attrs.src}
+          alt={node.attrs.alt || ''}
+          title={node.attrs.title || ''}
+          draggable={false}
+          style={{
+            display: 'block',
+            width: size.w ? `${size.w}px` : '100%',
+            height: size.h ? `${size.h}px` : 'auto',
+            maxWidth: '100%',
+            objectFit: 'contain',
+            userSelect: 'none',
+            pointerEvents: 'none',
+            borderRadius: '4px',
+          }}
+        />
+
+        {selected && HANDLES.map((h) => (
+          <span
+            key={h}
+            style={{
+              position: 'absolute',
+              width: 10, height: 10,
+              background: '#2563eb',
+              border: '2px solid white',
+              borderRadius: '2px',
+              boxShadow: '0 0 0 1.5px rgba(37,99,235,0.6)',
+              zIndex: 20,
+              ...HANDLE_POS[h],
+            }}
+            onMouseDown={(e) => startDrag(e, h)}
+          />
+        ))}
+
+        {selected && (
+          <button
+            type="button"
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              setSize({ w: null, h: null });
+              updateAttributes({ width: null, height: null });
+            }}
+            style={{
+              position: 'absolute', top: 6, right: 6,
+              fontSize: '10px', color: 'white',
+              background: 'rgba(220,38,38,0.85)',
+              border: 'none', padding: '2px 7px',
+              borderRadius: '3px', cursor: 'pointer',
+              whiteSpace: 'nowrap', lineHeight: 1.6, zIndex: 21,
+            }}
+          >
+            Reset size
+          </button>
+        )}
+
+        {selected && (
+          <span style={{
+            position: 'absolute', bottom: 6, right: 6,
+            fontSize: '10px', color: 'white',
+            background: 'rgba(37,99,235,0.85)',
+            padding: '2px 6px', borderRadius: '3px',
+            whiteSpace: 'nowrap', pointerEvents: 'none',
+            lineHeight: 1.5, zIndex: 21,
+          }}>
+            {size.w || '—'} × {size.h || '—'} px
+          </span>
+        )}
+
+        {!selected && (
+          <span style={{
+            position: 'absolute', bottom: 4, right: 4,
+            fontSize: '9px', color: 'rgba(255,255,255,0.85)',
+            background: 'rgba(0,0,0,0.35)',
+            padding: '1px 5px', borderRadius: '3px',
+            whiteSpace: 'nowrap', pointerEvents: 'none',
+            lineHeight: 1.5,
+          }}>
+            click to resize
+          </span>
+        )}
+      </span>
+    </NodeViewWrapper>
+  );
+};
+
+// ── Custom Image extension with ReactNodeView ────────────────────────
+const ResizableImageExtension = Image.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      width:  { default: null, parseHTML: el => el.getAttribute('width'),  renderHTML: attrs => attrs.width  ? { width: attrs.width }  : {} },
+      height: { default: null, parseHTML: el => el.getAttribute('height'), renderHTML: attrs => attrs.height ? { height: attrs.height } : {} },
+    };
+  },
+  addNodeView() {
+    return ReactNodeViewRenderer(ResizableImageNodeView);
+  },
+});
+
 // ── Main component ───────────────────────────────────────────────────
 const TipTapEditor = ({ page, onChange }) => {
   const [title, setTitle] = useState(page.title || '');
@@ -117,7 +300,7 @@ const TipTapEditor = ({ page, onChange }) => {
       Color,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Link.configure({ openOnClick: false }),
-      Image,
+      ResizableImageExtension,
       Table.configure({ resizable: true }),
       TableRow,
       TableHeader,
@@ -137,197 +320,6 @@ const TipTapEditor = ({ page, onChange }) => {
       editor.commands.setContent(page.tiptapHtml || '');
     }
   }, [page.id]);
-
-  // Wrap all images with resize functionality
-  useEffect(() => {
-    if (!editor) return;
-
-    const wrapImages = () => {
-      const editorDOM = document.querySelector('.tiptap');
-      if (!editorDOM) return;
-
-      editorDOM.querySelectorAll('img:not([data-resize-wrapped])').forEach((img) => {
-        if (img.closest('[data-resize-wrapper]')) return; // Already wrapped
-
-        const wrapper = document.createElement('div');
-        wrapper.setAttribute('data-resize-wrapper', 'true');
-        wrapper.style.position = 'relative';
-        wrapper.style.display = 'inline-block';
-        wrapper.style.outline = '2px dashed rgba(100,130,200,0.35)';
-        wrapper.style.outlineOffset = '2px';
-        wrapper.style.lineHeight = '0';
-        wrapper.style.cursor = 'default';
-        wrapper.style.maxWidth = '100%';
-
-        img.parentNode.insertBefore(wrapper, img);
-        wrapper.appendChild(img);
-
-        img.setAttribute('data-resize-wrapped', 'true');
-        img.style.display = 'block';
-        img.style.maxWidth = '100%';
-        img.style.borderRadius = '4px';
-
-        // Add resize handles on click
-        img.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          addResizeHandles(wrapper, img, editor);
-        });
-      });
-    };
-
-    const addResizeHandles = (wrapper, img, editor) => {
-      // Remove existing handles if any
-      wrapper.querySelectorAll('[data-resize-handle]').forEach((h) => h.remove());
-
-      let selected = true;
-      const HANDLES = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
-
-      const addHandle = (name) => {
-        const handle = document.createElement('span');
-        handle.setAttribute('data-resize-handle', name);
-        const cursorMap = { nw: 'nw-resize', n: 'ns-resize', ne: 'ne-resize', e: 'ew-resize', se: 'se-resize', s: 'ns-resize', sw: 'sw-resize', w: 'ew-resize' };
-        const posMap = { nw: { top: 3, left: 3 }, n: { top: 3, left: '50%', transform: 'translateX(-50%)' }, ne: { top: 3, right: 3 }, e: { top: '50%', right: 3, transform: 'translateY(-50%)' }, se: { bottom: 3, right: 3 }, s: { bottom: 3, left: '50%', transform: 'translateX(-50%)' }, sw: { bottom: 3, left: 3 }, w: { top: '50%', left: 3, transform: 'translateY(-50%)' } };
-
-        Object.assign(handle.style, {
-          position: 'absolute',
-          width: '10px',
-          height: '10px',
-          background: '#2563eb',
-          border: '2px solid white',
-          borderRadius: '2px',
-          boxShadow: '0 0 0 1.5px rgba(37,99,235,0.6)',
-          zIndex: '20',
-          cursor: cursorMap[name],
-          ...posMap[name],
-        });
-
-        handle.addEventListener('mousedown', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          startDrag(e, name, img, wrapper, editor);
-        });
-
-        wrapper.appendChild(handle);
-      };
-
-      HANDLES.forEach(addHandle);
-
-      // Add reset button
-      const resetBtn = document.createElement('button');
-      resetBtn.type = 'button';
-      resetBtn.textContent = 'Reset size';
-      Object.assign(resetBtn.style, {
-        position: 'absolute',
-        top: '6px',
-        right: '6px',
-        fontSize: '10px',
-        color: 'white',
-        background: 'rgba(220,38,38,0.85)',
-        border: 'none',
-        padding: '2px 7px',
-        borderRadius: '3px',
-        cursor: 'pointer',
-        whiteSpace: 'nowrap',
-        lineHeight: '1.6',
-        zIndex: '21',
-      });
-      resetBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        img.style.width = '';
-        img.style.height = '';
-        wrapper.querySelectorAll('[data-resize-handle]').forEach((h) => h.remove());
-        resetBtn.remove();
-        editor.commands.setImage({ src: img.src, width: null, height: null });
-      });
-      wrapper.appendChild(resetBtn);
-
-      // Add dimension display
-      const dimDisplay = document.createElement('span');
-      const w = img.offsetWidth;
-      const h = img.offsetHeight;
-      dimDisplay.textContent = `${w} × ${h} px`;
-      Object.assign(dimDisplay.style, {
-        position: 'absolute',
-        bottom: '6px',
-        right: '6px',
-        fontSize: '10px',
-        color: 'white',
-        background: 'rgba(37,99,235,0.85)',
-        padding: '2px 6px',
-        borderRadius: '3px',
-        whiteSpace: 'nowrap',
-        pointerEvents: 'none',
-        lineHeight: '1.5',
-        zIndex: '21',
-      });
-      wrapper.appendChild(dimDisplay);
-
-      // Deselect on outside click
-      const deselectHandler = (e) => {
-        if (!wrapper.contains(e.target)) {
-          selected = false;
-          wrapper.querySelectorAll('[data-resize-handle]').forEach((h) => h.remove());
-          resetBtn.remove();
-          dimDisplay.remove();
-          document.removeEventListener('mousedown', deselectHandler);
-        }
-      };
-      setTimeout(() => document.addEventListener('mousedown', deselectHandler), 0);
-    };
-
-    const startDrag = (e, handle, img, wrapper, editor) => {
-      const startX = e.clientX;
-      const startY = e.clientY;
-      const startW = img.offsetWidth;
-      const startH = img.offsetHeight;
-
-      const onMove = (me) => {
-        const dx = me.clientX - startX;
-        const dy = me.clientY - startY;
-
-        let newW = startW;
-        let newH = startH;
-
-        if (handle.includes('e')) newW = Math.max(40, startW + dx);
-        if (handle.includes('w')) newW = Math.max(40, startW - dx);
-        if (handle.includes('s')) newH = Math.max(40, startH + dy);
-        if (handle.includes('n')) newH = Math.max(40, startH - dy);
-
-        img.style.width = `${Math.round(newW)}px`;
-        img.style.height = `${Math.round(newH)}px`;
-
-        // Update dimension display
-        const dimDisplay = wrapper.querySelector('[style*="bottom: 6px"]');
-        if (dimDisplay) dimDisplay.textContent = `${Math.round(newW)} × ${Math.round(newH)} px`;
-      };
-
-      const onUp = () => {
-        const w = img.offsetWidth;
-        const h = img.offsetHeight;
-        editor.commands.setImage({ src: img.src, width: w, height: h });
-        window.removeEventListener('mousemove', onMove);
-        window.removeEventListener('mouseup', onUp);
-      };
-
-      window.addEventListener('mousemove', onMove);
-      window.addEventListener('mouseup', onUp);
-    };
-
-    wrapImages();
-
-    // Watch for new images added
-    const observer = new MutationObserver(() => {
-      setTimeout(wrapImages, 0);
-    });
-
-    const editorDOM = document.querySelector('.tiptap');
-    if (editorDOM) {
-      observer.observe(editorDOM, { childList: true, subtree: true });
-    }
-
-    return () => observer.disconnect();
-  }, [editor]);
 
   const handleTitleChange = (e) => {
     const val = e.target.value;
