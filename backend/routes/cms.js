@@ -96,7 +96,7 @@ router.get('/templates', async (req, res) => {
         { id: 'split-image-image', name: 'Split Image + Image', description: 'Left side image, right side image with optional headers' },
         { id: 'split-content', name: 'Split Content', description: 'Left/right content areas with flexible content types' },
         { id: 'managed-content', name: 'MS WORD like editor', description: 'Rich text editor with full formatting capabilities' },
-        { id: 'tiptap-editor', name: 'Rich Block Editor', description: 'Block-based editor - text, images, tables, headings in one flow' },
+        { id: 'tiptap-editor', name: 'Text, Tables & Images', description: 'Add text, headings, tables and images in one page' },
         { id: 'excalidraw-editor', name: 'Excalidraw Canvas', description: 'Free-form canvas for diagrams, shapes, arrows and slide-like layouts' },
         { id: 'grapesjs-editor', name: 'GrapesJS Page Builder', description: 'Visual drag-and-drop HTML page builder (experimental)' },
         { id: 'table', name: 'Table', description: 'Primary table page type' }
