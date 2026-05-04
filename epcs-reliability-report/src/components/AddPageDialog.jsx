@@ -12,11 +12,6 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
   const [templatesLoading, setTemplatesLoading] = useState(false);
   const [error, setError] = useState('');
   const [showAllTemplates, setShowAllTemplates] = useState(false);
-  const [wizardStep, setWizardStep] = useState(1);
-  const [wizardTitle, setWizardTitle] = useState('');
-  const [wizardSubtitle, setWizardSubtitle] = useState('');
-  const [wizardLeftHeader, setWizardLeftHeader] = useState('');
-  const [wizardRightHeader, setWizardRightHeader] = useState('');
 
   const offlineTemplateFallback = [
     { id: 'text-only', name: 'Text Only', description: 'Simple text content page' },
@@ -24,7 +19,8 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     { id: 'table', name: 'Table', description: 'Structured table page' },
     { id: 'just-images', name: 'Images', description: 'Image-focused page' },
     { id: 'managed-content', name: 'MS WORD like editor', description: 'Rich text editor with full formatting capabilities' },
-    { id: 'ppt-import', name: 'Image / PDF Import', description: 'Upload an image or PDF to display as a full page' },
+    { id: 'tiptap-editor', name: 'Rich Block Editor', description: 'Block-based editor — text, images, tables, headings in one flow' },
+    { id: 'excalidraw-editor', name: 'Excalidraw Canvas', description: 'Free-form canvas for diagrams, shapes, arrows and slide-like layouts' },
     { id: 'grapesjs-editor', name: 'GrapesJS Page Builder', description: 'Visual drag-and-drop HTML page builder (experimental)' },
     { id: 'split-text-image', name: 'Split Text + Image', description: 'Text on left and image on right with optional headers' },
     { id: 'split-links-image', name: 'Split Links + Image', description: 'Links on left and image on right with optional headers' },
@@ -41,11 +37,6 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       setSelectedTemplate(null);
       setError('');
       setShowAllTemplates(false);
-      setWizardStep(1);
-      setWizardTitle('');
-      setWizardSubtitle('');
-      setWizardLeftHeader('');
-      setWizardRightHeader('');
       lockBodyScroll();
     }
 
@@ -89,7 +80,8 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
 
       const ensuredTemplates = [
         { id: 'managed-content', name: 'MS WORD like editor', description: 'Rich text editor with full formatting capabilities' },
-        { id: 'ppt-import', name: 'Image / PDF Import', description: 'Upload an image or PDF to display as a full page' },
+        { id: 'tiptap-editor', name: 'Rich Block Editor', description: 'Block-based editor — text, images, tables, headings in one flow' },
+        { id: 'excalidraw-editor', name: 'Excalidraw Canvas', description: 'Free-form canvas for diagrams, shapes, arrows and slide-like layouts' },
         { id: 'grapesjs-editor', name: 'GrapesJS Page Builder', description: 'Visual drag-and-drop HTML page builder (experimental)' },
         { id: 'split-text-image', name: 'Split Text + Image', description: 'Text on left and image on right with optional headers' },
         { id: 'split-links-image', name: 'Split Links + Image', description: 'Links on left and image on right with optional headers' },
@@ -114,32 +106,12 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     }
   };
 
-  const handleTemplateSelect = (templateId) => {
+  const handleTemplateSelect = async (templateId) => {
     setSelectedTemplate(templateId);
-    const template = templates.find((t) => t.id === templateId);
-    setWizardTitle(template?.name || '');
-    setWizardSubtitle('');
-    setWizardLeftHeader('');
-    setWizardRightHeader('');
-    setError('');
-    setWizardStep(2);
+    await createPageWithConfig(templateId);
   };
 
-  const handleWizardBack = () => {
-    if (wizardStep === 2) { setWizardStep(1); setSelectedTemplate(null); }
-    else if (wizardStep === 3) { setWizardStep(2); }
-  };
-
-  const handleWizardCreate = () => {
-    createPageWithConfig(selectedTemplate, {
-      title: wizardTitle.trim() || null,
-      subtitle: wizardSubtitle.trim() || null,
-      leftHeader: wizardLeftHeader.trim() || null,
-      rightHeader: wizardRightHeader.trim() || null,
-    });
-  };
-
-  const EDITOR_TEMPLATE_IDS = ['managed-content', 'ppt-import', 'grapesjs-editor'];
+  const EDITOR_TEMPLATE_IDS = ['managed-content', 'tiptap-editor', 'excalidraw-editor', 'grapesjs-editor'];
 
   const primaryTemplateOrder = ['split-content', 'just-images', 'text-only', 'heading'];
   const primaryTemplates = primaryTemplateOrder
@@ -159,7 +131,8 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       'just-images': 'image',
       'mixed-content': 'just-images',
       'managed-content': 'managed-content',
-      'ppt-import': 'managed-content',
+      'tiptap-editor': 'managed-content',
+      'excalidraw-editor': 'managed-content',
       'grapesjs-editor': 'managed-content',
       'split-text-image': 'split-content-image',
       'split-links-image': 'split-content-image',
@@ -390,10 +363,10 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     );
   };
 
-  const createPageWithConfig = async (templateIdOverride, wizardData = null) => {
+  const createPageWithConfig = async (templateIdOverride) => {
     const templateId = templateIdOverride || selectedTemplate;
     const template = templates.find((t) => t.id === templateId);
-    const title = (wizardData?.title || template?.name || 'New Page').trim();
+    const title = (template?.name || 'New Page').trim();
 
     if (!templateId) {
       setError('Please select a template');
@@ -401,7 +374,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     }
 
     const isTextOnly = templateId === 'text-only';
-    const isEditorTemplate = templateId === 'managed-content' || templateId === 'ppt-import' || templateId === 'grapesjs-editor';
+    const isEditorTemplate = templateId === 'managed-content' || templateId === 'tiptap-editor' || templateId === 'excalidraw-editor' || templateId === 'grapesjs-editor';
     const cloneSource = (isTextOnly || isEditorTemplate) ? null : getSamplePageForTemplate(templateId);
     const cloneSourcePageId = cloneSource?.id || null;
     const cloneSourcePageData = cloneSource ? JSON.parse(JSON.stringify(cloneSource)) : null;
@@ -430,10 +403,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         _draftTemplateId: createTemplateId,
         ...(isTextOnly && {
           content: 'Enter your text content here. Edit and enter your own content.'
-        }),
-        ...(wizardData?.subtitle && { subtitle: wizardData.subtitle }),
-        ...(wizardData?.leftHeader && { leftHeader: wizardData.leftHeader }),
-        ...(wizardData?.rightHeader && { rightHeader: wizardData.rightHeader }),
+        })
       };
 
       console.log('✅ Page added to draft (will sync on Publish):', draftPage);
@@ -479,212 +449,119 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       <div className="add-page-dialog-overlay" onClick={onClose}>
         <div className="add-page-dialog" onClick={(e) => e.stopPropagation()}>
           <div className="dialog-header">
-            <h2>
-              {wizardStep === 1 && 'Add New Page'}
-              {wizardStep === 2 && 'Set Page Details'}
-              {wizardStep === 3 && 'Preview & Confirm'}
-            </h2>
+            <h2>Add New Page</h2>
             <button className="close-btn" onClick={onClose} aria-label="Close">✕</button>
           </div>
 
-          {/* Step indicator */}
-          <div style={{ display: 'flex', gap: '0', borderBottom: '1px solid #e5e7eb' }}>
-            {[['1', 'Choose Layout'], ['2', 'Fill Details'], ['3', 'Confirm']].map(([num, label], i) => {
-              const step = i + 1;
-              const active = wizardStep === step;
-              const done = wizardStep > step;
-              return (
-                <div key={num} style={{ flex: 1, textAlign: 'center', padding: '8px 4px', fontSize: '0.78rem', fontWeight: active ? 700 : 400, color: active ? '#0052a3' : done ? '#16a34a' : '#9ca3af', borderBottom: active ? '2px solid #0052a3' : done ? '2px solid #16a34a' : '2px solid transparent', background: active ? '#f0f6ff' : 'transparent', transition: 'all 0.15s' }}>
-                  <span style={{ display: 'inline-block', width: '18px', height: '18px', borderRadius: '50%', background: active ? '#0052a3' : done ? '#16a34a' : '#e5e7eb', color: active || done ? '#fff' : '#6b7280', fontSize: '0.7rem', lineHeight: '18px', marginRight: '4px', verticalAlign: 'middle' }}>{done ? '✓' : num}</span>
-                  {label}
-                </div>
-              );
-            })}
-          </div>
-
           <div className="dialog-body">
+            {/* Insert Position */}
+            {currentPageId && (
+              <div className="form-group">
+                <label>Insert Position:</label>
+                <div className="position-options">
+                  <label className="radio-label">
+                    <input
+                      type="radio"
+                      value="before"
+                      checked={insertPosition === 'before'}
+                      onChange={(e) => setInsertPosition(e.target.value)}
+                      disabled={loading}
+                    />
+                    Before current page
+                  </label>
+                  <label className="radio-label">
+                    <input
+                      type="radio"
+                      value="after"
+                      checked={insertPosition === 'after'}
+                      onChange={(e) => setInsertPosition(e.target.value)}
+                      disabled={loading}
+                    />
+                    After current page
+                  </label>
+                  <label className="radio-label">
+                    <input
+                      type="radio"
+                      value="at-end"
+                      checked={insertPosition === 'at-end'}
+                      onChange={(e) => setInsertPosition(e.target.value)}
+                      disabled={loading}
+                    />
+                    At end of document
+                  </label>
+                </div>
+              </div>
+            )}
 
-            {/* ── STEP 1: Choose Layout ── */}
-            {wizardStep === 1 && (
-              <>
-                {/* Insert Position */}
-                {currentPageId && (
-                  <div className="form-group">
-                    <label>Insert Position:</label>
-                    <div className="position-options">
-                      <label className="radio-label">
-                        <input type="radio" value="before" checked={insertPosition === 'before'} onChange={(e) => setInsertPosition(e.target.value)} disabled={loading} />
-                        Before current page
-                      </label>
-                      <label className="radio-label">
-                        <input type="radio" value="after" checked={insertPosition === 'after'} onChange={(e) => setInsertPosition(e.target.value)} disabled={loading} />
-                        After current page
-                      </label>
-                      <label className="radio-label">
-                        <input type="radio" value="at-end" checked={insertPosition === 'at-end'} onChange={(e) => setInsertPosition(e.target.value)} disabled={loading} />
-                        At end of document
-                      </label>
-                    </div>
+            {/* Template Selection */}
+            <div className="form-group">
+              <label>Select Template:</label>
+              {templatesLoading && <div className="loading-message">Loading templates...</div>}
+              {!templatesLoading && templates.length === 0 && <div className="error-message">No templates available</div>}
+              {templates.length > 0 && (
+                <>
+                  {showGroupLabels && <div className="template-group-label">Pre Existing Slides</div>}
+                  <div className="templates-grid">
+                    {displayedTemplateGroup.map((template) => (
+                      <div
+                        key={template.id}
+                        className={`template-card ${selectedTemplate === template.id ? 'selected' : ''} ${loading ? 'template-card-disabled' : ''}`}
+                        onClick={() => !loading && handleTemplateSelect(template.id)}
+                      >
+                        <div className="template-preview">
+                          {renderTemplatePreview(template.id)}
+                        </div>
+                        <div className="template-name">{template.name}</div>
+                        <div className="template-description">{template.description}</div>
+                      </div>
+                    ))}
                   </div>
-                )}
-                {/* Template Selection */}
-                <div className="form-group">
-                  <label>Select Template:</label>
-                  {templatesLoading && <div className="loading-message">Loading templates...</div>}
-                  {!templatesLoading && templates.length === 0 && <div className="error-message">No templates available</div>}
-                  {templates.length > 0 && (
+                  {displayedEditorGroup.length > 0 && (
                     <>
-                      {showGroupLabels && <div className="template-group-label">Pre Existing Slides</div>}
+                      {showGroupLabels && <div className="template-group-label">Editors</div>}
                       <div className="templates-grid">
-                        {displayedTemplateGroup.map((template) => (
+                        {displayedEditorGroup.map((template) => (
                           <div
                             key={template.id}
                             className={`template-card ${selectedTemplate === template.id ? 'selected' : ''} ${loading ? 'template-card-disabled' : ''}`}
                             onClick={() => !loading && handleTemplateSelect(template.id)}
                           >
-                            <div className="template-preview">{renderTemplatePreview(template.id)}</div>
+                            <div className="template-preview">
+                              {renderTemplatePreview(template.id)}
+                            </div>
                             <div className="template-name">{template.name}</div>
                             <div className="template-description">{template.description}</div>
                           </div>
                         ))}
                       </div>
-                      {displayedEditorGroup.length > 0 && (
-                        <>
-                          {showGroupLabels && <div className="template-group-label">Editors</div>}
-                          <div className="templates-grid">
-                            {displayedEditorGroup.map((template) => (
-                              <div
-                                key={template.id}
-                                className={`template-card ${selectedTemplate === template.id ? 'selected' : ''} ${loading ? 'template-card-disabled' : ''}`}
-                                onClick={() => !loading && handleTemplateSelect(template.id)}
-                              >
-                                <div className="template-preview">{renderTemplatePreview(template.id)}</div>
-                                <div className="template-name">{template.name}</div>
-                                <div className="template-description">{template.description}</div>
-                              </div>
-                            ))}
-                          </div>
-                        </>
-                      )}
-                      {!showAllTemplates && hiddenTemplates.length > 0 && (
-                        <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'center' }}>
-                          <button
-                            type="button"
-                            onClick={() => setShowAllTemplates(true)}
-                            disabled={loading}
-                            style={{ padding: '0.5rem 1rem', borderRadius: '8px', border: '1px solid #c2cad8', background: '#f4f7fb', color: '#1f2937', cursor: loading ? 'not-allowed' : 'pointer', fontWeight: 600 }}
-                          >
-                            View more
-                          </button>
-                        </div>
-                      )}
                     </>
                   )}
-                </div>
-              </>
-            )}
-
-            {/* ── STEP 2: Fill Details ── */}
-            {wizardStep === 2 && (() => {
-              const isSplit = ['split-text-image','split-links-image','split-image-links','split-image-image','split-content'].includes(selectedTemplate);
-              const isHeading = selectedTemplate === 'heading';
-              const selTemplate = templates.find(t => t.id === selectedTemplate);
-              return (
-                <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  <div style={{ fontSize: '0.82rem', color: '#6b7280', marginBottom: '4px' }}>
-                    Template: <strong>{selTemplate?.name || selectedTemplate}</strong>
-                  </div>
-
-                  {/* Title */}
-                  <div>
-                    <label style={{ display: 'block', fontWeight: 600, fontSize: '0.88rem', marginBottom: '5px', color: '#1f2937' }}>Page Title <span style={{ color: '#dc2626' }}>*</span></label>
-                    <input
-                      type="text"
-                      value={wizardTitle}
-                      onChange={(e) => setWizardTitle(e.target.value)}
-                      placeholder="Enter a title for this page"
-                      autoFocus
-                      style={{ width: '100%', padding: '9px 11px', border: '1px solid #b9c7da', borderRadius: '6px', fontSize: '0.95rem', boxSizing: 'border-box' }}
-                    />
-                  </div>
-
-                  {/* Subtitle — heading only */}
-                  {isHeading && (
-                    <div>
-                      <label style={{ display: 'block', fontWeight: 600, fontSize: '0.88rem', marginBottom: '5px', color: '#1f2937' }}>Subtitle <span style={{ color: '#9ca3af', fontWeight: 400 }}>(optional)</span></label>
-                      <input
-                        type="text"
-                        value={wizardSubtitle}
-                        onChange={(e) => setWizardSubtitle(e.target.value)}
-                        placeholder="Enter a subtitle"
-                        style={{ width: '100%', padding: '9px 11px', border: '1px solid #b9c7da', borderRadius: '6px', fontSize: '0.95rem', boxSizing: 'border-box' }}
-                      />
+                  {!showAllTemplates && hiddenTemplates.length > 0 && (
+                    <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'center' }}>
+                      <button
+                        type="button"
+                        onClick={() => setShowAllTemplates(true)}
+                        disabled={loading}
+                        style={{
+                          padding: '0.5rem 1rem',
+                          borderRadius: '8px',
+                          border: '1px solid #c2cad8',
+                          background: '#f4f7fb',
+                          color: '#1f2937',
+                          cursor: loading ? 'not-allowed' : 'pointer',
+                          fontWeight: 600,
+                        }}
+                      >
+                        View more
+                      </button>
                     </div>
                   )}
+                </>
+              )}
+            </div>
 
-                  {/* Column headers — split templates */}
-                  {isSplit && (
-                    <>
-                      <div>
-                        <label style={{ display: 'block', fontWeight: 600, fontSize: '0.88rem', marginBottom: '5px', color: '#1f2937' }}>Left Column Header <span style={{ color: '#9ca3af', fontWeight: 400 }}>(optional)</span></label>
-                        <input
-                          type="text"
-                          value={wizardLeftHeader}
-                          onChange={(e) => setWizardLeftHeader(e.target.value)}
-                          placeholder="e.g. Description"
-                          style={{ width: '100%', padding: '9px 11px', border: '1px solid #b9c7da', borderRadius: '6px', fontSize: '0.95rem', boxSizing: 'border-box' }}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ display: 'block', fontWeight: 600, fontSize: '0.88rem', marginBottom: '5px', color: '#1f2937' }}>Right Column Header <span style={{ color: '#9ca3af', fontWeight: 400 }}>(optional)</span></label>
-                        <input
-                          type="text"
-                          value={wizardRightHeader}
-                          onChange={(e) => setWizardRightHeader(e.target.value)}
-                          placeholder="e.g. Diagram"
-                          style={{ width: '100%', padding: '9px 11px', border: '1px solid #b9c7da', borderRadius: '6px', fontSize: '0.95rem', boxSizing: 'border-box' }}
-                        />
-                      </div>
-                    </>
-                  )}
-
-                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '6px' }}>
-                    <button type="button" onClick={handleWizardBack} disabled={loading} style={{ padding: '9px 20px', borderRadius: '6px', border: '1px solid #c2cad8', background: '#f4f7fb', color: '#1f2937', cursor: 'pointer', fontWeight: 600 }}>← Back</button>
-                    <button type="button" onClick={() => { if (!wizardTitle.trim()) { setError('Please enter a page title.'); return; } setError(''); setWizardStep(3); }} disabled={loading} style={{ padding: '9px 20px', borderRadius: '6px', border: 'none', background: '#0052a3', color: '#fff', cursor: 'pointer', fontWeight: 600 }}>Next: Preview →</button>
-                  </div>
-                </div>
-              );
-            })()}
-
-            {/* ── STEP 3: Preview & Confirm ── */}
-            {wizardStep === 3 && (() => {
-              const selTemplate = templates.find(t => t.id === selectedTemplate);
-              return (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  <div style={{ fontSize: '0.82rem', color: '#6b7280' }}>
-                    Template: <strong>{selTemplate?.name || selectedTemplate}</strong> &nbsp;·&nbsp; Title: <strong>{wizardTitle}</strong>
-                    {wizardSubtitle && <> &nbsp;·&nbsp; Subtitle: <strong>{wizardSubtitle}</strong></>}
-                    {wizardLeftHeader && <> &nbsp;·&nbsp; Left: <strong>{wizardLeftHeader}</strong></>}
-                    {wizardRightHeader && <> &nbsp;·&nbsp; Right: <strong>{wizardRightHeader}</strong></>}
-                  </div>
-                  <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
-                    <div style={{ padding: '8px 12px', background: '#f9fafb', borderBottom: '1px solid #e5e7eb', fontSize: '0.78rem', color: '#6b7280', fontWeight: 600 }}>TEMPLATE PREVIEW</div>
-                    <div className="template-preview" style={{ height: '220px', overflow: 'hidden' }}>
-                      {renderTemplatePreview(selectedTemplate)}
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                    <button type="button" onClick={handleWizardBack} disabled={loading} style={{ padding: '9px 20px', borderRadius: '6px', border: '1px solid #c2cad8', background: '#f4f7fb', color: '#1f2937', cursor: 'pointer', fontWeight: 600 }}>← Back</button>
-                    <button type="button" onClick={handleWizardCreate} disabled={loading} style={{ padding: '9px 24px', borderRadius: '6px', border: 'none', background: '#16a34a', color: '#fff', cursor: loading ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: '0.95rem' }}>
-                      {loading ? 'Creating...' : '✓ Create Page'}
-                    </button>
-                  </div>
-                </div>
-              );
-            })()}
-
-            {/* Loading / Error */}
-            {loading && wizardStep !== 3 && <div className="loading-message" style={{ textAlign: 'center', padding: '0.5rem' }}>Creating page...</div>}
+            {/* Loading / Error message */}
+            {loading && <div className="loading-message" style={{ textAlign: 'center', padding: '0.5rem' }}>Creating page...</div>}
             {error && <div className="error-message">{error}</div>}
           </div>
         </div>

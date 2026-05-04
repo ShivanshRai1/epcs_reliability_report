@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import GrapesJSPageEditor from './GrapesJSPageEditor';
-import PPTImportEditor from './PPTImportEditor';
+import TipTapEditor from './TipTapEditor';
+import ExcalidrawEditor from './ExcalidrawEditor';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import {
   ClassicEditor,
@@ -148,8 +149,11 @@ const ManagedContentEditor = ({ page, onChange }) => {
   };
 
   // Delegate to isolated sub-editors for new template variants.
-  if (pageTemplate === 'ppt-import') {
-    return <PPTImportEditor page={page} onChange={onChange} />;
+  if (pageTemplate === 'tiptap-editor') {
+    return <TipTapEditor page={page} onChange={onChange} />;
+  }
+  if (pageTemplate === 'excalidraw-editor') {
+    return <ExcalidrawEditor page={page} onChange={onChange} />;
   }
   if (pageTemplate === 'grapesjs-editor') {
     return <GrapesJSPageEditor page={page} onChange={onChange} />;
