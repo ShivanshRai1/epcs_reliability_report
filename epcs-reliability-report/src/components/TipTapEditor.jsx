@@ -216,6 +216,12 @@ const TipTapEditor = ({ page, onChange }) => {
         .tiptap ul, .tiptap ol { padding-left: 1.5em; margin: 0.4em 0; }
         .tiptap blockquote { border-left: 3px solid #d1d5db; padding-left: 12px; color: #6b7280; margin: 0.5em 0; }
         .tiptap img { max-width: 100%; border-radius: 4px; }
+        .resize-wrapper { position: relative; display: inline-block; }
+        .resize-handle { position: absolute; background: #0052a3; border: 1px solid white; width: 8px; height: 8px; border-radius: 50%; cursor: se-resize; opacity: 0; transition: opacity 0.2s; }
+        .resize-wrapper:hover .resize-handle { opacity: 0.8; }
+        .resize-handle[data-resize-handle="right"] { right: -4px; top: 50%; transform: translateY(-50%); cursor: e-resize; }
+        .resize-handle[data-resize-handle="bottom"] { bottom: -4px; left: 50%; transform: translateX(-50%); cursor: s-resize; }
+        .resize-handle[data-resize-handle="bottom-right"] { bottom: -4px; right: -4px; }
       `}</style>
     </div>
   );
