@@ -1566,7 +1566,19 @@ const clearDraftCache = () => {
         }
         return nextPage;
       };
-      const CLONE_SKIP_KEYS = new Set(['id', 'page_id', 'pageId', 'pageNumber', 'page_number', 'createdAt', 'updatedAt']);
+      const CLONE_SKIP_KEYS = new Set([
+        'id',
+        'page_id',
+        'pageId',
+        'pageNumber',
+        'page_number',
+        'createdAt',
+        'updatedAt',
+        '_isDraftNew',
+        '_isDraftDeleted',
+        '_draftPositionParams',
+        '_draftTemplateId'
+      ]);
       const buildClonePayload = (sourcePage) => {
         if (!sourcePage || typeof sourcePage !== 'object') return null;
         const sourceCopy = JSON.parse(JSON.stringify(sourcePage));

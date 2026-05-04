@@ -371,7 +371,8 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     }
 
     const isTextOnly = templateId === 'text-only';
-    const cloneSource = isTextOnly ? null : getSamplePageForTemplate(templateId);
+    const isEditorTemplate = templateId === 'managed-content' || templateId === 'tldraw-editor' || templateId === 'grapesjs-editor';
+    const cloneSource = (isTextOnly || isEditorTemplate) ? null : getSamplePageForTemplate(templateId);
     const cloneSourcePageId = cloneSource?.id || null;
     const cloneSourcePageData = cloneSource ? JSON.parse(JSON.stringify(cloneSource)) : null;
 
