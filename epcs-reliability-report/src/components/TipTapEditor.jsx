@@ -117,7 +117,7 @@ const TipTapEditor = ({ page, onChange }) => {
       Color,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Link.configure({ openOnClick: false }),
-      Image.configure({ resizable: true }),
+      Image.configure({ resize: { enabled: true, directions: ['right', 'bottom', 'bottom-right'] } }),
       Table.configure({ resizable: true }),
       TableRow,
       TableHeader,

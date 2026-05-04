@@ -112,6 +112,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
   };
 
   const EDITOR_TEMPLATE_IDS = ['managed-content', 'tiptap-editor', 'excalidraw-editor', 'grapesjs-editor'];
+  const HIDDEN_TEMPLATE_IDS = ['excalidraw-editor', 'grapesjs-editor'];
 
   const primaryTemplateOrder = ['split-content', 'just-images', 'text-only', 'heading'];
   const primaryTemplates = primaryTemplateOrder
@@ -121,7 +122,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
   const displayedTemplates = showAllTemplates ? [...primaryTemplates, ...hiddenTemplates] : primaryTemplates;
 
   const displayedTemplateGroup = displayedTemplates.filter((t) => !EDITOR_TEMPLATE_IDS.includes(t.id));
-  const displayedEditorGroup = displayedTemplates.filter((t) => EDITOR_TEMPLATE_IDS.includes(t.id));
+  const displayedEditorGroup = displayedTemplates.filter((t) => EDITOR_TEMPLATE_IDS.includes(t.id) && !HIDDEN_TEMPLATE_IDS.includes(t.id));
   const showGroupLabels = displayedTemplateGroup.length > 0 && displayedEditorGroup.length > 0;
 
   const getPageTypeForTemplate = (templateId) => {
