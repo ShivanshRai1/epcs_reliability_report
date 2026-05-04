@@ -117,7 +117,23 @@ const TipTapEditor = ({ page, onChange }) => {
       Color,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Link.configure({ openOnClick: false }),
-      Image.configure({ resize: { enabled: true, directions: ['right', 'bottom', 'bottom-right'] } }),
+      Image.extend({
+        addAttributes() {
+          return {
+            src: { default: '' },
+            alt: { default: '' },
+            title: { default: '' },
+            width: { default: null },
+            height: { default: null },
+          };
+        },
+        renderHTML(attrs) {
+          const htmlAttrs = { src: attrs.src, alt: attrs.alt };
+          if (attrs.width) htmlAttrs.width = attrs.width;
+          if (attrs.height) htmlAttrs.height = attrs.height;
+          return ['img', htmlAttrs];
+        },
+      }),
       Table.configure({ resizable: true }),
       TableRow,
       TableHeader,
@@ -137,6 +153,197 @@ const TipTapEditor = ({ page, onChange }) => {
       editor.commands.setContent(page.tiptapHtml || '');
     }
   }, [page.id]);
+
+  // Wrap all images with resize functionality
+  useEffect(() => {
+    if (!editor) return;
+
+    const wrapImages = () => {
+      const editorDOM = document.querySelector('.tiptap');
+      if (!editorDOM) return;
+
+      editorDOM.querySelectorAll('img:not([data-resize-wrapped])').forEach((img) => {
+        if (img.closest('[data-resize-wrapper]')) return; // Already wrapped
+
+        const wrapper = document.createElement('div');
+        wrapper.setAttribute('data-resize-wrapper', 'true');
+        wrapper.style.position = 'relative';
+        wrapper.style.display = 'inline-block';
+        wrapper.style.outline = '2px dashed rgba(100,130,200,0.35)';
+        wrapper.style.outlineOffset = '2px';
+        wrapper.style.lineHeight = '0';
+        wrapper.style.cursor = 'default';
+        wrapper.style.maxWidth = '100%';
+
+        img.parentNode.insertBefore(wrapper, img);
+        wrapper.appendChild(img);
+
+        img.setAttribute('data-resize-wrapped', 'true');
+        img.style.display = 'block';
+        img.style.maxWidth = '100%';
+        img.style.borderRadius = '4px';
+
+        // Add resize handles on click
+        img.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          addResizeHandles(wrapper, img, editor);
+        });
+      });
+    };
+
+    const addResizeHandles = (wrapper, img, editor) => {
+      // Remove existing handles if any
+      wrapper.querySelectorAll('[data-resize-handle]').forEach((h) => h.remove());
+
+      let selected = true;
+      const HANDLES = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
+
+      const addHandle = (name) => {
+        const handle = document.createElement('span');
+        handle.setAttribute('data-resize-handle', name);
+        const cursorMap = { nw: 'nw-resize', n: 'ns-resize', ne: 'ne-resize', e: 'ew-resize', se: 'se-resize', s: 'ns-resize', sw: 'sw-resize', w: 'ew-resize' };
+        const posMap = { nw: { top: 3, left: 3 }, n: { top: 3, left: '50%', transform: 'translateX(-50%)' }, ne: { top: 3, right: 3 }, e: { top: '50%', right: 3, transform: 'translateY(-50%)' }, se: { bottom: 3, right: 3 }, s: { bottom: 3, left: '50%', transform: 'translateX(-50%)' }, sw: { bottom: 3, left: 3 }, w: { top: '50%', left: 3, transform: 'translateY(-50%)' } };
+
+        Object.assign(handle.style, {
+          position: 'absolute',
+          width: '10px',
+          height: '10px',
+          background: '#2563eb',
+          border: '2px solid white',
+          borderRadius: '2px',
+          boxShadow: '0 0 0 1.5px rgba(37,99,235,0.6)',
+          zIndex: '20',
+          cursor: cursorMap[name],
+          ...posMap[name],
+        });
+
+        handle.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          startDrag(e, name, img, wrapper, editor);
+        });
+
+        wrapper.appendChild(handle);
+      };
+
+      HANDLES.forEach(addHandle);
+
+      // Add reset button
+      const resetBtn = document.createElement('button');
+      resetBtn.type = 'button';
+      resetBtn.textContent = 'Reset size';
+      Object.assign(resetBtn.style, {
+        position: 'absolute',
+        top: '6px',
+        right: '6px',
+        fontSize: '10px',
+        color: 'white',
+        background: 'rgba(220,38,38,0.85)',
+        border: 'none',
+        padding: '2px 7px',
+        borderRadius: '3px',
+        cursor: 'pointer',
+        whiteSpace: 'nowrap',
+        lineHeight: '1.6',
+        zIndex: '21',
+      });
+      resetBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        img.style.width = '';
+        img.style.height = '';
+        wrapper.querySelectorAll('[data-resize-handle]').forEach((h) => h.remove());
+        resetBtn.remove();
+        editor.commands.setImage({ src: img.src, width: null, height: null });
+      });
+      wrapper.appendChild(resetBtn);
+
+      // Add dimension display
+      const dimDisplay = document.createElement('span');
+      const w = img.offsetWidth;
+      const h = img.offsetHeight;
+      dimDisplay.textContent = `${w} × ${h} px`;
+      Object.assign(dimDisplay.style, {
+        position: 'absolute',
+        bottom: '6px',
+        right: '6px',
+        fontSize: '10px',
+        color: 'white',
+        background: 'rgba(37,99,235,0.85)',
+        padding: '2px 6px',
+        borderRadius: '3px',
+        whiteSpace: 'nowrap',
+        pointerEvents: 'none',
+        lineHeight: '1.5',
+        zIndex: '21',
+      });
+      wrapper.appendChild(dimDisplay);
+
+      // Deselect on outside click
+      const deselectHandler = (e) => {
+        if (!wrapper.contains(e.target)) {
+          selected = false;
+          wrapper.querySelectorAll('[data-resize-handle]').forEach((h) => h.remove());
+          resetBtn.remove();
+          dimDisplay.remove();
+          document.removeEventListener('mousedown', deselectHandler);
+        }
+      };
+      setTimeout(() => document.addEventListener('mousedown', deselectHandler), 0);
+    };
+
+    const startDrag = (e, handle, img, wrapper, editor) => {
+      const startX = e.clientX;
+      const startY = e.clientY;
+      const startW = img.offsetWidth;
+      const startH = img.offsetHeight;
+
+      const onMove = (me) => {
+        const dx = me.clientX - startX;
+        const dy = me.clientY - startY;
+
+        let newW = startW;
+        let newH = startH;
+
+        if (handle.includes('e')) newW = Math.max(40, startW + dx);
+        if (handle.includes('w')) newW = Math.max(40, startW - dx);
+        if (handle.includes('s')) newH = Math.max(40, startH + dy);
+        if (handle.includes('n')) newH = Math.max(40, startH - dy);
+
+        img.style.width = `${Math.round(newW)}px`;
+        img.style.height = `${Math.round(newH)}px`;
+
+        // Update dimension display
+        const dimDisplay = wrapper.querySelector('[style*="bottom: 6px"]');
+        if (dimDisplay) dimDisplay.textContent = `${Math.round(newW)} × ${Math.round(newH)} px`;
+      };
+
+      const onUp = () => {
+        const w = img.offsetWidth;
+        const h = img.offsetHeight;
+        editor.commands.setImage({ src: img.src, width: w, height: h });
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('mouseup', onUp);
+      };
+
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onUp);
+    };
+
+    wrapImages();
+
+    // Watch for new images added
+    const observer = new MutationObserver(() => {
+      setTimeout(wrapImages, 0);
+    });
+
+    const editorDOM = document.querySelector('.tiptap');
+    if (editorDOM) {
+      observer.observe(editorDOM, { childList: true, subtree: true });
+    }
+
+    return () => observer.disconnect();
+  }, [editor]);
 
   const handleTitleChange = (e) => {
     const val = e.target.value;
@@ -216,12 +423,6 @@ const TipTapEditor = ({ page, onChange }) => {
         .tiptap ul, .tiptap ol { padding-left: 1.5em; margin: 0.4em 0; }
         .tiptap blockquote { border-left: 3px solid #d1d5db; padding-left: 12px; color: #6b7280; margin: 0.5em 0; }
         .tiptap img { max-width: 100%; border-radius: 4px; }
-        .resize-wrapper { position: relative; display: inline-block; }
-        .resize-handle { position: absolute; background: #0052a3; border: 1px solid white; width: 8px; height: 8px; border-radius: 50%; cursor: se-resize; opacity: 0; transition: opacity 0.2s; }
-        .resize-wrapper:hover .resize-handle { opacity: 0.8; }
-        .resize-handle[data-resize-handle="right"] { right: -4px; top: 50%; transform: translateY(-50%); cursor: e-resize; }
-        .resize-handle[data-resize-handle="bottom"] { bottom: -4px; left: 50%; transform: translateX(-50%); cursor: s-resize; }
-        .resize-handle[data-resize-handle="bottom-right"] { bottom: -4px; right: -4px; }
       `}</style>
     </div>
   );
