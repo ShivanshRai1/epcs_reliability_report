@@ -19,7 +19,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     { id: 'table', name: 'Table', description: 'Structured table page' },
     { id: 'just-images', name: 'Images', description: 'Image-focused page' },
     { id: 'managed-content', name: 'MS WORD like editor', description: 'Rich text editor with full formatting capabilities' },
-    { id: 'tldraw-editor', name: 'Tldraw Canvas Editor', description: 'PowerPoint-like free canvas with drag, resize and shapes (experimental)' },
+    { id: 'ppt-import', name: 'Image / PDF Import', description: 'Upload an image or PDF to display as a full page' },
     { id: 'grapesjs-editor', name: 'GrapesJS Page Builder', description: 'Visual drag-and-drop HTML page builder (experimental)' },
     { id: 'split-text-image', name: 'Split Text + Image', description: 'Text on left and image on right with optional headers' },
     { id: 'split-links-image', name: 'Split Links + Image', description: 'Links on left and image on right with optional headers' },
@@ -79,7 +79,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
 
       const ensuredTemplates = [
         { id: 'managed-content', name: 'MS WORD like editor', description: 'Rich text editor with full formatting capabilities' },
-        { id: 'tldraw-editor', name: 'Tldraw Canvas Editor', description: 'PowerPoint-like free canvas with drag, resize and shapes (experimental)' },
+        { id: 'ppt-import', name: 'Image / PDF Import', description: 'Upload an image or PDF to display as a full page' },
         { id: 'grapesjs-editor', name: 'GrapesJS Page Builder', description: 'Visual drag-and-drop HTML page builder (experimental)' },
         { id: 'split-text-image', name: 'Split Text + Image', description: 'Text on left and image on right with optional headers' },
         { id: 'split-links-image', name: 'Split Links + Image', description: 'Links on left and image on right with optional headers' },
@@ -109,7 +109,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     await createPageWithConfig(templateId);
   };
 
-  const EDITOR_TEMPLATE_IDS = ['managed-content', 'tldraw-editor', 'grapesjs-editor'];
+  const EDITOR_TEMPLATE_IDS = ['managed-content', 'ppt-import', 'grapesjs-editor'];
 
   const primaryTemplateOrder = ['split-content', 'just-images', 'text-only', 'heading'];
   const primaryTemplates = primaryTemplateOrder
@@ -129,7 +129,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       'just-images': 'image',
       'mixed-content': 'just-images',
       'managed-content': 'managed-content',
-      'tldraw-editor': 'managed-content',
+      'ppt-import': 'managed-content',
       'grapesjs-editor': 'managed-content',
       'split-text-image': 'split-content-image',
       'split-links-image': 'split-content-image',
@@ -371,7 +371,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     }
 
     const isTextOnly = templateId === 'text-only';
-    const isEditorTemplate = templateId === 'managed-content' || templateId === 'tldraw-editor' || templateId === 'grapesjs-editor';
+    const isEditorTemplate = templateId === 'managed-content' || templateId === 'ppt-import' || templateId === 'grapesjs-editor';
     const cloneSource = (isTextOnly || isEditorTemplate) ? null : getSamplePageForTemplate(templateId);
     const cloneSourcePageId = cloneSource?.id || null;
     const cloneSourcePageData = cloneSource ? JSON.parse(JSON.stringify(cloneSource)) : null;

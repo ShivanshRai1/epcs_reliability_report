@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import TldrawPageEditor from './TldrawPageEditor';
 import GrapesJSPageEditor from './GrapesJSPageEditor';
+import PPTImportEditor from './PPTImportEditor';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import {
   ClassicEditor,
@@ -148,8 +148,8 @@ const ManagedContentEditor = ({ page, onChange }) => {
   };
 
   // Delegate to isolated sub-editors for new template variants.
-  if (pageTemplate === 'tldraw-editor') {
-    return <TldrawPageEditor page={page} onChange={onChange} />;
+  if (pageTemplate === 'ppt-import') {
+    return <PPTImportEditor page={page} onChange={onChange} />;
   }
   if (pageTemplate === 'grapesjs-editor') {
     return <GrapesJSPageEditor page={page} onChange={onChange} />;

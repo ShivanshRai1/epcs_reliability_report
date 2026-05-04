@@ -600,7 +600,7 @@ const clearDraftCache = () => {
       const normalizedTitle = String(p.title || '').trim().toLowerCase();
       // Match auto-generated page IDs: page_<number> (including timestamp-based IDs like page_1745209234567)
       const isAutoCreatedPage = /^page_[0-9]+$/i.test(pageId);
-      const isCanvasComparisonTemplate = templateId === 'tldraw-editor' || templateId === 'grapesjs-editor';
+      const isCanvasComparisonTemplate = templateId === 'grapesjs-editor' || templateId === 'ppt-import';
       if (!isAutoCreatedPage && !isCanvasComparisonTemplate) return false;
       if (blockedDynamicTitles.has(normalizedTitle)) return false;
       return !staticTargets.has(pageId);
@@ -1021,7 +1021,6 @@ const clearDraftCache = () => {
     const isHeavyManagedSnapshotUpdate = isObjectUpdate && (() => {
       const incoming = rowIdxOrPage || {};
       const hasHeavyPayload =
-        Object.prototype.hasOwnProperty.call(incoming, 'tldrawSnapshot') ||
         Object.prototype.hasOwnProperty.call(incoming, 'grapesjsHtml') ||
         Object.prototype.hasOwnProperty.call(incoming, 'grapesjsCss');
       if (!hasHeavyPayload) return false;
@@ -1030,7 +1029,7 @@ const clearDraftCache = () => {
       const templateId = String(
         currentPage?.pageTemplate || currentPage?.page_template || currentPage?.pageType || ''
       ).toLowerCase();
-      return templateId === 'tldraw-editor' || templateId === 'grapesjs-editor';
+      return templateId === 'grapesjs-editor';
     })();
 
     // Fast path for high-frequency managed snapshot updates.

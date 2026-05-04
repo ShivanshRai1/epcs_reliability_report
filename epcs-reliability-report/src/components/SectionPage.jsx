@@ -991,6 +991,49 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
       );
     }
 
+    // Read-only: PPT Import — render uploaded image or PDF
+    if (currentTemplate === 'ppt-import') {
+      return (
+        <div>
+          {page.title && (
+            <div style={{
+              background: page.titleColor || 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)',
+              color: 'white',
+              padding: '14px 24px',
+              fontSize: `${titleFontSize}rem`,
+              fontWeight: 600,
+              textAlign: 'center',
+              letterSpacing: '0.5px',
+              marginBottom: '1.2rem',
+            }}>
+              {page.title}
+            </div>
+          )}
+          {page.importedFileUrl ? (
+            page.importedFileType === 'application/pdf' ? (
+              <iframe
+                src={page.importedFileUrl}
+                title={page.title || 'Imported PDF'}
+                style={{ width: '100%', height: '700px', border: 'none', borderRadius: '6px' }}
+              />
+            ) : (
+              <img
+                src={page.importedFileUrl}
+                alt={page.title || 'Imported page'}
+                style={{ maxWidth: '100%', borderRadius: '6px', display: 'block', margin: '0 auto' }}
+              />
+            )
+          ) : (
+            <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280', fontSize: '0.95rem', background: '#f9fafb', borderRadius: '8px', border: '1px dashed #d1d5db' }}>
+              <div style={{ fontSize: '2rem', marginBottom: '8px' }}>📎</div>
+              <strong>No file uploaded yet</strong>
+              <p style={{ margin: '8px 0 0' }}>Switch to Edit mode to upload an image or PDF.</p>
+            </div>
+          )}
+        </div>
+      );
+    }
+
     // Read-only: Tldraw — show a notice (canvas is interactive; export not needed for report view)
     if (currentTemplate === 'tldraw-editor') {
       return (

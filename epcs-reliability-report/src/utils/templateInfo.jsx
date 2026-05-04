@@ -16,7 +16,7 @@ export const TEMPLATE_INFO = {
   'split-links-image': { name: 'Split Links + Image', icon: '🧩' },
   'split-image-links': { name: 'Split Image + Links', icon: '🧩' },
   'managed-content': { name: 'MS WORD like editor', icon: '📝' },
-  'tldraw-editor': { name: 'Tldraw Canvas Editor', icon: '🎨' },
+  'ppt-import': { name: 'Image / PDF Import', icon: '📎' },
   'grapesjs-editor': { name: 'GrapesJS Page Builder', icon: '🏗️' },
   'split-content': { name: 'Split Content', icon: '⬀' },
   'table': { name: 'Table', icon: '📊' },
