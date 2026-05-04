@@ -12,6 +12,24 @@ const TldrawPageEditor = ({ page, onChange }) => {
   const pageRef = useRef(page);
   const lastSnapshotHashRef = useRef('');
 
+  const getEditorSnapshot = useCallback((editor) => {
+    if (!editor) return null;
+    if (typeof editor.getSnapshot === 'function') return editor.getSnapshot();
+    if (editor.store && typeof editor.store.getSnapshot === 'function') return editor.store.getSnapshot();
+    return null;
+  }, []);
+
+  const loadEditorSnapshot = useCallback((editor, snapshot) => {
+    if (!editor || !snapshot) return;
+    if (typeof editor.loadSnapshot === 'function') {
+      editor.loadSnapshot(snapshot);
+      return;
+    }
+    if (editor.store && typeof editor.store.loadSnapshot === 'function') {
+      editor.store.loadSnapshot(snapshot);
+    }
+  }, []);
+
   useEffect(() => {
     setTitle(page.title || '');
   }, [page.id]);
@@ -39,7 +57,8 @@ const TldrawPageEditor = ({ page, onChange }) => {
     if (!editor) return;
 
     try {
-      const snapshot = editor.store.getSnapshot();
+      const snapshot = getEditorSnapshot(editor);
+      if (!snapshot) return;
       const snapshotHash = JSON.stringify(snapshot);
       if (snapshotHash === lastSnapshotHashRef.current) return;
       lastSnapshotHashRef.current = snapshotHash;
@@ -52,7 +71,7 @@ const TldrawPageEditor = ({ page, onChange }) => {
     } catch (e) {
       console.warn('TldrawPageEditor: could not save snapshot', e);
     }
-  }, []);
+  }, [getEditorSnapshot]);
 
   const handleMount = useCallback((editor) => {
     editorRef.current = editor;
@@ -63,7 +82,7 @@ const TldrawPageEditor = ({ page, onChange }) => {
         const snapshot = typeof pageRef.current.tldrawSnapshot === 'string'
           ? JSON.parse(pageRef.current.tldrawSnapshot)
           : pageRef.current.tldrawSnapshot;
-        editor.store.loadSnapshot(snapshot);
+        loadEditorSnapshot(editor, snapshot);
       } catch (e) {
         console.warn('TldrawPageEditor: could not load snapshot', e);
       }
@@ -82,7 +101,7 @@ const TldrawPageEditor = ({ page, onChange }) => {
       unsub();
       clearTimeout(saveTimerRef.current);
     };
-  }, [page.id, persistSnapshot]);
+  }, [page.id, persistSnapshot, loadEditorSnapshot]);
 
   return (
     <div className="managed-content-editor" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
