@@ -117,23 +117,7 @@ const TipTapEditor = ({ page, onChange }) => {
       Color,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Link.configure({ openOnClick: false }),
-      Image.extend({
-        addAttributes() {
-          return {
-            src: { default: '' },
-            alt: { default: '' },
-            title: { default: '' },
-            width: { default: null },
-            height: { default: null },
-          };
-        },
-        renderHTML(attrs) {
-          const htmlAttrs = { src: attrs.src, alt: attrs.alt };
-          if (attrs.width) htmlAttrs.width = attrs.width;
-          if (attrs.height) htmlAttrs.height = attrs.height;
-          return ['img', htmlAttrs];
-        },
-      }),
+      Image,
       Table.configure({ resizable: true }),
       TableRow,
       TableHeader,
