@@ -109,12 +109,18 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     await createPageWithConfig(templateId);
   };
 
+  const EDITOR_TEMPLATE_IDS = ['managed-content', 'tldraw-editor', 'grapesjs-editor'];
+
   const primaryTemplateOrder = ['split-content', 'just-images', 'text-only', 'heading'];
   const primaryTemplates = primaryTemplateOrder
     .map((id) => templates.find((template) => template.id === id))
     .filter(Boolean);
   const hiddenTemplates = templates.filter((template) => !primaryTemplateOrder.includes(template.id));
   const displayedTemplates = showAllTemplates ? [...primaryTemplates, ...hiddenTemplates] : primaryTemplates;
+
+  const displayedTemplateGroup = displayedTemplates.filter((t) => !EDITOR_TEMPLATE_IDS.includes(t.id));
+  const displayedEditorGroup = displayedTemplates.filter((t) => EDITOR_TEMPLATE_IDS.includes(t.id));
+  const showGroupLabels = displayedTemplateGroup.length > 0 && displayedEditorGroup.length > 0;
 
   const getPageTypeForTemplate = (templateId) => {
     if (!templateId) return null;
@@ -490,8 +496,9 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
               {!templatesLoading && templates.length === 0 && <div className="error-message">No templates available</div>}
               {templates.length > 0 && (
                 <>
+                  {showGroupLabels && <div className="template-group-label">Templates</div>}
                   <div className="templates-grid">
-                    {displayedTemplates.map((template) => (
+                    {displayedTemplateGroup.map((template) => (
                       <div
                         key={template.id}
                         className={`template-card ${selectedTemplate === template.id ? 'selected' : ''} ${loading ? 'template-card-disabled' : ''}`}
@@ -505,6 +512,26 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
                       </div>
                     ))}
                   </div>
+                  {displayedEditorGroup.length > 0 && (
+                    <>
+                      {showGroupLabels && <div className="template-group-label">Editors</div>}
+                      <div className="templates-grid">
+                        {displayedEditorGroup.map((template) => (
+                          <div
+                            key={template.id}
+                            className={`template-card ${selectedTemplate === template.id ? 'selected' : ''} ${loading ? 'template-card-disabled' : ''}`}
+                            onClick={() => !loading && handleTemplateSelect(template.id)}
+                          >
+                            <div className="template-preview">
+                              {renderTemplatePreview(template.id)}
+                            </div>
+                            <div className="template-name">{template.name}</div>
+                            <div className="template-description">{template.description}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
                   {!showAllTemplates && hiddenTemplates.length > 0 && (
                     <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'center' }}>
                       <button
