@@ -103,29 +103,6 @@ const ExcalidrawEditor = ({ page, onChange }) => {
         />
       </div>
 
-      <style>{`
-        .excalidraw-container .App-toolbar .ToolIcon,
-        .excalidraw-container .App-toolbar .ToolIcon_type_button {
-          width: 2rem !important;
-          height: 2rem !important;
-          min-width: 2rem !important;
-          min-height: 2rem !important;
-        }
-        .excalidraw-container .App-toolbar .ToolIcon__icon {
-          width: 1.1rem !important;
-          height: 1.1rem !important;
-        }
-        .excalidraw-container .App-toolbar .ToolIcon__icon svg {
-          width: 1rem !important;
-          height: 1rem !important;
-        }
-        .excalidraw-container .Island {
-          padding: 3px !important;
-        }
-        .excalidraw-container .App-toolbar {
-          gap: 2px !important;
-        }
-      `}</style>
     </div>
   );
 };
