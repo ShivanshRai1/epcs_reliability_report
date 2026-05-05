@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Excalidraw } from '@excalidraw/excalidraw';
+import '@excalidraw/excalidraw/index.css';
 import { getTemplateBadge } from '../utils/templateInfo.jsx';
 
 const ExcalidrawEditor = ({ page, onChange }) => {
