@@ -112,7 +112,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
   };
 
   const EDITOR_TEMPLATE_IDS = ['managed-content', 'tiptap-editor', 'excalidraw-editor', 'grapesjs-editor'];
-  const HIDDEN_TEMPLATE_IDS = ['excalidraw-editor', 'grapesjs-editor'];
+  const HIDDEN_TEMPLATE_IDS = ['grapesjs-editor'];
 
   const primaryTemplateOrder = ['split-content', 'just-images', 'text-only', 'heading'];
   const primaryTemplates = primaryTemplateOrder
