@@ -10,6 +10,19 @@ const ExcalidrawEditor = ({ page, onChange }) => {
   const saveTimerRef = useRef(null);
   const initialDataRef = useRef(null);
 
+  const getCurrentSceneFromApi = useCallback(() => {
+    const api = excalidrawApiRef.current;
+    if (!api) return null;
+
+    return {
+      elements: api.getSceneElements(),
+      appState: {
+        viewBackgroundColor: api.getAppState?.()?.viewBackgroundColor || '#ffffff',
+      },
+      files: api.getFiles?.() || {},
+    };
+  }, []);
+
   // Parse saved scene or start empty
   const getInitialData = () => {
     if (initialDataRef.current) return initialDataRef.current;
@@ -23,10 +36,14 @@ const ExcalidrawEditor = ({ page, onChange }) => {
   };
 
   // Debounced save to avoid flooding onChange on every pointer move
-  const scheduleChange = useCallback((elements, appState) => {
+  const scheduleChange = useCallback((elements, appState, files) => {
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(() => {
-      const scene = JSON.stringify({ elements, appState: { viewBackgroundColor: appState?.viewBackgroundColor || '#ffffff' } });
+      const scene = JSON.stringify({
+        elements,
+        appState: { viewBackgroundColor: appState?.viewBackgroundColor || '#ffffff' },
+        files: files || {},
+      });
       onChange({ ...page, title, titleColor, excalidrawScene: scene });
     }, 600);
   }, [page, title, titleColor, onChange]);
@@ -44,16 +61,16 @@ const ExcalidrawEditor = ({ page, onChange }) => {
   const handleTitleChange = (e) => {
     const val = e.target.value;
     setTitle(val);
-    const api = excalidrawApiRef.current;
-    const scene = api ? JSON.stringify({ elements: api.getSceneElements(), appState: { viewBackgroundColor: '#ffffff' } }) : (page.excalidrawScene || '');
+    const currentScene = getCurrentSceneFromApi();
+    const scene = currentScene ? JSON.stringify(currentScene) : (page.excalidrawScene || '');
     onChange({ ...page, title: val, titleColor, excalidrawScene: scene });
   };
 
   const handleTitleColorChange = (e) => {
     const val = e.target.value;
     setTitleColor(val);
-    const api = excalidrawApiRef.current;
-    const scene = api ? JSON.stringify({ elements: api.getSceneElements(), appState: { viewBackgroundColor: '#ffffff' } }) : (page.excalidrawScene || '');
+    const currentScene = getCurrentSceneFromApi();
+    const scene = currentScene ? JSON.stringify(currentScene) : (page.excalidrawScene || '');
     onChange({ ...page, title, titleColor: val, excalidrawScene: scene });
   };
 
@@ -89,7 +106,7 @@ const ExcalidrawEditor = ({ page, onChange }) => {
         <Excalidraw
           initialData={getInitialData()}
           excalidrawAPI={(api) => { excalidrawApiRef.current = api; }}
-          onChange={(elements, appState) => scheduleChange(elements, appState)}
+          onChange={(elements, appState, files) => scheduleChange(elements, appState, files)}
           UIOptions={{
             canvasActions: {
               saveToActiveFile: false,
