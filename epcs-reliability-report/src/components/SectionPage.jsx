@@ -16,6 +16,7 @@ import SplitContentRenderer from './SplitContentRenderer';
 import ContentSection from './ContentSection';
 import IndexEditor from './IndexEditor';
 import ManagedContentEditor from './ManagedContentEditor';
+import ExcalidrawReadonly from './ExcalidrawReadonly';
 
 const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLiveMode = false, indexPageOrdinal = null, onCellChange, onHeadingChange, onImageChange, onIndexChange, onImageClick, allIndexItems, allPages = [] }) => {
   if (!page) return <div style={{ padding: '1.5rem 0' }}>No page data available.</div>;
@@ -1018,7 +1019,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
       );
     }
 
-    // Read-only: Excalidraw — interactive canvas (needs edit mode to draw)
+    // Read-only: Excalidraw — render saved scene in non-edit mode
     if (currentTemplate === 'excalidraw-editor') {
       return (
         <div>
@@ -1036,11 +1037,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
               {page.title}
             </div>
           )}
-          <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280', fontSize: '0.95rem', background: '#f9fafb', borderRadius: '8px', border: '1px dashed #d1d5db' }}>
-            <div style={{ fontSize: '2rem', marginBottom: '8px' }}>🎨</div>
-            <strong>Excalidraw Canvas</strong>
-            <p style={{ margin: '8px 0 0' }}>Switch to Edit mode to view and draw on the canvas.</p>
-          </div>
+          <ExcalidrawReadonly scene={page.excalidrawScene} />
         </div>
       );
     }
