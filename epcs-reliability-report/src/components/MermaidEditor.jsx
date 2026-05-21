@@ -9,7 +9,7 @@ mermaid.initialize({
 });
 
 const defaultDiagram = `graph TD
-    A[Start] --> B{Decision}
+    A[Start] --> B[Decision]
     B -->|Yes| C[Approved]
     B -->|No| D[Rejected]`;
 
@@ -17,7 +17,7 @@ const diagramTemplates = [
   {
     label: 'Flowchart',
     code: `graph TD
-    A[Start] --> B{Decision}
+    A[Start] --> B[Decision]
     B -->|Yes| C[Approved]
     B -->|No| D[Rejected]`,
   },
@@ -289,7 +289,7 @@ const MermaidEditor = ({ pageData, onUpdate }) => {
                 <div><code>flowchart LR</code> - left-to-right flowchart</div>
                 <div><code>sequenceDiagram</code> - sequence diagram</div>
                 <div><code>gantt</code> - timeline chart</div>
-                <div style={{ marginTop: '8px' }}><code>A[Start] --> B{Decision}</code></div>
+                <div style={{ marginTop: '8px' }}><code>{`A[Start] --> B{Decision}`}</code></div>
                 <div><code>Note right of A: An explanation</code></div>
                 <div><code>%% comment text</code> - add a comment</div>
               </div>
