@@ -13,6 +13,56 @@ const defaultDiagram = `graph TD
     B -->|Yes| C[Approved]
     B -->|No| D[Rejected]`;
 
+const diagramTemplates = [
+  {
+    label: 'Flowchart',
+    code: `graph TD
+    A[Start] --> B{Decision}
+    B -->|Yes| C[Approved]
+    B -->|No| D[Rejected]`,
+  },
+  {
+    label: 'Process',
+    code: `flowchart LR
+    Start --> Step1[Step 1]
+    Step1 --> Step2[Step 2]
+    Step2 --> End[End]`,
+  },
+  {
+    label: 'Sequence',
+    code: `sequenceDiagram
+    participant Alice
+    participant Bob
+    Alice->>Bob: Hello Bob, how are you?
+    Bob-->>Alice: I am good thanks!`,
+  },
+  {
+    label: 'Gantt',
+    code: `gantt
+    title Project timeline
+    dateFormat  YYYY-MM-DD
+    section Design
+    Wireframes       :done,    des1, 2026-05-01, 5d
+    section Development
+    Build frontend   :active,  dev1, 2026-05-06, 10d`,
+  },
+];
+
+const quickSnippets = [
+  {
+    label: 'Add node',
+    snippet: 'E[New node]',
+  },
+  {
+    label: 'Add arrow',
+    snippet: 'A --> E',
+  },
+  {
+    label: 'Add note',
+    snippet: '%% Add note here',
+  },
+];
+
 const MermaidEditor = ({ pageData, onUpdate }) => {
   const [title, setTitle] = useState(pageData?.title || '');
   const [titleColor, setTitleColor] = useState(pageData?.titleColor || '#0052a3');
@@ -98,6 +148,14 @@ const MermaidEditor = ({ pageData, onUpdate }) => {
     }, 600);
   };
 
+  const applyTemplate = (code) => {
+    setDiagramCode(code);
+  };
+
+  const appendSnippet = (snippet) => {
+    setDiagramCode((prev) => `${prev.trim()}\n${snippet}`);
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
       <div style={{ paddingBottom: '10px', borderBottom: '1px solid #e5e7eb' }}>
@@ -127,47 +185,115 @@ const MermaidEditor = ({ pageData, onUpdate }) => {
 
       <h2 style={{ marginBottom: '12px', fontSize: '1rem' }}>Mermaid Diagram Editor</h2>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-        {/* LEFT SIDE - CODE EDITOR */}
-        <div>
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '0.95rem', color: '#333' }}>
-            Diagram Code
-          </label>
-          <textarea
-            className="form-control"
-            rows="20"
-            value={diagramCode}
-            onChange={(e) => setDiagramCode(e.target.value)}
-            style={{
-              fontFamily: "monospace",
-              fontSize: "13px",
-              border: '1px solid #b9c7da',
-              borderRadius: '6px',
-              padding: '10px',
-            }}
-          />
+      <div style={{ display: 'grid', gap: '16px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+          {diagramTemplates.map((template) => (
+            <button
+              key={template.label}
+              type="button"
+              onClick={() => applyTemplate(template.code)}
+              style={{
+                padding: '8px 12px',
+                border: '1px solid #cbd5e1',
+                borderRadius: '6px',
+                background: '#ffffff',
+                color: '#1f2937',
+                cursor: 'pointer',
+                fontSize: '0.9rem'
+              }}
+            >
+              {template.label}
+            </button>
+          ))}
         </div>
 
-        {/* RIGHT SIDE - PREVIEW */}
-        <div>
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '0.95rem', color: '#333' }}>
-            Preview
-          </label>
-          <div style={{
-            border: '1px solid #b9c7da',
-            borderRadius: '6px',
-            padding: '12px',
-            background: '#f9fafb',
-            minHeight: '400px',
-            overflow: 'auto',
-          }}>
-            {error ? (
-              <div style={{ color: '#dc2626', fontSize: '0.9rem', padding: '10px', background: '#fee2e2', borderRadius: '4px' }}>
-                <strong>Error:</strong> {error}
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 3fr', gap: '16px' }}>
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '0.95rem', color: '#333' }}>
+                  Diagram Code
+                </label>
+                <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
+                  Pick a starter template, then edit the text here.
+                </div>
               </div>
-            ) : (
-              <div dangerouslySetInnerHTML={{ __html: svgContent }} />
-            )}
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {quickSnippets.map((item) => (
+                  <button
+                    key={item.label}
+                    type="button"
+                    onClick={() => appendSnippet(item.snippet)}
+                    style={{
+                      padding: '6px 10px',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: '6px',
+                      background: '#f8fafc',
+                      color: '#1f2937',
+                      cursor: 'pointer',
+                      fontSize: '0.82rem'
+                    }}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <textarea
+              className="form-control"
+              rows="22"
+              value={diagramCode}
+              onChange={(e) => setDiagramCode(e.target.value)}
+              style={{
+                fontFamily: 'monospace',
+                fontSize: '13px',
+                border: '1px solid #b9c7da',
+                borderRadius: '6px',
+                padding: '10px',
+                minHeight: '560px'
+              }}
+            />
+          </div>
+
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <label style={{ display: 'block', fontWeight: '600', fontSize: '0.95rem', color: '#333' }}>
+                Preview
+              </label>
+              <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>Live rendering from your code</span>
+            </div>
+            <div style={{
+              border: '1px solid #b9c7da',
+              borderRadius: '6px',
+              padding: '12px',
+              background: '#f9fafb',
+              minHeight: '320px',
+              overflow: 'auto',
+            }}>
+              {error ? (
+                <div style={{ color: '#dc2626', fontSize: '0.9rem', padding: '10px', background: '#fee2e2', borderRadius: '4px' }}>
+                  <strong>Error:</strong> {error}
+                </div>
+              ) : (
+                <div dangerouslySetInnerHTML={{ __html: svgContent }} />
+              )}
+            </div>
+            <div style={{ marginTop: '16px', padding: '14px', border: '1px solid #e5e7eb', borderRadius: '8px', background: '#ffffff' }}>
+              <h4 style={{ marginBottom: '10px', fontSize: '0.95rem' }}>Quick help</h4>
+              <p style={{ margin: '0 0 10px', color: '#475569', fontSize: '0.9rem' }}>
+                Use the editor on the left to update diagram syntax. Your diagram preview updates automatically.
+              </p>
+              <div style={{ fontSize: '0.85rem', color: '#334155', lineHeight: 1.6 }}>
+                <div><strong>Common syntax:</strong></div>
+                <div style={{ marginTop: '8px' }}><code>graph TD</code> - left-to-right flowchart</div>
+                <div><code>flowchart LR</code> - left-to-right flowchart</div>
+                <div><code>sequenceDiagram</code> - sequence diagram</div>
+                <div><code>gantt</code> - timeline chart</div>
+                <div style={{ marginTop: '8px' }}><code>A[Start] --> B{Decision}</code></div>
+                <div><code>Note right of A: An explanation</code></div>
+                <div><code>%% comment text</code> - add a comment</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
