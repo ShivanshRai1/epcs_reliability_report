@@ -136,7 +136,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       'managed-content': 'managed-content',
       'tiptap-editor': 'managed-content',
       'excalidraw-editor': 'managed-content',
-      'mermaid-editor': 'meanaged-content',
+      'mermaid-editor': 'managed-content',
       'grapesjs-editor': 'managed-content',
       'split-text-image': 'split-content-image',
       'split-links-image': 'split-content-image',

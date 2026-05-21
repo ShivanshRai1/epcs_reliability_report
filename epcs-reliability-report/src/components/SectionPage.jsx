@@ -951,7 +951,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
   }
 
   // Render managed content page (rich editor with CKEditor)
-  if (page.pageType === 'managed-content') {
+  if (page.pageType === 'managed-content' || page.pageType === 'meanaged-content') {
     const currentTemplate = String(page.pageTemplate || page.page_template || '').toLowerCase();
 
     if (currentTemplate === 'mermaid-editor') {
