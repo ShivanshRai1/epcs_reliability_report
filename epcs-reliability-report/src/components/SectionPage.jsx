@@ -17,6 +17,7 @@ import ContentSection from './ContentSection';
 import IndexEditor from './IndexEditor';
 import ManagedContentEditor from './ManagedContentEditor';
 import ExcalidrawReadonly from './ExcalidrawReadonly';
+import MermaidEditor from './MermaidEditor';
 
 const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLiveMode = false, indexPageOrdinal = null, onCellChange, onHeadingChange, onImageChange, onIndexChange, onImageClick, allIndexItems, allPages = [] }) => {
   if (!page) return <div style={{ padding: '1.5rem 0' }}>No page data available.</div>;
@@ -952,6 +953,18 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
   // Render managed content page (rich editor with CKEditor)
   if (page.pageType === 'managed-content') {
     const currentTemplate = String(page.pageTemplate || page.page_template || '').toLowerCase();
+
+     if (currentTemplate === 'mermaid-editor') {
+  return wrapEditContent(
+    <MermaidEditor
+      pageData={page}
+      onUpdate={(updatedPage) =>
+        onCellChange(page.id, updatedPage)
+      }
+    />
+  );
+}
+
 
     if (isEditMode) {
       return wrapEditContent(

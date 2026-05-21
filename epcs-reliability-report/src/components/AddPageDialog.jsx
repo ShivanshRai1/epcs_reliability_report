@@ -22,6 +22,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     { id: 'tiptap-editor', name: 'Text, Tables & Images', description: 'Add text, headings, tables and images in one page' },
     { id: 'excalidraw-editor', name: 'Excalidraw Canvas', description: 'Free-form canvas for diagrams, shapes, arrows and slide-like layouts' },
     { id: 'grapesjs-editor', name: 'GrapesJS Page Builder', description: 'Visual drag-and-drop HTML page builder (experimental)' },
+     {id: "mermaid", name: "Mermaid Diagram",description: "Create flowcharts, sequence diagrams, ER diagrams and architecture diagrams"},
     { id: 'split-text-image', name: 'Split Text + Image', description: 'Text on left and image on right with optional headers' },
     { id: 'split-links-image', name: 'Split Links + Image', description: 'Links on left and image on right with optional headers' },
     { id: 'split-image-links', name: 'Split Image + Links', description: 'Image on left and links on right with optional headers' },
@@ -83,6 +84,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         { id: 'tiptap-editor', name: 'Text, Tables & Images', description: 'Add text, headings, tables and images in one page' },
         { id: 'excalidraw-editor', name: 'Excalidraw Canvas', description: 'Free-form canvas for diagrams, shapes, arrows and slide-like layouts' },
         { id: 'grapesjs-editor', name: 'GrapesJS Page Builder', description: 'Visual drag-and-drop HTML page builder (experimental)' },
+        {id: "mermaid-editor", name: "Mermaid Diagram",description: "Create flowcharts, sequence diagrams, ER diagrams and architecture diagrams"},
         { id: 'split-text-image', name: 'Split Text + Image', description: 'Text on left and image on right with optional headers' },
         { id: 'split-links-image', name: 'Split Links + Image', description: 'Links on left and image on right with optional headers' },
         { id: 'split-image-links', name: 'Split Image + Links', description: 'Image on left and links on right with optional headers' },
@@ -111,7 +113,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     await createPageWithConfig(templateId);
   };
 
-  const EDITOR_TEMPLATE_IDS = ['managed-content', 'tiptap-editor', 'excalidraw-editor', 'grapesjs-editor'];
+  const EDITOR_TEMPLATE_IDS = ['managed-content', 'tiptap-editor', 'excalidraw-editor', 'grapesjs-editor','mermaid-editor'];
   const HIDDEN_TEMPLATE_IDS = ['grapesjs-editor'];
 
   const primaryTemplateOrder = ['split-content', 'just-images', 'text-only', 'heading'];
@@ -134,6 +136,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       'managed-content': 'managed-content',
       'tiptap-editor': 'managed-content',
       'excalidraw-editor': 'managed-content',
+      'mermaid-editor': 'meanaged-content',
       'grapesjs-editor': 'managed-content',
       'split-text-image': 'split-content-image',
       'split-links-image': 'split-content-image',
@@ -375,7 +378,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     }
 
     const isTextOnly = templateId === 'text-only';
-    const isEditorTemplate = templateId === 'managed-content' || templateId === 'tiptap-editor' || templateId === 'excalidraw-editor' || templateId === 'grapesjs-editor';
+    const isEditorTemplate = templateId === 'managed-content' || templateId === 'tiptap-editor' || templateId === 'excalidraw-editor' || templateId === 'mermaid-editor' || templateId === 'grapesjs-editor';
     const cloneSource = (isTextOnly || isEditorTemplate) ? null : getSamplePageForTemplate(templateId);
     const cloneSourcePageId = cloneSource?.id || null;
     const cloneSourcePageData = cloneSource ? JSON.parse(JSON.stringify(cloneSource)) : null;

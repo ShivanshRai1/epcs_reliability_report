@@ -10,6 +10,7 @@ import PageManagerModal from './components/PageManagerModal';
 import PublishConfirmDialog from './components/PublishConfirmDialog';
 import PublishSelectionModal from './components/PublishSelectionModal';
 import { apiService } from './services/api';
+import MermaidEditor from "./components/MermaidEditor";
 
 const OFFLINE_CACHE_KEY = 'epcs_report_cache_v2';
 const DRAFT_CACHE_KEY = 'epcs_report_draft_v1';
@@ -2298,6 +2299,7 @@ const clearDraftCache = () => {
         <Route path="/" element={<Home />} />
         <Route path="/page/:pageId" element={<ReportPage reportData={displayData} isEditMode={isEditMode} hasUnsavedChanges={changedPages.size > 0} publishStatusLabel={publishStatusLabel} onEditToggle={handleEditToggle} onUndo={handleUndoAll} onPublish={handlePublish} onCellChange={handleCellChange} onHeadingChange={handleHeadingChange} onImageChange={handleImageChange} onIndexChange={handleIndexChange} onSave={handleSave} onCancel={handleCancel} onImageClick={handleImageClick} onAddPage={handleOpenAddPageDialog} onDeletePage={handleOpenDeleteDialog} onManagePages={() => setIsPageManagerOpen(true)} isPublishing={isPublishing} isTestMode={isTestMode} isSeedingTestData={isSeedingTestData} isPublishingTestData={isPublishingTestData} onToggleTestMode={handleToggleTestMode} onSeedTestData={handleSeedTestData} onPublishTestData={handlePublishTestData} onRestoreOriginal={handleRestoreOriginalData} isRestoringOriginal={isRestoringOriginal} />} />
         <Route path="*" element={<div className="App"><p>Page not found</p></div>} />
+        <Route path="/mermaid-editor" element={<MermaidEditor />} />
       </Routes>
     </>
   );
