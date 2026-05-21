@@ -954,17 +954,44 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
   if (page.pageType === 'managed-content') {
     const currentTemplate = String(page.pageTemplate || page.page_template || '').toLowerCase();
 
-     if (currentTemplate === 'mermaid-editor') {
-  return (
-    <MermaidEditor
-      pageData={page}
-      onUpdate={(updatedPage) =>
-        onCellChange(page.id, updatedPage)
+    if (currentTemplate === 'mermaid-editor') {
+      if (isEditMode) {
+        return wrapEditContent(
+          <MermaidEditor
+            pageData={page}
+            onUpdate={(updatedPage) =>
+              onCellChange(page.id, updatedPage)
+            }
+          />
+        );
       }
-    />
-  );
-}
-
+      // Read-only: show saved diagram
+      return (
+        <div>
+          {page.title && (
+            <div style={{
+              background: page.titleColor || 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)',
+              color: 'white',
+              padding: '14px 24px',
+              fontSize: `${titleFontSize}rem`,
+              fontWeight: 600,
+              textAlign: 'center',
+              letterSpacing: '0.5px',
+              marginBottom: '1.2rem',
+            }}>
+              {page.title}
+            </div>
+          )}
+          <div style={{ padding: '16px', border: '1px solid #b9c7da', borderRadius: '6px', background: '#f9fafb' }}>
+            {page.mermaidDiagram ? (
+              <div dangerouslySetInnerHTML={{ __html: page.mermaidSvg || '' }} />
+            ) : (
+              <p style={{ color: '#6b7280', textAlign: 'center' }}>No diagram saved yet. Switch to Edit mode to create one.</p>
+            )}
+          </div>
+        </div>
+      );
+    }
 
     if (isEditMode) {
       return wrapEditContent(
