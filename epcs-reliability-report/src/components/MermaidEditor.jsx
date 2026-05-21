@@ -9,7 +9,7 @@ mermaid.initialize({
 });
 
 const defaultDiagram = `graph TD
-    A[Start] --> B{Decision}
+    A[Start] --> B[Decision]
     B -->|Yes| C[Approved]
     B -->|No| D[Rejected]`;
 
@@ -17,7 +17,7 @@ const diagramTemplates = [
   {
     label: 'Flowchart',
     code: `graph TD
-    A[Start] --> B{Decision}
+    A[Start] --> B[Decision]
     B -->|Yes| C[Approved]
     B -->|No| D[Rejected]`,
   },
