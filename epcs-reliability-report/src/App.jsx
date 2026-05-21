@@ -601,7 +601,7 @@ const clearDraftCache = () => {
       const normalizedTitle = String(p.title || '').trim().toLowerCase();
       // Match auto-generated page IDs: page_<number> (including timestamp-based IDs like page_1745209234567)
       const isAutoCreatedPage = /^page_[0-9]+$/i.test(pageId);
-      const isCanvasComparisonTemplate = templateId === 'tiptap-editor' || templateId === 'excalidraw-editor' || templateId === 'grapesjs-editor';
+      const isCanvasComparisonTemplate = templateId === 'tiptap-editor' || templateId === 'excalidraw-editor' || templateId === 'mermaid-editor' || templateId === 'grapesjs-editor';
       if (!isAutoCreatedPage && !isCanvasComparisonTemplate) return false;
       if (blockedDynamicTitles.has(normalizedTitle)) return false;
       return !staticTargets.has(pageId);

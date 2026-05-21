@@ -98,6 +98,7 @@ router.get('/templates', async (req, res) => {
         { id: 'managed-content', name: 'MS WORD like editor', description: 'Rich text editor with full formatting capabilities' },
         { id: 'tiptap-editor', name: 'Text, Tables & Images', description: 'Add text, headings, tables and images in one page' },
         { id: 'excalidraw-editor', name: 'Excalidraw Canvas', description: 'Free-form canvas for diagrams, shapes, arrows and slide-like layouts' },
+        { id: 'mermaid-editor', name: 'Mermaid Diagram', description: 'Create flowcharts, diagrams, and visualizations using Mermaid syntax' },
         { id: 'grapesjs-editor', name: 'GrapesJS Page Builder', description: 'Visual drag-and-drop HTML page builder (experimental)' },
         { id: 'table', name: 'Table', description: 'Primary table page type' }
       ]
@@ -291,6 +292,7 @@ router.post('/create', async (req, res) => {
       'tldraw-editor': 'managed-content',
       'tiptap-editor': 'managed-content',
       'excalidraw-editor': 'managed-content',
+      'mermaid-editor': 'managed-content',
       'grapesjs-editor': 'managed-content',
       'split-text-image': 'split-content-image',
       'split-links-image': 'split-content-image',
@@ -312,6 +314,7 @@ router.post('/create', async (req, res) => {
       'managed-content': { htmlContent: '', title: title },
       'tiptap-editor': { tiptapHtml: '', title: title },
       'excalidraw-editor': { excalidrawScene: '', title: title },
+      'mermaid-editor': { mermaidDiagram: '', mermaidSvg: '', title: title },
       'grapesjs-editor': { grapesjsHtml: '<p>Start building your page here.</p>', grapesjsCss: '', title: title },
       'heading': { title: title, subtitle: '' },
       'index': { content: [] },
