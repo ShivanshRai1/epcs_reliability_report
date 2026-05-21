@@ -955,7 +955,7 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
     const currentTemplate = String(page.pageTemplate || page.page_template || '').toLowerCase();
 
      if (currentTemplate === 'mermaid-editor') {
-  return wrapEditContent(
+  return (
     <MermaidEditor
       pageData={page}
       onUpdate={(updatedPage) =>
