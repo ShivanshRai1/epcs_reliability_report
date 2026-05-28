@@ -116,6 +116,23 @@ const ChartEditor = ({ pageData, onUpdate }) => {
     scheduleSave(next);
   };
 
+  /** Swap which column is X (labels) vs primary Y (plotted values). */
+  const swapXYAxes = () => {
+    if (config.headers.length < 2) return;
+    const oldX = config.xColumnIndex;
+    const oldY = [...config.yColumnIndices];
+    if (!oldY.length) return;
+
+    const newX = oldY[0];
+    const newY = [oldX, ...oldY.slice(1)].filter((i, idx, arr) => arr.indexOf(i) === idx && i !== newX);
+    updateConfig({
+      xColumnIndex: newX,
+      yColumnIndices: newY.length ? newY : [oldX],
+    });
+  };
+
+  const xColumnLabel = config.headers[config.xColumnIndex] || `Column ${config.xColumnIndex + 1}`;
+
   const previewPage = { ...pageData, chartConfig: config };
 
   return (
@@ -123,7 +140,7 @@ const ChartEditor = ({ pageData, onUpdate }) => {
       <div style={{ paddingBottom: '10px', borderBottom: '1px solid #e5e7eb' }}>
         {getTemplateBadge({ ...pageData, pageTemplate: 'chart-editor' }, true)}
         <p className="chart-editor-intro">
-          Enter labels and numbers in the table, pick a chart type, and preview updates live.
+          Type your own numbers in the data table (or use a sample preset). Changes save to this page when you edit.
         </p>
       </div>
 
@@ -202,7 +219,27 @@ const ChartEditor = ({ pageData, onUpdate }) => {
             ))}
           </select>
         </label>
+        {config.headers.length >= 2 && (
+          <button
+            type="button"
+            className="chart-swap-axes-btn"
+            onClick={swapXYAxes}
+            title="Switch which column is horizontal (X) vs vertical (Y)"
+          >
+            ⇄ Swap X ↔ Y
+          </button>
+        )}
       </div>
+
+      <p className="chart-axis-hint">
+        X = <strong>{xColumnLabel}</strong> (labels along the bottom).
+        {config.chartType !== 'pie' && config.yColumnIndices.length > 0 && (
+          <>
+            {' '}Y = {config.yColumnIndices.map((i) => config.headers[i] || `Column ${i + 1}`).join(', ')} (plotted values).
+          </>
+        )}
+        {' '}A column used for X cannot also be checked on Y — use Swap to flip them.
+      </p>
 
       <div>
         <div style={{ fontSize: '0.85rem', color: '#374151', marginBottom: '6px' }}>

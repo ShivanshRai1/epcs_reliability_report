@@ -73,6 +73,33 @@
   background: #ffffff;
 }
 
+.chart-swap-axes-btn {
+  padding: 8px 14px;
+  border: 1px solid #0052a3;
+  border-radius: 6px;
+  background: #eef4fc;
+  color: #0052a3 !important;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.chart-swap-axes-btn:hover {
+  background: #dbeafe;
+}
+
+.chart-axis-hint {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #4b5563;
+  line-height: 1.45;
+}
+
+.chart-axis-hint strong {
+  color: #111827;
+}
+
 .chart-editor-presets {
   display: flex;
   flex-wrap: wrap;
