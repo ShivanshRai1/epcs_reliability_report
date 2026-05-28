@@ -1,0 +1,49 @@
+/* Recharts inherits report-shell text colors; force readable chart UI. */
+.report-chart {
+  color: #1f2937;
+}
+
+.report-chart .recharts-default-tooltip {
+  background: #ffffff !important;
+  border: 1px solid #b9c7da !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12) !important;
+  color: #111827 !important;
+}
+
+.report-chart .recharts-tooltip-label,
+.report-chart .recharts-tooltip-item-name,
+.report-chart .recharts-tooltip-item-value,
+.report-chart .recharts-tooltip-item-separator {
+  color: #111827 !important;
+}
+
+.report-chart .recharts-legend-item-text {
+  color: #1f2937 !important;
+  fill: #1f2937 !important;
+}
+
+.report-chart .recharts-pie-label-text {
+  fill: #1f2937 !important;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.report-chart .recharts-cartesian-axis-tick-value {
+  fill: #374151 !important;
+}
+
+.report-chart .recharts-cartesian-axis-line,
+.report-chart .recharts-cartesian-grid line {
+  stroke: #cbd5e1;
+}
+
+.report-chart h3 {
+  color: #1f2937 !important;
+}
+
+.report-shell .report-chart .recharts-default-tooltip,
+.report-shell .report-chart .recharts-legend-item-text,
+.report-shell .report-chart .recharts-pie-label-text {
+  color: #111827 !important;
+}

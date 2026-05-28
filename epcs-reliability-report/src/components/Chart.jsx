@@ -15,8 +15,39 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { configToPieData, normalizeChartConfig, rowsToChartRecords } from '../utils/chartData';
+import './Chart.css';
 
 const SERIES_COLORS = ['#2563eb', '#059669', '#d97706', '#dc2626', '#7c3aed', '#0891b2'];
+
+const chartTooltipProps = {
+  contentStyle: {
+    backgroundColor: '#ffffff',
+    border: '1px solid #b9c7da',
+    borderRadius: '6px',
+    color: '#111827',
+    boxShadow: '0 2px 8px rgba(15, 23, 42, 0.12)',
+  },
+  labelStyle: { color: '#111827', fontWeight: 600 },
+  itemStyle: { color: '#111827' },
+};
+
+const chartLegendProps = {
+  wrapperStyle: { color: '#1f2937' },
+};
+
+const renderPieLabel = ({ name, percent, x, y, textAnchor }) => (
+  <text
+    x={x}
+    y={y}
+    textAnchor={textAnchor}
+    dominantBaseline="central"
+    fill="#1f2937"
+    fontSize={12}
+    fontWeight={600}
+  >
+    {`${name} (${(percent * 100).toFixed(0)}%)`}
+  </text>
+);
 
 const ReportChart = ({ page, height = 320 }) => {
   const config = normalizeChartConfig(page);
@@ -39,7 +70,7 @@ const ReportChart = ({ page, height = 320 }) => {
   if (config.chartType === 'pie') {
     const pieData = configToPieData(config);
     return (
-      <div style={{ width: '100%', margin: '1rem 0' }}>
+      <div className="report-chart" style={{ width: '100%', margin: '1rem 0' }}>
         {title && <h3 style={{ textAlign: 'center', marginBottom: '12px', fontSize: '1.05rem' }}>{title}</h3>}
         <ResponsiveContainer width="100%" height={height}>
           <PieChart>
@@ -50,14 +81,15 @@ const ReportChart = ({ page, height = 320 }) => {
               cx="50%"
               cy="50%"
               outerRadius="70%"
-              label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+              label={renderPieLabel}
+              labelLine={{ stroke: '#64748b', strokeWidth: 1 }}
             >
               {pieData.map((_, idx) => (
                 <Cell key={idx} fill={SERIES_COLORS[idx % SERIES_COLORS.length]} />
               ))}
             </Pie>
-            <Tooltip />
-            <Legend />
+            <Tooltip {...chartTooltipProps} />
+            <Legend {...chartLegendProps} />
           </PieChart>
         </ResponsiveContainer>
       </div>
@@ -68,15 +100,15 @@ const ReportChart = ({ page, height = 320 }) => {
   const Series = config.chartType === 'bar' ? Bar : Line;
 
   return (
-    <div style={{ width: '100%', margin: '1rem 0' }}>
+    <div className="report-chart" style={{ width: '100%', margin: '1rem 0' }}>
       {title && <h3 style={{ textAlign: 'center', marginBottom: '12px', fontSize: '1.05rem' }}>{title}</h3>}
       <ResponsiveContainer width="100%" height={height}>
         <ChartRoot data={data} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey={xKey} />
-          <YAxis />
-          <Tooltip />
-          <Legend />
+          <XAxis dataKey={xKey} tick={{ fill: '#374151' }} />
+          <YAxis tick={{ fill: '#374151' }} />
+          <Tooltip {...chartTooltipProps} />
+          <Legend {...chartLegendProps} />
           {yKeys.map((key, idx) => (
             <Series
               key={key}
