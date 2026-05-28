@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   LineChart,
   Line,
@@ -58,9 +58,29 @@ const renderPieLabel = (categoryLabel, valueLabel) => (props) => {
   );
 };
 
-const ChartCaption = ({ config }) => (
-  <p className="report-chart-caption">{getChartAxisSummary(config)}</p>
-);
+const ChartCaption = ({ config }) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="report-chart-caption-row">
+      <button
+        type="button"
+        className="report-chart-help-toggle"
+        onClick={() => setOpen((prev) => !prev)}
+        aria-expanded={open}
+        aria-label={open ? 'Hide chart explanation' : 'Show chart explanation'}
+        title="What does this chart show?"
+      >
+        ?
+      </button>
+      {open && (
+        <p className="report-chart-caption" role="note">
+          {getChartAxisSummary(config)}
+        </p>
+      )}
+    </div>
+  );
+};
 
 const ReportChart = ({ page, height = 320 }) => {
   const config = normalizeChartConfig(page);
@@ -93,8 +113,10 @@ const ReportChart = ({ page, height = 320 }) => {
     };
     return (
       <div className="report-chart" style={{ width: '100%', margin: '1rem 0' }}>
-        {title && <h3 style={{ textAlign: 'center', marginBottom: '8px', fontSize: '1.05rem' }}>{title}</h3>}
-        <ChartCaption config={config} />
+        <div className="report-chart-title-row">
+          {title ? <h3 className="report-chart-title">{title}</h3> : <span className="report-chart-title-spacer" />}
+          <ChartCaption config={config} />
+        </div>
         <ResponsiveContainer width="100%" height={height}>
           <PieChart>
             <Pie
@@ -127,8 +149,10 @@ const ReportChart = ({ page, height = 320 }) => {
 
   return (
     <div className="report-chart" style={{ width: '100%', margin: '1rem 0' }}>
-      {title && <h3 style={{ textAlign: 'center', marginBottom: '8px', fontSize: '1.05rem' }}>{title}</h3>}
-      <ChartCaption config={config} />
+      <div className="report-chart-title-row">
+        {title ? <h3 className="report-chart-title">{title}</h3> : <span className="report-chart-title-spacer" />}
+        <ChartCaption config={config} />
+      </div>
       <ResponsiveContainer width="100%" height={height}>
         <ChartRoot data={data} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
           <CartesianGrid strokeDasharray="3 3" />
