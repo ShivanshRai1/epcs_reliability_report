@@ -452,12 +452,19 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
           <div>
             {page.pageBlocks.map((block, bIdx) => {
               if (block.type === 'image') {
+                const blockWidth = toPositiveNumber(block.imageWidth, 0) || imageWidth;
+                const blockHeight = toPositiveNumber(block.imageHeight, 0) || imageHeight;
+                const blockSizingStyle = {
+                  width: blockWidth > 0 ? `${blockWidth}px` : undefined,
+                  height: blockHeight > 0 ? `${blockHeight}px` : undefined,
+                  objectFit: (blockWidth > 0 || blockHeight > 0) ? 'contain' : undefined,
+                };
                 return (
                   <div key={block.id || bIdx} style={{ marginBottom: '2rem' }}>
                     <img
                       src={block.src}
                       alt={block.caption || `Image ${bIdx + 1}`}
-                      style={{ maxWidth: '100%', height: 'auto', borderRadius: '4px', cursor: 'pointer', ...imageSizingStyle }}
+                      style={{ maxWidth: '100%', height: 'auto', borderRadius: '4px', cursor: 'pointer', ...blockSizingStyle }}
                       onClick={() => onImageClick(block.src, block.caption || `Image ${bIdx + 1}`)}
                     />
                     {block.caption && (

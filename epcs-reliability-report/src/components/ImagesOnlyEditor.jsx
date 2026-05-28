@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './ImagesOnlyEditor.css';
 import LinkTargetInput from './LinkTargetInput';
+import ResizableImage from './ResizableImage';
 import { getTemplateBadge } from '../utils/templateInfo.jsx';
 
 const createBlockId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -114,6 +115,11 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
     reader.onload = () => updateBlock(id, { src: reader.result });
     reader.readAsDataURL(file);
   };
+
+  const resolveBlockDimensions = (block) => ({
+    width: Number(block.imageWidth) > 0 ? Number(block.imageWidth) : imageWidth,
+    height: Number(block.imageHeight) > 0 ? Number(block.imageHeight) : imageHeight
+  });
 
   const normalizeImageSrc = (value) => {
     const input = (value || '').trim();
@@ -300,9 +306,19 @@ const ImagesOnlyEditor = ({ page, onChange }) => {
                   {block.type === 'image' && (
                     <>
                       <div className="image-preview">
-                        {block.src
-                          ? <img src={block.src} alt={`Block ${idx + 1}`} style={{ width: imageWidth ? `${imageWidth}px` : undefined, height: imageHeight ? `${imageHeight}px` : undefined, objectFit: imageWidth || imageHeight ? 'contain' : undefined, maxWidth: '100%' }} />
-                          : <div className="placeholder">No image</div>}
+                        {block.src ? (
+                          <ResizableImage
+                            src={block.src}
+                            alt={`Block ${idx + 1}`}
+                            imageWidth={resolveBlockDimensions(block).width}
+                            imageHeight={resolveBlockDimensions(block).height}
+                            onResize={({ imageWidth: nextWidth, imageHeight: nextHeight }) => {
+                              updateBlock(block.id, { imageWidth: nextWidth, imageHeight: nextHeight });
+                            }}
+                          />
+                        ) : (
+                          <div className="placeholder">No image</div>
+                        )}
                       </div>
                       <label>Image URL:</label>
                       <input type="text" value={block.src || ''}

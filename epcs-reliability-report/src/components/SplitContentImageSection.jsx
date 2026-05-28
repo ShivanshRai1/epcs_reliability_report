@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Modal from './Modal';
 import ContentSection from './ContentSection';
+import ResizableImage from './ResizableImage';
 import './SplitContentImageSection.css';
 import { toOpenableUrl } from '../utils/linkTarget';
 import LinkTargetInput from './LinkTargetInput';
@@ -371,7 +372,21 @@ export default function SplitContentImageSection({
             <button className="split-add-btn" onClick={handleRemoveLeftImage} type="button">Remove Left Image</button>
           </div>
         )}
-        {leftImageUrlData && <div className="image-preview"><img src={leftImageUrlData} alt="Left Preview" style={leftImageStyle} /></div>}
+        {leftImageUrlData && (
+          <div className="image-preview">
+            <ResizableImage
+              src={leftImageUrlData}
+              alt="Left Preview"
+              imageWidth={leftImageWidthData}
+              imageHeight={leftImageHeightData}
+              onResize={({ imageWidth: nextWidth, imageHeight: nextHeight }) => {
+                setLeftImageWidthData(nextWidth);
+                setLeftImageHeightData(nextHeight);
+                emitImmediateChange({ leftImageWidth: nextWidth, leftImageHeight: nextHeight });
+              }}
+            />
+          </div>
+        )}
       </div>
     ) : (
       leftImageUrlData && (
@@ -619,7 +634,21 @@ export default function SplitContentImageSection({
             <button className="split-add-btn" onClick={handleRemoveRightImage} type="button">Remove Right Image</button>
           </div>
         )}
-        {imageUrlData && <div className="image-preview"><img src={imageUrlData} alt="Preview" style={rightImageStyle} /></div>}
+        {imageUrlData && (
+          <div className="image-preview">
+            <ResizableImage
+              src={imageUrlData}
+              alt="Preview"
+              imageWidth={rightImageWidthData}
+              imageHeight={rightImageHeightData}
+              onResize={({ imageWidth: nextWidth, imageHeight: nextHeight }) => {
+                setRightImageWidthData(nextWidth);
+                setRightImageHeightData(nextHeight);
+                emitImmediateChange({ rightImageWidth: nextWidth, rightImageHeight: nextHeight });
+              }}
+            />
+          </div>
+        )}
       </div>
     ) : (
       imageUrlData && (

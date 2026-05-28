@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './SplitContentEditor.css';
 import LinkTargetInput from './LinkTargetInput';
+import ResizableImage from './ResizableImage';
 import { getTemplateBadge } from '../utils/templateInfo.jsx';
 
 const createBlockId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -18,7 +19,9 @@ const normalizeSideBlocks = (page, side) => {
       text: block.text || '',
       title: block.title || '',
       target: block.target || '',
-      imageUrl: block.imageUrl || ''
+      imageUrl: block.imageUrl || '',
+      imageWidth: block.imageWidth,
+      imageHeight: block.imageHeight
     }));
   }
 
@@ -420,14 +423,35 @@ const SplitContentEditor = ({ page, onChange }) => {
                     )}
 
                     {block.type === 'image' && (
-                      <LinkTargetInput
-                        value={block.imageUrl || ''}
-                        onValueChange={(value) => updateBlockField(side, block.id, 'imageUrl', value)}
-                        placeholder="Image URL, data URL, or choose image file"
-                        inputClassName="content-input"
-                        buttonText="File"
-                        accept="image/*"
-                      />
+                      <>
+                        {block.imageUrl && (
+                          <div className="split-image-preview" style={{ marginBottom: '8px' }}>
+                            <ResizableImage
+                              src={block.imageUrl}
+                              alt="Block preview"
+                              imageWidth={block.imageWidth}
+                              imageHeight={block.imageHeight}
+                              onResize={({ imageWidth: nextWidth, imageHeight: nextHeight }) => {
+                                const currentBlocks = side === 'left' ? leftBlocks : rightBlocks;
+                                const nextBlocks = currentBlocks.map((b) =>
+                                  b.id === block.id
+                                    ? { ...b, imageWidth: nextWidth, imageHeight: nextHeight }
+                                    : b
+                                );
+                                applyBlocksUpdate(side, nextBlocks);
+                              }}
+                            />
+                          </div>
+                        )}
+                        <LinkTargetInput
+                          value={block.imageUrl || ''}
+                          onValueChange={(value) => updateBlockField(side, block.id, 'imageUrl', value)}
+                          placeholder="Image URL, data URL, or choose image file"
+                          inputClassName="content-input"
+                          buttonText="File"
+                          accept="image/*"
+                        />
+                      </>
                     )}
                   </div>
 

@@ -114,13 +114,21 @@ const SplitContentRenderer = ({ title, leftHeader, rightHeader, titleColor, left
     return null;
   };
 
-  const renderBlock = (block, idx, side) => {
-    const sideImageStyle = {
-      width: side === 'left' && leftWidth ? `${leftWidth}px` : side === 'right' && rightWidth ? `${rightWidth}px` : undefined,
-      height: side === 'left' && leftHeight ? `${leftHeight}px` : side === 'right' && rightHeight ? `${rightHeight}px` : undefined,
-      objectFit: (side === 'left' ? (leftWidth || leftHeight) : (rightWidth || rightHeight)) ? 'contain' : undefined,
+  const blockImageStyle = (block, side) => {
+    const fallbackWidth = side === 'left' ? leftWidth : rightWidth;
+    const fallbackHeight = side === 'left' ? leftHeight : rightHeight;
+    const width = Number(block.imageWidth) > 0 ? Number(block.imageWidth) : fallbackWidth;
+    const height = Number(block.imageHeight) > 0 ? Number(block.imageHeight) : fallbackHeight;
+    return {
+      width: width ? `${width}px` : undefined,
+      height: height ? `${height}px` : undefined,
+      objectFit: (width || height) ? 'contain' : undefined,
       cursor: onImageClick ? 'pointer' : 'default'
     };
+  };
+
+  const renderBlock = (block, idx, side) => {
+    const sideImageStyle = blockImageStyle(block, side);
     if (block.type === 'text') {
       return (
         <div
