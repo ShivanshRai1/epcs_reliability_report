@@ -173,7 +173,8 @@ function App() {
       // Call the restore API
       const result = await apiService.restoreOriginalData(backendPages);
 
-      // Clear local cache
+      // Clear all local caches so reload does not re-merge old drafts (extra pages).
+      clearDraftCache();
       localStorage.removeItem(OFFLINE_CACHE_KEY);
 
       window.alert(
@@ -326,15 +327,30 @@ function App() {
   };
 
   const mergeDraftWithFreshPages = (draftData, freshData) => {
-    if (!draftData?.pages || !freshData?.pages) return draftData;
+    if (!draftData?.pages || !freshData?.pages) return draftData || freshData;
 
     const freshById = new Map(freshData.pages.map((page) => [String(page?.id ?? ''), page]));
-    return {
-      ...draftData,
-      pages: draftData.pages.map((draftPage) => {
+    const mergedFromDraft = draftData.pages
+      .filter((draftPage) => {
+        const id = String(draftPage?.id ?? '');
+        // Keep local edits for pages still on the server, or unpublished draft-new pages.
+        return freshById.has(id) || Boolean(draftPage._isDraftNew);
+      })
+      .map((draftPage) => {
         const freshPage = freshById.get(String(draftPage?.id ?? ''));
         return freshPage ? restoreMissingTableStyles(draftPage, freshPage) : draftPage;
-      })
+      });
+
+    const mergedIds = new Set(mergedFromDraft.map((p) => String(p?.id ?? '')));
+    const backendOnly = freshData.pages.filter((p) => !mergedIds.has(String(p?.id ?? '')));
+
+    const pages = [...mergedFromDraft, ...backendOnly].sort(
+      (a, b) => (a.pageNumber || 0) - (b.pageNumber || 0)
+    );
+
+    return {
+      ...freshData,
+      pages
     };
   };
 
