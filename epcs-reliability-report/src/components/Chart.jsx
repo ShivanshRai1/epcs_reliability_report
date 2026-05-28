@@ -14,7 +14,12 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import { configToPieData, normalizeChartConfig, rowsToChartRecords } from '../utils/chartData';
+import {
+  configToPieData,
+  getChartAxisSummary,
+  normalizeChartConfig,
+  rowsToChartRecords,
+} from '../utils/chartData';
 import './Chart.css';
 
 const SERIES_COLORS = ['#2563eb', '#059669', '#d97706', '#dc2626', '#7c3aed', '#0891b2'];
@@ -35,18 +40,26 @@ const chartLegendProps = {
   wrapperStyle: { color: '#1f2937' },
 };
 
-const renderPieLabel = ({ name, percent, x, y, textAnchor }) => (
-  <text
-    x={x}
-    y={y}
-    textAnchor={textAnchor}
-    dominantBaseline="central"
-    fill="#1f2937"
-    fontSize={12}
-    fontWeight={600}
-  >
-    {`${name} (${(percent * 100).toFixed(0)}%)`}
-  </text>
+const renderPieLabel = (categoryLabel, valueLabel) => (props) => {
+  const { name, percent, value, x, y, textAnchor } = props;
+  const pct = (percent * 100).toFixed(0);
+  return (
+    <text
+      x={x}
+      y={y}
+      textAnchor={textAnchor}
+      dominantBaseline="central"
+      fill="#1f2937"
+      fontSize={11}
+      fontWeight={600}
+    >
+      {`${categoryLabel} ${name}: ${value} ${valueLabel} (${pct}%)`}
+    </text>
+  );
+};
+
+const ChartCaption = ({ config }) => (
+  <p className="report-chart-caption">{getChartAxisSummary(config)}</p>
 );
 
 const ReportChart = ({ page, height = 320 }) => {
@@ -69,27 +82,40 @@ const ReportChart = ({ page, height = 320 }) => {
 
   if (config.chartType === 'pie') {
     const pieData = configToPieData(config);
+    const categoryLabel = pieData[0]?.categoryLabel || config.headers[config.xColumnIndex] || 'Category';
+    const valueLabel = pieData[0]?.valueLabel || config.headers[config.yColumnIndices[0]] || 'Value';
+    const pieTooltipProps = {
+      ...chartTooltipProps,
+      formatter: (value, _name, item) => [
+        `${valueLabel}: ${value}`,
+        `${categoryLabel}: ${item?.payload?.name ?? ''}`,
+      ],
+    };
     return (
       <div className="report-chart" style={{ width: '100%', margin: '1rem 0' }}>
-        {title && <h3 style={{ textAlign: 'center', marginBottom: '12px', fontSize: '1.05rem' }}>{title}</h3>}
+        {title && <h3 style={{ textAlign: 'center', marginBottom: '8px', fontSize: '1.05rem' }}>{title}</h3>}
+        <ChartCaption config={config} />
         <ResponsiveContainer width="100%" height={height}>
           <PieChart>
             <Pie
               data={pieData}
               dataKey="value"
-              nameKey="name"
+              nameKey="legendLabel"
               cx="50%"
               cy="50%"
-              outerRadius="70%"
-              label={renderPieLabel}
+              outerRadius="65%"
+              label={renderPieLabel(categoryLabel, valueLabel)}
               labelLine={{ stroke: '#64748b', strokeWidth: 1 }}
             >
               {pieData.map((_, idx) => (
                 <Cell key={idx} fill={SERIES_COLORS[idx % SERIES_COLORS.length]} />
               ))}
             </Pie>
-            <Tooltip {...chartTooltipProps} />
-            <Legend {...chartLegendProps} />
+            <Tooltip {...pieTooltipProps} />
+            <Legend
+              {...chartLegendProps}
+              formatter={(legendValue) => legendValue}
+            />
           </PieChart>
         </ResponsiveContainer>
       </div>
@@ -101,7 +127,8 @@ const ReportChart = ({ page, height = 320 }) => {
 
   return (
     <div className="report-chart" style={{ width: '100%', margin: '1rem 0' }}>
-      {title && <h3 style={{ textAlign: 'center', marginBottom: '12px', fontSize: '1.05rem' }}>{title}</h3>}
+      {title && <h3 style={{ textAlign: 'center', marginBottom: '8px', fontSize: '1.05rem' }}>{title}</h3>}
+      <ChartCaption config={config} />
       <ResponsiveContainer width="100%" height={height}>
         <ChartRoot data={data} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
           <CartesianGrid strokeDasharray="3 3" />

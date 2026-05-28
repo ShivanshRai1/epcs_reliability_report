@@ -232,13 +232,23 @@ const ChartEditor = ({ pageData, onUpdate }) => {
       </div>
 
       <p className="chart-axis-hint">
-        X = <strong>{xColumnLabel}</strong> (labels along the bottom).
-        {config.chartType !== 'pie' && config.yColumnIndices.length > 0 && (
+        {config.chartType === 'pie' ? (
           <>
-            {' '}Y = {config.yColumnIndices.map((i) => config.headers[i] || `Column ${i + 1}`).join(', ')} (plotted values).
+            <strong>Pie chart:</strong> each slice is one table row. Slice label = <strong>{xColumnLabel}</strong>.
+            Slice size = <strong>{config.headers[config.yColumnIndices[0]] || 'value'}</strong>.
+            Percent = that row’s share of the total {config.headers[config.yColumnIndices[0]] || 'values'}.
+          </>
+        ) : (
+          <>
+            X = <strong>{xColumnLabel}</strong> (labels along the bottom).
+            {config.yColumnIndices.length > 0 && (
+              <>
+                {' '}Y = {config.yColumnIndices.map((i) => config.headers[i] || `Column ${i + 1}`).join(', ')} (plotted values).
+              </>
+            )}
+            {' '}A column used for X cannot also be checked on Y — use Swap to flip them.
           </>
         )}
-        {' '}A column used for X cannot also be checked on Y — use Swap to flip them.
       </p>
 
       <div>

@@ -90,8 +90,34 @@ export const configToPieData = (config) => {
   const xKey = config.headers[config.xColumnIndex];
   const yKey = config.headers[config.yColumnIndices[0]];
   if (!xKey || !yKey) return [];
-  return records.map((r) => ({
-    name: String(r[xKey] ?? ''),
-    value: Number(r[yKey]) || 0,
-  }));
+  return records.map((r) => {
+    const category = String(r[xKey] ?? '');
+    const value = Number(r[yKey]) || 0;
+    return {
+      name: category,
+      value,
+      categoryLabel: xKey,
+      valueLabel: yKey,
+      legendLabel: `${xKey} ${category}`,
+    };
+  });
+};
+
+/** Human-readable explanation of how axes map to the chart. */
+export const getChartAxisSummary = (config) => {
+  const xKey = config.headers[config.xColumnIndex] || 'Category';
+  const yKeys = config.yColumnIndices
+    .map((i) => config.headers[i])
+    .filter(Boolean);
+
+  if (config.chartType === 'pie') {
+    const yKey = yKeys[0] || 'Value';
+    return `Each slice is one table row. Label on the slice = ${xKey}. Slice size = ${yKey}. Percent = that row’s share of the total ${yKey}.`;
+  }
+
+  if (config.chartType === 'bar') {
+    return `Bottom axis: ${xKey}. Bar height: ${yKeys.join(', ') || 'values'}.`;
+  }
+
+  return `Bottom axis: ${xKey}. Line height: ${yKeys.join(', ') || 'values'}.`;
 };
