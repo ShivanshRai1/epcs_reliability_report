@@ -22,7 +22,8 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     { id: 'tiptap-editor', name: 'Text, Tables & Images', description: 'Add text, headings, tables and images in one page' },
     { id: 'excalidraw-editor', name: 'Excalidraw Canvas', description: 'Free-form canvas for diagrams, shapes, arrows and slide-like layouts' },
     { id: 'grapesjs-editor', name: 'GrapesJS Page Builder', description: 'Visual drag-and-drop HTML page builder (experimental)' },
-     {id: "mermaid", name: "Mermaid Diagram",description: "Create flowcharts, sequence diagrams, ER diagrams and architecture diagrams"},
+    { id: 'chart-editor', name: 'Charts from data', description: 'Build line, bar, or pie charts from a simple data table' },
+    { id: 'mermaid', name: 'Mermaid Diagram', description: 'Create flowcharts, sequence diagrams, ER diagrams and architecture diagrams' },
     { id: 'split-text-image', name: 'Split Text + Image', description: 'Text on left and image on right with optional headers' },
     { id: 'split-links-image', name: 'Split Links + Image', description: 'Links on left and image on right with optional headers' },
     { id: 'split-image-links', name: 'Split Image + Links', description: 'Image on left and links on right with optional headers' },
@@ -84,7 +85,8 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         { id: 'tiptap-editor', name: 'Text, Tables & Images', description: 'Add text, headings, tables and images in one page' },
         { id: 'excalidraw-editor', name: 'Excalidraw Canvas', description: 'Free-form canvas for diagrams, shapes, arrows and slide-like layouts' },
         { id: 'grapesjs-editor', name: 'GrapesJS Page Builder', description: 'Visual drag-and-drop HTML page builder (experimental)' },
-        {id: "mermaid-editor", name: "Mermaid Diagram",description: "Create flowcharts, sequence diagrams, ER diagrams and architecture diagrams"},
+        { id: 'chart-editor', name: 'Charts from data', description: 'Build line, bar, or pie charts from a simple data table' },
+        { id: 'mermaid-editor', name: 'Mermaid Diagram', description: 'Create flowcharts, sequence diagrams, ER diagrams and architecture diagrams' },
         { id: 'split-text-image', name: 'Split Text + Image', description: 'Text on left and image on right with optional headers' },
         { id: 'split-links-image', name: 'Split Links + Image', description: 'Links on left and image on right with optional headers' },
         { id: 'split-image-links', name: 'Split Image + Links', description: 'Image on left and links on right with optional headers' },
@@ -113,7 +115,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     await createPageWithConfig(templateId);
   };
 
-  const EDITOR_TEMPLATE_IDS = ['managed-content', 'tiptap-editor', 'excalidraw-editor', 'grapesjs-editor','mermaid-editor'];
+  const EDITOR_TEMPLATE_IDS = ['managed-content', 'tiptap-editor', 'excalidraw-editor', 'grapesjs-editor', 'chart-editor', 'mermaid-editor'];
   const HIDDEN_TEMPLATE_IDS = ['grapesjs-editor'];
 
   const primaryTemplateOrder = ['split-content', 'just-images', 'text-only', 'heading'];
@@ -137,6 +139,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
       'tiptap-editor': 'managed-content',
       'excalidraw-editor': 'managed-content',
       'mermaid-editor': 'managed-content',
+      'chart-editor': 'managed-content',
       'grapesjs-editor': 'managed-content',
       'split-text-image': 'split-content-image',
       'split-links-image': 'split-content-image',
@@ -204,6 +207,22 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
 
     if (templateId === 'split-image-image') {
       return { ...basePage, splitImageImageMode: true };
+    }
+
+    if (templateId === 'chart-editor') {
+      return {
+        ...basePage,
+        pageType: 'managed-content',
+        pageTemplate: 'chart-editor',
+        chartConfig: {
+          chartType: 'line',
+          chartTitle: 'Reliability data',
+          headers: ['Hours', 'Failures'],
+          rows: [['0', '0'], ['1000', '1'], ['2000', '2'], ['4000', '3']],
+          xColumnIndex: 0,
+          yColumnIndices: [1],
+        },
+      };
     }
 
     return basePage;
@@ -319,6 +338,27 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
   };
 
   const renderTemplatePreview = (templateId) => {
+    if (templateId === 'chart-editor') {
+      return (
+        <div className="template-preview-live-wrap">
+          <div className="template-preview-meta">Sample: Chart preview</div>
+          <div className="template-preview-live template-preview-dummy-live">
+            <div className="template-preview-dummy-content" style={{ padding: '12px' }}>
+              <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '8px' }}>Hours → Failures</div>
+              <svg viewBox="0 0 120 60" width="100%" height="56" aria-hidden="true">
+                <polyline
+                  fill="none"
+                  stroke="#2563eb"
+                  strokeWidth="2"
+                  points="4,52 30,40 56,28 82,18 108,8"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     if (templateId === 'just-links' || templateId === 'link-only') {
       return (
         <div className="template-preview-live-wrap">
@@ -378,7 +418,7 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     }
 
     const isTextOnly = templateId === 'text-only';
-    const isEditorTemplate = templateId === 'managed-content' || templateId === 'tiptap-editor' || templateId === 'excalidraw-editor' || templateId === 'mermaid-editor' || templateId === 'grapesjs-editor';
+    const isEditorTemplate = templateId === 'managed-content' || templateId === 'tiptap-editor' || templateId === 'excalidraw-editor' || templateId === 'mermaid-editor' || templateId === 'chart-editor' || templateId === 'grapesjs-editor';
     const cloneSource = (isTextOnly || isEditorTemplate) ? null : getSamplePageForTemplate(templateId);
     const cloneSourcePageId = cloneSource?.id || null;
     const cloneSourcePageData = cloneSource ? JSON.parse(JSON.stringify(cloneSource)) : null;

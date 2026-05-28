@@ -18,6 +18,8 @@ export const TEMPLATE_INFO = {
   'managed-content': { name: 'MS WORD like editor', icon: '📝' },
   'tiptap-editor': { name: 'Text, Tables & Images', icon: '✏️' },
   'excalidraw-editor': { name: 'Excalidraw Canvas', icon: '🎨' },
+  'chart-editor': { name: 'Charts from data', icon: '📈' },
+  'mermaid-editor': { name: 'Mermaid Diagram', icon: '📐' },
   'grapesjs-editor': { name: 'GrapesJS Page Builder', icon: '🏗️' },
   'split-content': { name: 'Split Content', icon: '⬀' },
   'table': { name: 'Table', icon: '📊' },

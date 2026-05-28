@@ -18,6 +18,8 @@ import IndexEditor from './IndexEditor';
 import ManagedContentEditor from './ManagedContentEditor';
 import ExcalidrawReadonly from './ExcalidrawReadonly';
 import MermaidEditor from './MermaidEditor';
+import ChartEditor from './ChartEditor';
+import { ReportChart } from './Chart';
 
 const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLiveMode = false, indexPageOrdinal = null, onCellChange, onHeadingChange, onImageChange, onIndexChange, onImageClick, allIndexItems, allPages = [] }) => {
   if (!page) return <div style={{ padding: '1.5rem 0' }}>No page data available.</div>;
@@ -953,6 +955,38 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
   // Render managed content page (rich editor with CKEditor)
   if (page.pageType === 'managed-content' || page.pageType === 'meanaged-content') {
     const currentTemplate = String(page.pageTemplate || page.page_template || '').toLowerCase();
+
+    if (currentTemplate === 'chart-editor') {
+      if (isEditMode) {
+        return wrapEditContent(
+          <ChartEditor
+            pageData={page}
+            onUpdate={(updatedPage) => onCellChange(page.id, updatedPage)}
+          />
+        );
+      }
+      return (
+        <div>
+          {page.title && (
+            <div style={{
+              background: page.titleColor || 'linear-gradient(135deg, #0052a3 0%, #0066cc 100%)',
+              color: 'white',
+              padding: '14px 24px',
+              fontSize: `${titleFontSize}rem`,
+              fontWeight: 600,
+              textAlign: 'center',
+              letterSpacing: '0.5px',
+              marginBottom: '1.2rem',
+            }}>
+              {page.title}
+            </div>
+          )}
+          <div style={{ padding: '8px 4px' }}>
+            <ReportChart page={page} />
+          </div>
+        </div>
+      );
+    }
 
     if (currentTemplate === 'mermaid-editor') {
       if (isEditMode) {

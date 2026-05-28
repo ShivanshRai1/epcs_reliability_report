@@ -98,6 +98,7 @@ router.get('/templates', async (req, res) => {
         { id: 'managed-content', name: 'MS WORD like editor', description: 'Rich text editor with full formatting capabilities' },
         { id: 'tiptap-editor', name: 'Text, Tables & Images', description: 'Add text, headings, tables and images in one page' },
         { id: 'excalidraw-editor', name: 'Excalidraw Canvas', description: 'Free-form canvas for diagrams, shapes, arrows and slide-like layouts' },
+        { id: 'chart-editor', name: 'Charts from data', description: 'Build line, bar, or pie charts from a simple data table' },
         { id: 'mermaid-editor', name: 'Mermaid Diagram', description: 'Create flowcharts, diagrams, and visualizations using Mermaid syntax' },
         { id: 'grapesjs-editor', name: 'GrapesJS Page Builder', description: 'Visual drag-and-drop HTML page builder (experimental)' },
         { id: 'table', name: 'Table', description: 'Primary table page type' }
@@ -293,6 +294,7 @@ router.post('/create', async (req, res) => {
       'tiptap-editor': 'managed-content',
       'excalidraw-editor': 'managed-content',
       'mermaid-editor': 'managed-content',
+      'chart-editor': 'managed-content',
       'grapesjs-editor': 'managed-content',
       'split-text-image': 'split-content-image',
       'split-links-image': 'split-content-image',
@@ -315,6 +317,17 @@ router.post('/create', async (req, res) => {
       'tiptap-editor': { tiptapHtml: '', title: title },
       'excalidraw-editor': { excalidrawScene: '', title: title },
       'mermaid-editor': { mermaidDiagram: '', mermaidSvg: '', title: title },
+      'chart-editor': {
+        title: title,
+        chartConfig: {
+          chartType: 'line',
+          chartTitle: 'Reliability data',
+          headers: ['Hours', 'Failures'],
+          rows: [['0', '0'], ['1000', '1'], ['2000', '2'], ['4000', '3']],
+          xColumnIndex: 0,
+          yColumnIndices: [1],
+        },
+      },
       'grapesjs-editor': { grapesjsHtml: '<p>Start building your page here.</p>', grapesjsCss: '', title: title },
       'heading': { title: title, subtitle: '' },
       'index': { content: [] },
