@@ -1,7 +1,40 @@
+/* Scoped light form theme — overrides global .title-input (dark-editor gray text). */
 .chart-editor {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  color: #1f2937;
+  background: #ffffff;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #d6deec;
+}
+
+.chart-editor h3,
+.chart-editor h4 {
+  color: #1f2937;
+}
+
+.chart-editor .title-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #b9c7da;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+  color: #111827 !important;
+  background: #ffffff !important;
+  box-sizing: border-box;
+}
+
+.chart-editor .title-input:focus {
+  outline: none;
+  border-color: #0052a3;
+  box-shadow: 0 0 0 3px rgba(0, 82, 163, 0.12);
+}
+
+.chart-editor .title-input::placeholder {
+  color: #6b7280 !important;
 }
 
 .chart-editor-intro {
@@ -31,6 +64,13 @@
   border-radius: 6px;
   font-size: 0.9rem;
   min-width: 140px;
+  color: #111827 !important;
+  background: #ffffff !important;
+}
+
+.chart-editor-toolbar select option {
+  color: #111827;
+  background: #ffffff;
 }
 
 .chart-editor-presets {
@@ -45,6 +85,7 @@
   border-radius: 6px;
   background: #fff;
   font-size: 0.8rem;
+  color: #1f2937 !important;
   cursor: pointer;
 }
 
@@ -74,6 +115,12 @@
 
 .chart-data-grid th {
   background: #f0f4fa;
+  color: #111827 !important;
+}
+
+.chart-data-grid td {
+  background: #ffffff;
+  color: #111827 !important;
 }
 
 .chart-data-grid input {
@@ -81,7 +128,13 @@
   border: none;
   padding: 4px 6px;
   font-size: 0.88rem;
-  background: transparent;
+  color: #111827 !important;
+  background: #ffffff !important;
+}
+
+.chart-data-grid th input {
+  background: #eef4fc !important;
+  font-weight: 600;
 }
 
 .chart-data-grid input:focus {
@@ -100,6 +153,7 @@
   border: 1px solid #b9c7da;
   border-radius: 6px;
   background: #fff;
+  color: #1f2937 !important;
   cursor: pointer;
   font-size: 0.85rem;
 }
@@ -125,6 +179,31 @@
   align-items: center;
   gap: 6px;
   cursor: pointer;
+  color: #374151 !important;
+}
+
+/* Beat pageTextStyle + report-shell inherit (often light gray on white). */
+.report-shell .chart-editor,
+.report-shell .chart-editor h3,
+.report-shell .chart-editor h4,
+.report-shell .chart-editor label,
+.report-shell .chart-editor p,
+.report-shell .chart-editor .chart-editor-intro {
+  color: #1f2937 !important;
+}
+
+.report-shell .chart-editor .chart-data-grid td,
+.report-shell .chart-editor .chart-data-grid th {
+  color: #111827 !important;
+}
+
+.report-shell .chart-editor .chart-data-grid input,
+.report-shell .chart-editor .chart-editor-toolbar input,
+.report-shell .chart-editor .chart-editor-toolbar select,
+.report-shell .chart-editor .title-input,
+.report-shell .chart-editor .chart-editor-presets button,
+.report-shell .chart-editor .chart-grid-actions button {
+  color: #111827 !important;
 }
 
 .chart-preview-box {

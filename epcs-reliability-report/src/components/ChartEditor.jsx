@@ -139,7 +139,7 @@ const ChartEditor = ({ pageData, onUpdate }) => {
           }}
           placeholder="Enter page title"
           className="title-input"
-          style={{ width: '100%', padding: '9px 12px', border: '1px solid #b9c7da', borderRadius: '6px', fontSize: '1rem', marginBottom: '8px' }}
+          style={{ marginBottom: '8px' }}
         />
         <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: '#555' }}>
           Title banner color:
@@ -224,16 +224,19 @@ const ChartEditor = ({ pageData, onUpdate }) => {
         </div>
       </div>
 
-      <div className="chart-editor-presets">
+      <div>
+        <div style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '6px', color: '#1f2937' }}>Sample data</div>
+        <div className="chart-editor-presets">
         {SAMPLE_PRESETS.map((preset) => (
           <button key={preset.label} type="button" onClick={() => applyPreset(preset)}>
             {preset.label}
           </button>
         ))}
+        </div>
       </div>
 
       <div>
-        <div style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '8px' }}>Data table</div>
+        <div style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '8px', color: '#1f2937' }}>Data table</div>
         <div className="chart-data-grid-wrap">
           <table className="chart-data-grid">
             <thead>
