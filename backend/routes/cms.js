@@ -99,7 +99,6 @@ router.get('/templates', async (req, res) => {
         { id: 'tiptap-editor', name: 'Text, Tables & Images', description: 'Add text, headings, tables and images in one page' },
         { id: 'excalidraw-editor', name: 'Excalidraw Canvas', description: 'Free-form canvas for diagrams, shapes, arrows and slide-like layouts' },
         { id: 'chart-editor', name: 'Charts from data', description: 'Build line, bar, or pie charts from a simple data table' },
-        { id: 'mermaid-editor', name: 'Mermaid Diagram', description: 'Create flowcharts, diagrams, and visualizations using Mermaid syntax' },
         { id: 'grapesjs-editor', name: 'GrapesJS Page Builder', description: 'Visual drag-and-drop HTML page builder (experimental)' },
         { id: 'table', name: 'Table', description: 'Primary table page type' }
       ]

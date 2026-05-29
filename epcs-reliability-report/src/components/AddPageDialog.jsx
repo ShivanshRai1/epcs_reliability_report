@@ -23,7 +23,6 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
     { id: 'excalidraw-editor', name: 'Excalidraw Canvas', description: 'Free-form canvas for diagrams, shapes, arrows and slide-like layouts' },
     { id: 'grapesjs-editor', name: 'GrapesJS Page Builder', description: 'Visual drag-and-drop HTML page builder (experimental)' },
     { id: 'chart-editor', name: 'Charts from data', description: 'Build line, bar, or pie charts from a simple data table' },
-    { id: 'mermaid', name: 'Mermaid Diagram', description: 'Create flowcharts, sequence diagrams, ER diagrams and architecture diagrams' },
     { id: 'split-text-image', name: 'Split Text + Image', description: 'Text on left and image on right with optional headers' },
     { id: 'split-links-image', name: 'Split Links + Image', description: 'Links on left and image on right with optional headers' },
     { id: 'split-image-links', name: 'Split Image + Links', description: 'Image on left and links on right with optional headers' },
@@ -73,7 +72,10 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
           id !== 'images-carousel' &&
           id !== 'video-gallery' &&
           id !== 'just-tables' &&
-          name !== 'just tables'
+          name !== 'just tables' &&
+          id !== 'mermaid-editor' &&
+          id !== 'mermaid' &&
+          !name.includes('mermaid')
         );
       });
 
@@ -86,7 +88,6 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
         { id: 'excalidraw-editor', name: 'Excalidraw Canvas', description: 'Free-form canvas for diagrams, shapes, arrows and slide-like layouts' },
         { id: 'grapesjs-editor', name: 'GrapesJS Page Builder', description: 'Visual drag-and-drop HTML page builder (experimental)' },
         { id: 'chart-editor', name: 'Charts from data', description: 'Build line, bar, or pie charts from a simple data table' },
-        { id: 'mermaid-editor', name: 'Mermaid Diagram', description: 'Create flowcharts, sequence diagrams, ER diagrams and architecture diagrams' },
         { id: 'split-text-image', name: 'Split Text + Image', description: 'Text on left and image on right with optional headers' },
         { id: 'split-links-image', name: 'Split Links + Image', description: 'Links on left and image on right with optional headers' },
         { id: 'split-image-links', name: 'Split Image + Links', description: 'Image on left and links on right with optional headers' },
@@ -116,13 +117,15 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
   };
 
   const EDITOR_TEMPLATE_IDS = ['managed-content', 'tiptap-editor', 'excalidraw-editor', 'grapesjs-editor', 'chart-editor', 'mermaid-editor'];
-  const HIDDEN_TEMPLATE_IDS = ['grapesjs-editor'];
+  const HIDDEN_TEMPLATE_IDS = ['grapesjs-editor', 'mermaid-editor', 'mermaid'];
+
+  const visibleTemplates = templates.filter((template) => !HIDDEN_TEMPLATE_IDS.includes(template.id));
 
   const primaryTemplateOrder = ['split-content', 'just-images', 'text-only', 'heading'];
   const primaryTemplates = primaryTemplateOrder
-    .map((id) => templates.find((template) => template.id === id))
+    .map((id) => visibleTemplates.find((template) => template.id === id))
     .filter(Boolean);
-  const hiddenTemplates = templates.filter((template) => !primaryTemplateOrder.includes(template.id));
+  const hiddenTemplates = visibleTemplates.filter((template) => !primaryTemplateOrder.includes(template.id));
   const displayedTemplates = showAllTemplates ? [...primaryTemplates, ...hiddenTemplates] : primaryTemplates;
 
   const displayedTemplateGroup = displayedTemplates.filter((t) => !EDITOR_TEMPLATE_IDS.includes(t.id));
