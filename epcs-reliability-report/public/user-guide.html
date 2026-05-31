@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EPCS Reliability Report — User Guide</title>
+  <style>
+    :root {
+      --brand: #0052a3;
+      --brand-dark: #003d7a;
+      --accent: #5fc574;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.6;
+      font-size: 16px;
+    }
+    a { color: var(--brand); word-break: break-all; }
+    a:hover { color: var(--brand-dark); }
+    .hero {
+      background: linear-gradient(135deg, var(--brand-dark), var(--brand));
+      color: #fff;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+    }
+    .hero h1 { margin: 0 0 0.5rem; font-size: 1.75rem; font-weight: 600; }
+    .hero p { margin: 0 auto; max-width: 40rem; opacity: 0.95; }
+    .hero a { color: #b8d4ff; }
+    .wrap { max-width: 880px; margin: 0 auto; padding: 2rem 1.25rem 3.5rem; }
+    .callout {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--brand);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .callout strong { color: var(--brand); }
+    nav.toc {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+    nav.toc h2 { margin: 0 0 0.75rem; font-size: 1rem; color: var(--brand); }
+    nav.toc ol { margin: 0; padding-left: 1.25rem; }
+    nav.toc li { margin: 0.3rem 0; }
+    section { margin-bottom: 2.5rem; }
+    section > h2 {
+      font-size: 1.3rem;
+      color: var(--brand);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.35rem;
+      margin: 0 0 1rem;
+    }
+    h3 { font-size: 1.05rem; margin: 1.25rem 0 0.5rem; }
+    figure {
+      margin: 1.25rem 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #0b1e3d;
+    }
+    figcaption {
+      padding: 0.85rem 1rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+    figcaption strong { color: var(--text); display: block; margin-bottom: 0.35rem; }
+    .btn {
+      display: inline-block;
+      margin-top: 0.5rem;
+      margin-right: 0.5rem;
+      padding: 0.4rem 0.9rem;
+      background: var(--brand);
+      color: #fff !important;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      word-break: normal;
+    }
+    .btn:hover { background: var(--brand-dark); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td { padding: 0.65rem 0.85rem; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { background: #f8fafc; font-weight: 600; }
+    tr:last-child td { border-bottom: none; }
+    ul { margin: 0 0 1rem; padding-left: 1.35rem; }
+    .steps { counter-reset: step; list-style: none; padding: 0; }
+    .steps li {
+      counter-increment: step;
+      margin-bottom: 0.65rem;
+      padding-left: 2rem;
+      position: relative;
+    }
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      width: 1.4rem;
+      height: 1.4rem;
+      background: var(--brand);
+      color: #fff;
+      border-radius: 50%;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.4rem;
+    }
+    footer {
+      margin-top: 2rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    @media print {
+      .hero { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <h1>EPCS Discrete Reliability Report</h1>
+    <p>User guide for reading and editing the live report at
+      <a href="https://epcs-reliability-report.netlify.app/">epcs-reliability-report.netlify.app</a>
+    </p>
+  </header>
+
+  <main class="wrap">
+    <div class="callout">
+      <strong>Live report</strong><br />
+      All page links below open the real published report. Screenshots were captured from that site (May 2026) so they match what readers see.
+    </div>
+
+    <nav class="toc">
+      <h2>Contents</h2>
+      <ol>
+        <li><a href="#open-report">Opening the report</a></li>
+        <li><a href="#page-links">Important page links</a></li>
+        <li><a href="#page-types">Page types (with screenshots)</a></li>
+        <li><a href="#navigation">Moving between pages</a></li>
+        <li><a href="#editing">Editing and publishing</a></li>
+        <li><a href="#templates">Adding new pages</a></li>
+        <li><a href="#charts">Charts from data</a></li>
+      </ol>
+    </nav>
+
+    <section id="open-report">
+      <h2>Opening the report</h2>
+      <p><strong>Cover (home):</strong><br />
+        <a href="https://epcs-reliability-report.netlify.app/">https://epcs-reliability-report.netlify.app/</a>
+      </p>
+      <figure>
+        <img src="/guide-screenshots/home.png" alt="Report cover page on Netlify" width="1280" height="800" />
+        <figcaption>
+          <strong>Cover page</strong>
+          Rad-Hard GaN reliability report entry screen.
+          <a class="btn" href="https://epcs-reliability-report.netlify.app/">Open cover</a>
+        </figcaption>
+      </figure>
+      <p><strong>Any page by number:</strong> use <code>https://epcs-reliability-report.netlify.app/page/N</code> where <strong>N</strong> is the page number (1, 2, 3 … 51 in the original report, or higher if you added pages).</p>
+      <p><strong>Example — page 50:</strong><br />
+        <a href="https://epcs-reliability-report.netlify.app/page/50">https://epcs-reliability-report.netlify.app/page/50</a>
+        (Physics based model of eGaN device gate failure mechanisms)
+      </p>
+    </section>
+
+    <section id="page-links">
+      <h2>Important page links</h2>
+      <table>
+        <thead>
+          <tr><th>Page</th><th>Section</th><th>URL</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td><td>INDEX</td>
+            <td><a href="https://epcs-reliability-report.netlify.app/page/1">…/page/1</a></td>
+          </tr>
+          <tr>
+            <td>4</td><td>PART LISTS (heading)</td>
+            <td><a href="https://epcs-reliability-report.netlify.app/page/4">…/page/4</a></td>
+          </tr>
+          <tr>
+            <td>5</td><td>Second generation part numbers (table)</td>
+            <td><a href="https://epcs-reliability-report.netlify.app/page/5">…/page/5</a></td>
+          </tr>
+          <tr>
+            <td>7</td><td>DLA qualified part list (table)</td>
+            <td><a href="https://epcs-reliability-report.netlify.app/page/7">…/page/7</a></td>
+          </tr>
+          <tr>
+            <td>9</td><td>Derating recommendations (image)</td>
+            <td><a href="https://epcs-reliability-report.netlify.app/page/9">…/page/9</a></td>
+          </tr>
+          <tr>
+            <td>13</td><td>Radiation results (links + image)</td>
+            <td><a href="https://epcs-reliability-report.netlify.app/page/13">…/page/13</a></td>
+          </tr>
+          <tr>
+            <td>15</td><td>Die level reliability (links + image)</td>
+            <td><a href="https://epcs-reliability-report.netlify.app/page/15">…/page/15</a></td>
+          </tr>
+          <tr>
+            <td>50</td><td>Physics based model (links + image)</td>
+            <td><a href="https://epcs-reliability-report.netlify.app/page/50">…/page/50</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="page-types">
+      <h2>Page types (with screenshots)</h2>
+      <p>Each image below is a screenshot from the live Netlify report.</p>
+
+      <h3>Index (table of contents)</h3>
+      <figure>
+        <img src="/guide-screenshots/page-01-index.png" alt="Index page 1" loading="lazy" />
+        <figcaption>
+          <strong>Page 1 — INDEX</strong>
+          Click entries to jump to sections.
+          <a class="btn" href="https://epcs-reliability-report.netlify.app/page/1">Open page 1</a>
+        </figcaption>
+      </figure>
+
+      <h3>Section heading</h3>
+      <figure>
+        <img src="/guide-screenshots/page-04-heading.png" alt="Part lists heading page 4" loading="lazy" />
+        <figcaption>
+          <strong>Page 4 — PART LISTS</strong>
+          <a class="btn" href="https://epcs-reliability-report.netlify.app/page/4">Open page 4</a>
+        </figcaption>
+      </figure>
+
+      <h3>Data table</h3>
+      <figure>
+        <img src="/guide-screenshots/page-05-table.png" alt="Part numbers table page 5" loading="lazy" />
+        <figcaption>
+          <strong>Page 5 — part numbers table</strong>
+          <a class="btn" href="https://epcs-reliability-report.netlify.app/page/5">Open page 5</a>
+        </figcaption>
+      </figure>
+
+      <h3>Qualified (multi-color) table</h3>
+      <figure>
+        <img src="/guide-screenshots/page-07-qualified-table.png" alt="DLA qualified table page 7" loading="lazy" />
+        <figcaption>
+          <strong>Page 7 — DLA qualified part list</strong>
+          <a class="btn" href="https://epcs-reliability-report.netlify.app/page/7">Open page 7</a>
+        </figcaption>
+      </figure>
+
+      <h3>Full-page image</h3>
+      <figure>
+        <img src="/guide-screenshots/page-09-image.png" alt="Derating image page 9" loading="lazy" />
+        <figcaption>
+          <strong>Page 9 — derating chart/image</strong>
+          Click the image to zoom.
+          <a class="btn" href="https://epcs-reliability-report.netlify.app/page/9">Open page 9</a>
+        </figcaption>
+      </figure>
+
+      <h3>Split page: links on the left, image on the right</h3>
+      <figure>
+        <img src="/guide-screenshots/page-13-split.png" alt="Radiation results split page 13" loading="lazy" />
+        <figcaption>
+          <strong>Page 13 — radiation results</strong>
+          Links open PDFs (e.g. on Discoveree).
+          <a class="btn" href="https://epcs-reliability-report.netlify.app/page/13">Open page 13</a>
+        </figcaption>
+      </figure>
+
+      <figure>
+        <img src="/guide-screenshots/page-15-split.png" alt="Die level reliability page 15" loading="lazy" />
+        <figcaption>
+          <strong>Page 15 — die level reliability</strong>
+          <a class="btn" href="https://epcs-reliability-report.netlify.app/page/15">Open page 15</a>
+        </figcaption>
+      </figure>
+
+      <figure>
+        <img src="/guide-screenshots/page-50-split.png" alt="Physics based model page 50" loading="lazy" />
+        <figcaption>
+          <strong>Page 50 — physics based model of eGaN gate failure mechanisms</strong>
+          <a class="btn" href="https://epcs-reliability-report.netlify.app/page/50">Open page 50</a>
+        </figcaption>
+      </figure>
+    </section>
+
+    <section id="navigation">
+      <h2>Moving between pages</h2>
+      <p>At the bottom of each page:</p>
+      <ul>
+        <li><strong>Home</strong> — back to the cover</li>
+        <li><strong>Index</strong> — table of contents</li>
+        <li><strong>Previous / Next</strong> — move through the report in order</li>
+        <li><strong>Page counter</strong> (in edit mode) — click to jump to a page number</li>
+      </ul>
+      <h3>Live preview (reader view)</h3>
+      <p>Add <code>?live=1</code> for a simplified reader toolbar (no edit controls):</p>
+      <p><a href="https://epcs-reliability-report.netlify.app/page/1?live=1">https://epcs-reliability-report.netlify.app/page/1?live=1</a></p>
+      <figure>
+        <img src="/guide-screenshots/page-01-live.png" alt="Index in live preview mode" loading="lazy" />
+        <figcaption>
+          <strong>Index in live preview</strong>
+          <a class="btn" href="https://epcs-reliability-report.netlify.app/page/1?live=1">Open live index</a>
+        </figcaption>
+      </figure>
+    </section>
+
+    <section id="editing">
+      <h2>Editing and publishing</h2>
+      <ol class="steps">
+        <li>Open any page (e.g. <a href="https://epcs-reliability-report.netlify.app/page/5">page 5</a>).</li>
+        <li>Click <strong>Edit Page</strong> in the toolbar.</li>
+        <li>Change text, tables, images, or links. Edits save as a <strong>draft</strong> in your browser.</li>
+        <li>Click <strong>Publish Changes</strong> when ready — readers then see updates on Netlify.</li>
+        <li>Use <strong>Live Preview</strong> to check the last published version before or after publishing.</li>
+      </ol>
+      <p>Other tools: <strong>Add Page</strong>, <strong>Delete Page</strong>, <strong>Manage Pages</strong> (drag to reorder), <strong>Restore Original Data</strong> (resets to the ~51-page baseline — use carefully).</p>
+      <p>On image pages, click an image in edit mode and drag the corner handles to resize. Use <strong>Display settings</strong> for font and image size steppers.</p>
+    </section>
+
+    <section id="templates">
+      <h2>Adding new pages</h2>
+      <p>In edit mode, click <strong>Add Page</strong> and choose a template. Common choices:</p>
+      <ul>
+        <li><strong>Split Content</strong>, <strong>Images</strong>, <strong>Text Only</strong>, <strong>Heading</strong></li>
+        <li><strong>View more</strong> — MS WORD-like editor, Text/Tables/Images, Excalidraw, <strong>Charts from data</strong>, split layouts, tables</li>
+      </ul>
+      <p>Mermaid diagram template is hidden from the picker; existing Mermaid pages still open if present.</p>
+    </section>
+
+    <section id="charts">
+      <h2>Charts from data</h2>
+      <p>Add a page with template <strong>Charts from data</strong>:</p>
+      <ul>
+        <li>Enter data in the table (or use a sample preset).</li>
+        <li>Pick <strong>Line</strong>, <strong>Bar</strong>, or <strong>Pie</strong>.</li>
+        <li>Set X (labels) and Y (values); use <strong>Swap X ↔ Y</strong> if needed.</li>
+        <li>Use <strong>?</strong> for axis help. <strong>Publish</strong> to show the chart to all readers.</li>
+      </ul>
+    </section>
+
+    <footer>
+      <p>
+        Report: <a href="https://epcs-reliability-report.netlify.app/">epcs-reliability-report.netlify.app</a> ·
+        This guide: <a href="https://epcs-reliability-report.netlify.app/user-guide.html">…/user-guide.html</a> ·
+        Source: <a href="https://github.com/ShivanshRai1/epcs_reliability_report">GitHub</a>
+      </p>
+      <p>To refresh screenshots after layout changes: <code>npm run capture-netlify-guide</code> in <code>epcs-reliability-report</code>.</p>
+    </footer>
+  </main>
+</body>
+</html>
