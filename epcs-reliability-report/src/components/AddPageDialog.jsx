@@ -122,15 +122,31 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
   const visibleTemplates = templates.filter((template) => !HIDDEN_TEMPLATE_IDS.includes(template.id));
 
   const primaryTemplateOrder = ['split-content', 'just-images', 'text-only', 'heading'];
+  const editorTemplateOrder = ['managed-content', 'tiptap-editor', 'excalidraw-editor', 'chart-editor'];
+
   const primaryTemplates = primaryTemplateOrder
     .map((id) => visibleTemplates.find((template) => template.id === id))
     .filter(Boolean);
-  const hiddenTemplates = visibleTemplates.filter((template) => !primaryTemplateOrder.includes(template.id));
-  const displayedTemplates = showAllTemplates ? [...primaryTemplates, ...hiddenTemplates] : primaryTemplates;
+  const editorTemplates = editorTemplateOrder
+    .map((id) => visibleTemplates.find((template) => template.id === id))
+    .filter(Boolean);
+  const moreTemplates = visibleTemplates.filter(
+    (template) =>
+      !primaryTemplateOrder.includes(template.id) &&
+      !EDITOR_TEMPLATE_IDS.includes(template.id)
+  );
 
-  const displayedTemplateGroup = displayedTemplates.filter((t) => !EDITOR_TEMPLATE_IDS.includes(t.id));
-  const displayedEditorGroup = displayedTemplates.filter((t) => EDITOR_TEMPLATE_IDS.includes(t.id) && !HIDDEN_TEMPLATE_IDS.includes(t.id));
-  const showGroupLabels = displayedTemplateGroup.length > 0 && displayedEditorGroup.length > 0;
+  const renderTemplateCard = (template) => (
+    <div
+      key={template.id}
+      className={`template-card ${selectedTemplate === template.id ? 'selected' : ''} ${loading ? 'template-card-disabled' : ''}`}
+      onClick={() => !loading && handleTemplateSelect(template.id)}
+    >
+      <div className="template-preview">{renderTemplatePreview(template.id)}</div>
+      <div className="template-name">{template.name}</div>
+      <div className="template-description">{template.description}</div>
+    </div>
+  );
 
   const getPageTypeForTemplate = (templateId) => {
     if (!templateId) return null;
@@ -547,43 +563,23 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
               {!templatesLoading && templates.length === 0 && <div className="error-message">No templates available</div>}
               {templates.length > 0 && (
                 <>
-                  {showGroupLabels && <div className="template-group-label">Pre Existing Slides</div>}
-                  <div className="templates-grid">
-                    {displayedTemplateGroup.map((template) => (
-                      <div
-                        key={template.id}
-                        className={`template-card ${selectedTemplate === template.id ? 'selected' : ''} ${loading ? 'template-card-disabled' : ''}`}
-                        onClick={() => !loading && handleTemplateSelect(template.id)}
-                      >
-                        <div className="template-preview">
-                          {renderTemplatePreview(template.id)}
-                        </div>
-                        <div className="template-name">{template.name}</div>
-                        <div className="template-description">{template.description}</div>
-                      </div>
-                    ))}
-                  </div>
-                  {displayedEditorGroup.length > 0 && (
+                  {primaryTemplates.length > 0 && (
                     <>
-                      {showGroupLabels && <div className="template-group-label">Editors</div>}
+                      <div className="template-group-label">Default templates</div>
                       <div className="templates-grid">
-                        {displayedEditorGroup.map((template) => (
-                          <div
-                            key={template.id}
-                            className={`template-card ${selectedTemplate === template.id ? 'selected' : ''} ${loading ? 'template-card-disabled' : ''}`}
-                            onClick={() => !loading && handleTemplateSelect(template.id)}
-                          >
-                            <div className="template-preview">
-                              {renderTemplatePreview(template.id)}
-                            </div>
-                            <div className="template-name">{template.name}</div>
-                            <div className="template-description">{template.description}</div>
-                          </div>
-                        ))}
+                        {primaryTemplates.map((template) => renderTemplateCard(template))}
                       </div>
                     </>
                   )}
-                  {!showAllTemplates && hiddenTemplates.length > 0 && (
+                  {editorTemplates.length > 0 && (
+                    <>
+                      <div className="template-group-label">Editors</div>
+                      <div className="templates-grid">
+                        {editorTemplates.map((template) => renderTemplateCard(template))}
+                      </div>
+                    </>
+                  )}
+                  {!showAllTemplates && moreTemplates.length > 0 && (
                     <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'center' }}>
                       <button
                         type="button"
@@ -602,6 +598,14 @@ const AddPageDialog = ({ isOpen, onClose, onPageCreate, currentPageId = null, ex
                         View more
                       </button>
                     </div>
+                  )}
+                  {showAllTemplates && moreTemplates.length > 0 && (
+                    <>
+                      <div className="template-group-label">More templates</div>
+                      <div className="templates-grid">
+                        {moreTemplates.map((template) => renderTemplateCard(template))}
+                      </div>
+                    </>
                   )}
                 </>
               )}
