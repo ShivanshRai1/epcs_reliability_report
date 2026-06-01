@@ -316,6 +316,18 @@ nav button, .section-list-btn {
   align-items: center;
 }
 
+.report-edit-hint {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #64748b;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin: -0.5rem 0 1rem;
+  line-height: 1.45;
+}
+
 .toolbar-group {
   display: flex;
   align-items: center;

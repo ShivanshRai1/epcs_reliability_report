@@ -179,6 +179,11 @@ export default function ReportPage({ reportData, isEditMode, hasUnsavedChanges, 
           <h1>EPCS Reliability Report</h1>
         </button>
         <Navigation onNavigate={handleNav} isEditMode={effectiveEditMode} isLiveMode={isLiveMode} publishStatusLabel={publishStatusLabel} onEditToggle={onEditToggle} onToggleLive={handleToggleLive} onUndo={() => onUndo(page.id)} onPublish={onPublish} onSave={onSave} onCancel={onCancel} onAddPage={() => onAddPage(page.id)} onDeletePage={() => onDeletePage(page)} onManagePages={onManagePages} currentPageId={page.id} currentPageNumber={currentDisplayPageNumber} totalPages={totalPages} isPublishing={isPublishing} isTestMode={isTestMode} isSeedingTestData={isSeedingTestData} isPublishingTestData={isPublishingTestData} onToggleTestMode={onToggleTestMode} onSeedTestData={onSeedTestData} onPublishTestData={onPublishTestData} onRestoreOriginal={onRestoreOriginal} isRestoringOriginal={isRestoringOriginal} />
+        {!effectiveEditMode && (
+          <p className="report-edit-hint" role="note">
+            Click Edit Page to add, delete, or modify pages.
+          </p>
+        )}
         <div className="section-card report-content" style={pageDisplayStyle}>
           <SectionPage page={page} routePageId={pageId} onLinkClick={handleLinkClick} isEditMode={effectiveEditMode} isLiveMode={false} indexPageOrdinal={indexPageOrdinal} onCellChange={onCellChange} onHeadingChange={onHeadingChange} onImageChange={onImageChange} onIndexChange={onIndexChange} onImageClick={onImageClick} allIndexItems={allIndexItems} allPages={orderedPages} />
         </div>
