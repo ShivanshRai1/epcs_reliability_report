@@ -55,6 +55,7 @@
     nav.toc h2 { margin: 0 0 0.75rem; font-size: 1rem; color: var(--brand); }
     nav.toc ol { margin: 0; padding-left: 1.25rem; }
     nav.toc li { margin: 0.3rem 0; }
+    nav.toc ol ol { margin-top: 0.25rem; }
     section { margin-bottom: 2.5rem; }
     section > h2 {
       font-size: 1.3rem;
@@ -64,6 +65,7 @@
       margin: 0 0 1rem;
     }
     h3 { font-size: 1.05rem; margin: 1.25rem 0 0.5rem; }
+    h4 { font-size: 0.95rem; margin: 1rem 0 0.4rem; color: var(--muted); font-weight: 600; }
     figure {
       margin: 1.25rem 0;
       background: var(--card);
@@ -106,11 +108,24 @@
       border: 1px solid var(--border);
       border-radius: 8px;
       overflow: hidden;
+      margin-bottom: 1rem;
     }
     th, td { padding: 0.65rem 0.85rem; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
     th { background: #f8fafc; font-weight: 600; }
     tr:last-child td { border-bottom: none; }
     ul { margin: 0 0 1rem; padding-left: 1.35rem; }
+    .type-tag {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--brand);
+      background: #e8f2fc;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      margin-right: 0.35rem;
+    }
     .steps { counter-reset: step; list-style: none; padding: 0; }
     .steps li {
       counter-increment: step;
@@ -131,6 +146,10 @@
       font-weight: 700;
       text-align: center;
       line-height: 1.4rem;
+    }
+    .ui-row { display: grid; gap: 1rem; }
+    @media (min-width: 640px) {
+      .ui-row.two { grid-template-columns: 1fr 1fr; }
     }
     footer {
       margin-top: 2rem;
@@ -155,18 +174,26 @@
   <main class="wrap">
     <div class="callout">
       <strong>Live report</strong><br />
-      All page links below open the real published report. Screenshots were captured from that site (May 2026) so they match what readers see.
+      Page links open the published Netlify site. Screenshots in this guide were captured from that site (May 2026) so they match what readers see. If you add or reorder pages, page numbers in URLs may shift — use the index or <strong>Manage Pages</strong> to find the right page.
     </div>
 
     <nav class="toc">
       <h2>Contents</h2>
       <ol>
         <li><a href="#open-report">Opening the report</a></li>
-        <li><a href="#page-links">Important page links</a></li>
-        <li><a href="#page-types">Page types (with screenshots)</a></li>
+        <li><a href="#page-links">Quick links by page number</a></li>
+        <li><a href="#page-types">Page types (with screenshots)</a>
+          <ol>
+            <li><a href="#type-cover">Cover &amp; index</a></li>
+            <li><a href="#type-heading-table">Heading &amp; tables</a></li>
+            <li><a href="#type-text-image">Text only, images</a></li>
+            <li><a href="#type-split">Split layouts</a></li>
+          </ol>
+        </li>
         <li><a href="#navigation">Moving between pages</a></li>
+        <li><a href="#toolbar-ui">Toolbar, edit hint &amp; Add Page</a></li>
         <li><a href="#editing">Editing and publishing</a></li>
-        <li><a href="#templates">Adding new pages</a></li>
+        <li><a href="#templates">Adding new pages (all templates)</a></li>
         <li><a href="#charts">Charts from data</a></li>
       </ol>
     </nav>
@@ -177,139 +204,188 @@
         <a href="https://epcs-reliability-report.netlify.app/">https://epcs-reliability-report.netlify.app/</a>
       </p>
       <figure>
-        <img src="/guide-screenshots/home.png" alt="Report cover page on Netlify" width="1280" height="800" />
+        <img src="/guide-screenshots/home.png" alt="Report cover page on Netlify" width="1280" height="900" />
         <figcaption>
           <strong>Cover page</strong>
           Rad-Hard GaN reliability report entry screen.
           <a class="btn" href="https://epcs-reliability-report.netlify.app/">Open cover</a>
         </figcaption>
       </figure>
-      <p><strong>Any page by number:</strong> use <code>https://epcs-reliability-report.netlify.app/page/N</code> where <strong>N</strong> is the page number (1, 2, 3 … 51 in the original report, or higher if you added pages).</p>
-      <p><strong>Example — page 50:</strong><br />
-        <a href="https://epcs-reliability-report.netlify.app/page/50">https://epcs-reliability-report.netlify.app/page/50</a>
-        (Physics based model of eGaN device gate failure mechanisms)
-      </p>
+      <p><strong>Any page by number:</strong> use <code>https://epcs-reliability-report.netlify.app/page/N</code> where <strong>N</strong> is the display page number (1, 2, 3 … in the baseline report, or higher if you added pages).</p>
     </section>
 
     <section id="page-links">
-      <h2>Important page links</h2>
+      <h2>Quick links by page number</h2>
+      <p>Examples from the baseline report (51+ pages). Open any page with <code>/page/N</code>.</p>
       <table>
         <thead>
-          <tr><th>Page</th><th>Section</th><th>URL</th></tr>
+          <tr><th>Page</th><th>Type</th><th>Section</th><th>URL</th></tr>
         </thead>
         <tbody>
-          <tr>
-            <td>1</td><td>INDEX</td>
-            <td><a href="https://epcs-reliability-report.netlify.app/page/1">…/page/1</a></td>
-          </tr>
-          <tr>
-            <td>4</td><td>PART LISTS (heading)</td>
-            <td><a href="https://epcs-reliability-report.netlify.app/page/4">…/page/4</a></td>
-          </tr>
-          <tr>
-            <td>5</td><td>Second generation part numbers (table)</td>
-            <td><a href="https://epcs-reliability-report.netlify.app/page/5">…/page/5</a></td>
-          </tr>
-          <tr>
-            <td>7</td><td>DLA qualified part list (table)</td>
-            <td><a href="https://epcs-reliability-report.netlify.app/page/7">…/page/7</a></td>
-          </tr>
-          <tr>
-            <td>9</td><td>Derating recommendations (image)</td>
-            <td><a href="https://epcs-reliability-report.netlify.app/page/9">…/page/9</a></td>
-          </tr>
-          <tr>
-            <td>13</td><td>Radiation results (links + image)</td>
-            <td><a href="https://epcs-reliability-report.netlify.app/page/13">…/page/13</a></td>
-          </tr>
-          <tr>
-            <td>15</td><td>Die level reliability (links + image)</td>
-            <td><a href="https://epcs-reliability-report.netlify.app/page/15">…/page/15</a></td>
-          </tr>
-          <tr>
-            <td>50</td><td>Physics based model (links + image)</td>
-            <td><a href="https://epcs-reliability-report.netlify.app/page/50">…/page/50</a></td>
-          </tr>
+          <tr><td>1</td><td>Index</td><td>INDEX</td><td><a href="https://epcs-reliability-report.netlify.app/page/1">…/page/1</a></td></tr>
+          <tr><td>2</td><td>Index</td><td>INDEX (continued)</td><td><a href="https://epcs-reliability-report.netlify.app/page/2">…/page/2</a></td></tr>
+          <tr><td>4</td><td>Heading</td><td>PART LISTS</td><td><a href="https://epcs-reliability-report.netlify.app/page/4">…/page/4</a></td></tr>
+          <tr><td>5</td><td>Table</td><td>Second generation part numbers</td><td><a href="https://epcs-reliability-report.netlify.app/page/5">…/page/5</a></td></tr>
+          <tr><td>6</td><td>Table</td><td>Third generation part numbers</td><td><a href="https://epcs-reliability-report.netlify.app/page/6">…/page/6</a></td></tr>
+          <tr><td>7</td><td>Qualified table</td><td>DLA qualified part list</td><td><a href="https://epcs-reliability-report.netlify.app/page/7">…/page/7</a></td></tr>
+          <tr><td>9</td><td>Image</td><td>Derating recommendations</td><td><a href="https://epcs-reliability-report.netlify.app/page/9">…/page/9</a></td></tr>
+          <tr><td>28</td><td>Text only</td><td>QCI details</td><td><a href="https://epcs-reliability-report.netlify.app/page/28">…/page/28</a></td></tr>
+          <tr><td>13</td><td>Split links + image</td><td>Radiation results</td><td><a href="https://epcs-reliability-report.netlify.app/page/13">…/page/13</a></td></tr>
+          <tr><td>15</td><td>Split links + image</td><td>Die level reliability</td><td><a href="https://epcs-reliability-report.netlify.app/page/15">…/page/15</a></td></tr>
+          <tr><td>23</td><td>Split links + image</td><td>Additional radiation section</td><td><a href="https://epcs-reliability-report.netlify.app/page/23">…/page/23</a></td></tr>
+          <tr><td>41</td><td>Split text + image</td><td>Text and figure side by side</td><td><a href="https://epcs-reliability-report.netlify.app/page/41">…/page/41</a></td></tr>
+          <tr><td>49</td><td>Split image + links</td><td>Image left, links right</td><td><a href="https://epcs-reliability-report.netlify.app/page/49">…/page/49</a></td></tr>
+          <tr><td>50</td><td>Split text + image</td><td>Physics based model (eGaN gate failure)</td><td><a href="https://epcs-reliability-report.netlify.app/page/50">…/page/50</a></td></tr>
+          <tr><td>51</td><td>Split text + image</td><td>Related reliability content</td><td><a href="https://epcs-reliability-report.netlify.app/page/51">…/page/51</a></td></tr>
         </tbody>
       </table>
     </section>
 
     <section id="page-types">
       <h2>Page types (with screenshots)</h2>
-      <p>Each image below is a screenshot from the live Netlify report.</p>
+      <p>Each figure is a screenshot from the live Netlify report in <strong>read mode</strong> (what readers see after you publish).</p>
 
-      <h3>Index (table of contents)</h3>
+      <h3 id="type-cover">Cover &amp; index</h3>
+      <h4>Index (table of contents)</h4>
       <figure>
         <img src="/guide-screenshots/page-01-index.png" alt="Index page 1" loading="lazy" />
         <figcaption>
-          <strong>Page 1 — INDEX</strong>
-          Click entries to jump to sections.
+          <span class="type-tag">Index</span><strong>Page 1 — INDEX</strong>
+          Click entries to jump to sections. Use page 2 for continued index entries.
           <a class="btn" href="https://epcs-reliability-report.netlify.app/page/1">Open page 1</a>
         </figcaption>
       </figure>
+      <figure>
+        <img src="/guide-screenshots/page-02-index-continued.png" alt="Index page 2 continued" loading="lazy" />
+        <figcaption>
+          <span class="type-tag">Index</span><strong>Page 2 — INDEX (continued)</strong>
+          <a class="btn" href="https://epcs-reliability-report.netlify.app/page/2">Open page 2</a>
+        </figcaption>
+      </figure>
 
-      <h3>Section heading</h3>
+      <h3 id="type-heading-table">Heading &amp; tables</h3>
+      <h4>Section heading</h4>
       <figure>
         <img src="/guide-screenshots/page-04-heading.png" alt="Part lists heading page 4" loading="lazy" />
         <figcaption>
-          <strong>Page 4 — PART LISTS</strong>
+          <span class="type-tag">Heading</span><strong>Page 4 — PART LISTS</strong>
           <a class="btn" href="https://epcs-reliability-report.netlify.app/page/4">Open page 4</a>
         </figcaption>
       </figure>
 
-      <h3>Data table</h3>
+      <h4>Standard data table</h4>
       <figure>
         <img src="/guide-screenshots/page-05-table.png" alt="Part numbers table page 5" loading="lazy" />
         <figcaption>
-          <strong>Page 5 — part numbers table</strong>
+          <span class="type-tag">Table</span><strong>Page 5 — part numbers table</strong>
           <a class="btn" href="https://epcs-reliability-report.netlify.app/page/5">Open page 5</a>
         </figcaption>
       </figure>
+      <figure>
+        <img src="/guide-screenshots/page-06-table.png" alt="Third generation table page 6" loading="lazy" />
+        <figcaption>
+          <span class="type-tag">Table</span><strong>Page 6 — third generation part numbers</strong>
+          <a class="btn" href="https://epcs-reliability-report.netlify.app/page/6">Open page 6</a>
+        </figcaption>
+      </figure>
 
-      <h3>Qualified (multi-color) table</h3>
+      <h4>Qualified (multi-color) table</h4>
       <figure>
         <img src="/guide-screenshots/page-07-qualified-table.png" alt="DLA qualified table page 7" loading="lazy" />
         <figcaption>
-          <strong>Page 7 — DLA qualified part list</strong>
+          <span class="type-tag">Qualified table</span><strong>Page 7 — DLA qualified part list</strong>
+          Color-coded qualification status. Add new pages with template <strong>Qualified Table</strong> (under View more).
           <a class="btn" href="https://epcs-reliability-report.netlify.app/page/7">Open page 7</a>
         </figcaption>
       </figure>
 
-      <h3>Full-page image</h3>
+      <h3 id="type-text-image">Text only &amp; images</h3>
+      <h4>Text only</h4>
+      <p>Simple prose pages with no split columns — good for long explanations, lists, and QCI-style detail.</p>
+      <figure>
+        <img src="/guide-screenshots/page-28-text-only.png" alt="Text only page 28 QCI details" loading="lazy" />
+        <figcaption>
+          <span class="type-tag">Text only</span><strong>Page 28 — QCI details (text only)</strong>
+          <a class="btn" href="https://epcs-reliability-report.netlify.app/page/28">Open page 28</a>
+        </figcaption>
+      </figure>
+
+      <h4>Full-page image</h4>
       <figure>
         <img src="/guide-screenshots/page-09-image.png" alt="Derating image page 9" loading="lazy" />
         <figcaption>
-          <strong>Page 9 — derating chart/image</strong>
-          Click the image to zoom.
+          <span class="type-tag">Images</span><strong>Page 9 — derating chart/image</strong>
+          Click the image to zoom. In edit mode, drag corner handles to resize.
           <a class="btn" href="https://epcs-reliability-report.netlify.app/page/9">Open page 9</a>
         </figcaption>
       </figure>
 
-      <h3>Split page: links on the left, image on the right</h3>
+      <h3 id="type-split">Split layouts</h3>
+      <p>Split pages use two columns with optional headers. The baseline report includes several variants; when you add pages, pick the matching template in <strong>Add Page</strong>.</p>
+
+      <h4>Split links + image (links left, image right)</h4>
       <figure>
-        <img src="/guide-screenshots/page-13-split.png" alt="Radiation results split page 13" loading="lazy" />
+        <img src="/guide-screenshots/page-13-split-links-image.png" alt="Radiation results split page 13" loading="lazy" />
         <figcaption>
-          <strong>Page 13 — radiation results</strong>
+          <span class="type-tag">Split links + image</span><strong>Page 13 — radiation results</strong>
           Links open PDFs (e.g. on Discoveree).
           <a class="btn" href="https://epcs-reliability-report.netlify.app/page/13">Open page 13</a>
         </figcaption>
       </figure>
-
       <figure>
-        <img src="/guide-screenshots/page-15-split.png" alt="Die level reliability page 15" loading="lazy" />
+        <img src="/guide-screenshots/page-15-split-links-image.png" alt="Die level reliability page 15" loading="lazy" />
         <figcaption>
-          <strong>Page 15 — die level reliability</strong>
+          <span class="type-tag">Split links + image</span><strong>Page 15 — die level reliability</strong>
           <a class="btn" href="https://epcs-reliability-report.netlify.app/page/15">Open page 15</a>
         </figcaption>
       </figure>
-
       <figure>
-        <img src="/guide-screenshots/page-50-split.png" alt="Physics based model page 50" loading="lazy" />
+        <img src="/guide-screenshots/page-23-split-links-image.png" alt="Split links and image page 23" loading="lazy" />
         <figcaption>
-          <strong>Page 50 — physics based model of eGaN gate failure mechanisms</strong>
+          <span class="type-tag">Split links + image</span><strong>Page 23 — another links + image section</strong>
+          <a class="btn" href="https://epcs-reliability-report.netlify.app/page/23">Open page 23</a>
+        </figcaption>
+      </figure>
+
+      <h4>Split text + image (text left, image right)</h4>
+      <figure>
+        <img src="/guide-screenshots/page-41-split-text-image.png" alt="Split text and image page 41" loading="lazy" />
+        <figcaption>
+          <span class="type-tag">Split text + image</span><strong>Page 41 — narrative text with supporting figure</strong>
+          <a class="btn" href="https://epcs-reliability-report.netlify.app/page/41">Open page 41</a>
+        </figcaption>
+      </figure>
+      <figure>
+        <img src="/guide-screenshots/page-50-split-text-image.png" alt="Physics based model page 50" loading="lazy" />
+        <figcaption>
+          <span class="type-tag">Split text + image</span><strong>Page 50 — physics based model of eGaN gate failure mechanisms</strong>
           <a class="btn" href="https://epcs-reliability-report.netlify.app/page/50">Open page 50</a>
         </figcaption>
       </figure>
+      <figure>
+        <img src="/guide-screenshots/page-51-split-text-image.png" alt="Split text and image page 51" loading="lazy" />
+        <figcaption>
+          <span class="type-tag">Split text + image</span><strong>Page 51 — related split text + image content</strong>
+          <a class="btn" href="https://epcs-reliability-report.netlify.app/page/51">Open page 51</a>
+        </figcaption>
+      </figure>
+
+      <h4>Split image + links (image left, links right)</h4>
+      <figure>
+        <img src="/guide-screenshots/page-49-split-image-links.png" alt="Split image and links page 49 reversed layout" loading="lazy" />
+        <figcaption>
+          <span class="type-tag">Split image + links</span><strong>Page 49 — image on the left, link list on the right</strong>
+          Uses reversed split layout in the data (<code>layout: "reversed"</code>).
+          <a class="btn" href="https://epcs-reliability-report.netlify.app/page/49">Open page 49</a>
+        </figcaption>
+      </figure>
+
+      <h4>Other split types (add via Add Page)</h4>
+      <ul>
+        <li><strong>Split Image + Image</strong> — two images side by side (not in the original baseline; create with Add Page → View more).</li>
+        <li><strong>Split Content</strong> — flexible left/right blocks (text, images, links mixed). Default template when adding pages; ideal for new custom layouts.</li>
+      </ul>
+      <p>Rich editor pages (MS WORD-like, TipTap, Excalidraw, charts) are created from templates in the Add Page dialog — see <a href="#templates">Adding new pages</a>.</p>
     </section>
 
     <section id="navigation">
@@ -333,6 +409,43 @@
       </figure>
     </section>
 
+    <section id="toolbar-ui">
+      <h2>Toolbar, edit hint &amp; Add Page</h2>
+      <p>In read mode you see navigation and <strong>Edit Page</strong>. A short hint under the toolbar reminds you that adding, deleting, and reordering pages requires edit mode.</p>
+      <div class="ui-row two">
+        <figure>
+          <img src="/guide-screenshots/ui-toolbar-read.png" alt="Toolbar in read mode" loading="lazy" />
+          <figcaption><strong>Read-mode toolbar</strong> (example: page 5)</figcaption>
+        </figure>
+        <figure>
+          <img src="/guide-screenshots/ui-edit-hint.png" alt="Edit hint below toolbar" loading="lazy" />
+          <figcaption><strong>Edit hint</strong> — “Click Edit Page to add, delete, or modify pages.”</figcaption>
+        </figure>
+      </div>
+      <figure>
+        <img src="/guide-screenshots/ui-toolbar-edit.png" alt="Toolbar in edit mode" loading="lazy" />
+        <figcaption>
+          <strong>Edit-mode toolbar</strong> — Add Page, Delete Page, Manage Pages, Publish, Live Preview, Display settings, etc.
+        </figcaption>
+      </figure>
+      <h3>Add Page dialog</h3>
+      <p>Templates are grouped for clarity: <strong>Default templates</strong> first, then <strong>Editors</strong>, then <strong>View more</strong> for tables, split variants, links, and qualified tables.</p>
+      <figure>
+        <img src="/guide-screenshots/ui-add-page-dialog.png" alt="Add Page dialog default and editor templates" loading="lazy" />
+        <figcaption>
+          <strong>Add Page — defaults and editors</strong>
+          Split Content, Images, Text Only, Heading; then MS WORD-like editor, Text/Tables/Images, Excalidraw, Charts from data.
+        </figcaption>
+      </figure>
+      <figure>
+        <img src="/guide-screenshots/ui-add-page-more-templates.png" alt="Add Page dialog more templates section" loading="lazy" />
+        <figcaption>
+          <strong>Add Page — View more → More templates</strong>
+          Table, Qualified Table, split layouts (text+image, links+image, image+links, image+image), links-only, mixed content, and more.
+        </figcaption>
+      </figure>
+    </section>
+
     <section id="editing">
       <h2>Editing and publishing</h2>
       <ol class="steps">
@@ -342,23 +455,55 @@
         <li>Click <strong>Publish Changes</strong> when ready — readers then see updates on Netlify.</li>
         <li>Use <strong>Live Preview</strong> to check the last published version before or after publishing.</li>
       </ol>
-      <p>Other tools: <strong>Add Page</strong>, <strong>Delete Page</strong>, <strong>Manage Pages</strong> (drag to reorder), <strong>Restore Original Data</strong> (resets to the ~51-page baseline — use carefully).</p>
-      <p>On image pages, click an image in edit mode and drag the corner handles to resize. Use <strong>Display settings</strong> for font and image size steppers.</p>
+      <p>Other tools: <strong>Add Page</strong>, <strong>Delete Page</strong>, <strong>Manage Pages</strong> (drag to reorder), <strong>Restore Original Data</strong> (resets to the baseline report — use carefully).</p>
+      <p>On image and split pages, click an image in edit mode and drag corner handles to resize. Use <strong>Display settings</strong> for font and image size steppers.</p>
     </section>
 
     <section id="templates">
-      <h2>Adding new pages</h2>
-      <p>In edit mode, click <strong>Add Page</strong> and choose a template. Common choices:</p>
-      <ul>
-        <li><strong>Split Content</strong>, <strong>Images</strong>, <strong>Text Only</strong>, <strong>Heading</strong></li>
-        <li><strong>View more</strong> — MS WORD-like editor, Text/Tables/Images, Excalidraw, <strong>Charts from data</strong>, split layouts, tables</li>
-      </ul>
-      <p>Mermaid diagram template is hidden from the picker; existing Mermaid pages still open if present.</p>
+      <h2>Adding new pages (all templates)</h2>
+      <p>In edit mode, click <strong>Add Page</strong>, choose where to insert (before/after current page or at end), then pick a template.</p>
+
+      <h3>Default templates (always visible)</h3>
+      <table>
+        <thead><tr><th>Template</th><th>Use for</th></tr></thead>
+        <tbody>
+          <tr><td>Split Content</td><td>Flexible two-column blocks — text, images, links in either column</td></tr>
+          <tr><td>Images</td><td>Single large image or image-focused page</td></tr>
+          <tr><td>Text Only</td><td>Prose without split columns (like page 28)</td></tr>
+          <tr><td>Heading</td><td>Section title pages (like PART LISTS)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Editors (always visible)</h3>
+      <table>
+        <thead><tr><th>Template</th><th>Use for</th></tr></thead>
+        <tbody>
+          <tr><td>MS WORD like editor</td><td>Full rich-text formatting (CKEditor)</td></tr>
+          <tr><td>Text, Tables &amp; Images</td><td>TipTap — headings, tables, inline images in one page</td></tr>
+          <tr><td>Excalidraw Canvas</td><td>Diagrams, shapes, arrows, slide-like layouts</td></tr>
+          <tr><td>Charts from data</td><td>Line, bar, or pie charts from a data table — see <a href="#charts">Charts</a></td></tr>
+        </tbody>
+      </table>
+
+      <h3>View more → More templates</h3>
+      <table>
+        <thead><tr><th>Template</th><th>Use for</th></tr></thead>
+        <tbody>
+          <tr><td>Table</td><td>Standard data tables (pages 5–6 style)</td></tr>
+          <tr><td>Qualified Table</td><td>DLA-style multi-color qualified list (page 7 style)</td></tr>
+          <tr><td>Split Text + Image</td><td>Text left, image right (pages 41, 50, 51)</td></tr>
+          <tr><td>Split Links + Image</td><td>PDF/link list left, image right (pages 13, 15, 23)</td></tr>
+          <tr><td>Split Image + Links</td><td>Image left, links right (page 49)</td></tr>
+          <tr><td>Split Image + Image</td><td>Two images side by side</td></tr>
+          <tr><td>Links only / Mixed content</td><td>Link lists or combined layouts</td></tr>
+        </tbody>
+      </table>
+      <p><strong>Hidden from Add Page:</strong> Mermaid diagram and GrapesJS experimental builder — existing Mermaid pages still open if present.</p>
     </section>
 
     <section id="charts">
       <h2>Charts from data</h2>
-      <p>Add a page with template <strong>Charts from data</strong>:</p>
+      <p>Add a page with template <strong>Charts from data</strong> (under Editors in Add Page):</p>
       <ul>
         <li>Enter data in the table (or use a sample preset).</li>
         <li>Pick <strong>Line</strong>, <strong>Bar</strong>, or <strong>Pie</strong>.</li>
@@ -373,7 +518,7 @@
         This guide: <a href="https://epcs-reliability-report.netlify.app/user-guide.html">…/user-guide.html</a> ·
         Source: <a href="https://github.com/ShivanshRai1/epcs_reliability_report">GitHub</a>
       </p>
-      <p>To refresh screenshots after layout changes: <code>npm run capture-netlify-guide</code> in <code>epcs-reliability-report</code>.</p>
+      <p>To refresh screenshots after layout changes, from <code>epcs-reliability-report</code> run: <code>npm run capture-netlify-guide</code></p>
     </footer>
   </main>
 </body>
