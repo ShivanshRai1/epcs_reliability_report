@@ -20,6 +20,7 @@ import ExcalidrawReadonly from './ExcalidrawReadonly';
 import MermaidEditor from './MermaidEditor';
 import ChartEditor from './ChartEditor';
 import { ReportChart } from './Chart';
+import { isUserGuideIndexItem } from '../utils/linkTarget';
 
 const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLiveMode = false, indexPageOrdinal = null, onCellChange, onHeadingChange, onImageChange, onIndexChange, onImageClick, allIndexItems, allPages = [] }) => {
   if (!page) return <div style={{ padding: '1.5rem 0' }}>No page data available.</div>;
@@ -623,11 +624,12 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
           <div className="legacy-live-index-lines">
             {groupedItems.map(group => {
               const topIsChild = Boolean(group.orphanChild);
+              const isUserGuide = isUserGuideIndexItem(group.item);
               return (
-                <div key={group.idx} className={`legacy-live-index-group${topIsChild ? ' orphan-child' : ''}`}>
+                <div key={group.idx} className={`legacy-live-index-group${topIsChild ? ' orphan-child' : ''}${isUserGuide ? ' index-item-user-guide' : ''}`}>
                   <a
                     href="#"
-                    className={`legacy-live-index-link ${topIsChild ? 'legacy-live-index-child-link' : 'legacy-live-index-parent-link'}`}
+                    className={`legacy-live-index-link ${topIsChild ? 'legacy-live-index-child-link' : 'legacy-live-index-parent-link'}${isUserGuide ? ' index-link-user-guide' : ''}`}
                     onClick={e => {
                       e.preventDefault();
                       if (onLinkClick && group.item.target) onLinkClick(group.item.target);
@@ -670,11 +672,12 @@ const SectionPage = ({ page, routePageId = null, onLinkClick, isEditMode, isLive
         <ul className="index-list">
           {groupedItems.map(group => {
             const topIsChild = Boolean(group.orphanChild);
+            const isUserGuide = isUserGuideIndexItem(group.item);
             return (
-              <li key={group.idx} className={topIsChild ? 'index-item-child' : 'index-item-parent'}>
+              <li key={group.idx} className={`${topIsChild ? 'index-item-child' : 'index-item-parent'}${isUserGuide ? ' index-item-user-guide' : ''}`}>
                 <a
                   href="#"
-                  className={`index-link${topIsChild ? ' index-link-child' : ''}`}
+                  className={`index-link${topIsChild ? ' index-link-child' : ''}${isUserGuide ? ' index-link-user-guide' : ''}`}
                   onClick={e => {
                     e.preventDefault();
                     if (onLinkClick && group.item.target) {

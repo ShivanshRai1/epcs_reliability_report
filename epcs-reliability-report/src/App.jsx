@@ -10,6 +10,7 @@ import PageManagerModal from './components/PageManagerModal';
 import PublishConfirmDialog from './components/PublishConfirmDialog';
 import PublishSelectionModal from './components/PublishSelectionModal';
 import { apiService } from './services/api';
+import { isUserGuideIndexItem } from './utils/linkTarget';
 import MermaidEditor from "./components/MermaidEditor";
 
 const OFFLINE_CACHE_KEY = 'epcs_report_cache_v2';
@@ -37,11 +38,7 @@ const ensureUserGuideOnPrimaryIndex = (pages) => {
     if (String(page?.id ?? '') !== primaryIndexId) return page;
 
     const content = Array.isArray(page.content) ? page.content : [];
-    const hasUserGuide = content.some((item) => {
-      const target = String(item?.target || '').trim().toLowerCase();
-      const title = String(item?.title || '').trim().toUpperCase();
-      return target.includes('user-guide.html') || title === 'USER GUIDE';
-    });
+    const hasUserGuide = content.some(isUserGuideIndexItem);
 
     if (hasUserGuide) return page;
     return { ...page, content: [USER_GUIDE_INDEX_ITEM, ...content] };

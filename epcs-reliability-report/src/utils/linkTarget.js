@@ -21,6 +21,13 @@ export const isLikelyLinkTarget = (value) => {
   );
 };
 
+export const isUserGuideIndexItem = (item) => {
+  if (!item) return false;
+  const target = String(item?.target || '').trim().toLowerCase();
+  const title = String(item?.title || '').trim().toUpperCase();
+  return target.includes('user-guide.html') || title === 'USER GUIDE';
+};
+
 export const toOpenableUrl = (value) => {
   if (typeof value !== 'string') return '';
 

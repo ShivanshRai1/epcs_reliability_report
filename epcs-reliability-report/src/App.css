@@ -98,6 +98,39 @@ h1 {
   font-weight: 600;
 }
 
+.index-item-user-guide {
+  list-style: none !important;
+  margin: 0 0 0.75rem 0 !important;
+  padding: 0.55rem 0.7rem !important;
+  background: linear-gradient(90deg, rgba(95, 197, 116, 0.22), rgba(0, 82, 163, 0.14));
+  border-left: 3px solid #5fc574;
+  border-radius: 4px;
+}
+
+.index-link-user-guide {
+  color: #5fc574 !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  letter-spacing: 0.02em;
+}
+
+.index-link-user-guide:hover {
+  color: #7ee89a !important;
+  text-decoration: underline !important;
+}
+
+.legacy-live-index-group.index-item-user-guide {
+  margin-bottom: 10px;
+  padding: 6px 8px;
+  background: rgba(95, 197, 116, 0.12);
+  border-left: 3px solid #5fc574;
+}
+
+.legacy-live-index-group.index-item-user-guide .index-link-user-guide {
+  color: #1a7a3a !important;
+  font-weight: 700 !important;
+}
+
 /* Managed content display - fix list text color in rendered output */
 .managed-content-display ol li,
 .managed-content-display ul li {
@@ -934,6 +967,14 @@ a:hover, .index-link:hover {
 .report-shell .index-view-wrap a.index-link.index-link-child {
   color: var(--index-link-color, #0066cc) !important;
   font-size: calc(var(--index-base-size, 0.95rem) * 0.926) !important;
+}
+
+.report-shell .index-view-wrap a.index-link.index-link-user-guide {
+  color: #5fc574 !important;
+}
+
+.report-shell .index-view-wrap a.index-link.index-link-user-guide:hover {
+  color: #7ee89a !important;
 }
 
 .report-shell .index-view-wrap .index-item-parent {
