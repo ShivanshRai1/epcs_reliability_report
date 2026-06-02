@@ -16,6 +16,38 @@ const OFFLINE_CACHE_KEY = 'epcs_report_cache_v2';
 const DRAFT_CACHE_KEY = 'epcs_report_draft_v1';
 const LIVE_LEGACY_CSS_FILES = ['/bootstrap.min.css', '/base.min.css', '/fancy.min.css', '/main.css', '/lightbox.css'];
 
+const USER_GUIDE_INDEX_ITEM = {
+  title: 'USER GUIDE',
+  target: 'https://epcs-reliability-report.netlify.app/user-guide.html',
+  level: 0,
+};
+
+const ensureUserGuideOnPrimaryIndex = (pages) => {
+  if (!Array.isArray(pages)) return pages;
+
+  const primaryIndex = [...pages]
+    .filter((p) => p?.pageType === 'index')
+    .sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0))[0];
+
+  if (!primaryIndex?.id) return pages;
+
+  const primaryIndexId = String(primaryIndex.id);
+
+  return pages.map((page) => {
+    if (String(page?.id ?? '') !== primaryIndexId) return page;
+
+    const content = Array.isArray(page.content) ? page.content : [];
+    const hasUserGuide = content.some((item) => {
+      const target = String(item?.target || '').trim().toLowerCase();
+      const title = String(item?.title || '').trim().toUpperCase();
+      return target.includes('user-guide.html') || title === 'USER GUIDE';
+    });
+
+    if (hasUserGuide) return page;
+    return { ...page, content: [USER_GUIDE_INDEX_ITEM, ...content] };
+  });
+};
+
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -699,7 +731,7 @@ const clearDraftCache = () => {
       return updated ? { ...p, pageNumber: updated.pageNumber } : p;
     }).sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
 
-    return { ...data, pages: resultPages };
+    return { ...data, pages: ensureUserGuideOnPrimaryIndex(resultPages) };
   };
 
   const alignPageNumbersWithStatic = (data, staticPages = []) => {

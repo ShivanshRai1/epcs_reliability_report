@@ -6,6 +6,7 @@
       "pageType": "index",
       "title": "INDEX",
       "content": [
+        { "title": "USER GUIDE", "target": "https://epcs-reliability-report.netlify.app/user-guide.html", "level": 0 },
         { "title": "EPCS DISCRETE PRODUCT", "target": "heading_part_lists", "level": 0 },
         { "title": "EPCS DISCRETE FIRST GENERATION, PART NUMBERS", "target": "part_lists_gen1", "level": 1 },
         { "title": "EPCS DISCRETE THIRD GENERATION, PART LIST", "target": "part_lists_gen3", "level": 1 },
